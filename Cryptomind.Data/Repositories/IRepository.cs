@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Cryptomind.Data.Repositories
 {
-    internal interface IRepository<TType, TId>
+    public interface IRepository<TType, TId>
     {
         /// <summary>
         /// Retrieves an entity by its identifier.

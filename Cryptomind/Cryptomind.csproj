@@ -23,11 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\Cryptomind.Common\Cryptomind.Common.csproj" />
     <ProjectReference Include="..\Cryptomind.Data\Cryptomind.Data.csproj" />
+    <ProjectReference Include="..\Crytomind.Core\Crytomind.Core.csproj" />
   </ItemGroup>
 
 </Project>
