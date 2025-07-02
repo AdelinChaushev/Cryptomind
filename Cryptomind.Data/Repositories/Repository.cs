@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Cryptomind.Data.Repositories
 {
-    internal class Repository<TType, TId>(
+    public class Repository<TType, TId>(
     CryptomindDbContext dbContext)
     : IRepository<TType, TId>
     where TType : class
