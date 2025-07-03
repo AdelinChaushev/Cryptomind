@@ -16,8 +16,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRepository<ImageCipher, int>, Repository<ImageCipher, int>>();
         services.AddScoped<IRepository<Tag, string>, Repository<Tag, string>>();
         services.AddScoped<IRepository<HintRequest, int>, Repository<HintRequest, int>>();
-       // services.AddScoped<IRepository<ScaleAnswer, int>, Repository<ScaleAnswer, int>>();
-       
 
         return services;
     }
@@ -26,12 +24,8 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services)
     {
         services.AddScoped<IUserService, UserService>();
-        //services.AddScoped<ITextToSpeechService, TextToSpeechService>();
-        //services.AddScoped<ITranslatorService, TranslatorService>();
-        //services.AddScoped<IScenerySynthesizerService, ScenerySynthesizerService>();
-        //services.AddScoped<ISurveyService, SurveyService>();
-        //services.AddScoped<IStasticsService, StatisticsService>();
+		services.AddScoped<ICipherService, CipherService>();
 
-        return services;
+		return services;
     }
 }

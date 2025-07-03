@@ -87,11 +87,13 @@ builder.Services.AddCors(c =>
 
 });
 
+builder.Services.AddScoped<IRepository<Cipher, int>, Repository<Cipher, int>>();
 builder.Services.AddScoped<IRepository<TextCipher, int>, Repository<TextCipher, int>>();
 builder.Services.AddScoped<IRepository<ImageCipher, int>, Repository<ImageCipher, int>>();
 builder.Services.AddScoped<IRepository<Tag, int>, Repository<Tag, int>>();
 builder.Services.AddScoped<IRepository<HintRequest, int>, Repository<HintRequest, int>>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICipherService, CipherService>();
 
 
 var app = builder.Build();
