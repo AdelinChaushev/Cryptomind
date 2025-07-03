@@ -7,4 +7,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Cryptomind.Data\Cryptomind.Data.csproj" />
+  </ItemGroup>
+
 </Project>

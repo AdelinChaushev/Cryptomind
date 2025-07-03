@@ -20,7 +20,6 @@ namespace Cryptomind.Data.Entities
         public int Id { get; set; }
         [MaxLength(20),MinLength(3)]
         public string Title { get; set; }
-
         public string DecryptedText { get; set; }
         public CipherType TypeOfCipher { get; set; }
         public bool AllowHint { get; set; }
@@ -29,9 +28,7 @@ namespace Cryptomind.Data.Entities
         [ForeignKey(nameof(CreatedByUser))]
         public string CreatedByUserId { get; set; }
         public ApplicationUser CreatedByUser { get; set; }
-
         public ICollection<CipherTag> CipherTags { get; set; }
-
         public ICollection<HintRequest> HintsRequested { get; set; }
     }
     
