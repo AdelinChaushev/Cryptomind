@@ -13,40 +13,52 @@ namespace Crytomind.Core.Services
 {
 	public class CipherService (IRepository<Cipher, int> cipherRepo) : ICipherService
 	{
-        public Task<string> AnswerCipherAsync(string input, int cipherId)
+        public async Task<string> AnswerCipherAsync(string input, int cipherId)
 		{
-			throw new NotImplementedException();
-		}
+			Cipher cipher = await cipherRepo.GetByIdAsync(cipherId);
+			if (cipher == null) throw new InvalidOperationException("There is no cipher with the given Id");
 
-		public Task ApproveCipherAsync(Cipher cipher)
-		{
-			throw new NotImplementedException();
-		}
+			string correctAnswer = cipher.DecryptedText;
 
+			if (correctAnswer == input) //The answer is correct
+			{
+				return "Правилен отговор!";
+				//Some user
+			}
+
+			return "Грешен отговор";
+		}
 		public async Task<List<Cipher>> GetApprovedAsync(CipherFilter? filter)
 		{
 			List<Cipher> approved = cipherRepo.GetAllAttached().ToList();
-			if (string.IsNullOrWhiteSpace(filter.SearchTerm))
-				throw new ArgumentException("Invalid Search Term");
 
-			//if (filter.Tags.Any() && filter.Tags != null);
-			approved.Where(c => c.Title.Contains(filter.SearchTerm) && c.CipherTags.Any(t => filter.Tags.Contains(t.Tag.Type)));
+			if(!string.IsNullOrEmpty(filter.SearchTerm))
+				approved.Where(c => c.Title.Contains(filter.SearchTerm));
+
+			if (filter.Tags != null)
+				approved.Where(c => c.CipherTags.Any(t => filter.Tags.Contains(t.Tag.Type)));
+
 			return approved;
 		}
-
-		public Task<Cipher?> GetCipherAsync(int id)
+		public async Task<Cipher?> GetCipherAsync(int id)
 		{
-			throw new NotImplementedException();
-		}
+			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
+			if (cipher == null)
+				throw new InvalidOperationException("There is no cipher with the given Id");
 
+			return cipher;
+		}
 		public Task<HintRequestResponse> RequestHintAsync(HintRequest request)
 		{
 			throw new NotImplementedException();
 		}
-
-		public Task SubmitCipherAsync(Cipher cipher)
+		public async Task<Cipher> SubmitCipherAsync(Cipher cipher)
 		{
-			throw new NotImplementedException();
+            if (cipherRepo.GetAllAttached().Where(c => c.Title == cipher.Title).Count() != 0)
+				throw new InvalidOperationException("Cannot create two ciphers with the same name");
+
+			await cipherRepo.AddAsync(cipher);
+			return cipher;
 		}
 	}
 }
