@@ -16,9 +16,7 @@ namespace Cryptomind.Data.Entities
         }
         [Key]
         public int Id { get; set; }
-
         public TagType Type { get; set; }
-
         public ICollection<CipherTag> CipherTags { get; set; }
 
     }
