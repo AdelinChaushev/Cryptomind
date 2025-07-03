@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -34,7 +35,12 @@ namespace Cryptomind.Data
             builder.Entity<HintRequest>().HasOne(c => c.ApplicationUser)
                .WithMany(c => c.HintsRequested).OnDelete(DeleteBehavior.NoAction);
 
-            base.OnModelCreating(builder);
+			builder.Entity<Cipher>()
+		        .HasDiscriminator<string>("EntityType")
+		        .HasValue<TextCipher>("TextCipher")
+		        .HasValue<ImageCipher>("ImageCipher");
+
+			base.OnModelCreating(builder);
         }
 
     }
