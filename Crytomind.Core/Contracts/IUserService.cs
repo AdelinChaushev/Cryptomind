@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Crytomind.Core.Contracts
 {
-    public  interface IUserService
+    public interface IUserService
     {
         Task<ApplicationUser> Authenticate(string email, string password);
         string GenerateJSONWebToken(ApplicationUser user);
