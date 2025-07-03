@@ -8,15 +8,16 @@ using System.Security.Claims;
 
 namespace Cryptomind.Controllers
 {
-    public class UserController : ControllerBase
+	[Route("api/[controller]")]
+	[ApiController]
+	public class UserController : ControllerBase
     {
         private IUserService userService;
-       
         public UserController(IUserService userService)
         {
             this.userService = userService;
         }
-        [HttpPost("Register")]
+        [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
         {
             if (!ModelState.IsValid)
@@ -33,7 +34,7 @@ namespace Cryptomind.Controllers
             return Ok(token);
 
         }
-        [HttpPost("Login")]
+        [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody]LoginViewModel model)
         {
             if (!ModelState.IsValid) 
@@ -50,7 +51,7 @@ namespace Cryptomind.Controllers
             return Ok(token);
 
         }
-        [HttpPost("Logout")]
+        [HttpPost("logout")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> Logout()
         {
@@ -65,6 +66,21 @@ namespace Cryptomind.Controllers
             });
             return Ok();
         }
+
+        [HttpPost("deactivateAccount")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> DeactivateAccount()
+        {
+            await userService.DeactivateAccount(GetUserId());
+            return Ok();
+        }
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpGet("getUserRoles")]
+        public async Task<IActionResult> GetUserRoles()
+        {
+            var roles = await userService.GetRolesUsers(GetUserId());
+            return Ok(roles);
+        }
         private void AddCookie(string token)
         {
             HttpContext.Response.Cookies.Append("token", token, new CookieOptions()
@@ -76,26 +92,9 @@ namespace Cryptomind.Controllers
                 Expires = DateTime.Now.AddHours(3),
             });
         }
-        [Authorize(AuthenticationSchemes = "Bearer")]
-        [HttpGet("GetUserRoles")]
-
-        [HttpPost("DeactivateAccount")]
-        [Authorize(AuthenticationSchemes = "Bearer")]
-        public async Task<IActionResult> DeactivateAccount()
-        {
-            await userService.DeactivateAccount(GetUserId());
-            return Ok();
-        }
-        public async Task<IActionResult> GetUserRoles()
-        {
-            var roles = await userService.GetRolesUsers(GetUserId());
-            return Ok(roles);
-        }
         private string GetUserId()
         {
             return User.FindFirstValue(ClaimTypes.NameIdentifier);
-        }
-
-        
+        }  
     }
 }
