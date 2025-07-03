@@ -15,18 +15,12 @@ namespace Cryptomind.Data.Entities
         public int Id { get; set; }
         [ForeignKey(nameof(Cipher))]
         public int CipherId { get; set; }
-
         public Cipher  Cipher { get; set; }
 
         [ForeignKey(nameof(ApplicationUser))]
         public string ApplicationUserId { get; set; }
-
         public ApplicationUser ApplicationUser { get; set; }
         public HintType HintType { get; set; }
         public string InputText { get; set; }
-        public string GeneratedAnswer { get; set; }
-
-
-
     }
 }
