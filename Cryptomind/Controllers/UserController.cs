@@ -24,14 +24,23 @@ namespace Cryptomind.Controllers
             {
                 return BadRequest(ModelState);
             }
-            ApplicationUser? user = await userService.CreateUser(model.Username, model.Email, model.Password);
-            if (user == null)
+            try
             {
-                return BadRequest();
+                ApplicationUser? user = await userService.CreateUser(model.Username, model.Email, model.Password);
+                if (user == null)
+                {
+                    return BadRequest();
+                }
+                string token = userService.GenerateJSONWebToken(user);
+                AddCookie(token);
+                return Ok(token);
             }
-            string token = userService.GenerateJSONWebToken(user);
-            AddCookie(token);
-            return Ok(token);
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+          
 
         }
         [HttpPost("login")]

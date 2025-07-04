@@ -78,13 +78,11 @@ builder.Services.AddCors(c =>
 {
     c.AddPolicy("AllowAll", builder =>
     {
-
-        builder.WithOrigins("*")
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();  // Allow credentials
+        builder.WithOrigins("http://localhost:3000") 
+               .AllowAnyHeader()
+               .AllowAnyMethod()
+               .AllowCredentials();
     });
-
 });
 
 builder.Services.AddScoped<IRepository<Cipher, int>, Repository<Cipher, int>>();
@@ -104,7 +102,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
