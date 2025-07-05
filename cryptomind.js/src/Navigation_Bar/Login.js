@@ -15,12 +15,12 @@ export default function Login () {
         email: state.email,
         password: state.password,
 
+
     }).then(res => {
       console.log(res.data)
       window.location.reload();
     } ).catch(e => console.log(e));   
     
-
    }
 
   return (
@@ -29,7 +29,9 @@ export default function Login () {
         <h2>Log In</h2>
         <input type="email" name="email" placeholder="Email" value={state.email} onChange={onChangeState} required />
         <input type="password" name="password" placeholder="Password" value={state.password} onChange={onChangeState} required />
+
         <button type="submit"    >Login</button>
+
       </form>
     </div>
   );

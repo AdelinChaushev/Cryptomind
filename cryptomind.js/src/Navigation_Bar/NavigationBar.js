@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import './styles/NavigationBar.css';
+
 import { useContext } from 'react';
 import { AuthroizationContext } from '../App.js'; 
 import axios from 'axios';
@@ -18,6 +19,7 @@ export default function NavigationBar(){
       window.location.reload();
 
    }
+
     return(
       <>
       <div className="navbar-left">
@@ -27,6 +29,7 @@ export default function NavigationBar(){
     </div>
   </div>
   <div className="navbar-auth">
+
   {!context.isLoggedIn && (
     <div>
       <Link to="/login" className="auth-button">Log In</Link>
@@ -41,6 +44,7 @@ export default function NavigationBar(){
   
   </div>
 </>
+
     )
     
 }

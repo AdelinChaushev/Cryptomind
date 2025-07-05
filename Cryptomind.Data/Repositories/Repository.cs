@@ -150,8 +150,9 @@ namespace Cryptomind.Data.Repositories
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                await Console.Out.WriteLineAsync(ex.InnerException.Message);
                 return false;
             }
         }

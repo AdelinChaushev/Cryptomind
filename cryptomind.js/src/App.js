@@ -1,10 +1,11 @@
-import logo from './logo.svg';
-import Login from './Navigation_Bar/Login';
+import NavigationBar from './Navigation_Bar/NavigationBar.js';
+import Login from './Navigation_Bar/Login.js';
 import './App.css';
 import { Routes, Route } from 'react-router-dom';
 import Layout from './Layout.js';
 import axios from 'axios';
 import Register from './Navigation_Bar/Register.js';
+
 import { createContext, useEffect,useState } from 'react';
 export const AuthroizationContext = createContext({roles : [], isLoggedIn: false});
 
@@ -24,6 +25,7 @@ function App() {
     <>
     <AuthroizationContext.Provider value={state}>
     <Routes >
+
       <Route path="/" element={<Layout />}>
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />

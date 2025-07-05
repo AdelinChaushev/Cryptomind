@@ -1,6 +1,8 @@
 import axios from "axios"
 import { useState } from "react"
+
 import './styles/Register.css'
+
 
 export default function Register(){
 
@@ -19,7 +21,6 @@ export default function Register(){
           email : state.email,
           password: state.password,
           confirmPassword : state.confirmPassword
-
          }).then(e => 
           {console.log(e.data)
           window.location.reload();
