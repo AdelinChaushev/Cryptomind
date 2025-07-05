@@ -10,9 +10,12 @@ namespace Crytomind.Core.Contracts
 {
     public interface IAdminService
     {
-        Task<List<Cipher>> AllSubmittedCyphers();
-        Task<Cipher> GetCipherById(int id);
+        Task<List<Cipher>> AllSubmittedCiphers();
+		Task<List<Cipher>> AllApprovedCiphers();
+		Task<Cipher> GetCipherById(int id);
         Task RejectCipherAsync(int id);
-        Task ApproveCipherAsync(int id, ApproveCipherViewModel model);
+        Task ApproveCipherAsync(int id, ApproveUpdateCipherViewModel model);
+        Task DeleteApprovedCipher(int id);
+        Task UpdateApprovedCipher(int id, ApproveUpdateCipherViewModel model);
     }
 }

@@ -16,7 +16,7 @@ namespace Cryptomind.Data.Entities
         }
         public int Score { get; set; }
         public int SolvedCount { get; set; }
-        public ICollection<Cipher> Ciphers { get;}
+        public ICollection<Cipher> Ciphers { get; }
         public ICollection<HintRequest> HintsRequested { get; set; }
     }
 }
