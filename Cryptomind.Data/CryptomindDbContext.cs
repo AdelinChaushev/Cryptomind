@@ -29,7 +29,10 @@ namespace Cryptomind.Data
             builder.Entity<CipherTag>()
                 .HasKey(c => new { c.CipherId, c.TagId });
 
-            builder.Entity<HintRequest>().HasOne(c => c.Cipher)
+			builder.Entity<UserSolution>()
+			    .HasKey(u => new { u.CipherId, u.UserId });
+
+			builder.Entity<HintRequest>().HasOne(c => c.Cipher)
                .WithMany(c => c.HintsRequested).OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<HintRequest>().HasOne(c => c.ApplicationUser)
@@ -39,6 +42,20 @@ namespace Cryptomind.Data
 		        .HasDiscriminator<string>("EntityType")
 		        .HasValue<TextCipher>("TextCipher")
 		        .HasValue<ImageCipher>("ImageCipher");
+
+			builder.Entity<Cipher>()
+	            .HasOne(c => c.CreatedByUser)
+	            .WithMany(u => u.Ciphers)
+	            .HasForeignKey(c => c.CreatedByUserId)
+	            .OnDelete(DeleteBehavior.Restrict); // Prevent cascading deletes
+
+			builder.Entity<UserSolution>()
+	            .HasOne(us => us.Cipher)
+	            .WithMany(c => c.UsersSolved)
+	            .HasForeignKey(us => us.CipherId)
+	            .OnDelete(DeleteBehavior.Restrict); // Prevent multiple cascade paths
+
+
 
 			base.OnModelCreating(builder);
         }
