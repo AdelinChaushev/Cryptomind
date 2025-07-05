@@ -31,5 +31,4 @@ namespace Cryptomind.Data.Entities
         public ICollection<CipherTag> CipherTags { get; set; }
         public ICollection<HintRequest> HintsRequested { get; set; }
     }
-    
 }
