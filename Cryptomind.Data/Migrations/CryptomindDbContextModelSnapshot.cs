@@ -135,7 +135,7 @@ namespace Cryptomind.Data.Migrations
 
                     b.HasIndex("CreatedByUserId");
 
-                    b.ToTable("Cipher");
+                    b.ToTable("Cipher", (string)null);
 
                     b.HasDiscriminator<string>("EntityType").HasValue("Cipher");
 
@@ -154,7 +154,7 @@ namespace Cryptomind.Data.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("CipherTags");
+                    b.ToTable("CipherTags", (string)null);
                 });
 
             modelBuilder.Entity("Cryptomind.Data.Entities.HintRequest", b =>
@@ -185,7 +185,7 @@ namespace Cryptomind.Data.Migrations
 
                     b.HasIndex("CipherId");
 
-                    b.ToTable("HintRequests");
+                    b.ToTable("HintRequests", (string)null);
                 });
 
             modelBuilder.Entity("Cryptomind.Data.Entities.Tag", b =>
@@ -201,7 +201,7 @@ namespace Cryptomind.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tags");
+                    b.ToTable("Tags", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

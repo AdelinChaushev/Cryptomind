@@ -85,6 +85,7 @@ builder.Services.AddCors(c =>
     });
 });
 
+//Fix this here with the extension methods
 builder.Services.AddScoped<IRepository<Cipher, int>, Repository<Cipher, int>>();
 builder.Services.AddScoped<IRepository<TextCipher, int>, Repository<TextCipher, int>>();
 builder.Services.AddScoped<IRepository<ImageCipher, int>, Repository<ImageCipher, int>>();
@@ -92,6 +93,7 @@ builder.Services.AddScoped<IRepository<Tag, int>, Repository<Tag, int>>();
 builder.Services.AddScoped<IRepository<HintRequest, int>, Repository<HintRequest, int>>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICipherService, CipherService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 
 var app = builder.Build();
