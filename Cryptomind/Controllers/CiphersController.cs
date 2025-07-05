@@ -80,10 +80,16 @@ namespace Cryptomind.Controllers
 					HintsRequested = new List<HintRequest>()
 				};
 			}
-
-            await cipherService.SubmitCipherAsync(cipher);
-
-            return Ok();
+            try
+            {
+                await cipherService.SubmitCipherAsync(cipher);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                await Console.Out.WriteLineAsync(ex.Message);
+            }
+            return BadRequest();
         }
     }
 }

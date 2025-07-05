@@ -25,11 +25,12 @@ namespace Cryptomind.Data.Entities
         public bool AllowHint { get; set; }
         public bool AllowSolution { get; set; }
         public bool IsApproved { get; set; }
+        public int Points { get; set; }
         [ForeignKey(nameof(CreatedByUser))]
         public string CreatedByUserId { get; set; }
         public ApplicationUser CreatedByUser { get; set; }
         public ICollection<CipherTag> CipherTags { get; set; }
         public ICollection<HintRequest> HintsRequested { get; set; }
+        public ICollection<UserSolution> UsersSolved { get; set; }
     }
-    
 }
