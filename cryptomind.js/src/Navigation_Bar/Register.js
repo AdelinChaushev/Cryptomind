@@ -1,6 +1,9 @@
 import axios from "axios"
 import { useState } from "react"
 
+import './styles/Register.css'
+
+
 export default function Register(){
 
     const [state,setState] = useState({username: '',email:'',password:'',confirmPassword:''})
@@ -18,8 +21,11 @@ export default function Register(){
           email : state.email,
           password: state.password,
           confirmPassword : state.confirmPassword
-
-         }).then(e => console.log(e.data)).catch(e => console.log(e))
+         }).then(e => 
+          {console.log(e.data)
+          window.location.reload();
+         }).catch(e => console.log(e))
+         // Reload the page to reflect the new registration
     }
     return(
   <div class="register-container">
