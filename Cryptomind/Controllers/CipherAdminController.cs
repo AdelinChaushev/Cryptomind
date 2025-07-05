@@ -8,8 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cryptomind.Controllers
 {
-	[Route("api/cipherAdmin")]
 	[ApiController]
+	[Route("api/cipherAdmin")]
+	//[Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
 	public class CipherAdminController : ControllerBase
 	{
 		private IAdminService adminService;
@@ -19,12 +20,25 @@ namespace Cryptomind.Controllers
 		}
 
 		[HttpGet("pendingCiphers")]
-		//[Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")] - this is correct everywhere
-		public async Task<IActionResult> GetSubmittedCyphers()
+		public async Task<IActionResult> GetSubmittedCiphers()
 		{
 			try
 			{
-				var result = await adminService.AllSubmittedCyphers();
+				var result = await adminService.AllSubmittedCiphers();
+				return Ok(result);
+			}
+			catch (Exception ex)
+			{
+				await Console.Out.WriteLineAsync(ex.Message);
+			}
+			return BadRequest();
+		}
+		[HttpGet("approvedCiphers")]
+		public async Task<IActionResult> GetApprovedCiphers()
+		{
+			try
+			{
+				var result = await adminService.AllApprovedCiphers();
 				return Ok(result);
 			}
 			catch (Exception ex)
@@ -35,7 +49,6 @@ namespace Cryptomind.Controllers
 		}
 
 		[HttpGet("cipherAdmin/{id}")]
-		//[Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
 		public async Task<IActionResult> GetCipher([FromRoute] int id)
 		{
 			try
@@ -51,8 +64,7 @@ namespace Cryptomind.Controllers
 		} // The button approve is clicked here
 
 		[HttpPut("approveCipher/{id}")]
-		//[Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
-		public async Task<IActionResult> ApproveCipher([FromRoute] int id, [FromForm] ApproveCipherViewModel model)
+		public async Task<IActionResult> ApproveCipher([FromRoute] int id, [FromForm] ApproveUpdateCipherViewModel model)
 		{
 			try
 			{
@@ -71,14 +83,44 @@ namespace Cryptomind.Controllers
 		}
 
 		[HttpDelete("rejectCipher/{id}")]
-		//[Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
 		public async Task<IActionResult> RejectCipher([FromRoute] int id)
 		{
 			try
 			{
-				var cipher = await adminService.GetCipherById(id);
-				if (cipher != null)
-					await adminService.RejectCipherAsync(cipher.Id);
+				await adminService.RejectCipherAsync(id);
+
+				return Ok();
+			}
+			catch (Exception ex)
+			{
+				await Console.Out.WriteLineAsync(ex.Message);
+			}
+			return BadRequest();
+		}
+
+		[HttpPut("updateCipher/{id}")]
+		public async Task<IActionResult> UpdateCipher([FromRoute] int id, [FromForm] ApproveUpdateCipherViewModel model)
+		{
+			try
+			{
+				if (!ModelState.IsValid) return BadRequest();
+
+				await adminService.UpdateApprovedCipher(id, model);
+
+				return Ok();
+			}
+			catch (Exception ex)
+			{
+				await Console.Out.WriteLineAsync(ex.Message);
+			}
+			return BadRequest();
+		}
+		[HttpDelete("deleteCipher/{id}")]
+		public async Task<IActionResult> DeleteCipher([FromRoute] int id)
+		{
+			try
+			{
+				await adminService.DeleteApprovedCipher(id);
 
 				return Ok();
 			}
