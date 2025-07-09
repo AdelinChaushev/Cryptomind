@@ -12,9 +12,10 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection RegisterRepositories(
         this IServiceCollection services)
     {
+        services.AddScoped<IRepository<Cipher, int>, Repository<Cipher, int>>();
         services.AddScoped<IRepository<TextCipher, int>, Repository<TextCipher, int>>();
         services.AddScoped<IRepository<ImageCipher, int>, Repository<ImageCipher, int>>();
-        services.AddScoped<IRepository<Tag, string>, Repository<Tag, string>>();
+        services.AddScoped<IRepository<Tag, int>, Repository<Tag, int>>();
         services.AddScoped<IRepository<HintRequest, int>, Repository<HintRequest, int>>();
 
         return services;
