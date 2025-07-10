@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './styles/Login.css';
-
+import { useNavigate } from 'react-router-dom';
 export default function Login () {
-
+  const navigate = useNavigate();
     const [state,setState] = useState({email: '', password:''})
    const  onChangeState = (e) =>  {
        setState({...state,[e.target.name]:e.target.value})
@@ -18,7 +18,7 @@ export default function Login () {
 
     }).then(res => {
       console.log(res.data)
-      window.location.reload();
+      navigate('/', { replace: true }); // Redirect to ciphers page after successful login
     } ).catch(e => console.log(e));   
     
    }

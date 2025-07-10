@@ -2,6 +2,7 @@
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
 using Crytomind.Core.Contracts;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,10 +34,10 @@ namespace Crytomind.Core.Services
 			List<Cipher> approved = cipherRepo.GetAllAttached().ToList();
 
 			if(!string.IsNullOrEmpty(filter.SearchTerm))
-				approved.Where(c => c.Title.Contains(filter.SearchTerm));
+			 approved =	approved.Where(c => c.Title.Contains(filter.SearchTerm)).ToList();
 
 			if (filter.Tags != null)
-				approved.Where(c => c.CipherTags.Any(t => filter.Tags.Contains(t.Tag.Type)));
+                approved = approved.Where(c => c.CipherTags.Any(t => filter.Tags.Contains(t.Tag.Type))).ToList();
 
 			return approved;
 		}
@@ -54,7 +55,7 @@ namespace Crytomind.Core.Services
 		}
 		public async Task<Cipher> SubmitCipherAsync(Cipher cipher)
 		{
-            if (cipherRepo.GetAllAttached().Where(c => c.Title == cipher.Title).Count() != 0)
+            if (await cipherRepo.GetAllAttached().AnyAsync(c => c.Title == cipher.Title))
 				throw new InvalidOperationException("Cannot create two ciphers with the same name");
 
 			await cipherRepo.AddAsync(cipher);
