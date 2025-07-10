@@ -7,7 +7,9 @@ import axios from 'axios';
 import Register from './Navigation_Bar/Register.js';
 
 import { createContext, useEffect,useState } from 'react';
-export const AuthroizationContext = createContext({roles : [], isLoggedIn: false});
+import RequireAuth from './RequireAuth.js';
+import Ciphers from './Cipher_Pages/Ciphers.js';
+export const AuthorizationContext = createContext({roles : [], isLoggedIn: false});
 
 function App() {
   axios.defaults.withCredentials =  true
@@ -17,22 +19,26 @@ function App() {
     axios.get('/api/User/getUserRoles').then(response => {
       setState({roles: response.data.roles, isLoggedIn: true});
     }).catch(error => {
-      console.error("Error fetching login status:", error);
+      setState({roles: [], isLoggedIn: false});
     });
    },[]);
 
   return (
     <>
-    <AuthroizationContext.Provider value={state}>
+    <AuthorizationContext.Provider value={state}>
     <Routes >
 
       <Route path="/" element={<Layout />}>
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
+        <Route path="ciphers" element={<RequireAuth allowedRoles={[]}>
+          <Ciphers/>
+        </RequireAuth>} />
+        <Route path="ciphers/:cipherId" element={<h1>Cipher Details Page</h1>} />
         <Route index element={<h1>Home Page</h1>} />
       </Route>
     </Routes>
-    </AuthroizationContext.Provider>
+    </AuthorizationContext.Provider>
     </>
   );
 }

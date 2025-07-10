@@ -2,21 +2,23 @@ import { Link } from 'react-router-dom';
 import './styles/NavigationBar.css';
 
 import { useContext } from 'react';
-import { AuthroizationContext } from '../App.js'; 
+import { AuthorizationContext } from '../App.js'; 
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 export default function NavigationBar(){
-  
-  const context = useContext(AuthroizationContext);
+   const navigate = useNavigate();
+  const context = useContext(AuthorizationContext);
    const onLogout = () => {
     axios.post('/api/User/logout')
       .then(response => {
         console.log("Logged out successfully");
-        context.isLoggedIn = false; // Update the context state
+        context.isLoggedIn = false;
+        navigate('/') // Update the context state
       })
       .catch(error => {
         console.error("Error logging out:", error);
       });
-      window.location.reload();
+      
 
    }
 
@@ -39,6 +41,7 @@ export default function NavigationBar(){
    {context.isLoggedIn && (
     <div>
       <Link  to="/" className="auth-button" onClick={onLogout}>Log out</Link>
+      <Link  to="/ciphers" className="auth-button">Ciphers</Link>
     </div>
   )}
   
