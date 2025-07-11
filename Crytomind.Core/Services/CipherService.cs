@@ -12,9 +12,9 @@ using System.Xml.Linq;
 
 namespace Crytomind.Core.Services
 {
-	public class CipherService (IRepository<Cipher, int> cipherRepo) : ICipherService
+    public class CipherService(IRepository<Cipher, int> cipherRepo, IRepository<UserSolution, int> solutionRepository) : ICipherService
 	{
-        public async Task<string> AnswerCipherAsync(string input, int cipherId)
+        public async Task<string> AnswerCipherAsync(string userId ,string input, int cipherId)
 		{
 			Cipher cipher = await cipherRepo.GetByIdAsync(cipherId);
 			if (cipher == null) throw new InvalidOperationException("There is no cipher with the given Id");
@@ -23,10 +23,14 @@ namespace Crytomind.Core.Services
 
 			if (correctAnswer == input) //The answer is correct
 			{
-				return "Правилен отговор!";
+                await solutionRepository.AddAsync(new UserSolution()
+                {
+
+                });
+                return "Правилен отговор!";
 				//Some user
 			}
-
+			
 			return "Грешен отговор";
 		}
 		public async Task<List<Cipher>> GetApprovedAsync(CipherFilter? filter)
