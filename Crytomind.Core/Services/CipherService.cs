@@ -1,11 +1,15 @@
-﻿using Cryptomind.Common.DTOs;
+﻿using Cryptomind.Common.CipherViewModels;
+using Cryptomind.Common.DTOs;
+using Cryptomind.Common.Enums;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
 using Crytomind.Core.Contracts;
 using Microsoft.EntityFrameworkCore;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -14,6 +18,7 @@ namespace Crytomind.Core.Services
 {
     public class CipherService(IRepository<Cipher, int> cipherRepo, IRepository<UserSolution, int> solutionRepository) : ICipherService
 	{
+      
         public async Task<string> AnswerCipherAsync(string userId ,string input, int cipherId)
 		{
 			Cipher cipher = await cipherRepo.GetByIdAsync(cipherId);
@@ -57,13 +62,76 @@ namespace Crytomind.Core.Services
 		{
 			throw new NotImplementedException();
 		}
-		public async Task<Cipher> SubmitCipherAsync(Cipher cipher)
+		public async Task<Cipher> SubmitCipherAsync(SubmitCipherViewModel model,string userId)
 		{
-            if (await cipherRepo.GetAllAttached().AnyAsync(c => c.Title == cipher.Title))
+            if (await cipherRepo.GetAllAttached().AnyAsync(c => c.Title == model.Title))
 				throw new InvalidOperationException("Cannot create two ciphers with the same name");
 
-			await cipherRepo.AddAsync(cipher);
+            Cipher? cipher = null;
+           
+            if (model.CipherDefinition == CipherDefinition.TextCipher)
+            {
+                cipher = new TextCipher()
+                {
+                    Title = model.Title,
+                    DecryptedText = model.DecryptedText,
+                    EncryptedText = model.EncryptedText,
+                    //TypeOfCipher = model.Type,
+                    AllowHint = false,
+                    AllowSolution = false,
+                    IsApproved = false,
+                    CreatedByUserId = userId,
+                    CipherTags = new List<CipherTag>(),
+                    HintsRequested = new List<HintRequest>()
+                };
+            }          
+            else if (model.CipherDefinition == CipherDefinition.ImageCipher)
+            {
+                string solutionRoot = Directory.GetParent(Directory.GetCurrentDirectory())!.Parent!.Parent!.FullName;
+                string imageFolderPath = Path.Combine(solutionRoot, "Images");
+                Directory.CreateDirectory(imageFolderPath); // Creates folder if not exists
+
+                string safeTitle = MakeSafeFilename(model.Title);
+                string imagePath = Path.Combine(imageFolderPath, safeTitle + ".jpg");
+
+                // Save the file bytes to disk
+                using (var ms = new MemoryStream())
+                {
+                    await model.Image.CopyToAsync(ms);
+                    byte[] bytes = ms.ToArray();
+                    await File.WriteAllBytesAsync(imagePath, bytes);
+                }
+                string file = Path.Combine(@"..\..\..\..\Images", model.Title);
+
+
+
+                cipher = new ImageCipher()
+                {
+                    Title = model.Title,
+                    DecryptedText = model.DecryptedText,
+                    ImagePath = file, // relative path for DB
+                    AllowHint = false,
+                    AllowSolution = false,
+                    IsApproved = false,
+                    CreatedByUserId = userId,
+                    CipherTags = new List<CipherTag>(),
+                    HintsRequested = new List<HintRequest>()
+                };
+
+              
+            }
+           
+
+            await cipherRepo.AddAsync(cipher);
 			return cipher;
 		}
-	}
+        private string MakeSafeFilename(string name)
+        {
+            foreach (char c in Path.GetInvalidFileNameChars())
+            {
+                name = name.Replace(c, '_');
+            }
+            return name;
+        }
+    }
 }

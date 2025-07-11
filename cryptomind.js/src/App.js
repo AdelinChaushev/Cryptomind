@@ -10,6 +10,7 @@ import { createContext, useEffect,useState } from 'react';
 import RequireAuth from './RequireAuth.js';
 import Ciphers from './Cipher_Pages/Ciphers.js';
 import CipherDetails from './Cipher_Pages/CipherDetails.js';
+import SubmitCipher from './Cipher_Pages/SubmitCipher.js';
 export const AuthorizationContext = createContext({roles : [], isLoggedIn: false});
 
 function App() {
@@ -41,6 +42,9 @@ function App() {
           </RequireAuth>} />
         <Route path="cipher/:id" element={<RequireAuth >
           <CipherDetails/>
+        </RequireAuth>} />
+        <Route path='submit-cipher' element={<RequireAuth>
+          <SubmitCipher/>
         </RequireAuth>} />
         <Route index element={<h1>Home Page</h1>} />
       </Route>
