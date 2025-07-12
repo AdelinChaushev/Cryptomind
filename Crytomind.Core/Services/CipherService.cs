@@ -87,29 +87,33 @@ namespace Crytomind.Core.Services
             }          
             else if (model.CipherDefinition == CipherDefinition.ImageCipher)
             {
-                string solutionRoot = Directory.GetParent(Directory.GetCurrentDirectory())!.Parent!.Parent!.FullName;
-                string imageFolderPath = Path.Combine(solutionRoot, "Images");
-                Directory.CreateDirectory(imageFolderPath); // Creates folder if not exists
+                string solutionRoot = Directory.GetParent(Directory.GetCurrentDirectory())!
+    .Parent!.Parent!.Parent!.FullName;
+
+                string imageFolderPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Images"));
+                Directory.CreateDirectory(imageFolderPath); // Make sure it exists
 
                 string safeTitle = MakeSafeFilename(model.Title);
-                string imagePath = Path.Combine(imageFolderPath, safeTitle + ".jpg");
+                string imageFilePath = Path.Combine(imageFolderPath, safeTitle + ".jpg");
 
-                // Save the file bytes to disk
+                // Save the image
                 using (var ms = new MemoryStream())
                 {
                     await model.Image.CopyToAsync(ms);
                     byte[] bytes = ms.ToArray();
-                    await File.WriteAllBytesAsync(imagePath, bytes);
+                    await File.WriteAllBytesAsync(imageFilePath, bytes);
                 }
-                string file = Path.Combine(@"..\..\..\..\Images", model.Title);
 
+                // This is the relative path you'll store in the DB
+                string relativePath = Path.Combine("Images", safeTitle + ".jpg");
 
+                Console.WriteLine(relativePath);
 
                 cipher = new ImageCipher()
                 {
                     Title = model.Title,
                     DecryptedText = model.DecryptedText,
-                    ImagePath = file, // relative path for DB
+                    ImagePath = relativePath, // relative path for DB
                     AllowHint = false,
                     AllowSolution = false,
                     IsApproved = false,
