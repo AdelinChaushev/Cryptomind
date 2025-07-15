@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,19 +20,23 @@ namespace Crytomind.Core.Services
         
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IConfiguration configuration;
-
-
-        public UserService(IConfiguration configuration, UserManager<ApplicationUser> userManager)
+     
+        public UserService(IConfiguration configuration, UserManager<ApplicationUser> userManager )
         {
 
             this.configuration = configuration;
             this.userManager = userManager;
+           
             
         }
 
         public async Task<ApplicationUser> Authenticate(string email, string password)
         {
+            
             var user = await userManager.FindByEmailAsync(email);
+           
+        
+            
             if (user != null && await this.userManager.CheckPasswordAsync(user, password))
             {
 

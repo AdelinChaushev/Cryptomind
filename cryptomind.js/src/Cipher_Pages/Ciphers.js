@@ -44,7 +44,7 @@ export default function Ciphers() {
       <div class="cipher-card" key={cipher.id}>
         <h3 class="cipher-title">{cipher.title}</h3>
         <p class="cipher-type">Type: <span>{cipher.cipherTags}</span></p>
-        <Link to={`/cipher/${cipher.id}`}>Click</Link>
+        <Link to={`/cipher/${cipher.id}`}>Solve</Link>
       </div>
     ))}
 
