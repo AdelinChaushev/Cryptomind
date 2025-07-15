@@ -1,23 +1,68 @@
-﻿using Cryptomind.Data.Entities;
-using Crytomind.Core.Contracts;
+﻿using Cryptomind.Common.CipherAdminViewModels;
+using Cryptomind.Common.CipherViewModels;
+using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
+using Crytomind.Core.Contracts;
 using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Cryptomind.Common.CipherAdminViewModels;
 
 namespace Crytomind.Core.Services
 {
 	public class AdminService (
 		IRepository<Cipher, int> cipherRepo) : IAdminService
 	{
-		public async Task<List<Cipher>> AllSubmittedCiphers()
+		public async Task<List<CipherOutputViewModel>> AllSubmittedCiphers()
 		{
 			var result = (await cipherRepo.GetAllAsync()).Where(c => c.IsApproved == false).ToList();
 			if (result == null) throw new InvalidOperationException("Wasn't able to retrieve submitted ciphers");
-			return result;
+			List<CipherOutputViewModel> output = new List<CipherOutputViewModel>();
+			foreach (var cipher in result)
+			{
+
+				if (cipher is ImageCipher)
+				{
+					ImageCipher cipherImage = cipher as ImageCipher;
+					string imageFolderPath = Path.Combine(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..")), cipherImage.ImagePath);
+					string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imageFolderPath))}";
+
+
+					output.Add(new CipherOutputViewModel
+					{
+						Id = cipher.Id,
+						Title = cipher.Title,
+						CipherText = base64,
+						AllowsAnswer = cipher.AllowSolution,
+						AllowsHint = cipher.AllowHint,
+						IsImage = true,
+
+
+					});
+					
+				}
+				else 
+				{
+                    TextCipher cipherText = cipher as TextCipher;
+                    output.Add(new CipherOutputViewModel
+                    {
+                        Id = cipher.Id,
+                        Title = cipher.Title,
+                        CipherText = cipherText.EncryptedText,
+                        AllowsAnswer = cipher.AllowSolution,
+                        AllowsHint = cipher.AllowHint,
+                        IsImage = false,
+
+
+                    });
+                }
+
+
+
+			}
+				return output;
 		}
 		public async Task<List<Cipher>> AllApprovedCiphers()
 		{

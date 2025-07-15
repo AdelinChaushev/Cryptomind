@@ -43,6 +43,7 @@ export default function NavigationBar(){
       <Link  to="/" className="auth-button" onClick={onLogout}>Log out</Link>
       <Link  to="/ciphers" className="auth-button">Ciphers</Link>
       <Link  to="/submit-cipher" className="auth-button">Submit Ciphers</Link>
+      <Link  to="/admin" className="auth-button">Admin</Link>
     </div>
   )}
   
