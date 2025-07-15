@@ -1,4 +1,3 @@
-import NavigationBar from './Navigation_Bar/NavigationBar.js';
 import Login from './Navigation_Bar/Login.js';
 import './App.css';
 import { Routes, Route } from 'react-router-dom';
@@ -11,6 +10,7 @@ import RequireAuth from './RequireAuth.js';
 import Ciphers from './Cipher_Pages/Ciphers.js';
 import CipherDetails from './Cipher_Pages/CipherDetails.js';
 import SubmitCipher from './Cipher_Pages/SubmitCipher.js';
+import GetPendingCiphers from './Admin_Pages/GetPendingCiphers.js';
 export const AuthorizationContext = createContext({roles : [], isLoggedIn: false});
 
 function App() {
@@ -46,6 +46,10 @@ function App() {
         <Route path='submit-cipher' element={<RequireAuth>
           <SubmitCipher/>
         </RequireAuth>} />
+        <Route path="admin" element={
+          <RequireAuth roles={['Admin']}>
+          < GetPendingCiphers />
+          </RequireAuth>} />
         <Route index element={<h1>Home Page</h1>} />
       </Route>
     </Routes>
