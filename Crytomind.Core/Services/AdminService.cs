@@ -15,11 +15,11 @@ namespace Crytomind.Core.Services
 	public class AdminService (
 		IRepository<Cipher, int> cipherRepo) : IAdminService
 	{
-		public async Task<List<CipherOutputViewModel>> AllSubmittedCiphers()
+		public async Task<List<CipherReviewOutputViewModel>> AllSubmittedCiphers()
 		{
 			var result = (await cipherRepo.GetAllAsync()).Where(c => c.IsApproved == false).ToList();
 			if (result == null) throw new InvalidOperationException("Wasn't able to retrieve submitted ciphers");
-			List<CipherOutputViewModel> output = new List<CipherOutputViewModel>();
+			List<CipherReviewOutputViewModel> output = new List<CipherReviewOutputViewModel>();
 			foreach (var cipher in result)
 			{
 
@@ -30,10 +30,12 @@ namespace Crytomind.Core.Services
 					string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imageFolderPath))}";
 
 
-					output.Add(new CipherOutputViewModel
+					output.Add(new CipherReviewOutputViewModel
 					{
 						Id = cipher.Id,
 						Title = cipher.Title,
+						DecryptedText = cipher.DecryptedText,
+						Points = cipher.Points,
 						CipherText = base64,
 						AllowsAnswer = cipher.AllowSolution,
 						AllowsHint = cipher.AllowHint,
@@ -46,11 +48,13 @@ namespace Crytomind.Core.Services
 				else 
 				{
                     TextCipher cipherText = cipher as TextCipher;
-                    output.Add(new CipherOutputViewModel
+                    output.Add(new CipherReviewOutputViewModel
                     {
                         Id = cipher.Id,
                         Title = cipher.Title,
+                        DecryptedText = cipher.DecryptedText,
                         CipherText = cipherText.EncryptedText,
+                        Points = cipher.Points,
                         AllowsAnswer = cipher.AllowSolution,
                         AllowsHint = cipher.AllowHint,
                         IsImage = false,
