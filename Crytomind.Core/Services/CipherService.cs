@@ -50,13 +50,13 @@ namespace Crytomind.Core.Services
 
 			return approved;
 		}
-		public async Task<Cipher?> GetCipherAsync(int id)
+		public async Task<CipherOutputViewModel?> GetCipherAsync(int id)
 		{
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
 			if (cipher == null)
 				throw new InvalidOperationException("There is no cipher with the given Id");
 
-			return cipher;
+			return await ToOuputViewModel(cipher);
 		}
 		public Task<HintRequestResponse> RequestHintAsync(HintRequest request)
 		{
@@ -136,6 +136,49 @@ namespace Crytomind.Core.Services
                 name = name.Replace(c, '_');
             }
             return name;
+        }
+
+        private async Task<CipherOutputViewModel> ToOuputViewModel(Cipher cipher)
+        {
+            if (cipher is ImageCipher)
+            {
+                ImageCipher cipherImage = cipher as ImageCipher;
+                string imageFolderPath = Path.Combine(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..")), cipherImage.ImagePath);
+                string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imageFolderPath))}";
+
+
+                return(new CipherOutputViewModel
+                {
+                    Id = cipher.Id,
+                    Title = cipher.Title,
+                   
+                    Points = cipher.Points,
+                    CipherText = base64,
+                    AllowsAnswer = cipher.AllowSolution,
+                    AllowsHint = cipher.AllowHint,
+                    IsImage = true,
+
+
+                });
+
+            }
+            else
+            {
+                TextCipher cipherText = cipher as TextCipher;
+                return (new CipherOutputViewModel
+                {
+                    Id = cipher.Id,
+                    Title = cipher.Title,
+                    
+                    CipherText = cipherText.EncryptedText,
+                    Points = cipher.Points,
+                    AllowsAnswer = cipher.AllowSolution,
+                    AllowsHint = cipher.AllowHint,
+                    IsImage = false,
+
+
+                });
+            }
         }
     }
 }
