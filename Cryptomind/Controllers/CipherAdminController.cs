@@ -64,8 +64,9 @@ namespace Cryptomind.Controllers
 		} // The button approve is clicked here
 
 		[HttpPut("approveCipher/{id}")]
-		public async Task<IActionResult> ApproveCipher([FromRoute] int id, [FromForm] ApproveUpdateCipherViewModel model)
+		public async Task<IActionResult> ApproveCipher([FromRoute] int id, [FromBody] ApproveUpdateCipherViewModel model)
 		{
+            Console.WriteLine("In the method");
 			try
 			{
 				if (!ModelState.IsValid) return BadRequest();
