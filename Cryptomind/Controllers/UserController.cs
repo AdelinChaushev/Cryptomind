@@ -56,6 +56,7 @@ namespace Cryptomind.Controllers
                 return BadRequest("Invalid Credentials");
             }
             string token = userService.GenerateJSONWebToken(user);
+            
             AddCookie(token);
             return Ok(token);
 
