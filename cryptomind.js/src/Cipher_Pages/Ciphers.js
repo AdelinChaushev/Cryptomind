@@ -1,8 +1,9 @@
 import axios from "axios";
 import { useState } from "react";
 import './styles/Ciphers.css';
+import { Link } from "react-router-dom";
 export default function Ciphers() {
-    const [state,setState] = useState({ciphers: [], searchTerm: ' ', tags: []});
+    const [state,setState] = useState({ciphers: [], searchTerm: '', tags: []});
     const onChangeState = (e) => {
         setState({...state,[e.target.name]:e.target.value});
     }
@@ -43,7 +44,7 @@ export default function Ciphers() {
       <div class="cipher-card" key={cipher.id}>
         <h3 class="cipher-title">{cipher.title}</h3>
         <p class="cipher-type">Type: <span>{cipher.cipherTags}</span></p>
-        <button>Click</button>
+        <Link to={`/cipher/${cipher.id}`}>Solve</Link>
       </div>
     ))}
 

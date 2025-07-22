@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,9 @@ namespace Cryptomind.Data.Entities
 {
 	public class UserSolution
 	{
-		[ForeignKey(nameof(Cipher))]
+		[Key]
+        public int Id { get; set; }
+        [ForeignKey(nameof(Cipher))]
 		public int CipherId { get; set; }
 		public Cipher Cipher { get; set; }
 		[ForeignKey(nameof(ApplicationUser))]

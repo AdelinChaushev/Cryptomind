@@ -29,8 +29,7 @@ namespace Cryptomind.Data
             builder.Entity<CipherTag>()
                 .HasKey(c => new { c.CipherId, c.TagId });
 
-			builder.Entity<UserSolution>()
-			    .HasKey(u => new { u.CipherId, u.UserId });
+		
 
 			builder.Entity<HintRequest>().HasOne(c => c.Cipher)
                .WithMany(c => c.HintsRequested).OnDelete(DeleteBehavior.NoAction);
