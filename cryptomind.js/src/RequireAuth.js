@@ -4,8 +4,9 @@ import { AuthorizationContext } from './App.js';
 
 export default function RequireAuth({ allowedRoles = [], children }) {
   const { isLoggedIn, roles } = useContext(AuthorizationContext);
-
+ console.log("isLoggedIn:", isLoggedIn, "roles:", roles, "allowedRoles:", allowedRoles);
   if (!isLoggedIn) {
+   
     return <Navigate to="/login" replace />;
   }
   if (allowedRoles.length === 0) {
