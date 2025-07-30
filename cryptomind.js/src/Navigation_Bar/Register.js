@@ -1,8 +1,11 @@
 import axios from "axios"
 import { useState } from "react"
 
-export default function Register(){
+import './styles/Register.css'
+import { useNavigate } from "react-router-dom"
 
+export default function Register(){
+    const navigate = useNavigate();
     const [state,setState] = useState({username: '',email:'',password:'',confirmPassword:''})
     const handleChange= (e) => {
       setState({...state,[e.target.name]:e.target.value})
@@ -18,8 +21,11 @@ export default function Register(){
           email : state.email,
           password: state.password,
           confirmPassword : state.confirmPassword
-
-         }).then(e => console.log(e.data)).catch(e => console.log(e))
+         }).then(e => 
+          {console.log(e.data)
+          navigate('/');
+         }).catch(e => console.log(e))
+         // Reload the page to reflect the new registration
     }
     return(
   <div class="register-container">

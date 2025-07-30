@@ -1,5 +1,6 @@
 ﻿using Cryptomind.Common.Enums;
 using Cryptomind.Data.Enums;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +13,8 @@ namespace Cryptomind.Common.CipherViewModels
 	{
 		public string Title { get; set; }
 		public string DecryptedText { get; set; }
-		public string EncryptedText { get; set; }
-		public string ImagePath { get; set; }
+		public string? EncryptedText { get; set; }
+		public IFormFile? Image { get; set; }
 		public CipherType Type { get; set; }
 		public CipherDefinition CipherDefinition { get; set; }
 	}
