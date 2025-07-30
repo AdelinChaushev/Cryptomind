@@ -17,6 +17,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRepository<ImageCipher, int>, Repository<ImageCipher, int>>();
         services.AddScoped<IRepository<Tag, int>, Repository<Tag, int>>();
         services.AddScoped<IRepository<HintRequest, int>, Repository<HintRequest, int>>();
+        services.AddScoped<IRepository<UserSolution, int>, Repository<UserSolution, int>>();
 
         return services;
     }
