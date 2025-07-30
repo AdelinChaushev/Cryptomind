@@ -1,4 +1,5 @@
-﻿using Cryptomind.Common.DTOs;
+﻿using Cryptomind.Common.CipherViewModels;
+using Cryptomind.Common.DTOs;
 using Cryptomind.Data.Entities;
 using System;
 using System.Collections.Generic;
@@ -11,9 +12,9 @@ namespace Crytomind.Core.Contracts
 	public interface ICipherService
 	{
 		Task<List<Cipher>> GetApprovedAsync(CipherFilter? filter); // Implement functionality to be able to filter by tags
-		Task<Cipher?> GetCipherAsync(int id);
-		Task<Cipher> SubmitCipherAsync(Cipher cipher);
-		Task<string> AnswerCipherAsync(string input, int cipherId);
+		Task<CipherOutputViewModel?> GetCipherAsync(int id);
+		Task<Cipher> SubmitCipherAsync(SubmitCipherViewModel cipher, string userId);
+		Task<string> AnswerCipherAsync(string userId,string input, int cipherId);
 		Task<HintRequestResponse> RequestHintAsync(HintRequest request);
 	}
 }
