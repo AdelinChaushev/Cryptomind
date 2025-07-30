@@ -96,8 +96,9 @@ namespace Crytomind.Core.Services
 				string imageFolderPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Images"));
 				Directory.CreateDirectory(imageFolderPath); // Make sure it exists
 
+				string originalExtension = Path.GetExtension(model.Image.FileName).ToLowerInvariant();
 				string safeTitle = MakeSafeFilename(model.Title);
-				string imageFilePath = Path.Combine(imageFolderPath, safeTitle + ".jpg");
+				string imageFilePath = Path.Combine(imageFolderPath, safeTitle + originalExtension);
 
 				// Save the image
 				using (var ms = new MemoryStream())
@@ -108,7 +109,7 @@ namespace Crytomind.Core.Services
 				}
 
 				// This is the relative path you'll store in the DB
-				string relativePath = Path.Combine("Images", safeTitle + ".jpg");
+				string relativePath = Path.Combine("Images", safeTitle + originalExtension);
 
 				Console.WriteLine(relativePath);
 
@@ -189,11 +190,11 @@ namespace Crytomind.Core.Services
 			if (imageFile == null)
 				throw new InvalidOperationException("Image file is required for image ciphers");
 
-			var allowedExtensions = new[] { ".jpg", ".jpeg" };
+			var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
 			var extension = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
 
 			if (!allowedExtensions.Contains(extension))
-				throw new InvalidOperationException("Only JPG/JPEG files are allowed");
+				throw new InvalidOperationException($"Invalid file type. Allowed types: {string.Join(", ", allowedExtensions)}");
 
 			// File size validation (e.g., max 5MB)
 			const int maxSizeInBytes = 5 * 1024 * 1024;
