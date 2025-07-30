@@ -25,6 +25,8 @@ namespace Cryptomind.Controllers
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		public async Task<IActionResult> GetAllCiphers([FromQuery] CipherFilter filter)
         {
+            await Console.Out.WriteLineAsync(filter.SearchTerm);
+
             var result = await cipherService.GetApprovedAsync(filter);
             return Ok(result);
         }
