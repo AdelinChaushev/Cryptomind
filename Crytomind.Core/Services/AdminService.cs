@@ -19,64 +19,20 @@ namespace Crytomind.Core.Services
 		{
 			var result = (await cipherRepo.GetAllAsync()).Where(c => c.IsApproved == false).ToList();
 			if (result == null) throw new InvalidOperationException("Wasn't able to retrieve submitted ciphers");
-			List<CipherReviewOutputViewModel> output = new List<CipherReviewOutputViewModel>();
-			foreach (var cipher in result)
-			{
-
-				if (cipher is ImageCipher)
-				{
-					ImageCipher cipherImage = cipher as ImageCipher;
-					string imageFolderPath = Path.Combine(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..")), cipherImage.ImagePath);
-					string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imageFolderPath))}";
-
-
-					output.Add(new CipherReviewOutputViewModel
-					{
-						Id = cipher.Id,
-						Title = cipher.Title,
-						DecryptedText = cipher.DecryptedText,
-						Points = cipher.Points,
-						CipherText = base64,
-						AllowsAnswer = cipher.AllowSolution,
-						AllowsHint = cipher.AllowHint,
-						IsImage = true,
-
-
-					});
-					
-				}
-				else 
-				{
-                    TextCipher cipherText = cipher as TextCipher;
-                    output.Add(new CipherReviewOutputViewModel
-                    {
-                        Id = cipher.Id,
-                        Title = cipher.Title,
-                        DecryptedText = cipher.DecryptedText,
-                        CipherText = cipherText.EncryptedText,
-                        Points = cipher.Points,
-                        AllowsAnswer = cipher.AllowSolution,
-                        AllowsHint = cipher.AllowHint,
-                        IsImage = false,
-
-
-                    });
-                }
-
-
-
-			}
-				return output;
+			return await ToReviewOutputViewModelMany(result);
+			
 		}
-		public async Task<List<Cipher>> AllApprovedCiphers()
+		public async Task<List<CipherReviewOutputViewModel>> AllApprovedCiphers()
 		{
 			var result = (await cipherRepo.GetAllAsync()).Where(c => c.IsApproved == true).ToList();
 			if (result == null) throw new InvalidOperationException("Wasn't able to retrieve approved ciphers");
-			return result;
-		}
+            return await ToReviewOutputViewModelMany(result);
+        }
 		public async Task<Cipher> GetCipherById(int id) 
 		{
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
+
+
 
 			if (cipher == null) throw new InvalidOperationException("There is no cipher with the given Id");
 			return cipher; //Go to next
@@ -86,8 +42,11 @@ namespace Crytomind.Core.Services
 			Cipher? cipher = await GetCipherById(id);
 			if (cipher == null) throw new InvalidOperationException("There is no cipher with the given Id");
 			else if (cipher.IsApproved) throw new InvalidOperationException("The cipher with the given Id is already approved");
-
-			DefineTags(cipher, model.Tags.ToList());
+			if(model.Tags != null)
+			{
+                DefineTags(cipher, model.Tags.ToList());
+            }
+			
 
 			cipher.Title = model.Title;
 			//result.TypeOfCipher = model.TypeOfCipher;
@@ -129,7 +88,10 @@ namespace Crytomind.Core.Services
 			cipher.Title = model.Title;
 			cipher.AllowHint = model.AllowHint;
 			cipher.AllowSolution = model.AllowSolution;
-			DefineTags(cipher, model.Tags.ToList());
+			if (model.Tags != null)
+			{
+				DefineTags(cipher, model.Tags.ToList());
+			}
 
 			await cipherRepo.UpdateAsync(cipher);
 		}
@@ -150,5 +112,58 @@ namespace Crytomind.Core.Services
 			}
 			cipher.CipherTags = cipherTags;
 		}
+		private async Task<List<CipherReviewOutputViewModel>> ToReviewOutputViewModelMany(List<Cipher> result)
+		{
+            List<CipherReviewOutputViewModel> output = new List<CipherReviewOutputViewModel>();
+            foreach (var cipher in result)
+            {
+
+                if (cipher is ImageCipher)
+                {
+                    ImageCipher cipherImage = cipher as ImageCipher;
+                    string imageFolderPath = Path.Combine(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..")), cipherImage.ImagePath);
+                    string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imageFolderPath))}";
+
+
+                    output.Add(new CipherReviewOutputViewModel
+                    {
+                        Id = cipher.Id,
+                        Title = cipher.Title,
+                        DecryptedText = cipher.DecryptedText,
+                        Points = cipher.Points,
+                        CipherText = base64,
+                        AllowsAnswer = cipher.AllowSolution,
+                        AllowsHint = cipher.AllowHint,
+                        IsApproved = cipher.IsApproved,
+                        IsImage = true,
+
+
+                    });
+
+                }
+                else
+                {
+                    TextCipher cipherText = cipher as TextCipher;
+                    output.Add(new CipherReviewOutputViewModel
+                    {
+                        Id = cipher.Id,
+                        Title = cipher.Title,
+                        DecryptedText = cipher.DecryptedText,
+                        CipherText = cipherText.EncryptedText,
+                        Points = cipher.Points,
+                        AllowsAnswer = cipher.AllowSolution,
+                        AllowsHint = cipher.AllowHint,
+                        IsApproved = cipher.IsApproved,
+                        IsImage = false,
+
+
+                    });
+                }
+
+
+
+            }
+            return output;
+        }
 	}
 }
