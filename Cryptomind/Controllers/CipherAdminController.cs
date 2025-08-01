@@ -100,7 +100,7 @@ namespace Cryptomind.Controllers
 		}
 
 		[HttpPut("updateCipher/{id}")]
-		public async Task<IActionResult> UpdateCipher([FromRoute] int id, [FromForm] ApproveUpdateCipherViewModel model)
+		public async Task<IActionResult> UpdateCipher([FromRoute] int id, [FromBody] ApproveUpdateCipherViewModel model)
 		{
 			try
 			{

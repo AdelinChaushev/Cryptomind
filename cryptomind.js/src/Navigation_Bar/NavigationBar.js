@@ -44,6 +44,7 @@ export default function NavigationBar(){
       <Link  to="/ciphers" className="auth-button">Ciphers</Link>
       <Link  to="/submit-cipher" className="auth-button">Submit Ciphers</Link>
       <Link  to="/admin" className="auth-button">Admin</Link>
+      <Link  to="/approvedCiphers" className="auth-button">AprrovedCiphers</Link>
     </div>
   )}
   

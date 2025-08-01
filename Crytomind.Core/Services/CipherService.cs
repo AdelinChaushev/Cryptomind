@@ -155,7 +155,7 @@ namespace Crytomind.Core.Services
 				{
 					Id = cipher.Id,
 					Title = cipher.Title,
-
+					IsApproved = cipher.IsApproved,
 					Points = cipher.Points,
 					CipherText = base64,
 					AllowsAnswer = cipher.AllowSolution,
@@ -173,8 +173,8 @@ namespace Crytomind.Core.Services
 				{
 					Id = cipher.Id,
 					Title = cipher.Title,
-
-					CipherText = cipherText.EncryptedText,
+                    IsApproved = cipher.IsApproved,
+                    CipherText = cipherText.EncryptedText,
 					Points = cipher.Points,
 					AllowsAnswer = cipher.AllowSolution,
 					AllowsHint = cipher.AllowHint,

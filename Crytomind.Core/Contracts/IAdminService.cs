@@ -12,7 +12,7 @@ namespace Crytomind.Core.Contracts
     public interface IAdminService
     {
         Task<List<CipherReviewOutputViewModel>> AllSubmittedCiphers();
-		Task<List<Cipher>> AllApprovedCiphers();
+		Task<List<CipherReviewOutputViewModel>> AllApprovedCiphers();
 		Task<Cipher> GetCipherById(int id);
         Task RejectCipherAsync(int id);
         Task ApproveCipherAsync(int id, ApproveUpdateCipherViewModel model);
