@@ -8,7 +8,7 @@ import Register from './Navigation_Bar/Register.js';
 import { createContext, useEffect,useState } from 'react';
 import RequireAuth from './RequireAuth.js';
 import Ciphers from './Cipher_Pages/Ciphers.js';
-import CipherDetails from './Cipher_Pages/CipherDetails.js';
+import SolveCipher from './Cipher_Pages/SolveCipher.js';
 import SubmitCipher from './Cipher_Pages/SubmitCipher.js';
 import GetPendingCiphers from './Admin_Pages/GetPendingCiphers.js';
 import AlterForm from './Admin_Pages/AlterForm.js';
@@ -43,7 +43,7 @@ function App() {
            <Ciphers/>
           </RequireAuth>} />
         <Route path="cipher/:id" element={<RequireAuth >
-          <CipherDetails/>
+          <SolveCipher/>
         </RequireAuth>} />
         <Route path='submit-cipher' element={<RequireAuth>
           <SubmitCipher/>
