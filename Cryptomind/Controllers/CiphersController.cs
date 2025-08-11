@@ -51,7 +51,7 @@ namespace Cryptomind.Controllers
         public async Task<IActionResult> SubmitCipher([FromForm] SubmitCipherViewModel model)
         {
 
-                 string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                 string? userId = GetUserId();
                 try
                 {
                     await cipherService.SubmitCipherAsync(model,userId);
@@ -65,5 +65,35 @@ namespace Cryptomind.Controllers
                 return BadRequest();
             
         }
+
+        [HttpPost("answerCipher/{id}")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> AnswerCipher([FromRoute]int id ,[FromBody] string answer)
+        {
+
+            string? userId = GetUserId();
+            try
+            {
+                if (await cipherService.AnswerCipherAsync(userId, answer, id))
+                {
+                    return Ok("Отговорът е правилен");
+                }
+                return BadRequest("Отговорът е грешен");
+
+               
+            }
+            catch (Exception ex)
+            {
+                await Console.Out.WriteLineAsync(ex.Message);
+            }
+
+            return BadRequest();
+
+        }
+        private string GetUserId()
+        {
+            return User.FindFirstValue(ClaimTypes.NameIdentifier);
+        }
+
     }
 }

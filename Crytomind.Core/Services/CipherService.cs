@@ -20,7 +20,7 @@ namespace Crytomind.Core.Services
 	public class CipherService(IRepository<Cipher, int> cipherRepo, IRepository<UserSolution, int> solutionRepository) : ICipherService
 	{
 
-		public async Task<string> AnswerCipherAsync(string userId, string input, int cipherId)
+		public async Task<bool> AnswerCipherAsync(string userId, string input, int cipherId)
 		{
 			Cipher cipher = await cipherRepo.GetByIdAsync(cipherId);
 			if (cipher == null) throw new InvalidOperationException("There is no cipher with the given Id");
@@ -31,13 +31,15 @@ namespace Crytomind.Core.Services
 			{
 				await solutionRepository.AddAsync(new UserSolution()
 				{
-
+					CipherId = cipherId,
+				    UserId = userId,
+					TimeSolved = DateTime.Now,
 				});
-				return "Правилен отговор!";
+				return true;
 				//Some user
 			}
 
-			return "Грешен отговор";
+			return false;
 		}
 		public async Task<List<Cipher>> GetApprovedAsync(CipherFilter? filter)
 		{
