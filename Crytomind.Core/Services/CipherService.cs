@@ -5,6 +5,7 @@ using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
 using Crytomind.Core.Contracts;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 using System;
@@ -17,7 +18,7 @@ using System.Xml.Linq;
 
 namespace Crytomind.Core.Services
 {
-	public class CipherService(IRepository<Cipher, int> cipherRepo, IRepository<UserSolution, int> solutionRepository) : ICipherService
+	public class CipherService(IRepository<Cipher, int> cipherRepo, IRepository<UserSolution, int> solutionRepository, UserManager<ApplicationUser>  userRepository) : ICipherService
 	{
 
 		public async Task<bool> AnswerCipherAsync(string userId, string input, int cipherId)
@@ -35,8 +36,12 @@ namespace Crytomind.Core.Services
 				    UserId = userId,
 					TimeSolved = DateTime.Now,
 				});
-				return true;
+				ApplicationUser user = await userRepository.FindByIdAsync(userId);
+				user.Score += cipher.Points;
+				user.SolvedCount += 1;
+                return true;
 				//Some user
+				
 			}
 
 			return false;

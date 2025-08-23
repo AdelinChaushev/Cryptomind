@@ -91,6 +91,13 @@ namespace Cryptomind.Controllers
             var roles = await userService.GetRolesUsers(GetUserId());
             return Ok(roles);
         }
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpGet("getAccountInfo")]
+        public async Task<IActionResult> GetAccountInfo()
+        {
+            var user = await userService.GetUserAccountInfo(GetUserId());
+            return Ok(user);
+        }
         private void AddCookie(string token)
         {
             HttpContext.Response.Cookies.Append("token", token, new CookieOptions()
