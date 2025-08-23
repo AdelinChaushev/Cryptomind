@@ -1,4 +1,5 @@
-﻿using Cryptomind.Data.Entities;
+﻿using Cryptomind.Common.UserViewModels;
+using Cryptomind.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,7 @@ namespace Crytomind.Core.Contracts
         Task RemoveUserFromRole(string userId, string role);
         Task AddUserToRole(string userId, string role);
         Task DeactivateAccount(string userId);
+        Task<AccountViewModel?> GetUserAccountInfo(string id);
 
     }
 }

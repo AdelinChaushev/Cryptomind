@@ -1,4 +1,5 @@
-﻿using Cryptomind.Data.Entities;
+﻿using Cryptomind.Common.UserViewModels;
+using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
 using Crytomind.Core.Contracts;
 using Microsoft.AspNetCore.Identity;
@@ -124,6 +125,20 @@ namespace Crytomind.Core.Services
             var user = await userManager.FindByIdAsync(userId);
 
             await userManager.DeleteAsync(user);
+        }
+
+        public async Task<AccountViewModel?> GetUserAccountInfo(string id)
+        {
+            var user = await userManager.FindByIdAsync(id);
+            AccountViewModel account = new AccountViewModel()
+            {
+                Username = user.UserName,
+                Email = user.Email,
+                Points = user.Score,
+                SolvedCount = user.SolvedCount,
+                 Roles = (await userManager.GetRolesAsync(user)).ToArray()
+            };
+            return account;
         }
     }
 }
