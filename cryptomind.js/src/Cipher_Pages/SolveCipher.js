@@ -77,8 +77,9 @@ return (
                </div>
                </form>
                 <div className="cipher-actions">
-                    <button className="btn hint-btn">Request Hint</button>
-                    <button className="btn solution-btn">Show Solution</button>
+                     { cipher.allowHint &&
+                    <button className="btn hint-btn">Request Hint</button>}
+                     { cipher.allowsAnswer && <button className="btn solution-btn">Show Solution</button>}
                 </div>
             </div>
         
