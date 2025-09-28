@@ -13,6 +13,7 @@ import SubmitCipher from './Cipher_Pages/SubmitCipher.js';
 import GetPendingCiphers from './Admin_Pages/GetPendingCiphers.js';
 import AlterForm from './Admin_Pages/AlterForm.js';
 import ApprovedCiphers from './Admin_Pages/ApprovedCiphers.js';
+import AccountInfo from './UserPages/AccountInformation.js';
 export const AuthorizationContext = createContext({roles : [], isLoggedIn: false});
 
 function App() {
@@ -62,6 +63,11 @@ function App() {
           <RequireAuth roles={['Admin']}>
           < ApprovedCiphers />
           </RequireAuth>} />
+          <Route path="accountInfo" element={
+          <RequireAuth>
+          < AccountInfo />
+          </RequireAuth>} />
+          
         <Route index element={<h1>Home Page</h1>} />
       </Route>
     </Routes>

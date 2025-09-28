@@ -59,7 +59,7 @@ export default function ApprovedCiphers() {
               <img className="cipher-decrypted" src={cipher.cipherText}></img>
               <p className="cipher-points">Decrypted text: {cipher.decryptedText}</p>
               <p className="cipher-points">Points: {cipher.points}</p>
-              <Link to={`/alter/${cipher.id}`} className="btn approve-btn">Approve</Link>
+              <Link to={`/alter/${cipher.id}`} className="btn approve-btn">Edit</Link>
               <button className="btn reject-btn" onClick={() => handleDelete(cipher.id)}>Delete</button>
             </div>
             );
