@@ -1,7 +1,7 @@
 ﻿using Cryptomind.Common.CipherAdminViewModels;
 using Cryptomind.Data.Entities;
-using Crytomind.Core.Contracts;
-using Crytomind.Core.Services;
+using Cryptomind.Core.Contracts;
+using Cryptomind.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -61,7 +61,8 @@ namespace Cryptomind.Controllers
 				await Console.Out.WriteLineAsync(ex.Message);
 			}
 			return BadRequest();
-		} // The button approve is clicked here
+		} 
+		// The button approve is clicked here
 
 		[HttpPut("approveCipher/{id}")]
 		public async Task<IActionResult> ApproveCipher([FromRoute] int id, [FromBody] ApproveUpdateCipherViewModel model)
@@ -72,7 +73,7 @@ namespace Cryptomind.Controllers
 				if (!ModelState.IsValid) return BadRequest();
 
 				await adminService.ApproveCipherAsync(id, model);
-				//Here we can update some values for the user which submitted the cipher
+				//Here we can update some values for the user which submitted the cipher, like adding that he created a cipher
 
 				return Ok();
 			}

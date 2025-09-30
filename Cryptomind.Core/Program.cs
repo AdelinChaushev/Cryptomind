@@ -1,4 +1,4 @@
-﻿namespace Crytomind.Core
+﻿namespace Cryptomind.Core
 {
     internal class Program
     {

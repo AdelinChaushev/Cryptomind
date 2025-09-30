@@ -1,6 +1,6 @@
-﻿using Cryptomind.Data.Entities;
+﻿using Cryptomind.Core.Contracts;
+using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
-using Crytomind.Core.Contracts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -13,7 +13,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Crytomind.Core.Services
+namespace Cryptomind.Core.Services
 {
     public class UserService : IUserService
     {

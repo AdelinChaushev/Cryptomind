@@ -1,9 +1,9 @@
 ﻿using Cryptomind.Common.CipherViewModels;
 using Cryptomind.Common.DTOs;
 using Cryptomind.Common.Enums;
+using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
-using Crytomind.Core.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,7 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace Crytomind.Core.Services
+namespace Cryptomind.Core.Services
 {
 	public class CipherService(IRepository<Cipher, int> cipherRepo, IRepository<UserSolution, int> solutionRepository) : ICipherService
 	{
@@ -125,10 +125,7 @@ namespace Crytomind.Core.Services
 					CipherTags = new List<CipherTag>(),
 					HintsRequested = new List<HintRequest>()
 				};
-
-
 			}
-
 
 			await cipherRepo.AddAsync(cipher);
 			return cipher;
