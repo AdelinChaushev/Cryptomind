@@ -1,7 +1,7 @@
 ﻿using Cryptomind.Common.AuthenticationViewModels;
 using Cryptomind.Data.Entities;
-using Crytomind.Core.Contracts;
-using Crytomind.Core.Services;
+using Cryptomind.Core.Contracts;
+using Cryptomind.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
