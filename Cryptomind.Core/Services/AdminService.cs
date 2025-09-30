@@ -1,8 +1,8 @@
 ﻿using Cryptomind.Common.CipherAdminViewModels;
 using Cryptomind.Common.CipherViewModels;
+using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
-using Crytomind.Core.Contracts;
 using System;
 using System.Buffers.Text;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Crytomind.Core.Services
+namespace Cryptomind.Core.Services
 {
 	public class AdminService (
 		IRepository<Cipher, int> cipherRepo) : IAdminService

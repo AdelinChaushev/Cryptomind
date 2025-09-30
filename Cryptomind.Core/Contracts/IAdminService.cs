@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Crytomind.Core.Contracts
+namespace Cryptomind.Core.Contracts
 {
     public interface IAdminService
     {
