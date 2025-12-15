@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Cryptomind.Controllers
 {
 	[ApiController]
-	[Route("api/cipherAdmin")]
+	[Route("api/admin")]
 	//[Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
 	public class CipherAdminController : ControllerBase
 	{
@@ -19,7 +19,7 @@ namespace Cryptomind.Controllers
 			this.adminService = service;
 		}
 
-		[HttpGet("pendingCiphers")]
+		[HttpGet("pending-ciphers")]
 		public async Task<IActionResult> GetSubmittedCiphers()
 		{
 			try
@@ -33,7 +33,7 @@ namespace Cryptomind.Controllers
 			}
 			return BadRequest();
 		}
-		[HttpGet("approvedCiphers")]
+		[HttpGet("approved-ciphers")]
 		public async Task<IActionResult> GetApprovedCiphers()
 		{
 			try
@@ -48,7 +48,7 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 
-		[HttpGet("cipherAdmin/{id}")]
+		[HttpGet("cipher/{id}")]
 		public async Task<IActionResult> GetCipher([FromRoute] int id)
 		{
 			try
@@ -64,7 +64,7 @@ namespace Cryptomind.Controllers
 		} 
 		// The button approve is clicked here
 
-		[HttpPut("approveCipher/{id}")]
+		[HttpPut("approve-cipher/{id}")]
 		public async Task<IActionResult> ApproveCipher([FromRoute] int id, [FromBody] ApproveUpdateCipherViewModel model)
 		{
             Console.WriteLine("In the method");
@@ -84,7 +84,7 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 
-		[HttpDelete("rejectCipher/{id}")]
+		[HttpDelete("reject-cipher/{id}")]
 		public async Task<IActionResult> RejectCipher([FromRoute] int id)
 		{
 			try
@@ -100,7 +100,7 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 
-		[HttpPut("updateCipher/{id}")]
+		[HttpPut("update-cipher/{id}")]
 		public async Task<IActionResult> UpdateCipher([FromRoute] int id, [FromForm] ApproveUpdateCipherViewModel model)
 		{
 			try
@@ -117,7 +117,7 @@ namespace Cryptomind.Controllers
 			}
 			return BadRequest();
 		}
-		[HttpDelete("deleteCipher/{id}")]
+		[HttpDelete("delete-cipher/{id}")]
 		public async Task<IActionResult> DeleteCipher([FromRoute] int id)
 		{
 			try

@@ -77,7 +77,7 @@ namespace Cryptomind.Controllers
             return Ok();
         }
 
-        [HttpPost("deactivateAccount")]
+        [HttpPost("deactivate")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> DeactivateAccount()
         {
@@ -85,7 +85,7 @@ namespace Cryptomind.Controllers
             return Ok();
         }
         [Authorize(AuthenticationSchemes = "Bearer")]
-        [HttpGet("getUserRoles")]
+        [HttpGet("get-roles")]
         public async Task<IActionResult> GetUserRoles()
         {
             var roles = await userService.GetRolesUsers(GetUserId());
