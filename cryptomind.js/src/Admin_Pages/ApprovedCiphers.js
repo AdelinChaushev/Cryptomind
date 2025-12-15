@@ -1,34 +1,36 @@
-import  { useState, useEffect, use } from 'react';
-import './styles/GetPendingCiphers.css';
+import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
+//import './styles/ApprovedCiphers.css'; // Assuming you have a CSS file for styling
 import axios from 'axios';
+export default function ApprovedCiphers() {
+  const [ciphers, setCiphers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-export default function GetPendingCiphers() {
-   const[ciphers, setCiphers] = useState([]);
-   const[loading, setLoading] = useState(true);
-   
-       useEffect(() => {
-       axios.get('http://localhost:5115/api/cipherAdmin/pendingCiphers', { withCredentials: true })
-       .then(res => {
-              setCiphers(res.data);
-              console.log("Pending Ciphers:", res.data);
-             
-       }).catch(e => console.log(e) ).finally(e => setLoading(false))},[])
-           
-       const handleReject = (cipherId) => {
+  useEffect(() => {
+    axios.get('http://localhost:5115/api/cipherAdmin/approvedCiphers', { withCredentials: true })
+      .then(res => {
+        setCiphers(res.data);
+        console.log("Approved Ciphers:", res.data);
+      })
+      .catch(e => console.log(e))
+      .finally(() => setLoading(false));
+  }, []);
+    const handleDelete = (cipherId) => {
          // Logic to approve the cipher
         
-         axios.delete(`http://localhost:5115/api/cipherAdmin/rejectCipher/${cipherId}`, {}, { withCredentials: true })
+         axios.delete(`http://localhost:5115/api/cipherAdmin/deleteCipher/${cipherId}`, {}, { withCredentials: true })
          .then(res => {
            console.log("Cipher rejected:", res.data);
            setCiphers(ciphers.filter(cipher => cipher.id !== cipherId));
          })
          .catch(err => console.error("Error rejecting cipher:", err));
         }
- 
-        if (loading) {
-        return <h1>Loading pending ciphers...</h1>;} 
-    return (
+
+  if (loading) {
+    return <h1>Loading approved ciphers...</h1>;
+  }
+
+  return (
        ciphers.map(cipher => {
          // Skip already approved ciphers
          if(!cipher.isImage) {
@@ -42,7 +44,7 @@ export default function GetPendingCiphers() {
                 <p className="cipher-points">Decrypted text: {cipher.decryptedText}</p>
               <p className="cipher-points">Points: {cipher.points}</p>
             <Link to={`/alter/${cipher.id}`} className="btn approve-btn">Approve</Link>
-              <button className="btn reject-btn" onClick={() => handleReject(cipher.id)}>Reject</button>
+              <button className="btn reject-btn" onClick={() => handleDelete(cipher.id)}>Delete</button>
             </div>
             );
           
@@ -58,7 +60,7 @@ export default function GetPendingCiphers() {
               <p className="cipher-points">Decrypted text: {cipher.decryptedText}</p>
               <p className="cipher-points">Points: {cipher.points}</p>
               <Link to={`/alter/${cipher.id}`} className="btn approve-btn">Approve</Link>
-              <button className="btn reject-btn" onClick={() => handleReject(cipher.id)}>Reject</button>
+              <button className="btn reject-btn" onClick={() => handleDelete(cipher.id)}>Delete</button>
             </div>
             );
           
