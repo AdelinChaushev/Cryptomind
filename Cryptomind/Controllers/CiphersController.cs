@@ -46,7 +46,7 @@ namespace Cryptomind.Controllers
             }
             return BadRequest();
         }
-        [HttpPost("submitCipher")]
+        [HttpPost("submit-cipher")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> SubmitCipher([FromForm] SubmitCipherViewModel model)
         {
