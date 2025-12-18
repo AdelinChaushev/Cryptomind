@@ -20,7 +20,7 @@ namespace Cryptomind.Core.Services
 	public class CipherService(IRepository<Cipher, int> cipherRepo, IRepository<UserSolution, int> solutionRepository) : ICipherService
 	{
 
-		public async Task<string> AnswerCipherAsync(string userId, string input, int cipherId)
+		public async Task<bool> AnswerCipherAsync(string userId, string input, int cipherId)
 		{
 			Cipher cipher = await cipherRepo.GetByIdAsync(cipherId);
 			if (cipher == null) throw new InvalidOperationException("There is no cipher with the given Id");
@@ -31,13 +31,15 @@ namespace Cryptomind.Core.Services
 			{
 				await solutionRepository.AddAsync(new UserSolution()
 				{
-
+					CipherId = cipherId,
+					UserId = userId,
+					TimeSolved = DateTime.Now
 				});
-				return "Правилен отговор!";
+				return true;
 				//Some user
 			}
 
-			return "Грешен отговор";
+			return false;
 		}
 		public async Task<List<Cipher>> GetApprovedAsync(CipherFilter? filter)
 		{
@@ -57,7 +59,7 @@ namespace Cryptomind.Core.Services
 			if (cipher == null)
 				throw new InvalidOperationException("There is no cipher with the given Id");
 
-			return await ToOuputViewModel(cipher);
+			return await ToOutputViewModel(cipher);
 		}
 		public Task<HintRequestResponse> RequestHintAsync(HintRequest request)
 		{
@@ -138,15 +140,13 @@ namespace Cryptomind.Core.Services
 			}
 			return name;
 		}
-
-		private async Task<CipherOutputViewModel> ToOuputViewModel(Cipher cipher)
+		private async Task<CipherOutputViewModel> ToOutputViewModel(Cipher cipher)
 		{
 			if (cipher is ImageCipher)
 			{
 				ImageCipher cipherImage = cipher as ImageCipher;
 				string imageFolderPath = Path.Combine(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..")), cipherImage.ImagePath);
 				string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imageFolderPath))}";
-
 
 				return (new CipherOutputViewModel
 				{
@@ -158,10 +158,7 @@ namespace Cryptomind.Core.Services
 					AllowsAnswer = cipher.AllowSolution,
 					AllowsHint = cipher.AllowHint,
 					IsImage = true,
-
-
 				});
-
 			}
 			else
 			{
@@ -176,12 +173,9 @@ namespace Cryptomind.Core.Services
 					AllowsAnswer = cipher.AllowSolution,
 					AllowsHint = cipher.AllowHint,
 					IsImage = false,
-
-
 				});
 			}
 		}
-
 		private void ValidateImageFile(IFormFile imageFile)
 		{
 			if (imageFile == null)

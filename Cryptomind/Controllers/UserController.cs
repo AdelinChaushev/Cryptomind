@@ -65,7 +65,6 @@ namespace Cryptomind.Controllers
         [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> Logout()
         {
-
             Response.Cookies.Delete("token", new CookieOptions
             {
                 HttpOnly = true,
@@ -91,6 +90,7 @@ namespace Cryptomind.Controllers
             var roles = await userService.GetRolesUsers(GetUserId());
             return Ok(roles);
         }
+        //Common methods
         private void AddCookie(string token)
         {
             HttpContext.Response.Cookies.Append("token", token, new CookieOptions()
@@ -103,8 +103,6 @@ namespace Cryptomind.Controllers
             });
         }
         private string GetUserId()
-        {
-            return User.FindFirstValue(ClaimTypes.NameIdentifier);
-        }  
+            => User.FindFirstValue(ClaimTypes.NameIdentifier); 
     }
 }
