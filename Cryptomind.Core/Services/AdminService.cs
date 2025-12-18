@@ -13,7 +13,8 @@ using System.Threading.Tasks;
 namespace Cryptomind.Core.Services
 {
 	public class AdminService (
-		IRepository<Cipher, int> cipherRepo) : IAdminService
+		IRepository<Cipher, int> cipherRepo,
+		IRepository<Tag, int> tagRepo) : IAdminService
 	{
 		public async Task<List<CipherReviewOutputViewModel>> AllSubmittedCiphers()
 		{
@@ -32,8 +33,6 @@ namespace Cryptomind.Core.Services
 		{
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
 
-
-
 			if (cipher == null) throw new InvalidOperationException("There is no cipher with the given Id");
 			return cipher; //Go to next
 		}
@@ -42,9 +41,9 @@ namespace Cryptomind.Core.Services
 			Cipher? cipher = await GetCipherById(id);
 			if (cipher == null) throw new InvalidOperationException("There is no cipher with the given Id");
 			else if (cipher.IsApproved) throw new InvalidOperationException("The cipher with the given Id is already approved");
-			if(model.Tags != null)
+			if (model.TagIds != null && model.TagIds.Count > 0)
 			{
-                DefineTags(cipher, model.Tags.ToList());
+                await DefineTagsAsync(cipher, model.TagIds.ToList());
             }
 			
 
@@ -88,29 +87,35 @@ namespace Cryptomind.Core.Services
 			cipher.Title = model.Title;
 			cipher.AllowHint = model.AllowHint;
 			cipher.AllowSolution = model.AllowSolution;
-			if (model.Tags != null)
+			if (model.TagIds.Count > 0)
 			{
-				DefineTags(cipher, model.Tags.ToList());
+				await DefineTagsAsync(cipher, model.TagIds.ToList());
 			}
 
 			await cipherRepo.UpdateAsync(cipher);
 		}
 
 		//Common methods
-		private void DefineTags (Cipher? cipher, List<Tag> tags)
+		private async Task DefineTagsAsync (Cipher? cipher, List<int> tagIds)
 		{
-			List<CipherTag> cipherTags = new List<CipherTag>();
-			foreach (var tag in tags)
+			if (cipher.CipherTags != null)
+				cipher.CipherTags?.Clear();
+			else
+				cipher.CipherTags = new List<CipherTag>();
+
+			List<Tag> existingTags = (await tagRepo.GetAllAsync()).Where(x => tagIds.Contains(x.Id)).ToList();
+
+			//if (existingTags.Count != tagIds.Count)
+			//	throw new InvalidOperationException("One or more tag IDs are invalid");
+
+			foreach(var tag in existingTags)
 			{
-				var cipherTag = new CipherTag()
+				cipher.CipherTags.Add(new CipherTag
 				{
 					TagId = tag.Id,
 					CipherId = cipher.Id,
-				};
-
-				cipherTags.Add(cipherTag);
+				});
 			}
-			cipher.CipherTags = cipherTags;
 		}
 		private async Task<List<CipherReviewOutputViewModel>> ToReviewOutputViewModelMany(List<Cipher> result)
 		{
