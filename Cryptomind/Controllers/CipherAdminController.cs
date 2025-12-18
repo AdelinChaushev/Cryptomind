@@ -54,7 +54,9 @@ namespace Cryptomind.Controllers
 			try
 			{
 				var cipher = await adminService.GetCipherById(id);
-				return Ok(cipher); //Should I return the whole DB entity??
+				return Ok(cipher); 
+				//Should I return the whole DB entity??
+				//Samuil from December definetely not
 			}
 			catch (Exception ex)
 			{
@@ -64,13 +66,12 @@ namespace Cryptomind.Controllers
 		} 
 		// The button approve is clicked here
 
-		[HttpPut("approve-cipher/{id}")]
-		public async Task<IActionResult> ApproveCipher([FromRoute] int id, [FromBody] ApproveUpdateCipherViewModel model)
+		[HttpPut("cipher/{id}/approve")]
+		public async Task<IActionResult> ApproveCipher([FromRoute] int id, [FromForm] ApproveUpdateCipherViewModel model)
 		{
-            Console.WriteLine("In the method");
 			try
 			{
-				if (!ModelState.IsValid) return BadRequest();
+				if (!ModelState.IsValid) return BadRequest(ModelState);
 
 				await adminService.ApproveCipherAsync(id, model);
 				//Here we can update some values for the user which submitted the cipher, like adding that he created a cipher
@@ -84,7 +85,7 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 
-		[HttpDelete("reject-cipher/{id}")]
+		[HttpDelete("cipher/{id}/reject")]
 		public async Task<IActionResult> RejectCipher([FromRoute] int id)
 		{
 			try
@@ -100,7 +101,7 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 
-		[HttpPut("update-cipher/{id}")]
+		[HttpPut("cipher/{id}/update")]
 		public async Task<IActionResult> UpdateCipher([FromRoute] int id, [FromForm] ApproveUpdateCipherViewModel model)
 		{
 			try
@@ -117,7 +118,7 @@ namespace Cryptomind.Controllers
 			}
 			return BadRequest();
 		}
-		[HttpDelete("delete-cipher/{id}")]
+		[HttpDelete("cipher/{id}/delete")]
 		public async Task<IActionResult> DeleteCipher([FromRoute] int id)
 		{
 			try
