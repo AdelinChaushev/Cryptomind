@@ -20,7 +20,6 @@ namespace Cryptomind.Core.Services
         
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IConfiguration configuration;
-     
         public UserService(IConfiguration configuration, UserManager<ApplicationUser> userManager )
         {
 
@@ -29,7 +28,6 @@ namespace Cryptomind.Core.Services
            
             
         }
-
         public async Task<ApplicationUser> Authenticate(string email, string password)
         {
             
@@ -45,7 +43,6 @@ namespace Cryptomind.Core.Services
 
             return null;
         }
-
         public string GenerateJSONWebToken(ApplicationUser user)
         {
             var authClaims = new List<Claim>
@@ -70,7 +67,6 @@ namespace Cryptomind.Core.Services
 
 
         }
-
         public async Task<ApplicationUser> CreateUser(string userName, string email, string password)
         {
 
@@ -94,11 +90,8 @@ namespace Cryptomind.Core.Services
 
             return user;
         }
-
         public async Task<IEnumerable<string>> GetRolesUsers(string id)
-        =>
-           await userManager.GetRolesAsync(await userManager.FindByIdAsync(id));
-
+            => await userManager.GetRolesAsync(await userManager.FindByIdAsync(id));
         public async Task RemoveUserFromRole(string userId, string role)
         {
             var user = await userManager.FindByIdAsync(userId);
@@ -109,7 +102,6 @@ namespace Cryptomind.Core.Services
 
             await userManager.RemoveFromRoleAsync(user, role);
         }
-
         public async Task AddUserToRole(string userId, string role)
         {
             var user = await userManager.FindByIdAsync(userId);
