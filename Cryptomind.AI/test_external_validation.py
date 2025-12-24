@@ -1,10 +1,13 @@
 """
 Test system accuracy on EXTERNAL data (not used in training)
-IMPROVED: Better filtering, more samples, minimum 200 chars
+IMPROVED: Better filtering, more samples, saves test data for reproducibility
 """
 import urllib.request
 import re
 import random
+import json
+import datetime
+import os
 from src.cipher_generator import CipherGenerator
 from src.predictor import CipherPredictor
 
@@ -51,7 +54,7 @@ try:
 except Exception as e:
     print(f"❌ {e}")
 
-# Source 3: A Tale of Two Cities (another external source)
+# Source 3: A Tale of Two Cities
 try:
     print("Downloading: A Tale of Two Cities...", end=" ", flush=True)
     url = "https://www.gutenberg.org/files/98/98-0.txt"
@@ -291,16 +294,103 @@ if misclassifications:
 else:
     print("\n🎉 Perfect! No misclassifications detected!")
 
-# Save results
+# Save detailed test data
 print("\n" + "="*80)
-print("Saving results...")
-
-import datetime
-import os
+print("Saving detailed test data...")
 
 os.makedirs('testing', exist_ok=True)
 timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+# Prepare detailed test data
+test_data = {
+    'metadata': {
+        'timestamp': timestamp,
+        'sources': [s[0] for s in external_sources],
+        'total_samples': total_tests,
+        'samples_per_type': SAMPLES_PER_TYPE,
+        'overall_accuracy': overall_accuracy,
+        'overfitting_estimate': abs(96.4 - overall_accuracy)
+    },
+    'test_samples': []
+}
+
+# Recreate the exact test cases with predictions
+sentence_index = 0
+
+for cipher_type in cipher_types:
+    for i in range(SAMPLES_PER_TYPE):
+        if sentence_index >= len(test_sentences):
+            break
+            
+        plaintext = test_sentences[sentence_index]
+        
+        try:
+            # Generate ciphertext (same as before)
+            if cipher_type == 'Plaintext':
+                ciphertext = plaintext
+            else:
+                ciphertext = cipher_gen.generate(cipher_type, plaintext)
+            
+            if len(ciphertext) < 150:
+                sentence_index += 1
+                continue
+            
+            # Find if this was a success or failure
+            was_correct = True
+            predicted_as = cipher_type
+            confidence_score = None
+            
+            # Check in failures
+            for failure in results[cipher_type]['failures']:
+                if failure['sample'] == i + 1:
+                    was_correct = False
+                    predicted_as = failure['predicted']
+                    confidence_score = failure['confidence']
+                    break
+            
+            test_data['test_samples'].append({
+                'index': sentence_index,
+                'cipher_type': cipher_type,
+                'sample_number': i + 1,
+                'plaintext': plaintext[:100] + '...' if len(plaintext) > 100 else plaintext,
+                'ciphertext': ciphertext[:100] + '...' if len(ciphertext) > 100 else ciphertext,
+                'plaintext_length': len(plaintext),
+                'ciphertext_length': len(ciphertext),
+                'correct': was_correct,
+                'predicted_as': predicted_as,
+                'confidence': confidence_score
+            })
+            
+        except Exception as e:
+            pass
+        
+        sentence_index += 1
+
+# Save to JSON
+with open('testing/external_validation_data.json', 'w', encoding='utf-8') as f:
+    json.dump(test_data, f, indent=2, ensure_ascii=False)
+
+print("✅ Test data saved to testing/external_validation_data.json")
+
+# Save full sentences separately (for analysis)
+with open('testing/external_validation_sentences.txt', 'w', encoding='utf-8') as f:
+    f.write("EXTERNAL VALIDATION TEST SENTENCES\n")
+    f.write("="*80 + "\n\n")
+    f.write(f"Total sentences extracted: {len(test_sentences)}\n")
+    f.write(f"Date: {timestamp}\n\n")
+    f.write("="*80 + "\n\n")
+    
+    for idx, sentence in enumerate(test_sentences, 1):
+        f.write(f"[{idx}] ({len(sentence)} chars)\n")
+        f.write(sentence + "\n\n")
+        if idx >= 100:  # Limit to first 100 to keep file size reasonable
+            f.write(f"\n... (truncated after 100 sentences to keep file manageable)\n")
+            f.write(f"Total sentences available: {len(test_sentences)}\n")
+            break
+
+print("✅ Sentences saved to testing/external_validation_sentences.txt")
+
+# Save summary results
 with open('testing/external_validation_results.txt', 'w', encoding='utf-8') as f:
     f.write("CRYPTOMIND - EXTERNAL DATA VALIDATION RESULTS\n")
     f.write("="*80 + "\n\n")
@@ -318,3 +408,9 @@ with open('testing/external_validation_results.txt', 'w', encoding='utf-8') as f
 
 print("✅ Results saved to testing/external_validation_results.txt")
 print("="*80)
+
+print("\n📁 OUTPUT FILES:")
+print("   1. testing/external_validation_results.txt (summary)")
+print("   2. testing/external_validation_data.json (detailed test data)")
+print("   3. testing/external_validation_sentences.txt (test sentences)")
+print("\n✅ Validation complete!")
