@@ -34,7 +34,7 @@ namespace Cryptomind.Core.Services
 			{
 				var requestPayload = new
 				{
-					text = inputText,
+					text = inputText.ToUpper(),
 					return_top_k = true
 				};
 
@@ -81,9 +81,37 @@ namespace Cryptomind.Core.Services
 
 				return result;
 			}
+			catch (HttpRequestException ex)
+			{
+				throw new InvalidOperationException(
+					$"ML service is unavailable. Please ensure the Python ML API is running at {_mlApiUrl}",
+					ex
+				);
+			}
+			catch (TaskCanceledException ex)
+			{
+				throw new InvalidOperationException(
+					$"ML service request timed out after {ApiTimeoutSeconds} seconds",
+					ex
+				);
+			}
+			catch (JsonException ex)
+			{
+				throw new InvalidOperationException(
+					"Failed to parse response from ML service. The service may be returning invalid data.",
+					ex
+				);
+			}
+			catch (InvalidOperationException ex)
+			{
+				throw new InvalidOperationException ("Invalid Operation Exception", ex);
+			}
 			catch (Exception ex)
 			{
-				throw new Exception(ex.Message);
+				throw new InvalidOperationException(
+					$"An unexpected error occurred during classification: {ex.Message}",
+					ex
+				);
 			}
 		}
 		public async Task<bool> IsServiceHealthyAsync()
