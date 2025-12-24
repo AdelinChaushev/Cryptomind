@@ -28,6 +28,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserService, UserService>();
 		services.AddScoped<ICipherService, CipherService>();
         services.AddScoped<IAdminService, AdminService>();
+        services.AddScoped<ICipherRecognizerService, CipherRecognizerService>();
 
 		return services;
     }
