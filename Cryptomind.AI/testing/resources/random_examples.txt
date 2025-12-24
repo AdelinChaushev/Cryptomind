@@ -1,0 +1,68 @@
+RANDOM CIPHER EXAMPLES
+================================================================================
+
+PLAINTEXT:
+Tell me, like one good fellow to another, is there any one else that you care for? And if there is I’ll never trouble you a hair’s breadth again, but will be, if you will let me, a very faithful friend
+
+================================================================================
+
+CAESAR
+--------------------------------------------------------------------------------
+ALSS TL, SPRL VUL NVVK MLSSVD AV HUVAOLY, PZ AOLYL HUF VUL LSZL AOHA FVB JHYL MVY? HUK PM AOLYL PZ P’SS ULCLY AYVBISL FVB H OHPY’Z IYLHKAO HNHPU, IBA DPSS IL, PM FVB DPSS SLA TL, H CLYF MHPAOMBS MYPLUK
+
+ROT13
+--------------------------------------------------------------------------------
+GRYY ZR, YVXR BAR TBBQ SRYYBJ GB NABGURE, VF GURER NAL BAR RYFR GUNG LBH PNER SBE? NAQ VS GURER VF V’YY ARIRE GEBHOYR LBH N UNVE’F OERNQGU NTNVA, OHG JVYY OR, VS LBH JVYY YRG ZR, N IREL SNVGUSHY SEVRAQ
+
+ATBASH
+--------------------------------------------------------------------------------
+GVOO NV, ORPV LMV TLLW UVOOLD GL ZMLGSVI, RH GSVIV ZMB LMV VOHV GSZG BLF XZIV ULI? ZMW RU GSVIV RH R’OO MVEVI GILFYOV BLF Z SZRI’H YIVZWGS ZTZRM, YFG DROO YV, RU BLF DROO OVG NV, Z EVIB UZRGSUFO UIRVMW
+
+SIMPLESUBSTITUTION
+--------------------------------------------------------------------------------
+HXII YX, INCX ZSX VZZA JXIIZO HZ DSZHRXM, NL HRXMX DSE ZSX XILX HRDH EZF TDMX JZM? DSA NJ HRXMX NL N’II SXBXM HMZFWIX EZF D RDNM’L WMXDAHR DVDNS, WFH ONII WX, NJ EZF ONII IXH YX, D BXME JDNHRJFI JMNXSA
+
+VIGENERE
+--------------------------------------------------------------------------------
+VVJA FS, RZKT VLG XMDW TKCLDD RQ RLDMVKI, IH AFGIC PGM UEE TSQG KFPM MUL CPYC HFP? PGR OW TWLPG ZQ X’EZ TVVTY RTFSQES EFU P OYKI’Q QKSGUTW HECZL, QNH CZLA IC, KW WDN KOCL ALR OV, Y KXFE WAXAFHLJ UKWKED
+
+AUTOKEY
+--------------------------------------------------------------------------------
+LINC QX, EMVP ARP OYSR SIRZCZ YS LYCPASR, VG MOIIM SGF SEI EYQS GLEE QSN JAKC TIT? AEH NT KHRUM NL P’PC RMNMC EESPFCX PCO B SEGF’M BYEIULI RKALG, IUZ WQYM VX, EN JZV AQQJ ZYP UP, L GIKK JADXYDZL NKPJHO
+
+TRITHEMIUS
+--------------------------------------------------------------------------------
+TFNO QJ, RPSN YYQ TCDT WWEFJS QM ZNPVKIW, OZ BQOCQ NBN EEW XFNA QFZT ZQX GFXL NXB? LZQ WU JYWKY DO F’JK NFXHV YXVCKVP KBI P XRAK’M WNBYCTI CJENT, ICC GTXY PT, YW QHO REIJ KEU OH, E AKYG OKTFUTJB WJBYIZ
+
+RAILFENCE
+--------------------------------------------------------------------------------
+T,nfthtnltrAhIvuu’diw,wtetreeloedewoteshayesayae?ntes’eeoboarsatantieiuiemvrihfilmiegoloaorieeoeehocfrdfrilnrrlyhibehg,ulbfolleayafledlkoln,rntuoieltearablyl,fun
+
+COLUMNAR
+--------------------------------------------------------------------------------
+T,nfthtnltrAhIvuu’diw,wtetrmeoooieehcrfinryiegubolaaldlkoln,rntuoieltearablyl,funeleeoehysyene’ebastniiimrhiliglareoeofdrlrlhbh,lfleyfeeodwtsaeaa?tseooraateuevifX
+
+ROUTE
+--------------------------------------------------------------------------------
+Tellme,likeonoetrsus,yafXXXXXXXXdneirvobbbI?hraegoodfellowtheoio’nf,lufhtiafyreuurl’Aaenother,istsferriiemtellliwteelntanyoneelertia,eblliwayldyoucareragahtdonifthehauev
+
+BASE64
+--------------------------------------------------------------------------------
+VGVsbCBtZSwgbGlrZSBvbmUgZ29vZCBmZWxsb3cgdG8gYW5vdGhlciwgaXMgdGhlcmUgYW55IG9uZSBlbHNlIHRoYXQgeW91IGNhcmUgZm9yPyBBbmQgaWYgdGhlcmUgaXMgSQ==
+
+MORSE
+--------------------------------------------------------------------------------
+- . .-.. .-.. / -- . / .-.. .. -.- . / --- -. . / --. --- --- -.. / ..-. . .-.. .-.. --- .-- / - --- / .- -. --- - .... . .-. / .. ... / - .... . .-. .
+
+BINARY
+--------------------------------------------------------------------------------
+01010100 01100101 01101100 01101100 00100000 01101101 01100101 00101100 00100000 01101100 01101001 01101011 01100101 00100000 01101111 01101110 01100101 00100000 01100111 01101111 01101111 01100100 00100000 01100110 01100101 01101100 01101100 01101111 01110111 00100000
+
+HEX
+--------------------------------------------------------------------------------
+54656c6c206d652c206c696b65206f6e6520676f6f642066656c6c6f7720746f20616e6f746865722c20697320746865726520616e79206f6e6520656c7365207468617420796f75206361726520666f723f20416e642069662074686572652069732049
+
+PLAINTEXT
+--------------------------------------------------------------------------------
+Tell me, like one good fellow to another, is there any one else that you care for? And if there is I’ll never trouble you a hair’s breadth again, but will be, if you will let me, a very faithful friend
+
