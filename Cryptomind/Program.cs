@@ -93,7 +93,7 @@ builder.Services.AddCors(c =>
 
 builder.Services.RegisterRepositories();
 builder.Services.RegisterUserDefinedServices();
-
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
