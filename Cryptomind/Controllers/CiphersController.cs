@@ -76,7 +76,7 @@ namespace Cryptomind.Controllers
 
 			try
 			{
-				string result = await cipherService.AnswerCipherAsync(GetUserId(), dto.UserSolution, id);
+				bool result = await cipherService.AnswerCipherAsync(GetUserId(), dto.UserSolution, id);
 				//Update user stats
 				return Ok(result);
 			}
