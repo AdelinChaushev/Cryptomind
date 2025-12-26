@@ -8,11 +8,12 @@ import Register from './Navigation_Bar/Register.js';
 import { createContext, useEffect,useState } from 'react';
 import RequireAuth from './RequireAuth.js';
 import Ciphers from './Cipher_Pages/Ciphers.js';
-import CipherDetails from './Cipher_Pages/CipherDetails.js';
+import SolveCipher from './Cipher_Pages/SolveCipher.js';
 import SubmitCipher from './Cipher_Pages/SubmitCipher.js';
 import GetPendingCiphers from './Admin_Pages/GetPendingCiphers.js';
 import AlterForm from './Admin_Pages/AlterForm.js';
 import ApprovedCiphers from './Admin_Pages/ApprovedCiphers.js';
+import AccountInfo from './UserPages/AccountInformation.js';
 export const AuthorizationContext = createContext({roles : [], isLoggedIn: false});
 
 function App() {
@@ -43,7 +44,7 @@ function App() {
            <Ciphers/>
           </RequireAuth>} />
         <Route path="cipher/:id" element={<RequireAuth >
-          <CipherDetails/>
+          <SolveCipher/>
         </RequireAuth>} />
         <Route path='submit-cipher' element={<RequireAuth>
           <SubmitCipher/>
@@ -62,6 +63,11 @@ function App() {
           <RequireAuth roles={['Admin']}>
           < ApprovedCiphers />
           </RequireAuth>} />
+          <Route path="accountInfo" element={
+          <RequireAuth>
+          < AccountInfo />
+          </RequireAuth>} />
+          
         <Route index element={<h1>Home Page</h1>} />
       </Route>
     </Routes>
