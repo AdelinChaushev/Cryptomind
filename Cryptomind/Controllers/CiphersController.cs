@@ -112,6 +112,45 @@ namespace Cryptomind.Controllers
 			}
 			return BadRequest();
 		}
+        [HttpGet("all")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> GetAllCiphers([FromQuery] CipherFilter filter)
+        {
+            await Console.Out.WriteLineAsync(filter.SearchTerm);
+
+            var result = await cipherService.GetApprovedAsync(filter);
+            return Ok(result);
+        }
+        [HttpGet("cipher/{id}")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> GetCipherById([FromRoute] int id)
+        {
+            try
+            {
+                var result = await cipherService.GetCipherAsync(id);
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                await Console.Out.WriteLineAsync(ex.Message);
+            }
+            return BadRequest();
+        }
+        [HttpPost("submitCipher")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> SubmitCipher([FromForm] SubmitCipherViewModel model)
+        {
+
+                 string? userId = GetUserId();
+                try
+                {
+                    await cipherService.SubmitCipherAsync(model,userId);
+                    return Ok();
+                }
+                catch (Exception ex)
+                {
+                    await Console.Out.WriteLineAsync(ex.Message);
+                }
 
 		[HttpGet("ml-health")]
 		public async Task<IActionResult> CheckMLHealth()
@@ -136,4 +175,39 @@ namespace Cryptomind.Controllers
 	{
 		public string Ciphertext { get; set; }
 	}
+}
+                return BadRequest();
+            
+        }
+
+        [HttpPost("answerCipher/{id}")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> AnswerCipher([FromRoute]int id ,[FromBody] string answer)
+        {
+
+            string? userId = GetUserId();
+            try
+            {
+                if (await cipherService.AnswerCipherAsync(userId, answer, id))
+                {
+                    return Ok("Отговорът е правилен");
+                }
+                return BadRequest("Отговорът е грешен");
+
+               
+            }
+            catch (Exception ex)
+            {
+                await Console.Out.WriteLineAsync(ex.Message);
+            }
+
+            return BadRequest();
+
+        }
+        private string GetUserId()
+        {
+            return User.FindFirstValue(ClaimTypes.NameIdentifier);
+        }
+
+    }
 }
