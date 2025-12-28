@@ -10,7 +10,7 @@ namespace Cryptomind.Controllers
 {
 	[ApiController]
 	[Route("api/admin")]
-	//[Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
+	[Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
 	public class CipherAdminController : ControllerBase
 	{
 		private IAdminService adminService;
@@ -67,11 +67,11 @@ namespace Cryptomind.Controllers
 		// The button approve is clicked here
 
 		[HttpPut("cipher/{id}/approve")]
-		public async Task<IActionResult> ApproveCipher([FromRoute] int id, [FromForm] ApproveUpdateCipherViewModel model)
+		public async Task<IActionResult> ApproveCipher([FromRoute] int id, [FromBody] ApproveUpdateCipherViewModel model)
 		{
 			try
 			{
-				if (!ModelState.IsValid) return BadRequest(ModelState);
+				
 
 				await adminService.ApproveCipherAsync(id, model);
 				//Here we can update some values for the user which submitted the cipher, like adding that he created a cipher
@@ -102,11 +102,11 @@ namespace Cryptomind.Controllers
 		}
 
 		[HttpPut("cipher/{id}/update")]
-		public async Task<IActionResult> UpdateCipher([FromRoute] int id, [FromForm] ApproveUpdateCipherViewModel model)
+		public async Task<IActionResult> UpdateCipher([FromRoute] int id, [FromBody] ApproveUpdateCipherViewModel model)
 		{
 			try
 			{
-				if (!ModelState.IsValid) return BadRequest();
+				
 
 				await adminService.UpdateApprovedCipher(id, model);
 

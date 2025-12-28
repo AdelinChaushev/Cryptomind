@@ -22,7 +22,7 @@ function App() {
    const [state, setState] = useState({roles : [], isLoggedIn: false});
    const[loading, setLoading] = useState(true);
    useEffect(() => {
-    axios.get('/api/User/getUserRoles').then(response => {
+    axios.get('http://localhost:5115/api/User/get-roles').then(response => {
       setState({roles: response.data.roles, isLoggedIn: true});
     }).catch(error => {
       setState({roles: [], isLoggedIn: false});
