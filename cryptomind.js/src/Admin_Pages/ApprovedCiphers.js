@@ -7,7 +7,7 @@ export default function ApprovedCiphers() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('http://localhost:5115/api/cipherAdmin/approvedCiphers', { withCredentials: true })
+    axios.get('http://localhost:5115/api/admin/approved-ciphers', { withCredentials: true })
       .then(res => {
         setCiphers(res.data);
         console.log("Approved Ciphers:", res.data);
@@ -18,7 +18,7 @@ export default function ApprovedCiphers() {
     const handleDelete = (cipherId) => {
          // Logic to approve the cipher
         
-         axios.delete(`http://localhost:5115/api/cipherAdmin/deleteCipher/${cipherId}`, {}, { withCredentials: true })
+         axios.delete(`http://localhost:5115/api/admin/cipher/${cipherId}/delete`, {}, { withCredentials: true })
          .then(res => {
            console.log("Cipher rejected:", res.data);
            setCiphers(ciphers.filter(cipher => cipher.id !== cipherId));

@@ -8,7 +8,7 @@ export default function AlterForm() {
   const [formData, setFormData] = useState({title: '', allowHint: false, allowSolution: false, tags: [],isApproved: false});
   const { id } = useParams();
   useEffect(() => {
-        axios.get(`http://localhost:5115/api/ciphers/cipher/${id}`, { withCredentials: true })
+        axios.get(`http://localhost:5115/api/admin/cipher/${id}`, { withCredentials: true })
             .then(response => {
                 setFormData(response.data);
             })},[])
@@ -23,14 +23,14 @@ export default function AlterForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Logic to submit the form data
-    let urlEndpoint = `approveCipher`;
+    let urlEndpoint = `approve`;
     console.log(formData.isApproved);
     if(formData.isApproved) {
-     urlEndpoint ='updateCipher'
+     urlEndpoint ='update'
     }
     console.log("Submitting form data:", formData);
     console.log("URL Endpoint:", urlEndpoint);
-    axios.put(`http://localhost:5115/api/cipherAdmin/${urlEndpoint}/${id}`, {
+    axios.put(`http://localhost:5115/api/admin/cipher/${id}/${urlEndpoint}`, {
       title : formData.title,
       allowHint: formData.allowHint,
       allowSolution: formData.allowSolution,
