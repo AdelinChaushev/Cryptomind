@@ -25,7 +25,7 @@ export default function SolveCipher() {
         e.preventDefault();
         // Logic to submit the input
         console.log("Submitting input:", input);
-        axios.post(`http://localhost:5115/api/ciphers/answerCipher/${id}`, JSON.stringify( input)      
+        axios.post(`http://localhost:5115/api/ciphers/solve-cipher/${id}`, JSON.stringify( input)      
         , { withCredentials: true,
             headers: {
                 "Content-Type": "application/json",

@@ -34,12 +34,10 @@ namespace Cryptomind.Core.Services
 				{
 					CipherId = cipherId,
 					UserId = userId,
-					TimeSolved = DateTime.Now
-					CipherId = cipherId,
-				    UserId = userId,
 					TimeSolved = DateTime.Now,
+				
 				});
-				return true;
+				
 				ApplicationUser user = await userRepository.FindByIdAsync(userId);
 				user.Score += cipher.Points;
 				user.SolvedCount += 1;
@@ -50,7 +48,7 @@ namespace Cryptomind.Core.Services
 
 			return false;
 		}
-		public async Task<List<Cipher>> GetApprovedAsync(CipherFilter? filter)
+		public async Task<List<CipherOutputViewModel>> GetApprovedAsync(CipherFilter? filter)
 		{
 			List<Cipher> approved = (await cipherRepo.GetAllAsync()).Where(c => c.IsApproved).ToList();
 
@@ -59,8 +57,12 @@ namespace Cryptomind.Core.Services
 
 			if (filter.Tags != null)
 				approved = approved.Where(c => c.CipherTags.Any(t => filter.Tags.Contains(t.Tag.Type))).ToList();
-
-			return approved;
+			List<CipherOutputViewModel> result = new List<CipherOutputViewModel>();
+			foreach (var cipher in approved)
+			{
+				result.Add( await ToOutputViewModel(cipher));
+            }
+                return result;
 		}
 		public async Task<CipherOutputViewModel?> GetCipherAsync(int id)
 		{
