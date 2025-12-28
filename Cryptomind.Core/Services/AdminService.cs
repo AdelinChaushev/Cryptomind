@@ -87,7 +87,7 @@ namespace Cryptomind.Core.Services
 			cipher.Title = model.Title;
 			cipher.AllowHint = model.AllowHint;
 			cipher.AllowSolution = model.AllowSolution;
-			if (model.TagIds.Count > 0)
+			if (model.TagIds != null && model.TagIds.Count > 0)
 			{
 				await DefineTagsAsync(cipher, model.TagIds.ToList());
 			}
