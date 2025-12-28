@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -27,7 +27,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Cryptomind.Common\Cryptomind.Common.csproj" />
     <ProjectReference Include="..\Cryptomind.Data\Cryptomind.Data.csproj" />
-    <ProjectReference Include="..\Crytomind.Core\Crytomind.Core.csproj" />
+    <ProjectReference Include="..\Cryptomind.Core\Cryptomind.Core.csproj" />
   </ItemGroup>
 
 </Project>

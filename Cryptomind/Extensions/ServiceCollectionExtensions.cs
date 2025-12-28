@@ -2,8 +2,8 @@
 
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
-using Crytomind.Core.Contracts;
-using Crytomind.Core.Services;
+using Cryptomind.Core.Contracts;
+using Cryptomind.Core.Services;
 
 namespace ClarifEye.Web.Extensions;
 
@@ -28,6 +28,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserService, UserService>();
 		services.AddScoped<ICipherService, CipherService>();
         services.AddScoped<IAdminService, AdminService>();
+        services.AddScoped<ICipherRecognizerService, CipherRecognizerService>();
 
 		return services;
     }

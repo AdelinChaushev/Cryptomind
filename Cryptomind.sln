@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cryptomind", "Cryptomind\Cr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cryptomind.Data", "Cryptomind.Data\Cryptomind.Data.csproj", "{DCCFBC28-4AFC-4D05-93F0-187535A7377C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Crytomind.Core", "Crytomind.Core\Crytomind.Core.csproj", "{22C21557-8019-4672-B840-192BE0C1A878}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cryptomind.Core", "Cryptomind.Core\Cryptomind.Core.csproj", "{22C21557-8019-4672-B840-192BE0C1A878}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cryptomind.Common", "Cryptomind.Common\Cryptomind.Common.csproj", "{C8CAEE5A-AF26-4C84-AF16-F434CA1BAE4B}"
 EndProject
