@@ -1,7 +1,7 @@
 ﻿using Cryptomind.Common.AuthenticationViewModels;
 using Cryptomind.Data.Entities;
-using Crytomind.Core.Contracts;
-using Crytomind.Core.Services;
+using Cryptomind.Core.Contracts;
+using Cryptomind.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -65,7 +65,6 @@ namespace Cryptomind.Controllers
         [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> Logout()
         {
-
             Response.Cookies.Delete("token", new CookieOptions
             {
                 HttpOnly = true,
@@ -77,7 +76,7 @@ namespace Cryptomind.Controllers
             return Ok();
         }
 
-        [HttpPost("deactivateAccount")]
+        [HttpPost("deactivate")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> DeactivateAccount()
         {
@@ -85,12 +84,13 @@ namespace Cryptomind.Controllers
             return Ok();
         }
         [Authorize(AuthenticationSchemes = "Bearer")]
-        [HttpGet("getUserRoles")]
+        [HttpGet("get-roles")]
         public async Task<IActionResult> GetUserRoles()
         {
             var roles = await userService.GetRolesUsers(GetUserId());
             return Ok(roles);
         }
+        //Common methods
         [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpGet("getAccountInfo")]
         public async Task<IActionResult> GetAccountInfo()
@@ -110,8 +110,6 @@ namespace Cryptomind.Controllers
             });
         }
         private string GetUserId()
-        {
-            return User.FindFirstValue(ClaimTypes.NameIdentifier);
-        }  
+            => User.FindFirstValue(ClaimTypes.NameIdentifier); 
     }
 }

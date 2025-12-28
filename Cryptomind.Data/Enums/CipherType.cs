@@ -6,27 +6,31 @@ using System.Threading.Tasks;
 
 namespace Cryptomind.Data.Enums
 {
-   public enum CipherType
-    {
-        Caesar = 0,
-        Substitution = 1,
+	public enum CipherType
+	{
+		// Substitution Family (4 types)
+		Caesar = 0,
+		ROT13 = 1,
 		Atbash = 2,
-		Affine = 3,
+		SimpleSubstitution = 3,
+
+		// Polyalphabetic Family (3 types)
 		Vigenere = 4,
-		Playfair = 5,
-		RailFence = 6,
-		ColumnarTransposition = 7,
-		ROT13 = 8,
-		Baconian = 9,
-		PolybiusSquare = 10,
-		MorseCode = 11,
-		ADFGVX = 12,
-		Hill = 13,
-		Beaufort = 14,
-		Keyword = 15,
-		Nihilist = 16,
-		OneTimePad = 17,
-		Autokey = 18,
-		XOR = 19,
+		Autokey = 5,
+		Trithemius = 6,
+
+		// Transposition Family (3 types)
+		RailFence = 7,
+		Columnar = 8,
+		Route = 9,
+
+		// Encoding Types (4 types)
+		Base64 = 10,
+		Morse = 11,
+		Binary = 12,
+		Hex = 13,
+
+		// Special
+		Plaintext = 14  // For plain English text detection
 	}
 }

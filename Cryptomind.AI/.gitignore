@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Models - Download separately from Google Drive
+models/
+
+# Training data - KEEP label maps, exclude everything else
+data/training/*.npy
+data/training/*.npz
+data/training/*/*.npy
+data/training/*/*.npz
+
+# Test outputs
+testing/test_results.txt
+testing/external_validation_results.txt
+
+# Distribution files
+*.zip
+
+# System
+Thumbs.db
+*.log
+*.tmp
+*.bak

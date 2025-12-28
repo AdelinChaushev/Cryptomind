@@ -2,8 +2,8 @@ using ClarifEye.Web.Extensions;
 using Cryptomind.Data;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
-using Crytomind.Core.Contracts;
-using Crytomind.Core.Services;
+using Cryptomind.Core.Contracts;
+using Cryptomind.Core.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -93,7 +93,7 @@ builder.Services.AddCors(c =>
 
 builder.Services.RegisterRepositories();
 builder.Services.RegisterUserDefinedServices();
-
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
