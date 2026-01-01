@@ -39,7 +39,15 @@ export default function AlterForm() {
       console.log("Cipher approved:", res.data);
   }).catch(err => {
       console.error("Error approving cipher:", err)})
-      
+  }
+  const handleClassify = (e) => {
+    e.preventDefault();
+
+    axios.get(`http://localhost:5115/api/ciphers/classify`,
+     { cipherText: formData.cipherText }
+    , { withCredentials: true }).then(res => {
+      console.log("Cipher classified:", res.data)}).catch(err => {
+      console.error("Error classifying cipher:", err)});
 
   };
  if (!formData.isApproved) {
@@ -104,6 +112,8 @@ export default function AlterForm() {
   </div>
 
   <button type="submit">Edit</button>
+  <button onClick={}>Edit</button>
 </form>
   );
+  
 }
