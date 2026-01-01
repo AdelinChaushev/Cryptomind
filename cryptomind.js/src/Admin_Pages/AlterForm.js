@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import './styles/ApproveForm.css'; // Assuming you have a CSS file for styling
 import axios from 'axios';
 
+
 export default function AlterForm() {
 
   const [formData, setFormData] = useState({title: '', allowHint: false, allowSolution: false, tags: [],isApproved: false});
@@ -40,16 +41,7 @@ export default function AlterForm() {
   }).catch(err => {
       console.error("Error approving cipher:", err)})
   }
-  const handleClassify = (e) => {
-    e.preventDefault();
-
-    axios.get(`http://localhost:5115/api/ciphers/classify`,
-     { cipherText: formData.cipherText }
-    , { withCredentials: true }).then(res => {
-      console.log("Cipher classified:", res.data)}).catch(err => {
-      console.error("Error classifying cipher:", err)});
-
-  };
+ 
  if (!formData.isApproved) {
   return (
     <form id="cipher-form" method="post" onSubmit={handleSubmit}>
@@ -112,7 +104,7 @@ export default function AlterForm() {
   </div>
 
   <button type="submit">Edit</button>
-  <button onClick={}>Edit</button>
+  
 </form>
   );
   
