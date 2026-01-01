@@ -95,7 +95,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				var result = await recognizerService.ClassifyCipherAsync(request.Ciphertext);
+				var result = await recognizerService.ClassifyCipherAsync(request.CipherText);
 				return Ok(result);
 			}
 			catch (ArgumentException ex)
@@ -135,6 +135,6 @@ namespace Cryptomind.Controllers
 
 	public class ClassifyRequest
 	{
-		public string Ciphertext { get; set; }
+		public string CipherText { get; set; }
 	}
 }
