@@ -44,7 +44,7 @@ namespace Cryptomind.Core.Services
 
             return null;
         }
-        public string GenerateJSONWebToken(ApplicationUser user)
+        public async  Task<string> GenerateJSONWebToken(ApplicationUser user)
         {
             var authClaims = new List<Claim>
             {
@@ -52,7 +52,13 @@ namespace Cryptomind.Core.Services
                 new (ClaimTypes.NameIdentifier,user.Id),
                 new (ClaimTypes.Name, user.UserName),
                 new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                
             };
+            var userRoles = await userManager.GetRolesAsync(user);
+            foreach (var userRole in userRoles)
+            {
+                authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+            }
             string jwtSecret = this.configuration["JWT:Secret"];
             byte[] jwtSecretBytes = Encoding.UTF8.GetBytes(jwtSecret);
             var authSigningKey = new SymmetricSecurityKey(jwtSecretBytes);
