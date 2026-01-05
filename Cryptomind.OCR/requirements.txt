@@ -1,0 +1,17 @@
+# Flask web framework
+Flask==3.0.0
+flask-cors==4.0.0
+
+# OCR and Image Processing
+pytesseract==0.3.10
+Pillow==10.1.0
+opencv-python==4.8.1.78
+numpy==1.24.3
+
+# Utilities
+Werkzeug==3.0.1
+requests==2.31.0        ← ADD THIS LINE
+
+# Optional: Better production server
+# gunicorn==21.2.0  # For Linux/Mac deployment
+# waitress==2.1.2   # For Windows deployment
