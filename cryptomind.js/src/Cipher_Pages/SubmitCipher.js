@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './styles/SubmitCipher.css'; // Assuming you have a CSS file for styling
+import './styles/SubmitCipher.css'; 
 import axios from 'axios';
 
 
@@ -21,12 +21,12 @@ export default function SubmitCipher() {
   data.append("CipherDefinition", contentType === "image" ? 1 : 0);
 
   if (contentType === "image") {
-    data.append("Image", formData.Image); // this must be a File object
+    data.append("Image", formData.Image); 
   } else {
     data.append("EncryptedText", formData.EncryptedText);
   }
 
-  axios.post("http://localhost:5115/api/ciphers/submitCipher", data, {
+  axios.post("http://localhost:5115/api/ciphers/submit-cipher", data, {
     withCredentials: true,
     headers: {
       "Content-Type": "multipart/form-data",

@@ -100,7 +100,6 @@ namespace Cryptomind.Core.Services
 			cipher.Title = model.Title;
 			cipher.AllowHint = model.AllowHint;
 			cipher.AllowSolution = model.AllowSolution;
-
 			if (model.TagIds != null && model.TagIds.Count > 0)
 			{
 				try
