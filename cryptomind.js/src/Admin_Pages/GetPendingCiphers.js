@@ -8,7 +8,7 @@ export default function GetPendingCiphers() {
    const[loading, setLoading] = useState(true);
    
        useEffect(() => {
-       axios.get('http://localhost:5115/api/cipherAdmin/pendingCiphers', { withCredentials: true })
+       axios.get('http://localhost:5115/api/admin/pending-ciphers', { withCredentials: true })
        .then(res => {
               setCiphers(res.data);
               console.log("Pending Ciphers:", res.data);
@@ -18,7 +18,7 @@ export default function GetPendingCiphers() {
        const handleReject = (cipherId) => {
          // Logic to approve the cipher
         
-         axios.delete(`http://localhost:5115/api/cipherAdmin/rejectCipher/${cipherId}`, {}, { withCredentials: true })
+         axios.delete(`http://localhost:5115/api/admin/cipher/${cipherId}/reject`, {}, { withCredentials: true })
          .then(res => {
            console.log("Cipher rejected:", res.data);
            setCiphers(ciphers.filter(cipher => cipher.id !== cipherId));

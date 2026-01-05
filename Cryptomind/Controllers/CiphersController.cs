@@ -112,6 +112,7 @@ namespace Cryptomind.Controllers
 			}
 			return BadRequest();
 		}
+        
 
 		[HttpGet("ml-health")]
 		public async Task<IActionResult> CheckMLHealth()
