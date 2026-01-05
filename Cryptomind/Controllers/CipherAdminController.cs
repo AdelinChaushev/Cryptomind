@@ -1,10 +1,13 @@
 ﻿using Cryptomind.Common.CipherAdminViewModels;
-using Cryptomind.Data.Entities;
+using Cryptomind.Common.CipherViewModels;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Core.Services;
+using Cryptomind.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Buffers.Text;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Cryptomind.Controllers
 {
@@ -27,7 +30,7 @@ namespace Cryptomind.Controllers
 				var result = await adminService.AllSubmittedCiphers();
 				return Ok(result);
 			}
-			catch (Exception ex)
+			catch (InvalidOperationException ex)
 			{
 				await Console.Out.WriteLineAsync(ex.Message);
 			}
@@ -41,7 +44,7 @@ namespace Cryptomind.Controllers
 				var result = await adminService.AllApprovedCiphers();
 				return Ok(result);
 			}
-			catch (Exception ex)
+			catch (InvalidOperationException ex)
 			{
 				await Console.Out.WriteLineAsync(ex.Message);
 			}
@@ -54,11 +57,40 @@ namespace Cryptomind.Controllers
 			try
 			{
 				var cipher = await adminService.GetCipherById(id);
-				return Ok(cipher); 
+				var viewModel = new CipherReviewOutputViewModel();
+
+				//string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imageFolderPath))}";
+				if (cipher is ImageCipher)
+				{
+					viewModel.Id = cipher.Id;
+					viewModel.Title = cipher.Title;
+					viewModel.DecryptedText = cipher.DecryptedText;
+					viewModel.Points = cipher.Points;
+					//viewModel.CipherText = base64;
+					viewModel.AllowsAnswer = cipher.AllowSolution;
+					viewModel.AllowsHint = cipher.AllowHint;
+					viewModel.IsApproved = cipher.IsApproved;
+					viewModel.IsImage = true;
+				}
+				else
+				{
+					TextCipher textCipher = cipher as TextCipher;
+					viewModel.Id = cipher.Id;
+					viewModel.Title = cipher.Title;
+					viewModel.DecryptedText = cipher.DecryptedText;
+					viewModel.Points = cipher.Points;
+					viewModel.CipherText = textCipher.EncryptedText;
+					viewModel.AllowsAnswer = cipher.AllowSolution;
+					viewModel.AllowsHint = cipher.AllowHint;
+					viewModel.IsApproved = cipher.IsApproved;
+					viewModel.IsImage = true;
+				}
 				//Should I return the whole DB entity??
 				//Samuil from December definetely not
+
+				return Ok(viewModel);
 			}
-			catch (Exception ex)
+			catch (InvalidOperationException ex)
 			{
 				await Console.Out.WriteLineAsync(ex.Message);
 			}
