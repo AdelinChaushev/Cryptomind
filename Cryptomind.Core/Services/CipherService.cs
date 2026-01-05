@@ -19,7 +19,6 @@ namespace Cryptomind.Core.Services
 {
 	public class CipherService(IRepository<Cipher, int> cipherRepo, IRepository<UserSolution, int> solutionRepository) : ICipherService
 	{
-
 		public async Task<bool> AnswerCipherAsync(string userId, string input, int cipherId)
 		{
 			Cipher cipher = await cipherRepo.GetByIdAsync(cipherId);
