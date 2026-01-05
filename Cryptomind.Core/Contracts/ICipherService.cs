@@ -11,7 +11,7 @@ namespace Cryptomind.Core.Contracts
 {
 	public interface ICipherService
 	{
-		Task<List<Cipher>> GetApprovedAsync(CipherFilter? filter); // Implement functionality to be able to filter by tags
+		Task<List<CipherOutputViewModel>> GetApprovedAsync(CipherFilter? filter); // Implement functionality to be able to filter by tags
 		Task<CipherOutputViewModel?> GetCipherAsync(int id);
 		Task<Cipher> SubmitCipherAsync(SubmitCipherViewModel cipher, string userId);
 		Task<bool> AnswerCipherAsync(string userId,string input, int cipherId);

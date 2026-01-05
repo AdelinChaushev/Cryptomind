@@ -5,6 +5,7 @@ using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 using System;
@@ -17,7 +18,7 @@ using System.Xml.Linq;
 
 namespace Cryptomind.Core.Services
 {
-	public class CipherService(IRepository<Cipher, int> cipherRepo, IRepository<UserSolution, int> solutionRepository) : ICipherService
+	public class CipherService(IRepository<Cipher, int> cipherRepo, IRepository<UserSolution, int> solutionRepository, UserManager<ApplicationUser>  userRepository) : ICipherService
 	{
 		public async Task<bool> AnswerCipherAsync(string userId, string input, int cipherId)
 		{
@@ -32,15 +33,21 @@ namespace Cryptomind.Core.Services
 				{
 					CipherId = cipherId,
 					UserId = userId,
-					TimeSolved = DateTime.Now
+					TimeSolved = DateTime.Now,
+				
 				});
-				return true;
+				
+				ApplicationUser user = await userRepository.FindByIdAsync(userId);
+				user.Score += cipher.Points;
+				user.SolvedCount += 1;
+                return true;
 				//Some user
+				
 			}
 
 			return false;
 		}
-		public async Task<List<Cipher>> GetApprovedAsync(CipherFilter? filter)
+		public async Task<List<CipherOutputViewModel>> GetApprovedAsync(CipherFilter? filter)
 		{
 			List<Cipher> approved = (await cipherRepo.GetAllAsync()).Where(c => c.IsApproved).ToList();
 
@@ -49,8 +56,12 @@ namespace Cryptomind.Core.Services
 
 			if (filter.Tags != null)
 				approved = approved.Where(c => c.CipherTags.Any(t => filter.Tags.Contains(t.Tag.Type))).ToList();
-
-			return approved;
+			List<CipherOutputViewModel> result = new List<CipherOutputViewModel>();
+			foreach (var cipher in approved)
+			{
+				result.Add( await ToOutputViewModel(cipher));
+            }
+                return result;
 		}
 		public async Task<CipherOutputViewModel?> GetCipherAsync(int id)
 		{
