@@ -96,15 +96,12 @@ namespace Cryptomind.Controllers
 			}
 			return BadRequest();
 		} 
-		// The button approve is clicked here
 
 		[HttpPut("cipher/{id}/approve")]
 		public async Task<IActionResult> ApproveCipher([FromRoute] int id, [FromBody] ApproveUpdateCipherViewModel model)
 		{
 			try
 			{
-				
-
 				await adminService.ApproveCipherAsync(id, model);
 				//Here we can update some values for the user which submitted the cipher, like adding that he created a cipher
 
@@ -138,8 +135,6 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				
-
 				await adminService.UpdateApprovedCipher(id, model);
 
 				return Ok();

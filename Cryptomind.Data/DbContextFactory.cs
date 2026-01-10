@@ -8,19 +8,16 @@ using System.Threading.Tasks;
 
 namespace Cryptomind.Data
 {
-   
-    
-        public class CryptomindDbContextFactory : IDesignTimeDbContextFactory<CryptomindDbContext>
-        {
-            public CryptomindDbContext CreateDbContext(string[] args)
-            {
-                var optionsBuilder = new DbContextOptionsBuilder<CryptomindDbContext>();
+	public class CryptomindDbContextFactory : IDesignTimeDbContextFactory<CryptomindDbContext>
+	{
+		public CryptomindDbContext CreateDbContext(string[] args)
+		{
+			var optionsBuilder = new DbContextOptionsBuilder<CryptomindDbContext>();
 
-                // Use your actual connection string here
-                optionsBuilder.UseSqlServer("Server=.;Database=CryptomindDb;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True");
+			// Use your actual connection string here
+			optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=CryptomindDb;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True");
 
-                return new CryptomindDbContext(optionsBuilder.Options);
-            }
-        }
-    
+			return new CryptomindDbContext(optionsBuilder.Options);
+		}
+	}
 }
