@@ -48,9 +48,16 @@ namespace Cryptomind.Core.Services
 				throw new InvalidOperationException("There is no cipher with the given Id");
 			else if (cipher.IsApproved) 
 				throw new InvalidOperationException("The cipher with the given Id is already approved");
-			
-			if (cipherRepo.FirstOrDefaultAsync(x => x.Title == model.Title) != null)
-				throw new InvalidOperationException("There is already a cipher with this title");
+
+			foreach (var cipherIter in cipherRepo.GetAll())
+			{
+				if (cipherIter.Title == model.Title)
+					throw new InvalidOperationException("There is already a cipher with this title");
+			}
+
+			//Check this when you see it for SAMUIL
+			//if (cipherRepo.FirstOrDefaultAsync(x => x.Title == model.Title && x.Id != id) != null)
+			//	throw new InvalidOperationException("There is already a cipher with this title");
 
 
 			//Applying tags to the actual DB entity
@@ -93,10 +100,18 @@ namespace Cryptomind.Core.Services
 				throw new InvalidOperationException("There is no cipher with the given Id");
 			else if (!cipher.IsApproved) 
 				throw new InvalidOperationException("The cipher with the given Id is not approved");
-			
-			if (cipherRepo.FirstOrDefaultAsync(x => x.Title == model.Title) != null)
-				throw new InvalidOperationException("There is already a cipher with this title");
 
+			foreach (var cipherIter in cipherRepo.GetAll())
+			{
+				if (cipherIter.Title == model.Title && cipher.Id != id)
+					throw new InvalidOperationException("There is already a cipher with this title");
+			}
+
+			//Check this when you see it for SAMUIL
+			//if (cipherRepo.FirstOrDefaultAsync(x => x.Title == model.Title && x.Id != id) != null)
+			//	throw new InvalidOperationException("There is already a cipher with this title");
+
+			Console.WriteLine(model.Title);
 			cipher.Title = model.Title;
 			cipher.AllowHint = model.AllowHint;
 			cipher.AllowSolution = model.AllowSolution;
@@ -119,8 +134,10 @@ namespace Cryptomind.Core.Services
 		private async Task DefineTagsAsync (Cipher? cipher, List<int> tagIds)
 		{
 			List<Tag> existingAssignedTags = (await tagRepo.GetAllAsync()).Where(x => tagIds.Contains(x.Id)).ToList();
-			if (existingAssignedTags.Count != tagIds.Count)
-				throw new InvalidOperationException("One or more tag IDs don't exist");
+
+			//ADD THIS IN PRODUCTION!!!
+			//if (existingAssignedTags.Count != tagIds.Count)
+			//	throw new InvalidOperationException("One or more tag IDs don't exist");
 			
 			if (cipher.CipherTags != null)
 				cipher.CipherTags?.Clear();
@@ -145,6 +162,7 @@ namespace Cryptomind.Core.Services
                 if (cipher is ImageCipher)
                 {
                     ImageCipher cipherImage = cipher as ImageCipher;
+					string cipherText = (cipher as ImageCipher).EncryptedText;
                     string imageFolderPath = Path.Combine(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..")), cipherImage.ImagePath);
                     string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imageFolderPath))}";
 
@@ -154,7 +172,8 @@ namespace Cryptomind.Core.Services
                         Title = cipher.Title,
                         DecryptedText = cipher.DecryptedText,
                         Points = cipher.Points,
-                        CipherText = base64,
+                        //Image = base64,
+						CipherText = cipherText,
                         AllowsAnswer = cipher.AllowSolution,
                         AllowsHint = cipher.AllowHint,
                         IsApproved = cipher.IsApproved,

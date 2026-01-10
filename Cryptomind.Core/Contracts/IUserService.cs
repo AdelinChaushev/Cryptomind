@@ -11,7 +11,7 @@ namespace Cryptomind.Core.Contracts
     public interface IUserService
     {
         Task<ApplicationUser> Authenticate(string email, string password);
-        string GenerateJSONWebToken(ApplicationUser user);
+        Task<string> GenerateJSONWebToken(ApplicationUser user);
         Task<ApplicationUser> CreateUser(string userName, string email, string password);
         Task<IEnumerable<string>> GetRolesUsers(string id);
         Task RemoveUserFromRole(string userId, string role);

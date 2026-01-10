@@ -16,5 +16,6 @@ namespace Cryptomind.Common.AuthenticationViewModels
         [MinLength(8)]
         [DataType(DataType.Password)]
         public string Password { get; set; }
-    }
+
+	}
 }
