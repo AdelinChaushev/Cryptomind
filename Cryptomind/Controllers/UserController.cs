@@ -31,7 +31,7 @@ namespace Cryptomind.Controllers
                 {
                     return BadRequest();
                 }
-                string token = userService.GenerateJSONWebToken(user);
+                string token = await userService.GenerateJSONWebToken(user);
                 AddCookie(token);
                 return Ok(token);
             }
@@ -40,49 +40,55 @@ namespace Cryptomind.Controllers
 
                 return BadRequest(ex.Message);
             }
-          
-
         }
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody]LoginViewModel model)
-        {
-            if (!ModelState.IsValid) 
-            { 
-                return BadRequest("Invalid Credentials");
-            }
-            ApplicationUser? user =  await userService.Authenticate(model.Email,model.Password);
-            if (user == null)
-            {
-                return BadRequest("Invalid Credentials");
-            }
-            string token = userService.GenerateJSONWebToken(user);
-            
-            AddCookie(token);
-            return Ok(token);
 
-        }
-        [HttpPost("logout")]
+		[HttpPost("login")]
+		public async Task<IActionResult> Login([FromBody] LoginViewModel model)
+		{
+			//REMOVE THIS IN PRODUCTION!!!
+			//model.Email = "admin@cryptomind.com";
+			//model.Password = "Admin123!";
+
+			if (!ModelState.IsValid)
+			{
+				return BadRequest("Invalid Credentials");
+			}
+
+			ApplicationUser? user = await userService.Authenticate(model.Email, model.Password);
+			if (user == null)
+			{
+				return BadRequest("Invalid Credentials");
+			}
+
+			string token = await userService.GenerateJSONWebToken(user); // Added await
+
+			AddCookie(token);
+			return Ok(token);
+		}
+
+		[HttpPost("logout")]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        public async Task<IActionResult> Logout()
-        {
-            Response.Cookies.Delete("token", new CookieOptions
-            {
-                HttpOnly = true,
-                IsEssential = true,
-                SameSite = SameSiteMode.None,
-                Secure = true, // Set Secure if your cookie is Secure
-                Expires = DateTime.Now.AddDays(-1) // Set expiration to a past date
-            });
-            return Ok();
-        }
+		public IActionResult Logout()
+		{
+			Response.Cookies.Delete("token", new CookieOptions
+			{
+				HttpOnly = true,
+				IsEssential = true,
+				SameSite = SameSiteMode.None,
+				Secure = true,
+				Expires = DateTime.Now.AddDays(-1)
+			});
+			return Ok();
+		}
 
-        [HttpPost("deactivate")]
+		[HttpPost("deactivate")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> DeactivateAccount()
         {
             await userService.DeactivateAccount(GetUserId());
             return Ok();
         }
+
         [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpGet("get-roles")]
         public async Task<IActionResult> GetUserRoles()
@@ -90,7 +96,7 @@ namespace Cryptomind.Controllers
             var roles = await userService.GetRolesUsers(GetUserId());
             return Ok(roles);
         }
-        //Common methods
+
         [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpGet("getAccountInfo")]
         public async Task<IActionResult> GetAccountInfo()
@@ -98,6 +104,7 @@ namespace Cryptomind.Controllers
             var user = await userService.GetUserAccountInfo(GetUserId());
             return Ok(user);
         }
+        //Common methods
         private void AddCookie(string token)
         {
             HttpContext.Response.Cookies.Append("token", token, new CookieOptions()
