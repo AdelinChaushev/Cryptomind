@@ -1,15 +1,16 @@
-﻿using Cryptomind.Common.CipherViewModels;
+﻿using Cryptomind.Common.CipherRecognitionViewModels;
+using Cryptomind.Common.CipherViewModels;
 using Cryptomind.Common.DTOs;
-using Cryptomind.Data.Entities;
+using Cryptomind.Common.Enums;
 using Cryptomind.Core.Contracts;
+using Cryptomind.Core.Services;
+using Cryptomind.Data.Entities;
+using Cryptomind.Data.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Cryptomind.Data.Enums;
-using Cryptomind.Common.Enums;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
 using System.IO;
-using Cryptomind.Common.CipherRecognitionViewModels;
+using System.Security.Claims;
 
 namespace Cryptomind.Controllers
 {
@@ -20,7 +21,6 @@ namespace Cryptomind.Controllers
 		private ICipherService cipherService;
 		private IUserService userService;
 		private ICipherRecognizerService recognizerService;
-
 		public CiphersController(ICipherService cipherService, IUserService userService, ICipherRecognizerService recognizerService)
 		{
 			this.cipherService = cipherService;
@@ -53,24 +53,25 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 
-		[HttpPost("submit-cipher")]
+		[HttpPost("submit")]
 		[Authorize(AuthenticationSchemes = "Bearer")]
+		[Consumes("multipart/form-data")]
 		public async Task<IActionResult> SubmitCipher([FromForm] SubmitCipherViewModel model)
 		{
-			string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			var userId = GetUserId();
+
 			try
 			{
-				await cipherService.SubmitCipherAsync(model, userId);
-				return Ok();
+				var cipher = await cipherService.SubmitCipherAsync(model, userId);
+				return Ok(cipher);
 			}
 			catch (Exception ex)
 			{
-				await Console.Out.WriteLineAsync(ex.Message);
+				return BadRequest(new { error = ex.Message });
 			}
-			return BadRequest();
 		}
 
-		[HttpPost("solve-cipher/{id}")]
+		[HttpPost("cipher/{id}/solve")]
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		public async Task<IActionResult> SolveCipher([FromRoute] int id, [FromBody] SolveCipherDTO dto)
 		{
@@ -89,13 +90,14 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 
-		[HttpPost("classify")]
+		[HttpPost("cipher/{id}/classify")]
 		[Authorize(AuthenticationSchemes = "Bearer")]
-		public async Task<IActionResult> ClassifyCipher([FromBody] ClassifyRequest request)
+		public async Task<IActionResult> ClassifyCipher([FromRoute] int id)
 		{
+			var cipher = await cipherService.GetCipherAsync(id);
 			try
 			{
-				var result = await recognizerService.ClassifyCipherAsync(request.Ciphertext);
+				var result = await recognizerService.ClassifyCipherAsync(cipher.CipherText);
 				return Ok(result);
 			}
 			catch (ArgumentException ex)
@@ -112,7 +114,6 @@ namespace Cryptomind.Controllers
 			}
 			return BadRequest();
 		}
-        
 
 		[HttpGet("ml-health")]
 		public async Task<IActionResult> CheckMLHealth()
@@ -131,10 +132,5 @@ namespace Cryptomind.Controllers
 
 		private string GetUserId()
 		   => User.FindFirstValue(ClaimTypes.NameIdentifier);
-	}
-
-	public class ClassifyRequest
-	{
-		public string Ciphertext { get; set; }
 	}
 }

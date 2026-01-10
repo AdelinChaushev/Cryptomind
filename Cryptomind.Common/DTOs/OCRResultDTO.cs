@@ -13,13 +13,7 @@ namespace Cryptomind.Common.DTOs
 		public double Confidence { get; set; }
 		public int CharCount { get; set; }
 		public int WordCount { get; set; }
-		public OCRValidation Validation { get; set; }
+		public OCRValidationDTO Validation { get; set; }
 		public string ErrorMessage { get; set; }
-	}
-	public class OCRValidation
-	{
-		public bool IsValid { get; set; }
-		public List<string> Warnings { get; set; }
-		public string Recommendation { get; set; }
 	}
 }

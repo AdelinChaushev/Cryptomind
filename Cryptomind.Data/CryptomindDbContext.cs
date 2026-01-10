@@ -29,8 +29,6 @@ namespace Cryptomind.Data
             builder.Entity<CipherTag>()
                 .HasKey(c => new { c.CipherId, c.TagId });
 
-		
-
 			builder.Entity<HintRequest>().HasOne(c => c.Cipher)
                .WithMany(c => c.HintsRequested).OnDelete(DeleteBehavior.NoAction);
 
@@ -53,8 +51,6 @@ namespace Cryptomind.Data
 	            .WithMany(c => c.UsersSolved)
 	            .HasForeignKey(us => us.CipherId)
 	            .OnDelete(DeleteBehavior.Restrict); // Prevent multiple cascade paths
-
-
 
 			base.OnModelCreating(builder);
         }
