@@ -17,7 +17,6 @@ namespace Cryptomind.Data
         : base(options) { }
 
         public DbSet<ApplicationUser> Users { get; set; }
-
         public DbSet<CipherTag> CipherTags { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<HintRequest> HintRequests { get; set; }
