@@ -29,7 +29,6 @@ namespace Cryptomind.Core.Services.OCR
 
 			_ocrApiUrl = configuration["OCRService:ApiUrl"] ?? "http://localhost:5001";
 		}
-
 		public async Task<OCRResultDTO> ExtractTextFromImageAsync(IFormFile imageFile)
 		{
 			if (imageFile == null || imageFile.Length == 0)
@@ -115,7 +114,6 @@ namespace Cryptomind.Core.Services.OCR
 				);
 			}
 		}
-
 		public async Task<OCRResultDTO> ExtractTextWithMultipleMethodsAsync(IFormFile imageFile)
 		{
 			if (imageFile == null || imageFile.Length == 0)
@@ -201,7 +199,6 @@ namespace Cryptomind.Core.Services.OCR
 				);
 			}
 		}
-
 		public async Task<bool> IsServiceHealthyAsync()
 		{
 			try
@@ -214,7 +211,6 @@ namespace Cryptomind.Core.Services.OCR
 				return false;
 			}
 		}
-
 		private OCRResultDTO ConvertToDTO(PythonOCRResponse pythonResponse)
 		{
 			return new OCRResultDTO
@@ -227,7 +223,6 @@ namespace Cryptomind.Core.Services.OCR
 				ErrorMessage = pythonResponse.Error
 			};
 		}
-
 		private OCRValidationDTO ConvertToValidationDTO(PythonValidation pythonValidation)
 		{
 			if (pythonValidation == null)
@@ -249,7 +244,6 @@ namespace Cryptomind.Core.Services.OCR
 		}
 
 		#region Internal Models for Python API
-
 		private class PythonOCRResponse
 		{
 			[JsonPropertyName("success")]
@@ -273,7 +267,6 @@ namespace Cryptomind.Core.Services.OCR
 			[JsonPropertyName("error")]
 			public string Error { get; set; }
 		}
-
 		private class PythonValidation
 		{
 			[JsonPropertyName("is_valid")]
@@ -285,7 +278,6 @@ namespace Cryptomind.Core.Services.OCR
 			[JsonPropertyName("recommendation")]
 			public string Recommendation { get; set; }
 		}
-
 		#endregion
 	}
 }

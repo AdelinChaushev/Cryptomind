@@ -14,14 +14,15 @@ namespace Cryptomind.Controllers
 	[ApiController]
 	[Route("api/admin")]
 	[Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
-	public class CipherAdminController : ControllerBase
+	public class AdminController : ControllerBase
 	{
 		private IAdminService adminService;
-		public CipherAdminController(IAdminService service)
+		public AdminController(IAdminService service)
 		{
 			this.adminService = service;
 		}
 
+		#region Cipher-specific
 		[HttpGet("pending-ciphers")]
 		public async Task<IActionResult> GetSubmittedCiphers()
 		{
@@ -145,6 +146,7 @@ namespace Cryptomind.Controllers
 			}
 			return BadRequest();
 		}
+
 		[HttpDelete("cipher/{id}/delete")]
 		public async Task<IActionResult> DeleteCipher([FromRoute] int id)
 		{
@@ -160,5 +162,84 @@ namespace Cryptomind.Controllers
 			}
 			return BadRequest();
 		}
+		#endregion
+
+		#region User-specific
+		[HttpGet("users")]
+		public async Task<IActionResult> GetAllUsers()
+		{
+			try
+			{
+				var result = await adminService.GetAllUsers();
+
+				return Ok(result);
+			}
+			catch (Exception ex)
+			{
+				await Console.Out.WriteLineAsync(ex.Message);
+			}
+			return BadRequest();
+		}
+
+		[HttpGet("user/{id}")]
+		public async Task<IActionResult> GetUser([FromRoute] string id)
+		{
+			try
+			{
+				var result = await adminService.GetUser(id);
+				return Ok(result);
+			}
+			catch (Exception ex)
+			{
+				await Console.Out.WriteLineAsync(ex.Message);
+			}
+			return BadRequest();
+		}
+
+		[HttpPut("user/{id}/admin")]
+		public async Task<IActionResult> MakeUserAdmin([FromRoute] string id)
+		{
+			try
+			{
+				await adminService.MakeAdmin(id);
+				return Ok();
+			}
+			catch (Exception ex)
+			{
+				await Console.Out.WriteLineAsync(ex.Message);
+			}
+			return BadRequest();
+		}
+
+		[HttpPut("user/{id}/ban")]
+		public async Task<IActionResult> BanUser([FromRoute] string id, [FromForm] string reason)
+		{
+			try
+			{
+				await adminService.BanUserAsync(id, reason);
+				return Ok();
+			}
+			catch (Exception ex)
+			{
+				await Console.Out.WriteLineAsync(ex.Message);
+			}
+			return BadRequest();
+		}
+
+		[HttpPut("user/{id}/unban")]
+		public async Task<IActionResult> UnBanUser([FromRoute] string id)
+		{
+			try
+			{
+				await adminService.UnbanUserAsync(id);
+				return Ok();
+			}
+			catch (Exception ex)
+			{
+				await Console.Out.WriteLineAsync(ex.Message);
+			}
+			return BadRequest();
+		}
+		#endregion
 	}
 }

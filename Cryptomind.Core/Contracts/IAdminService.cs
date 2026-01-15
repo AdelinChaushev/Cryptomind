@@ -1,6 +1,8 @@
-﻿using Cryptomind.Common.CipherAdminViewModels;
+﻿using Cryptomind.Common.AdminViewModels;
+using Cryptomind.Common.CipherAdminViewModels;
 using Cryptomind.Common.CipherViewModels;
 using Cryptomind.Data.Entities;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,5 +20,10 @@ namespace Cryptomind.Core.Contracts
         Task ApproveCipherAsync(int id, ApproveUpdateCipherViewModel model);
         Task DeleteApprovedCipher(int id);
         Task UpdateApprovedCipher(int id, ApproveUpdateCipherViewModel model);
-    }
+		Task<List<UserViewModel>> GetAllUsers();
+		Task<UserDetailViewModel> GetUser(string userId);
+		Task MakeAdmin(string userId);
+		Task BanUserAsync(string userId, string reason);
+		Task UnbanUserAsync(string userId);
+	}
 }
