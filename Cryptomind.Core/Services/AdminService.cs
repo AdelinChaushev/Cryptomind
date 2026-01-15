@@ -1,21 +1,26 @@
 ﻿using Cryptomind.Common.CipherAdminViewModels;
 using Cryptomind.Common.CipherViewModels;
+using Cryptomind.Common.AdminViewModels;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cryptomind.Core.Services
 {
 	public class AdminService (
 		IRepository<Cipher, int> cipherRepo,
-		IRepository<Tag, int> tagRepo) : IAdminService
+		IRepository<Tag, int> tagRepo,
+		UserManager<ApplicationUser> userManager) : IAdminService
 	{
+		#region Cipher admin methods
 		public async Task<List<CipherReviewOutputViewModel>> AllSubmittedCiphers()
 		{
 			var result = (await cipherRepo.GetAllAsync()).Where(c => c.IsApproved == false).ToList();
@@ -49,6 +54,7 @@ namespace Cryptomind.Core.Services
 			else if (cipher.IsApproved) 
 				throw new InvalidOperationException("The cipher with the given Id is already approved");
 
+
 			foreach (var cipherIter in cipherRepo.GetAll())
 			{
 				if (cipherIter.Title == model.Title)
@@ -64,6 +70,9 @@ namespace Cryptomind.Core.Services
 			if (model.TagIds != null && model.TagIds.Count > 0)
                 await DefineTagsAsync(cipher, model.TagIds.ToList());
 			
+			if (cipher is ImageCipher) //We give permission for the admin to change the encrypted text extracted from OCR
+				(cipher as ImageCipher).EncryptedText = model.EncryptedText;
+
 			cipher.Title = model.Title;;
 			cipher.AllowHint = model.AllowHint;
 			cipher.AllowSolution = model.AllowSolution;
@@ -129,8 +138,147 @@ namespace Cryptomind.Core.Services
 
 			await cipherRepo.UpdateAsync(cipher);
 		}
+		#endregion
 
-		//Common methods
+		#region User-modifying methods
+		public async Task<List<UserViewModel>> GetAllUsers()
+		{
+			var userViewModels = new List<UserViewModel>();
+
+			foreach (var user in userManager.Users.ToList())
+			{
+				userViewModels.Add(new UserViewModel
+				{
+					Id = user.Id,
+					Username = user.UserName,
+					Email = user.Email,
+					IsAdmin = await userManager.IsInRoleAsync(user, "Admin"),
+					PendingCiphers = user.Ciphers.Count(c => !c.IsApproved)
+				});
+			}
+
+			return userViewModels;
+		}
+		public async Task<UserDetailViewModel> GetUser (string userId)
+		{
+			ApplicationUser? user = await userManager.Users
+					.Include(x => x.Ciphers)
+					.Include(x => x.SolvedCiphers)
+						.ThenInclude(x => x.Cipher)
+					.Include(x => x.HintsRequested)
+					.FirstOrDefaultAsync(x => x.Id == userId);
+
+			if (user == null)
+				throw new ArgumentException("There is no user with this ID");
+
+			List<UserCipherViewModel> submittedCiphers = new List<UserCipherViewModel>();
+			List<UserCipherViewModel> solvedCiphers = new List<UserCipherViewModel>();
+
+			foreach (var cipher in user.Ciphers)
+			{
+				var viewModel = new UserCipherViewModel
+				{
+					Id = cipher.Id,
+					Title = cipher.Title,
+					TypeOfCipher = cipher.TypeOfCipher,
+					IsApproved = cipher.IsApproved,
+					Points = cipher.Points,
+					CreatedAt = cipher.CreatedAt,
+				};
+
+				submittedCiphers.Add(viewModel);
+			}
+			foreach (var userSolution in user.SolvedCiphers)
+			{
+				var cipher = userSolution.Cipher;
+
+				var viewModel = new UserCipherViewModel
+				{
+					Id = cipher.Id,
+					Title = cipher.Title,
+					TypeOfCipher = cipher.TypeOfCipher,
+					IsApproved = cipher.IsApproved,
+					Points = cipher.Points,
+					CreatedAt = cipher.CreatedAt,
+				};
+
+				solvedCiphers.Add(viewModel);
+			}
+
+			bool isAdmin = await userManager.IsInRoleAsync(user, "Admin");
+			return new UserDetailViewModel
+			{
+				Id = user.Id,
+				Email = user.Email,
+				IsAdmin = isAdmin,
+				Username = user.UserName,
+				IsEmailConfirmed = user.EmailConfirmed,
+				IsBanned = user.isBanned,
+				BanReason = user.BanReason,
+				BannedAt = user.BannedAt,
+				RegisteredAt = user.RegisteredAt,
+				TotalScore = user.Score,
+				CiphersSubmitted = user.Ciphers.Count(),
+				CiphersSolved = user.SolvedCount,
+				HintsRequested = user.HintsRequested.Count(),
+				SolveSuccessRate = user.SuccessRate,
+				ApprovedCiphers = user.Ciphers.Where(x => x.IsApproved).Count(),
+				PendingCiphers = user.Ciphers.Where(x => !x.IsApproved).Count(),
+				SubmittedCiphers = submittedCiphers,
+				SolvedCiphers = solvedCiphers,
+			};
+		}
+		public async Task MakeAdmin (string userId)
+		{
+			ApplicationUser? user = await userManager.FindByIdAsync(userId);
+			if (user == null)
+				throw new ArgumentException("There is no user with this ID");
+
+			if (!await userManager.IsInRoleAsync(user, "Admin"))
+			{
+				await userManager.AddToRoleAsync(user, "Admin");
+			}
+			else
+			{
+				throw new ArgumentException("The user is already an admin");
+			}
+		}
+		public async Task BanUserAsync(string userId, string reason)
+		{
+			ApplicationUser? user = await userManager.FindByIdAsync(userId);
+			if (user == null)
+				throw new ArgumentException("There is no user with this ID");
+
+			if (user.isBanned)
+				throw new InvalidOperationException("This user is already banned");
+
+			await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
+			await userManager.SetLockoutEnabledAsync(user, true);
+
+			user.isBanned = true;
+			user.BanReason = reason;
+			user.BannedAt = DateTime.Now;
+			await userManager.UpdateAsync(user);
+		}
+		public async Task UnbanUserAsync(string userId)
+		{
+			ApplicationUser? user = await userManager.FindByIdAsync(userId);
+			if (user == null)
+				throw new ArgumentException("There is no user with this ID");
+
+			if (!user.isBanned)
+				throw new InvalidOperationException("This is user is not banned");
+
+			await userManager.SetLockoutEndDateAsync(user, DateTime.Now);
+
+			user.isBanned = false;
+			user.BanReason = null;
+			user.BannedAt = null;
+			await userManager.UpdateAsync(user);
+		}
+		#endregion
+
+		#region Common methods
 		private async Task DefineTagsAsync (Cipher? cipher, List<int> tagIds)
 		{
 			List<Tag> existingAssignedTags = (await tagRepo.GetAllAsync()).Where(x => tagIds.Contains(x.Id)).ToList();
@@ -199,5 +347,6 @@ namespace Cryptomind.Core.Services
             }
             return output;
         }
+		#endregion
 	}
 }
