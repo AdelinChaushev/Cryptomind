@@ -22,6 +22,7 @@ namespace Cryptomind.Data.Entities
         public string Title { get; set; }
         public string DecryptedText { get; set; }
         public CipherType TypeOfCipher { get; set; }
+        public DateTime CreatedAt { get; set; }
         public bool AllowHint { get; set; }
         public bool AllowSolution { get; set; }
         public bool IsApproved { get; set; }

@@ -75,8 +75,10 @@ namespace Cryptomind.Core.Services
 			{
 				UserName = userName,
 				Email = email,
-				EmailConfirmed = true
+				EmailConfirmed = true,
+				RegisteredAt = DateTime.Now,
 			};
+
 			var userExist = await userManager.FindByEmailAsync(email);
 			if (userExist != null)
 			{
