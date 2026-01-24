@@ -16,5 +16,6 @@ namespace Cryptomind.Common.AdminViewModels
 		public int Points { get; set; }
 		public DateTime CreatedAt { get; set; }
 		public DateTime? SolvedAt { get; set; }  // If in solved list
+		public ChallengeType ChallengeType { get; set; }
 	}
 }
