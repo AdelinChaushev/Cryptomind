@@ -13,6 +13,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cryptomind.Core.Services
 {
@@ -20,13 +21,13 @@ namespace Cryptomind.Core.Services
 	{
 		private readonly UserManager<ApplicationUser> userManager;
 		private readonly IConfiguration configuration;
-		public UserService(IConfiguration configuration, UserManager<ApplicationUser> userManager)
+		private readonly IRepository<ApplicationUser, string> userRepo;
+		public UserService(IConfiguration configuration, UserManager<ApplicationUser> userManager, IRepository<ApplicationUser, string> userRepo)
 		{
 
 			this.configuration = configuration;
 			this.userManager = userManager;
-
-
+			this.userRepo = userRepo;
 		}
 		public async Task<ApplicationUser> Authenticate(string email, string password)
 		{
@@ -122,16 +123,34 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<AccountViewModel?> GetUserAccountInfo(string id)
 		{
-			var user = await userManager.FindByIdAsync(id);
-			AccountViewModel account = new AccountViewModel()
+			var user = userRepo.GetAllAttached()
+				.Include(x => x.Badges)
+				.ThenInclude(x => x.Badge)
+				.FirstOrDefault(x => x.Id == id);
+
+			ICollection<BadgeViewModel> badges = user.Badges.Select(x => new BadgeViewModel
+			{
+				Title = x.Badge.Title,
+				Description = x.Badge.Description,
+				EarnedBy = x.Badge.EarnedBy,
+			}).ToList();
+
+			AccountViewModel result = new AccountViewModel()
 			{
 				Username = user.UserName,
 				Email = user.Email,
+				Roles = (await userManager.GetRolesAsync(user)).ToArray(),
+				RegisteredAt = user.RegisteredAt,
+				//BannedAt = user.BannedAt,
 				Points = user.Score,
 				SolvedCount = user.SolvedCount,
-				Roles = (await userManager.GetRolesAsync(user)).ToArray()
+				Score = user.Score,
+				AttemptedCiphers = user.AttemptedCiphers,
+				LeaderBoardPlace = user.LeaderBoardPlace,
+				SuccessRate = user.SuccessRate,
+				Badges = badges,
 			};
-			return account;
+			return result;
 		}
 	}
 }
