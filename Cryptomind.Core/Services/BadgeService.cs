@@ -33,16 +33,16 @@ namespace Cryptomind.Core.Services
 
 			// All criteria use the same statsService
 			badgeCriteria = new Dictionary<int, IBadgeCriteria>
-		{
-			{ 1, new SolvedCountCriteria(this.statsService, 1) },
-			{ 2, new SolvedCountCriteria(this.statsService, 25) },
-			//new ScoreCriteria(statsService, 500)
-			//new ScoreCriteria(statsService, 2000)
-			{ 3, new UploadCountCriteria(this.statsService, 1) },
-			{ 4, new UploadCountCriteria(this.statsService, 5) },
-			//NoHintsCriteria(statsService, 10)
-			{ 5, new DistinctSolvedCountCriteria(this.statsService, 5) }
-		};
+			{
+				{ 1, new SolvedCountCriteria(this.statsService, 1) },
+				{ 2, new SolvedCountCriteria(this.statsService, 25) },
+				//new ScoreCriteria(statsService, 500)
+				//new ScoreCriteria(statsService, 2000)
+				{ 3, new UploadCountCriteria(this.statsService, 1) },
+				{ 4, new UploadCountCriteria(this.statsService, 5) },
+				//NoHintsCriteria(statsService, 10)
+				{ 5, new DistinctSolvedCountCriteria(this.statsService, 5) }
+			};
 		}
 
 		public async Task CheckBadgesByCategory(string userId, BadgeCategory category)
