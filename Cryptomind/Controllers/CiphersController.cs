@@ -21,18 +21,19 @@ namespace Cryptomind.Controllers
 		private ICipherService cipherService;
 		private IUserService userService;
 		private ICipherRecognizerService recognizerService;
-		public CiphersController(ICipherService cipherService, IUserService userService, ICipherRecognizerService recognizerService)
+		private IBadgeService badgeService;
+		public CiphersController(ICipherService cipherService, IUserService userService, ICipherRecognizerService recognizerService, IBadgeService badgeService)
 		{
 			this.cipherService = cipherService;
 			this.userService = userService;
 			this.recognizerService = recognizerService;
+			this.badgeService = badgeService;
 		}
 
 		[HttpGet("all")]
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		public async Task<IActionResult> GetAllCiphers([FromQuery] CipherFilter filter)
 		{
-			await Console.Out.WriteLineAsync(filter.SearchTerm);
 			var result = await cipherService.GetApprovedAsync(filter);
 			return Ok(result);
 		}
@@ -80,6 +81,7 @@ namespace Cryptomind.Controllers
 			try
 			{
 				bool result = await cipherService.AnswerCipherAsync(GetUserId(), dto.UserSolution, id);
+				await badgeService.CheckBadgesByCategory(GetUserId(), BadgeCategory.OnSolve);
 				//Update user stats
 				return Ok(result);
 			}

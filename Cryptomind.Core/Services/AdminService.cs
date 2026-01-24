@@ -12,12 +12,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Cryptomind.Common.DTOs;
 
 namespace Cryptomind.Core.Services
 {
 	public class AdminService (
 		IRepository<Cipher, int> cipherRepo,
 		IRepository<Tag, int> tagRepo,
+		IRepository<UserSolution, int> solutionRepo,
 		UserManager<ApplicationUser> userManager) : IAdminService
 	{
 		#region Cipher admin methods
@@ -29,25 +31,62 @@ namespace Cryptomind.Core.Services
 
 			return await ToReviewOutputViewModelMany(result);
 		}
-		public async Task<List<CipherReviewOutputViewModel>> AllApprovedCiphers()
+		public async Task<List<CipherReviewOutputViewModel>> AllApprovedCiphers(CipherFilter filter)
 		{
 			var result = (await cipherRepo.GetAllAsync()).Where(c => c.IsApproved == true).ToList();
 			if (result == null) 
 				throw new InvalidOperationException("Wasn't able to retrieve approved ciphers");
 
-            return await ToReviewOutputViewModelMany(result);
+			if (!string.IsNullOrEmpty(filter.SearchTerm))
+				result = result.Where(c => c.Title.Contains(filter.SearchTerm)).Where(x => x.ChallengeType == filter.challengeType).ToList();
+
+			if (filter.Tags != null)
+				result = result.Where(c => c.CipherTags.Any(t => filter.Tags.Contains(t.Tag.Type))).ToList();
+
+			return await ToReviewOutputViewModelMany(result);
         }
-		public async Task<Cipher> GetCipherById(int id) 
+		public async Task<CipherReviewOutputViewModel> GetCipherById(int id) 
 		{
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
 
-			if (cipher == null) 
+			var viewModel = new CipherReviewOutputViewModel();
+			if (cipher == null)
 				throw new InvalidOperationException("There is no cipher with the given Id");
-			return cipher; //Go to next
+
+			//string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imageFolderPath))}";
+			if (cipher is ImageCipher)
+			{
+				viewModel.Id = cipher.Id;
+				viewModel.Title = cipher.Title;
+				viewModel.DecryptedText = cipher.DecryptedText;
+				viewModel.Points = cipher.Points;
+				//viewModel.CipherText = base64;
+				viewModel.AllowsAnswer = cipher.AllowSolution;
+				viewModel.AllowsHint = cipher.AllowHint;
+				viewModel.IsApproved = cipher.IsApproved;
+				viewModel.IsImage = true;
+				viewModel.ChallengeTypeDisplay = cipher.ChallengeType.ToString();
+			}
+			else
+			{
+				TextCipher textCipher = cipher as TextCipher;
+				viewModel.Id = cipher.Id;
+				viewModel.Title = cipher.Title;
+				viewModel.DecryptedText = cipher.DecryptedText;
+				viewModel.Points = cipher.Points;
+				viewModel.CipherText = textCipher.EncryptedText;
+				viewModel.AllowsAnswer = cipher.AllowSolution;
+				viewModel.AllowsHint = cipher.AllowHint;
+				viewModel.IsApproved = cipher.IsApproved;
+				viewModel.IsImage = true;
+				viewModel.ChallengeTypeDisplay = cipher.ChallengeType.ToString();
+			}
+
+			return viewModel;
 		}
-		public async Task ApproveCipherAsync(int id, ApproveUpdateCipherViewModel model) 
+		public async Task<string> ApproveCipherAsync(int id, ApproveUpdateCipherViewModel model) 
 		{
-			Cipher? cipher = await GetCipherById(id);
+			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
 
 			if (cipher == null) 
 				throw new InvalidOperationException("There is no cipher with the given Id");
@@ -79,10 +118,12 @@ namespace Cryptomind.Core.Services
 			cipher.IsApproved = true;
 
 			await cipherRepo.UpdateAsync(cipher);
+
+			return cipher.CreatedByUserId;
 		}
 		public async Task RejectCipherAsync(int id)
 		{
-			Cipher? cipher = await GetCipherById(id);
+			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
 			if (cipher == null) 
 				throw new InvalidOperationException("There is no cipher with the given Id");
 			else if (cipher.IsApproved) throw new InvalidOperationException("The cipher with the given Id is already approved");
@@ -92,18 +133,26 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task DeleteApprovedCipher(int id)
 		{
-			Cipher? cipher = await GetCipherById(id);
+			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
+
 			if (cipher == null) 
 				throw new InvalidOperationException("There is no cipher with the given Id");
 			else if (!cipher.IsApproved) 
 				throw new InvalidOperationException("The cipher with the given Id is not approved");
+
+			var solutions = solutionRepo.GetAllAttached().Where(x => x.CipherId == id);
+
+			foreach (var solution in solutions)
+			{
+				await solutionRepo.DeleteAsync(solution);
+			}
 
 			bool result = await cipherRepo.DeleteAsync(cipher);
 			if (!result) throw new InvalidOperationException("Wasn't able to delete the cipher");
 		}
 		public async Task UpdateApprovedCipher(int id, ApproveUpdateCipherViewModel model)
 		{
-			Cipher? cipher = await GetCipherById(id);
+			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
 
 			if (cipher == null) 
 				throw new InvalidOperationException("There is no cipher with the given Id");
@@ -153,7 +202,7 @@ namespace Cryptomind.Core.Services
 					Username = user.UserName,
 					Email = user.Email,
 					IsAdmin = await userManager.IsInRoleAsync(user, "Admin"),
-					PendingCiphers = user.Ciphers.Count(c => !c.IsApproved)
+					PendingCiphers = user.UploadedCiphers.Count(c => !c.IsApproved)
 				});
 			}
 
@@ -162,7 +211,7 @@ namespace Cryptomind.Core.Services
 		public async Task<UserDetailViewModel> GetUser (string userId)
 		{
 			ApplicationUser? user = await userManager.Users
-					.Include(x => x.Ciphers)
+					.Include(x => x.UploadedCiphers)
 					.Include(x => x.SolvedCiphers)
 						.ThenInclude(x => x.Cipher)
 					.Include(x => x.HintsRequested)
@@ -174,7 +223,7 @@ namespace Cryptomind.Core.Services
 			List<UserCipherViewModel> submittedCiphers = new List<UserCipherViewModel>();
 			List<UserCipherViewModel> solvedCiphers = new List<UserCipherViewModel>();
 
-			foreach (var cipher in user.Ciphers)
+			foreach (var cipher in user.UploadedCiphers)
 			{
 				var viewModel = new UserCipherViewModel
 				{
@@ -184,6 +233,7 @@ namespace Cryptomind.Core.Services
 					IsApproved = cipher.IsApproved,
 					Points = cipher.Points,
 					CreatedAt = cipher.CreatedAt,
+					ChallengeType = cipher.ChallengeType,
 				};
 
 				submittedCiphers.Add(viewModel);
@@ -200,6 +250,7 @@ namespace Cryptomind.Core.Services
 					IsApproved = cipher.IsApproved,
 					Points = cipher.Points,
 					CreatedAt = cipher.CreatedAt,
+					ChallengeType = cipher.ChallengeType,
 				};
 
 				solvedCiphers.Add(viewModel);
@@ -218,12 +269,12 @@ namespace Cryptomind.Core.Services
 				BannedAt = user.BannedAt,
 				RegisteredAt = user.RegisteredAt,
 				TotalScore = user.Score,
-				CiphersSubmitted = user.Ciphers.Count(),
+				CiphersSubmitted = user.UploadedCiphers.Count(),
 				CiphersSolved = user.SolvedCount,
 				HintsRequested = user.HintsRequested.Count(),
 				SolveSuccessRate = user.SuccessRate,
-				ApprovedCiphers = user.Ciphers.Where(x => x.IsApproved).Count(),
-				PendingCiphers = user.Ciphers.Where(x => !x.IsApproved).Count(),
+				ApprovedCiphers = user.UploadedCiphers.Where(x => x.IsApproved).Count(),
+				PendingCiphers = user.UploadedCiphers.Where(x => !x.IsApproved).Count(),
 				SubmittedCiphers = submittedCiphers,
 				SolvedCiphers = solvedCiphers,
 			};
@@ -326,7 +377,8 @@ namespace Cryptomind.Core.Services
                         AllowsHint = cipher.AllowHint,
                         IsApproved = cipher.IsApproved,
                         IsImage = true,
-                    });
+						ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
+					});
                 }
                 else
                 {
@@ -342,7 +394,8 @@ namespace Cryptomind.Core.Services
                         AllowsHint = cipher.AllowHint,
                         IsApproved = cipher.IsApproved,
                         IsImage = false,
-                    });
+						ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
+					});
                 }
             }
             return output;
