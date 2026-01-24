@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Cryptomind.Data.Migrations
 {
     /// <inheritdoc />
@@ -32,6 +34,12 @@ namespace Cryptomind.Data.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Score = table.Column<int>(type: "int", nullable: false),
                     SolvedCount = table.Column<int>(type: "int", nullable: false),
+                    AttemptedCiphers = table.Column<int>(type: "int", nullable: false),
+                    isBanned = table.Column<bool>(type: "bit", nullable: false),
+                    BanReason = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LeaderBoardPlace = table.Column<int>(type: "int", nullable: false),
+                    RegisteredAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    BannedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -50,6 +58,21 @@ namespace Cryptomind.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Badge",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Category = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Badge", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -180,13 +203,18 @@ namespace Cryptomind.Data.Migrations
                     Title = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     DecryptedText = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TypeOfCipher = table.Column<int>(type: "int", nullable: false),
+                    ChallengeType = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     AllowHint = table.Column<bool>(type: "bit", nullable: false),
                     AllowSolution = table.Column<bool>(type: "bit", nullable: false),
                     IsApproved = table.Column<bool>(type: "bit", nullable: false),
+                    Points = table.Column<int>(type: "int", nullable: false),
                     CreatedByUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Discriminator = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
+                    EntityType = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
                     ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    EncryptedText = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    EncryptedText = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OCRConfidence = table.Column<double>(type: "float", nullable: true),
+                    TextCipher_EncryptedText = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -195,6 +223,33 @@ namespace Cryptomind.Data.Migrations
                         name: "FK_Cipher_AspNetUsers_CreatedByUserId",
                         column: x => x.CreatedByUserId,
                         principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserBadge",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    BadgeId = table.Column<int>(type: "int", nullable: false),
+                    EarnedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserBadge", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserBadge_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserBadge_Badge_BadgeId",
+                        column: x => x.BadgeId,
+                        principalTable: "Badge",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -230,17 +285,16 @@ namespace Cryptomind.Data.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CipherId = table.Column<int>(type: "int", nullable: false),
-                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     HintType = table.Column<int>(type: "int", nullable: false),
-                    InputText = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    GeneratedAnswer = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    InputText = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_HintRequests", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_HintRequests_AspNetUsers_ApplicationUserId",
-                        column: x => x.ApplicationUserId,
+                        name: "FK_HintRequests_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
@@ -248,6 +302,45 @@ namespace Cryptomind.Data.Migrations
                         column: x => x.CipherId,
                         principalTable: "Cipher",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserSolution",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CipherId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    TimeSolved = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserSolution", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserSolution_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserSolution_Cipher_CipherId",
+                        column: x => x.CipherId,
+                        principalTable: "Cipher",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Badge",
+                columns: new[] { "Id", "Category", "Description", "Title" },
+                values: new object[,]
+                {
+                    { 1, 0, "Solve your first cipher", "First Blood" },
+                    { 2, 0, "Solve 25 ciphers", "Apprentice Cryptanalyst" },
+                    { 3, 1, "Have your first cipher approved", "Cipher Creator" },
+                    { 4, 1, "Have 5 ciphers approved", "Community Contributor" },
+                    { 5, 2, "Solve at least one cipher from 5 different types", "Diverse Solver" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -300,14 +393,34 @@ namespace Cryptomind.Data.Migrations
                 column: "TagId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_HintRequests_ApplicationUserId",
-                table: "HintRequests",
-                column: "ApplicationUserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_HintRequests_CipherId",
                 table: "HintRequests",
                 column: "CipherId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_HintRequests_UserId",
+                table: "HintRequests",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserBadge_BadgeId",
+                table: "UserBadge",
+                column: "BadgeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserBadge_UserId",
+                table: "UserBadge",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserSolution_CipherId",
+                table: "UserSolution",
+                column: "CipherId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserSolution_UserId",
+                table: "UserSolution",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -335,10 +448,19 @@ namespace Cryptomind.Data.Migrations
                 name: "HintRequests");
 
             migrationBuilder.DropTable(
+                name: "UserBadge");
+
+            migrationBuilder.DropTable(
+                name: "UserSolution");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "Tags");
+
+            migrationBuilder.DropTable(
+                name: "Badge");
 
             migrationBuilder.DropTable(
                 name: "Cipher");
