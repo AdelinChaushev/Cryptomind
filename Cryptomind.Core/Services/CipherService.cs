@@ -4,6 +4,7 @@ using Cryptomind.Common.Enums;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Core.Services.OCR;
 using Cryptomind.Data.Entities;
+using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -28,9 +29,15 @@ namespace Cryptomind.Core.Services
 		public async Task<bool> AnswerCipherAsync(string userId, string input, int cipherId)
 		{
 			Cipher cipher = await cipherRepo.GetByIdAsync(cipherId);
-			if (cipher == null) throw new InvalidOperationException("There is no cipher with the given Id");
+			if (cipher == null) 
+				throw new InvalidOperationException("There is no cipher with the given Id");
 
-			string correctAnswer = string.Empty;
+			if (cipher.CreatedByUserId == userId)
+				throw new InvalidOperationException("A cipher cannot be solved by it's user");
+			if (cipher.ChallengeType == ChallengeType.Experimental)
+				throw new InvalidOperationException("Experimental ciphers cannot be solved");
+
+				string correctAnswer = string.Empty;
 			if (cipher is TextCipher)
 				correctAnswer = (cipher as TextCipher).EncryptedText;
 			else if (cipher is ImageCipher)
@@ -50,8 +57,6 @@ namespace Cryptomind.Core.Services
 				user.Score += cipher.Points;
 				user.SolvedCount += 1;
 				return true;
-				//Some user
-
 			}
 
 			return false;
