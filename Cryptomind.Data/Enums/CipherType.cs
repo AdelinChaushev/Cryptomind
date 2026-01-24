@@ -13,24 +13,20 @@ namespace Cryptomind.Data.Enums
 		Atbash = 1,
 		SimpleSubstitution = 2,
 		ROT13 = 3,
-
 		// Polyalphabetic Family (3 types)
 		Vigenere = 4,
 		Autokey = 5,
 		Trithemius = 6,
-
 		// Transposition Family (3 types)
 		RailFence = 7,
 		Columnar = 8,
 		Route = 9,
+		//Encoding (4 types)
+		Base64 = 10,
+		Morse = 11,
+		Binary = 12,
+		Hex = 13,
 
-		// Special
-		Plaintext = 10  // For plain English text detection
-
-		// Encoding Types (4 types)
-		//Base64 = 10,
-		//Morse = 11,
-		//Binary = 12,
-		//Hex = 13,
+		Plaintext = 14,
 	}
 }
