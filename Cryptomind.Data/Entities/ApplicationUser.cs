@@ -12,20 +12,22 @@ namespace Cryptomind.Data.Entities
     {
         public ApplicationUser()
         {
-            Ciphers = new List<Cipher>();
+            UploadedCiphers = new List<Cipher>();
             HintsRequested = new List<HintRequest>();
         }
         public int Score { get; set; }
         public int SolvedCount { get; set; }
         public int AttemptedCiphers { get; set; }
-        public double SuccessRate => CalculateSuccessRate();
-        public ICollection<Cipher> Ciphers { get; set; }
+		public bool isBanned { get; set; }
+		public string? BanReason { get; set; }
+        public int LeaderBoardPlace { get; set; }
+		public DateTime RegisteredAt { get; set; }
+		public DateTime? BannedAt { get; set; }
+		public double SuccessRate => CalculateSuccessRate();
+        public ICollection<Cipher> UploadedCiphers { get; set; }
         public ICollection<UserSolution> SolvedCiphers { get; set; }
         public ICollection<HintRequest> HintsRequested { get; set; }
-        public DateTime RegisteredAt { get; set; }
-        public bool isBanned { get; set; }
-        public string? BanReason { get; set; }
-        public DateTime? BannedAt { get; set; }
+        public ICollection <UserBadge> Badges { get; set; }
         private double CalculateSuccessRate()
         {
             if (SolvedCount == 0 || AttemptedCiphers == 0) return 0;

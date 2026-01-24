@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Cryptomind.Common\Cryptomind.Common.csproj" />
     <ProjectReference Include="..\Cryptomind.Data\Cryptomind.Data.csproj" />
+	<ProjectReference Include="..\Cryptomind.Common\Cryptomind.Common.csproj" />
   </ItemGroup>
 
 </Project>

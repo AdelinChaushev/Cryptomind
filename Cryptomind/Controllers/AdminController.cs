@@ -1,5 +1,6 @@
 ﻿using Cryptomind.Common.CipherAdminViewModels;
 using Cryptomind.Common.CipherViewModels;
+using Cryptomind.Common.DTOs;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Core.Services;
 using Cryptomind.Data.Entities;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Buffers.Text;
 using static System.Net.Mime.MediaTypeNames;
+using Cryptomind.Data.Enums;
 
 namespace Cryptomind.Controllers
 {
@@ -17,9 +19,11 @@ namespace Cryptomind.Controllers
 	public class AdminController : ControllerBase
 	{
 		private IAdminService adminService;
-		public AdminController(IAdminService service)
+		private IBadgeService badgeService;
+		public AdminController(IAdminService service, IBadgeService badgeService)
 		{
 			this.adminService = service;
+			this.badgeService = badgeService;
 		}
 
 		#region Cipher-specific
@@ -38,11 +42,11 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 		[HttpGet("approved-ciphers")]
-		public async Task<IActionResult> GetApprovedCiphers()
+		public async Task<IActionResult> GetApprovedCiphers([FromQuery] CipherFilter filter)
 		{
 			try
 			{
-				var result = await adminService.AllApprovedCiphers();
+				var result = await adminService.AllApprovedCiphers(filter);
 				return Ok(result);
 			}
 			catch (InvalidOperationException ex)
@@ -58,38 +62,7 @@ namespace Cryptomind.Controllers
 			try
 			{
 				var cipher = await adminService.GetCipherById(id);
-				var viewModel = new CipherReviewOutputViewModel();
-
-				//string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imageFolderPath))}";
-				if (cipher is ImageCipher)
-				{
-					viewModel.Id = cipher.Id;
-					viewModel.Title = cipher.Title;
-					viewModel.DecryptedText = cipher.DecryptedText;
-					viewModel.Points = cipher.Points;
-					//viewModel.CipherText = base64;
-					viewModel.AllowsAnswer = cipher.AllowSolution;
-					viewModel.AllowsHint = cipher.AllowHint;
-					viewModel.IsApproved = cipher.IsApproved;
-					viewModel.IsImage = true;
-				}
-				else
-				{
-					TextCipher textCipher = cipher as TextCipher;
-					viewModel.Id = cipher.Id;
-					viewModel.Title = cipher.Title;
-					viewModel.DecryptedText = cipher.DecryptedText;
-					viewModel.Points = cipher.Points;
-					viewModel.CipherText = textCipher.EncryptedText;
-					viewModel.AllowsAnswer = cipher.AllowSolution;
-					viewModel.AllowsHint = cipher.AllowHint;
-					viewModel.IsApproved = cipher.IsApproved;
-					viewModel.IsImage = true;
-				}
-				//Should I return the whole DB entity??
-				//Samuil from December definetely not
-
-				return Ok(viewModel);
+				return Ok(cipher);
 			}
 			catch (InvalidOperationException ex)
 			{
@@ -103,7 +76,8 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				await adminService.ApproveCipherAsync(id, model);
+				string userID = await adminService.ApproveCipherAsync(id, model);
+				await badgeService.CheckBadgesByCategory(userID, BadgeCategory.OnUpload);
 				//Here we can update some values for the user which submitted the cipher, like adding that he created a cipher
 
 				return Ok();
