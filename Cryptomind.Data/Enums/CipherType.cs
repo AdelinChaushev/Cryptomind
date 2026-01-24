@@ -10,9 +10,9 @@ namespace Cryptomind.Data.Enums
 	{
 		// Substitution Family (4 types)
 		Caesar = 0,
-		ROT13 = 1,
-		Atbash = 2,
-		SimpleSubstitution = 3,
+		Atbash = 1,
+		SimpleSubstitution = 2,
+		ROT13 = 3,
 
 		// Polyalphabetic Family (3 types)
 		Vigenere = 4,
@@ -24,13 +24,13 @@ namespace Cryptomind.Data.Enums
 		Columnar = 8,
 		Route = 9,
 
-		// Encoding Types (4 types)
-		Base64 = 10,
-		Morse = 11,
-		Binary = 12,
-		Hex = 13,
-
 		// Special
-		Plaintext = 14  // For plain English text detection
+		Plaintext = 10  // For plain English text detection
+
+		// Encoding Types (4 types)
+		//Base64 = 10,
+		//Morse = 11,
+		//Binary = 12,
+		//Hex = 13,
 	}
 }
