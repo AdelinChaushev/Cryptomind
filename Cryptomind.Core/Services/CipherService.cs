@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -24,24 +25,28 @@ namespace Cryptomind.Core.Services
 		IRepository<Cipher, int> cipherRepo,
 		IRepository<UserSolution, int> solutionRepository,
 		IOCRService ocrService,
+		ICipherRecognizerService cipherRecognizerService,
+		ILLMService llmService,
 		UserManager<ApplicationUser> userRepository) : ICipherService
 	{
 		public async Task<bool> AnswerCipherAsync(string userId, string input, int cipherId)
 		{
 			Cipher cipher = await cipherRepo.GetByIdAsync(cipherId);
+
 			if (cipher == null) 
 				throw new InvalidOperationException("There is no cipher with the given Id");
 
 			if (cipher.CreatedByUserId == userId)
 				throw new InvalidOperationException("A cipher cannot be solved by it's user");
+
 			if (cipher.ChallengeType == ChallengeType.Experimental)
 				throw new InvalidOperationException("Experimental ciphers cannot be solved");
 
-				string correctAnswer = string.Empty;
+			string correctAnswer = string.Empty;
 			if (cipher is TextCipher)
-				correctAnswer = (cipher as TextCipher).EncryptedText;
+				correctAnswer = (cipher as TextCipher).DecryptedText;
 			else if (cipher is ImageCipher)
-				correctAnswer = (cipher as ImageCipher).EncryptedText;
+				correctAnswer = (cipher as ImageCipher).DecryptedText;
 
 			if (correctAnswer == input) //The answer is correct
 			{
@@ -95,6 +100,7 @@ namespace Cryptomind.Core.Services
 				throw new InvalidOperationException("Cannot create two ciphers with the same name");
 
 			Cipher? cipher = null;
+			string encryptedTextForAnalysis = model.EncryptedText; // Store this for later use
 
 			if (model.CipherDefinition == CipherDefinition.TextCipher)
 			{
@@ -115,30 +121,26 @@ namespace Cryptomind.Core.Services
 			else if (model.CipherDefinition == CipherDefinition.ImageCipher)
 			{
 				ValidateImageFile(model.Image);
-
 				try
 				{
 					var result = await ocrService.ExtractTextFromImageAsync(model.Image);
+					encryptedTextForAnalysis = result.ExtractedText; // Use OCR result for analysis
 
 					string imageFolderPath = Path.GetFullPath(Path.Combine(
-						AppContext.BaseDirectory, "..", "..", "..", "..", "Images"));
+					AppContext.BaseDirectory, "..", "..", "..", "..", "Images"));
 					Directory.CreateDirectory(imageFolderPath);
-
 					string originalExtension = Path.GetExtension(model.Image.FileName).ToLowerInvariant();
 					string safeTitle = MakeSafeFilename(model.Title);
 					string imageFilePath = Path.Combine(imageFolderPath, safeTitle + originalExtension);
 
 					using (var fileStream = new FileStream(imageFilePath, FileMode.Create))
 					{
-						// Reset stream position before copying
 						using (var imageStream = model.Image.OpenReadStream())
 						{
 							await imageStream.CopyToAsync(fileStream);
 						}
 					}
-
 					string relativePath = Path.Combine("Images", safeTitle + originalExtension);
-
 					cipher = new ImageCipher()
 					{
 						Title = model.Title,
@@ -160,10 +162,33 @@ namespace Cryptomind.Core.Services
 				}
 			}
 
+			var mlResult = await cipherRecognizerService.ClassifyCipher(encryptedTextForAnalysis);
+
+			cipher.MLPrediction = JsonSerializer.Serialize(new
+			{
+				family = mlResult.TopPrediction.Family,
+				type = mlResult.TopPrediction.Type,
+				confidence = mlResult.TopPrediction.Confidence,
+				allPredictions = mlResult.AllPredictions.Select(p => new
+				{
+					family = p.Family,
+					type = p.Type,
+					confidence = p.Confidence
+				}).ToList()
+			});
+
+			var llmValidation = await llmService.ValidateCipherTextAsync(
+				encryptedTextForAnalysis,
+				model.DecryptedText, // This might be null for experimental ciphers
+				mlResult
+			);
+
+			cipher.LLMAnalysis = llmValidation;
+
 			await cipherRepo.AddAsync(cipher);
 			return cipher;
 		}
-		
+
 		#region Private methods
 		private string MakeSafeFilename(string name)
 		{
