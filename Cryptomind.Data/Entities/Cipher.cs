@@ -21,6 +21,8 @@ namespace Cryptomind.Data.Entities
         [MaxLength(20),MinLength(3)]
         public string Title { get; set; }
         public string DecryptedText { get; set; }
+        public string MLPrediction { get; set; }
+        public string LLMAnalysis { get; set; }
         public CipherType TypeOfCipher { get; set; }
         public ChallengeType ChallengeType { get; set; }
         public DateTime CreatedAt { get; set; }
