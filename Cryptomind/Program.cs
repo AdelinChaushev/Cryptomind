@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
+using System.Security.Claims;
 ;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -55,7 +56,9 @@ auth
             ValidateAudience = false,
             ValidAudience = builder.Configuration["JWT:ValidAudience"],
             ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
-            IssuerSigningKey = new SymmetricSecurityKey(key)
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            RoleClaimType = ClaimTypes.Role
+
         };
         options.Events = new JwtBearerEvents
         {
