@@ -365,3 +365,13 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /Images
+
+# From GitHub's Images.gitignore template
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.svg
+*.ico
+*.tif
+*.tiff
