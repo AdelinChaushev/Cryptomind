@@ -21,6 +21,7 @@ function App() {
   axios.defaults.baseURL = 'http://localhost:5115';
    const [state, setState] = useState({roles : [], isLoggedIn: false});
    const[loading, setLoading] = useState(true);
+
    useEffect(() => {
     axios.get('http://localhost:5115/api/User/get-roles').then(response => {
       setState({roles: response.data.roles, isLoggedIn: true});
@@ -28,6 +29,7 @@ function App() {
       setState({roles: [], isLoggedIn: false});
     }).finally(() => {setLoading(false);});
    },[]);
+   
     if(loading) {
       return <h1>Loading...</h1>
     }
