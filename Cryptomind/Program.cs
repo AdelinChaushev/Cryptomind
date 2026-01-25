@@ -100,6 +100,28 @@ builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
+// Seed roles and admin user
+using (var scope = app.Services.CreateScope())
+{
+	var services = scope.ServiceProvider;
+	try
+	{
+		await SeedRolesAndUsersAsync(services);
+	}
+	catch (Exception ex)
+	{
+		var logger = services.GetRequiredService<ILogger<Program>>();
+		logger.LogError(ex, "An error occurred while seeding the database.");
+	}
+}
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+	app.UseSwagger();
+	app.UseSwaggerUI();
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -114,3 +136,62 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+async Task SeedRolesAndUsersAsync(IServiceProvider serviceProvider)
+{
+	var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+	var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+	// Define roles
+	string[] roleNames = { "Admin", "User" };
+
+	foreach (var roleName in roleNames)
+	{
+		var roleExist = await roleManager.RoleExistsAsync(roleName);
+		if (!roleExist)
+		{
+			await roleManager.CreateAsync(new IdentityRole(roleName));
+		}
+	}
+
+	// Create default admin user
+	var adminEmail = "admin@cryptomind.com";
+	var adminUser = await userManager.FindByEmailAsync(adminEmail);
+
+	if (adminUser == null)
+	{
+		var admin = new ApplicationUser
+		{
+			UserName = adminEmail,
+			Email = adminEmail,
+			EmailConfirmed = true
+		};
+
+		var result = await userManager.CreateAsync(admin, "Admin123!"); // Change this password!
+
+		if (result.Succeeded)
+		{
+			await userManager.AddToRoleAsync(admin, "Admin");
+		}
+	}
+
+    var userEmail = "user@cryptomind.com";
+	var userEntity = await userManager.FindByEmailAsync(userEmail);
+
+	if (userEntity == null)
+	{
+		var user = new ApplicationUser
+		{
+			UserName = userEmail,
+			Email = userEmail,
+			EmailConfirmed = true
+		};
+
+		var result = await userManager.CreateAsync(user, "User123!");
+
+		if (result.Succeeded)
+		{
+			await userManager.AddToRoleAsync(user, "User");
+		}
+	}
+}

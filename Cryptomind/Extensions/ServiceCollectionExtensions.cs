@@ -1,9 +1,10 @@
 ﻿
 
-using Cryptomind.Data.Entities;
-using Cryptomind.Data.Repositories;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Core.Services;
+using Cryptomind.Core.Services.OCR;
+using Cryptomind.Data.Entities;
+using Cryptomind.Data.Repositories;
 
 namespace ClarifEye.Web.Extensions;
 
@@ -18,8 +19,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRepository<Tag, int>, Repository<Tag, int>>();
         services.AddScoped<IRepository<HintRequest, int>, Repository<HintRequest, int>>();
         services.AddScoped<IRepository<UserSolution, int>, Repository<UserSolution, int>>();
+		services.AddScoped<IRepository<ApplicationUser, string>, Repository<ApplicationUser, string>>();
+		services.AddScoped<IRepository<UserBadge, int>, Repository<UserBadge, int>>();
+		services.AddScoped<IRepository<Badge, int>, Repository<Badge, int>>();
 
-        return services;
+		return services;
     }
 
     public static IServiceCollection RegisterUserDefinedServices(
@@ -29,6 +33,9 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<ICipherService, CipherService>();
         services.AddScoped<IAdminService, AdminService>();
         services.AddScoped<ICipherRecognizerService, CipherRecognizerService>();
+		services.AddScoped<IOCRService, OCRService>();
+        services.AddScoped<IBadgeService, BadgeService>();
+		services.AddScoped<IBadgeStatisticsService, BadgeStatiscticsService>();
 
 		return services;
     }
