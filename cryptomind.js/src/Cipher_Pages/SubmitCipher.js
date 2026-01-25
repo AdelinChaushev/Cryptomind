@@ -35,6 +35,19 @@ export default function SubmitCipher() {
   .then(res => console.log("Success:", res.data))
   .catch(err => console.error("Error submitting cipher:", err));
 };
+const handleClassify = (e) => {
+    e.preventDefault();
+
+    axios.post(`http://localhost:5115/api/ciphers/classify`,
+     { CipherText: formData.EncryptedText }
+    , { withCredentials: true,
+        headers: {
+      "Content-Type": "application/json"
+    }}).then(res => {
+      console.log("Cipher classified:", res.data)}).catch(err => {
+      console.error("Error classifying cipher:", err)});
+
+  }; 
     return (
     <> 
   <div class="form-container" >
@@ -61,6 +74,7 @@ export default function SubmitCipher() {
       <div class="form-group" id="textInputGroup">
         <label for="encryptedText">Encrypted Text:</label>
         <input type="text" id="encryptedText" name="EncryptedText" value={formData.EncryptedText} onChange={handleChange} />
+        <button type="button" onClick={handleClassify}>Classify Cipher</button>
       </div>}
       { contentType === 'image' && 
       <div class="form-group" id="imageInputGroup" >
