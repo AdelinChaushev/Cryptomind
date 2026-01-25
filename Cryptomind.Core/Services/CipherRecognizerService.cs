@@ -23,7 +23,7 @@ namespace Cryptomind.Core.Services
 
 			_mlApiUrl = configuration["MLService:ApiUrl"] ?? "http://localhost:5002";
 		}
-		public async Task<CipherRecognitionResultViewModel> ClassifyCipherAsync(string inputText)
+		public async Task<CipherRecognitionResultViewModel> ClassifyCipher(string inputText)
 		{
 			if (string.IsNullOrWhiteSpace(inputText))
 			{
