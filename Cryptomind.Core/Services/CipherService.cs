@@ -31,7 +31,9 @@ namespace Cryptomind.Core.Services
 	{
 		public async Task<bool> AnswerCipherAsync(string userId, string input, int cipherId)
 		{
-			Cipher cipher = await cipherRepo.GetByIdAsync(cipherId);
+			Cipher cipher = cipherRepo.GetAllAttached()
+				.Include(x => x.UsersSolved)
+				.FirstOrDefault(x => x.Id == cipherId);
 
 			if (cipher == null) 
 				throw new InvalidOperationException("There is no cipher with the given Id");
@@ -42,6 +44,9 @@ namespace Cryptomind.Core.Services
 			if (cipher.ChallengeType == ChallengeType.Experimental)
 				throw new InvalidOperationException("Experimental ciphers cannot be solved");
 
+			if (cipher.UsersSolved.FirstOrDefault(x => x.UserId == userId) != null)
+				throw new InvalidOperationException("Cannot solve the same cipher 2 times");
+
 			string correctAnswer = string.Empty;
 			if (cipher is TextCipher)
 				correctAnswer = (cipher as TextCipher).DecryptedText;
@@ -50,6 +55,7 @@ namespace Cryptomind.Core.Services
 
 			if (correctAnswer == input) //The answer is correct
 			{
+				ApplicationUser user = await userRepository.FindByIdAsync(userId);
 				await solutionRepository.AddAsync(new UserSolution()
 				{
 					CipherId = cipherId,
@@ -57,8 +63,6 @@ namespace Cryptomind.Core.Services
 					TimeSolved = DateTime.Now,
 
 				});
-
-				ApplicationUser user = await userRepository.FindByIdAsync(userId);
 				user.Score += cipher.Points;
 				user.SolvedCount += 1;
 				return true;
@@ -71,10 +75,24 @@ namespace Cryptomind.Core.Services
 			List<Cipher> approved = (await cipherRepo.GetAllAsync()).Where(c => c.IsApproved).ToList();
 
 			if (!string.IsNullOrEmpty(filter.SearchTerm))
-				approved = approved.Where(c => c.Title.Contains(filter.SearchTerm)).Where(x => x.ChallengeType == filter.challengeType).ToList();
+				approved = approved.Where(c => c.Title.Contains(filter.SearchTerm)).ToList();
 
 			if (filter.Tags != null)
 				approved = approved.Where(c => c.CipherTags.Any(t => filter.Tags.Contains(t.Tag.Type))).ToList();
+
+			switch (filter.ChallengeType)
+			{
+				case ChallengeTypeDTO.None:
+					approved = approved;
+					break;
+				case ChallengeTypeDTO.Standard:
+					approved = approved.Where(x => x.ChallengeType == ChallengeType.Standard).ToList();
+					break;
+				case ChallengeTypeDTO.Experimental:
+					approved = approved.Where(x => x.ChallengeType == ChallengeType.Experimental).ToList();
+					break;
+			}
+
 			List<CipherOutputViewModel> result = new List<CipherOutputViewModel>();
 			foreach (var cipher in approved)
 			{
