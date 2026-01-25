@@ -2,7 +2,9 @@
 using Cryptomind.Common.DTOs;
 using Cryptomind.Common.Enums;
 using Cryptomind.Core.Contracts;
+using Cryptomind.Core.Services.OCR;
 using Cryptomind.Data.Entities;
+using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -18,15 +20,28 @@ using System.Xml.Linq;
 
 namespace Cryptomind.Core.Services
 {
-	public class CipherService(IRepository<Cipher, int> cipherRepo, IRepository<UserSolution, int> solutionRepository, UserManager<ApplicationUser>  userRepository) : ICipherService
+	public class CipherService(
+		IRepository<Cipher, int> cipherRepo,
+		IRepository<UserSolution, int> solutionRepository,
+		IOCRService ocrService,
+		UserManager<ApplicationUser> userRepository) : ICipherService
 	{
-
 		public async Task<bool> AnswerCipherAsync(string userId, string input, int cipherId)
 		{
 			Cipher cipher = await cipherRepo.GetByIdAsync(cipherId);
-			if (cipher == null) throw new InvalidOperationException("There is no cipher with the given Id");
+			if (cipher == null) 
+				throw new InvalidOperationException("There is no cipher with the given Id");
 
-			string correctAnswer = cipher.DecryptedText;
+			if (cipher.CreatedByUserId == userId)
+				throw new InvalidOperationException("A cipher cannot be solved by it's user");
+			if (cipher.ChallengeType == ChallengeType.Experimental)
+				throw new InvalidOperationException("Experimental ciphers cannot be solved");
+
+				string correctAnswer = string.Empty;
+			if (cipher is TextCipher)
+				correctAnswer = (cipher as TextCipher).EncryptedText;
+			else if (cipher is ImageCipher)
+				correctAnswer = (cipher as ImageCipher).EncryptedText;
 
 			if (correctAnswer == input) //The answer is correct
 			{
@@ -35,15 +50,13 @@ namespace Cryptomind.Core.Services
 					CipherId = cipherId,
 					UserId = userId,
 					TimeSolved = DateTime.Now,
-				
+
 				});
-				
+
 				ApplicationUser user = await userRepository.FindByIdAsync(userId);
 				user.Score += cipher.Points;
 				user.SolvedCount += 1;
-                return true;
-				//Some user
-				
+				return true;
 			}
 
 			return false;
@@ -53,16 +66,16 @@ namespace Cryptomind.Core.Services
 			List<Cipher> approved = (await cipherRepo.GetAllAsync()).Where(c => c.IsApproved).ToList();
 
 			if (!string.IsNullOrEmpty(filter.SearchTerm))
-				approved = approved.Where(c => c.Title.Contains(filter.SearchTerm)).ToList();
+				approved = approved.Where(c => c.Title.Contains(filter.SearchTerm)).Where(x => x.ChallengeType == filter.challengeType).ToList();
 
 			if (filter.Tags != null)
 				approved = approved.Where(c => c.CipherTags.Any(t => filter.Tags.Contains(t.Tag.Type))).ToList();
 			List<CipherOutputViewModel> result = new List<CipherOutputViewModel>();
 			foreach (var cipher in approved)
 			{
-				result.Add( await ToOutputViewModel(cipher));
-            }
-                return result;
+				result.Add(await ToOutputViewModel(cipher));
+			}
+			return result;
 		}
 		public async Task<CipherOutputViewModel?> GetCipherAsync(int id)
 		{
@@ -103,46 +116,55 @@ namespace Cryptomind.Core.Services
 			{
 				ValidateImageFile(model.Image);
 
-				string solutionRoot = Directory.GetParent(Directory.GetCurrentDirectory())!
-					.Parent!.Parent!.Parent!.FullName;
-
-				string imageFolderPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Images"));
-				Directory.CreateDirectory(imageFolderPath); // Make sure it exists
-
-				string originalExtension = Path.GetExtension(model.Image.FileName).ToLowerInvariant();
-				string safeTitle = MakeSafeFilename(model.Title);
-				string imageFilePath = Path.Combine(imageFolderPath, safeTitle + originalExtension);
-
-				// Save the image
-				using (var ms = new MemoryStream())
+				try
 				{
-					await model.Image.CopyToAsync(ms);
-					byte[] bytes = ms.ToArray();
-					await File.WriteAllBytesAsync(imageFilePath, bytes);
+					var result = await ocrService.ExtractTextFromImageAsync(model.Image);
+
+					string imageFolderPath = Path.GetFullPath(Path.Combine(
+						AppContext.BaseDirectory, "..", "..", "..", "..", "Images"));
+					Directory.CreateDirectory(imageFolderPath);
+
+					string originalExtension = Path.GetExtension(model.Image.FileName).ToLowerInvariant();
+					string safeTitle = MakeSafeFilename(model.Title);
+					string imageFilePath = Path.Combine(imageFolderPath, safeTitle + originalExtension);
+
+					using (var fileStream = new FileStream(imageFilePath, FileMode.Create))
+					{
+						// Reset stream position before copying
+						using (var imageStream = model.Image.OpenReadStream())
+						{
+							await imageStream.CopyToAsync(fileStream);
+						}
+					}
+
+					string relativePath = Path.Combine("Images", safeTitle + originalExtension);
+
+					cipher = new ImageCipher()
+					{
+						Title = model.Title,
+						DecryptedText = model.DecryptedText,
+						ImagePath = relativePath,
+						AllowHint = false,
+						AllowSolution = false,
+						IsApproved = false,
+						CreatedByUserId = userId,
+						CipherTags = new List<CipherTag>(),
+						HintsRequested = new List<HintRequest>(),
+						EncryptedText = result.ExtractedText,
+						OCRConfidence = result.Confidence,
+					};
 				}
-
-				// This is the relative path you'll store in the DB
-				string relativePath = Path.Combine("Images", safeTitle + originalExtension);
-
-				Console.WriteLine(relativePath);
-
-				cipher = new ImageCipher()
+				catch (Exception ex)
 				{
-					Title = model.Title,
-					DecryptedText = model.DecryptedText,
-					ImagePath = relativePath, // relative path for DB
-					AllowHint = false,
-					AllowSolution = false,
-					IsApproved = false,
-					CreatedByUserId = userId,
-					CipherTags = new List<CipherTag>(),
-					HintsRequested = new List<HintRequest>()
-				};
+					throw new InvalidOperationException($"Failed to process image cipher: {ex.Message}", ex);
+				}
 			}
 
 			await cipherRepo.AddAsync(cipher);
 			return cipher;
 		}
+		
+		#region Private methods
 		private string MakeSafeFilename(string name)
 		{
 			foreach (char c in Path.GetInvalidFileNameChars())
@@ -169,6 +191,7 @@ namespace Cryptomind.Core.Services
 					AllowsAnswer = cipher.AllowSolution,
 					AllowsHint = cipher.AllowHint,
 					IsImage = true,
+					ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
 				});
 			}
 			else
@@ -178,12 +201,13 @@ namespace Cryptomind.Core.Services
 				{
 					Id = cipher.Id,
 					Title = cipher.Title,
-                    IsApproved = cipher.IsApproved,
-                    CipherText = cipherText.EncryptedText,
+					IsApproved = cipher.IsApproved,
+					CipherText = cipherText.EncryptedText,
 					Points = cipher.Points,
 					AllowsAnswer = cipher.AllowSolution,
 					AllowsHint = cipher.AllowHint,
 					IsImage = false,
+					ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
 				});
 			}
 		}
@@ -206,5 +230,6 @@ namespace Cryptomind.Core.Services
 			if (imageFile.Length == 0)
 				throw new InvalidOperationException("File cannot be empty");
 		}
+		#endregion
 	}
 }

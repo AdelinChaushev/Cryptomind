@@ -18,7 +18,7 @@ namespace Cryptomind.Data.Entities
         public Cipher  Cipher { get; set; }
 
         [ForeignKey(nameof(ApplicationUser))]
-        public string ApplicationUserId { get; set; }
+        public string UserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
         public HintType HintType { get; set; }
         public string InputText { get; set; }
