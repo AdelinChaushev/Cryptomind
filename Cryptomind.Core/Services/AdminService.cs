@@ -9,6 +9,7 @@ using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Cryptomind.Data.Enums;
+using Cryptomind.Common.Enums;
 using System;
 using System.Buffers.Text;
 using System.Collections.Generic;
@@ -42,10 +43,23 @@ namespace Cryptomind.Core.Services
 				throw new InvalidOperationException("Wasn't able to retrieve approved ciphers");
 
 			if (!string.IsNullOrEmpty(filter.SearchTerm))
-				result = result.Where(c => c.Title.Contains(filter.SearchTerm)).Where(x => x.ChallengeType == filter.challengeType).ToList();
+				result = result.Where(c => c.Title.Contains(filter.SearchTerm)).ToList();
 
 			if (filter.Tags != null)
 				result = result.Where(c => c.CipherTags.Any(t => filter.Tags.Contains(t.Tag.Type))).ToList();
+
+			switch (filter.ChallengeType)
+			{
+				case ChallengeTypeDTO.None:
+					result = result;
+					break;
+				case ChallengeTypeDTO.Standard:
+					result = result.Where(x => x.ChallengeType == ChallengeType.Standard).ToList();
+					break;
+				case ChallengeTypeDTO.Experimental:
+					result = result.Where(x => x.ChallengeType == ChallengeType.Experimental).ToList();
+					break;
+			}
 
 			return await ToReviewOutputViewModelMany(result);
         }
