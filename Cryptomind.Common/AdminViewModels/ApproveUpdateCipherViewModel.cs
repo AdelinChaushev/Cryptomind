@@ -15,6 +15,7 @@ namespace Cryptomind.Common.CipherAdminViewModels
 		public string EncryptedText { get; set; }
 		public bool AllowHint { get; set; }
 		public bool AllowSolution { get; set; }
+		public bool isStandard { get; set; }
 		public ICollection<int>? TagIds { get; set; }
 	}
 }

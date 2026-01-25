@@ -1,18 +1,21 @@
-﻿using Cryptomind.Common.CipherAdminViewModels;
+﻿using Cryptomind.Common.AdminViewModels;
+using Cryptomind.Common.CipherAdminViewModels;
+using Cryptomind.Common.CipherRecognitionViewModels;
 using Cryptomind.Common.CipherViewModels;
-using Cryptomind.Common.AdminViewModels;
+using Cryptomind.Common.DTOs;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Cryptomind.Data.Enums;
 using System;
 using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Cryptomind.Common.DTOs;
 
 namespace Cryptomind.Core.Services
 {
@@ -20,7 +23,8 @@ namespace Cryptomind.Core.Services
 		IRepository<Cipher, int> cipherRepo,
 		IRepository<Tag, int> tagRepo,
 		IRepository<UserSolution, int> solutionRepo,
-		UserManager<ApplicationUser> userManager) : IAdminService
+		UserManager<ApplicationUser> userManager,
+		ILLMService llmService) : IAdminService
 	{
 		#region Cipher admin methods
 		public async Task<List<CipherReviewOutputViewModel>> AllSubmittedCiphers()
@@ -96,7 +100,7 @@ namespace Cryptomind.Core.Services
 
 			foreach (var cipherIter in cipherRepo.GetAll())
 			{
-				if (cipherIter.Title == model.Title)
+				if (cipherIter.Title == model.Title && cipherIter.Id != id)
 					throw new InvalidOperationException("There is already a cipher with this title");
 			}
 
@@ -112,11 +116,32 @@ namespace Cryptomind.Core.Services
 			if (cipher is ImageCipher) //We give permission for the admin to change the encrypted text extracted from OCR
 				(cipher as ImageCipher).EncryptedText = model.EncryptedText;
 
-			cipher.Title = model.Title;;
+			if (string.IsNullOrEmpty(cipher.DecryptedText) && model.isStandard)  //When text is not given we cannot approve it as standard
+			{
+				model.isStandard = false;
+				throw new InvalidOperationException("Cipher with unknown answe shouldn't be aproved as standard");
+			}
+
+			cipher.Title = model.Title;
 			cipher.AllowHint = model.AllowHint;
 			cipher.AllowSolution = model.AllowSolution;
 			cipher.IsApproved = true;
+			cipher.ChallengeType = model.isStandard ? ChallengeType.Standard : ChallengeType.Experimental;
 
+			await cipherRepo.UpdateAsync(cipher);
+
+			return cipher.CreatedByUserId;
+		}
+		public async Task<string> UnapproveCipherAsync(int id)
+		{
+			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
+
+			if (cipher == null)
+				throw new InvalidOperationException("There is no cipher with the given Id");
+			else if (!cipher.IsApproved)
+				throw new InvalidOperationException("The cipher with the given Id is not approved");
+
+			cipher.IsApproved = false;
 			await cipherRepo.UpdateAsync(cipher);
 
 			return cipher.CreatedByUserId;
@@ -186,6 +211,73 @@ namespace Cryptomind.Core.Services
 			}
 
 			await cipherRepo.UpdateAsync(cipher);
+		}
+		public async Task<string> SolveCipherWithLLM(int cipherId)
+		{
+			Cipher? cipher = await cipherRepo.GetByIdAsync(cipherId);
+
+			if (cipher == null)
+				throw new InvalidOperationException("There is no cipher with the given Id");
+
+			if (!string.IsNullOrWhiteSpace(cipher.DecryptedText) &&
+				!string.IsNullOrWhiteSpace(cipher.LLMAnalysis))
+			{
+				return cipher.LLMAnalysis;
+			}
+
+			if (string.IsNullOrWhiteSpace(cipher.MLPrediction))
+			{
+				throw new InvalidOperationException(
+					"Cannot solve cipher: ML prediction not available. Cipher may not have been properly submitted.");
+			}
+
+			var mlPrediction = JsonSerializer.Deserialize<MlPredictionData>(cipher.MLPrediction);
+
+			if (mlPrediction == null)
+			{
+				throw new InvalidOperationException("Failed to parse ML prediction data");
+			}
+
+			var mlResult = new CipherRecognitionResultViewModel
+			{
+				TopPrediction = new PredictionViewModel
+				{
+					Family = mlPrediction.Family,
+					Type = mlPrediction.Type,
+					Confidence = mlPrediction.Confidence
+				},
+				AllPredictions = mlPrediction.AllPredictions?.Select(p => new PredictionViewModel
+				{
+					Family = p.Family,
+					Type = p.Type,
+					Confidence = p.Confidence
+				}).ToList() ?? new List<PredictionViewModel>()
+			};
+
+			string encryptedText;
+			if (cipher is ImageCipher imageCipher)
+			{
+				encryptedText = imageCipher.EncryptedText;
+			}
+			else if (cipher is TextCipher textCipher)
+			{
+				encryptedText = textCipher.EncryptedText;
+			}
+			else
+			{
+				throw new InvalidOperationException("Unknown cipher type");
+			}
+
+			var solution = await llmService.SolveCipherAsync(
+				encryptedText,
+				cipher.DecryptedText,
+				mlResult);
+
+			//Cache the solution, optional
+			cipher.LLMAnalysis = solution;
+			await cipherRepo.UpdateAsync(cipher);
+
+			return solution;
 		}
 		#endregion
 
