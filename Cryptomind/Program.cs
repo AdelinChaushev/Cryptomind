@@ -11,7 +11,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using System.Security.Claims;
-;
 
 var builder = WebApplication.CreateBuilder(args);
 
