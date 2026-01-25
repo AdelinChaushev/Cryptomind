@@ -19,6 +19,7 @@ namespace Cryptomind.Core.Contracts
 		Task<CipherReviewOutputViewModel> GetCipherById(int id);
         Task RejectCipherAsync(int id);
         Task<string> ApproveCipherAsync(int id, ApproveUpdateCipherViewModel model);
+		Task<string> UnapproveCipherAsync(int id);
         Task DeleteApprovedCipher(int id);
         Task UpdateApprovedCipher(int id, ApproveUpdateCipherViewModel model);
 		Task<List<UserViewModel>> GetAllUsers();
@@ -26,5 +27,6 @@ namespace Cryptomind.Core.Contracts
 		Task MakeAdmin(string userId);
 		Task BanUserAsync(string userId, string reason);
 		Task UnbanUserAsync(string userId);
+		Task<string> SolveCipherWithLLM(int cipherId);
 	}
 }

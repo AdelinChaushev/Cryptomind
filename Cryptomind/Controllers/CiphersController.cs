@@ -99,7 +99,7 @@ namespace Cryptomind.Controllers
 			var cipher = await cipherService.GetCipherAsync(id);
 			try
 			{
-				var result = await recognizerService.ClassifyCipherAsync(cipher.CipherText);
+				var result = await recognizerService.ClassifyCipher(cipher.CipherText);
 				return Ok(result);
 			}
 			catch (ArgumentException ex)
