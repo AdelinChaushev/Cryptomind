@@ -11,7 +11,6 @@ namespace Cryptomind.Common.DTOs
 	public class CipherFilter
 	{
 		public string? SearchTerm { get; set; }
-		//public Difficulty (enum) Difficulty { get; set; }
 		public List<TagType>? Tags { get; set; }
 		public ChallengeTypeDTO ChallengeType { get; set; }
 	}

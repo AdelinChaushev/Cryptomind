@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Cryptomind.Data.Enums
+namespace Cryptomind.Common.Enums
 {
-	public enum CipherType
+	public enum CipherTypeDTO
 	{
 		// Substitution Family (4 types)
 		Caesar = 0,
@@ -26,5 +26,7 @@ namespace Cryptomind.Data.Enums
 		Morse = 11,
 		Binary = 12,
 		Hex = 13,
+
+		None = 14,
 	}
 }
