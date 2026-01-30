@@ -27,6 +27,7 @@ namespace Cryptomind.Core.Services
 		IOCRService ocrService,
 		ICipherRecognizerService cipherRecognizerService,
 		ILLMService llmService,
+		IEnglishValidationService englishValidationService,
 		UserManager<ApplicationUser> userRepository) : ICipherService
 	{
 		public async Task<bool> AnswerCipherAsync(string userId, string input, int cipherId)
@@ -118,13 +119,14 @@ namespace Cryptomind.Core.Services
 				throw new InvalidOperationException("Cannot create two ciphers with the same name");
 
 			Cipher? cipher = null;
-			string encryptedTextForAnalysis = model.EncryptedText; // Store this for later use
+			string encryptedTextForAnalysis = model.EncryptedText;
 
+			var title = string.IsNullOrEmpty(model.Title) ? model.EncryptedText : model.Title;
 			if (model.CipherDefinition == CipherDefinition.TextCipher)
 			{
 				cipher = new TextCipher()
 				{
-					Title = model.Title,
+					Title = title,
 					DecryptedText = model.DecryptedText,
 					EncryptedText = model.EncryptedText,
 					//TypeOfCipher = model.Type,
@@ -161,7 +163,7 @@ namespace Cryptomind.Core.Services
 					string relativePath = Path.Combine("Images", safeTitle + originalExtension);
 					cipher = new ImageCipher()
 					{
-						Title = model.Title,
+						Title = title,
 						DecryptedText = model.DecryptedText,
 						ImagePath = relativePath,
 						AllowHint = false,
@@ -182,6 +184,7 @@ namespace Cryptomind.Core.Services
 
 			var mlResult = await cipherRecognizerService.ClassifyCipher(encryptedTextForAnalysis);
 
+			//Assign the ML prediction to the property so later the admin can use it.
 			cipher.MLPrediction = JsonSerializer.Serialize(new
 			{
 				family = mlResult.TopPrediction.Family,
@@ -195,14 +198,71 @@ namespace Cryptomind.Core.Services
 				}).ToList()
 			});
 
-			var llmValidation = await llmService.ValidateCipherTextAsync(
-				encryptedTextForAnalysis,
-				model.DecryptedText, // This might be null for experimental ciphers
-				mlResult
-			);
+			if (!string.IsNullOrWhiteSpace(model.DecryptedText))
+				cipher.IsPlaintextValid = await englishValidationService.IsLikelyEnglishAsync(model.DecryptedText);
 
-			cipher.LLMAnalysis = llmValidation;
+			//TESTING:
+			if (mlResult.TopPrediction.Type.ToLower() == "plaintext")
+			{
+				//You have to show this to the USER!!!
+				throw new InvalidOperationException("PLAINTEXT ENCRYPTED TEXT IS NOT ALLOWED");
+			}
 
+			var mlConfidence = mlResult.TopPrediction.Confidence;
+			var mlType = mlResult.TopPrediction.Type;
+			var userProvidedType = model.Type != CipherTypeDTO.None;
+			var userProvidedSolution = !string.IsNullOrWhiteSpace(model.DecryptedText);
+
+			bool LLMRecommendation = false;
+
+			if (userProvidedType && userProvidedSolution)
+			{
+				bool typesMatch = mlType.ToLower() == model.Type.ToString().ToLower();
+				bool isProblematicType = ProblematicCipherTypes.Contains(mlType.ToLower());
+
+				if (mlConfidence > 85 && typesMatch)
+				{
+					LLMRecommendation = false;
+
+					if (cipher.IsPlaintextValid == false)
+					{
+						LLMRecommendation = true;
+					}
+				}
+				else
+				{
+					LLMRecommendation = true;
+				}
+			}
+			else if (userProvidedType && !userProvidedSolution)
+			{
+				LLMRecommendation = true;
+			}
+			else if (!userProvidedType && userProvidedSolution)
+			{
+				bool isProblematicType = ProblematicCipherTypes.Contains(mlType);
+
+				if (mlConfidence > 85 && !isProblematicType)
+				{
+					LLMRecommendation = false;
+					cipher.TypeOfCipher = (CipherType)Enum.Parse(typeof(CipherType), mlType);
+
+					if (cipher.IsPlaintextValid == false)
+					{
+						LLMRecommendation = true;
+					}
+				}
+				else
+				{
+					LLMRecommendation = true;
+				}
+			}
+			else if (!userProvidedType && !userProvidedSolution)
+			{
+				throw new InvalidOperationException("Incomplete submission: Please provide cipher type and/or solution.");
+			}
+
+			cipher.IsLLMRecommended = LLMRecommendation;
 			await cipherRepo.AddAsync(cipher);
 			return cipher;
 		}
@@ -274,5 +334,13 @@ namespace Cryptomind.Core.Services
 				throw new InvalidOperationException("File cannot be empty");
 		}
 		#endregion
+		private static readonly HashSet<string> ProblematicCipherTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+		{
+			"columnar",
+			"railFence",
+			"vigenere",
+			"trithemius",
+			"route"
+		};
 	}
 }

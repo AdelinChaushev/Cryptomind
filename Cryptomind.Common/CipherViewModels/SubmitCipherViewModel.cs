@@ -15,7 +15,7 @@ namespace Cryptomind.Common.CipherViewModels
 		public string DecryptedText { get; set; }
 		public string? EncryptedText { get; set; }
 		public IFormFile? Image { get; set; }
-		public CipherType Type { get; set; }
+		public CipherTypeDTO Type { get; set; }
 		public CipherDefinition CipherDefinition { get; set; }
 	}
 }

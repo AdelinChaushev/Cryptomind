@@ -18,17 +18,19 @@ namespace Cryptomind.Data.Entities
         }
         [Key]
         public int Id { get; set; }
-        [MaxLength(20),MinLength(3)]
+        [MaxLength(50),MinLength(3)]
         public string Title { get; set; }
         public string DecryptedText { get; set; }
         public string MLPrediction { get; set; }
-        public string LLMAnalysis { get; set; }
+        public string? LLMAnalysis { get; set; }
         public CipherType TypeOfCipher { get; set; }
         public ChallengeType ChallengeType { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool AllowHint { get; set; }
         public bool AllowSolution { get; set; }
         public bool IsApproved { get; set; }
+        public bool IsPlaintextValid { get; set; }
+        public bool IsLLMRecommended { get; set; }
         public int Points { get; set; }
         [ForeignKey(nameof(CreatedByUser))]
         public string CreatedByUserId { get; set; }
