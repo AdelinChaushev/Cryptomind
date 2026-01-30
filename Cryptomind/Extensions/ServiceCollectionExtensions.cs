@@ -38,6 +38,7 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<IBadgeStatisticsService, BadgeStatiscticsService>();
         //services.AddScoped<ILLMService, LLMService>();
         services.AddScoped<ILLMService, MockLLMService>();
+        services.AddScoped<IEnglishValidationService, EnglishValidationService>();
 
         return services;
     }
