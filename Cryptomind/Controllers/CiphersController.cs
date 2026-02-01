@@ -19,13 +19,11 @@ namespace Cryptomind.Controllers
 	public class CiphersController : ControllerBase
 	{
 		private ICipherService cipherService;
-		private IUserService userService;
 		private ICipherRecognizerService recognizerService;
 		private IBadgeService badgeService;
 		public CiphersController(ICipherService cipherService, IUserService userService, ICipherRecognizerService recognizerService, IBadgeService badgeService)
 		{
 			this.cipherService = cipherService;
-			this.userService = userService;
 			this.recognizerService = recognizerService;
 			this.badgeService = badgeService;
 		}
@@ -60,7 +58,6 @@ namespace Cryptomind.Controllers
 		public async Task<IActionResult> SubmitCipher([FromForm] SubmitCipherViewModel model)
 		{
 			var userId = GetUserId();
-
 			try
 			{
 				var cipher = await cipherService.SubmitCipherAsync(model, userId);

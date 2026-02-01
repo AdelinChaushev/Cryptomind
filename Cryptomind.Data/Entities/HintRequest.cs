@@ -21,6 +21,5 @@ namespace Cryptomind.Data.Entities
         public string UserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
         public HintType HintType { get; set; }
-        public string InputText { get; set; }
     }
 }

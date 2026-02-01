@@ -4,6 +4,7 @@ using Cryptomind.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cryptomind.Data.Migrations
 {
     [DbContext(typeof(CryptomindDbContext))]
-    partial class CryptomindDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260201102316_Add_LLMReasoning")]
+    partial class Add_LLMReasoning
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -82,13 +85,8 @@ namespace Cryptomind.Data.Migrations
                     b.Property<string>("LLMAnalysis")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("LLMConfidence")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LLMIssues")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("LLMReasoning")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MLPrediction")
