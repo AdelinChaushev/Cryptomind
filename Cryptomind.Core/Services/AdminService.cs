@@ -31,6 +31,7 @@ namespace Cryptomind.Core.Services
 		public async Task<List<CipherReviewOutputViewModel>> AllSubmittedCiphers()
 		{
 			var result = (await cipherRepo.GetAllAsync()).Where(c => c.IsApproved == false).ToList();
+
 			if (result == null) 
 				throw new InvalidOperationException("Wasn't able to retrieve submitted ciphers");
 
@@ -39,6 +40,7 @@ namespace Cryptomind.Core.Services
 		public async Task<List<CipherReviewOutputViewModel>> AllApprovedCiphers(CipherFilter filter)
 		{
 			var result = (await cipherRepo.GetAllAsync()).Where(c => c.IsApproved == true).ToList();
+
 			if (result == null) 
 				throw new InvalidOperationException("Wasn't able to retrieve approved ciphers");
 
@@ -50,13 +52,10 @@ namespace Cryptomind.Core.Services
 
 			switch (filter.ChallengeType)
 			{
-				case ChallengeTypeDTO.None:
-					result = result;
-					break;
-				case ChallengeTypeDTO.Standard:
+				case ChallengeType.Standard:
 					result = result.Where(x => x.ChallengeType == ChallengeType.Standard).ToList();
 					break;
-				case ChallengeTypeDTO.Experimental:
+				case ChallengeType.Experimental:
 					result = result.Where(x => x.ChallengeType == ChallengeType.Experimental).ToList();
 					break;
 			}
@@ -67,107 +66,132 @@ namespace Cryptomind.Core.Services
 		{
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
 
-			var viewModel = new CipherReviewOutputViewModel();
+			var model = new CipherReviewOutputViewModel();
 			if (cipher == null)
 				throw new InvalidOperationException("There is no cipher with the given Id");
 
-			//string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imageFolderPath))}";
-			if (cipher is ImageCipher)
-			{
-				viewModel.Id = cipher.Id;
-				viewModel.Title = cipher.Title;
-				viewModel.DecryptedText = cipher.DecryptedText;
-				viewModel.Points = cipher.Points;
-				//viewModel.CipherText = base64;
-				viewModel.AllowsAnswer = cipher.AllowSolution;
-				viewModel.AllowsHint = cipher.AllowHint;
-				viewModel.IsApproved = cipher.IsApproved;
-				viewModel.IsImage = true;
-				viewModel.ChallengeTypeDisplay = cipher.ChallengeType.ToString();
-			}
-			else
-			{
-				TextCipher textCipher = cipher as TextCipher;
-				viewModel.Id = cipher.Id;
-				viewModel.Title = cipher.Title;
-				viewModel.DecryptedText = cipher.DecryptedText;
-				viewModel.Points = cipher.Points;
-				viewModel.CipherText = textCipher.EncryptedText;
-				viewModel.AllowsAnswer = cipher.AllowSolution;
-				viewModel.AllowsHint = cipher.AllowHint;
-				viewModel.IsApproved = cipher.IsApproved;
-				viewModel.IsImage = true;
-				viewModel.ChallengeTypeDisplay = cipher.ChallengeType.ToString();
-			}
+			model.Id = cipher.Id;
+			model.Title = cipher.Title;
+			model.DecryptedText = cipher.DecryptedText;
+			model.Points = cipher.Points;
+			model.CipherText = cipher.EncryptedText;
+			model.AllowsAnswer = cipher.AllowSolution;
+			model.AllowsHint = cipher.AllowHint;
+			model.IsApproved = cipher.IsApproved;
+			model.IsLLMRecommended = cipher.IsLLMRecommended;
+			model.ChallengeTypeDisplay = cipher.ChallengeType.ToString();
 
-			return viewModel;
+			//What is that?
+			//string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imageFolderPath))}";
+
+			if (cipher is ImageCipher)
+				model.IsImage = true;
+			else
+				model.IsImage = false;	
+
+			return model;
 		}
-		public async Task<string> ApproveCipherAsync(int id, ApproveUpdateCipherViewModel model) 
+		public async Task <CipherValidationResult> AnalyzeWithLLM (int id)
+		{
+			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
+
+			if (!string.IsNullOrWhiteSpace(cipher.LLMAnalysis))
+				return new CipherValidationResult
+				{
+					Recommendation = cipher.LLMAnalysis,
+					Reasoning = cipher.LLMReasoning,
+					Confidence = cipher.LLMConfidence,
+					Issues = cipher.LLMIssues,
+				};
+
+			var mlPredictionJson = cipher.MLPrediction;
+			var mlPredictionData = JsonSerializer.Deserialize<MlPredictionData>(mlPredictionJson);
+
+			var mlResult = new CipherRecognitionResultViewModel
+			{
+				TopPrediction = new PredictionViewModel
+				{
+					Family = mlPredictionData.Family,
+					Type = mlPredictionData.Type,
+					Confidence = mlPredictionData.Confidence,
+				},
+				AllPredictions = mlPredictionData.AllPredictions.Select(p => new PredictionViewModel
+				{
+					Family = p.Family,
+					Type = p.Type,
+					Confidence = p.Confidence
+				}).ToList()
+			};
+
+			var type = cipher.TypeOfCipher != CipherType.None ? cipher.TypeOfCipher.ToString() : null;
+
+			var validation = await llmService.ValidateCipherAsync(cipher.EncryptedText, cipher.DecryptedText, mlResult, type);
+			cipher.LLMAnalysis = validation.Recommendation.ToString();
+			cipher.LLMReasoning = validation.Reasoning;
+			cipher.LLMConfidence = validation.Confidence;
+			cipher.LLMIssues = validation.Issues;
+			await cipherRepo.UpdateAsync(cipher);
+			return validation;
+		}
+		public async Task<string> ApproveCipherAsync(int id, ApproveCipherViewModel model) 
 		{
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
 
 			if (cipher == null) 
-				throw new InvalidOperationException("There is no cipher with the given Id");
+				throw new InvalidOperationException("Cipher not found");
 			else if (cipher.IsApproved) 
-				throw new InvalidOperationException("The cipher with the given Id is already approved");
+				throw new InvalidOperationException("Cipher is already approved");
 
-
-			foreach (var cipherIter in cipherRepo.GetAll())
-			{
-				if (cipherIter.Title == model.Title && cipherIter.Id != id)
+			if (cipherRepo.GetAll().Where(x => x.IsApproved).FirstOrDefault(x => x.Title == model.Title) != null)
 					throw new InvalidOperationException("There is already a cipher with this title");
-			}
 
-			//Check this when you see it for SAMUIL
-			//if (cipherRepo.FirstOrDefaultAsync(x => x.Title == model.Title && x.Id != id) != null)
-			//	throw new InvalidOperationException("There is already a cipher with this title");
-
-
-			//Applying tags to the actual DB entity
 			if (model.TagIds != null && model.TagIds.Count > 0)
                 await DefineTagsAsync(cipher, model.TagIds.ToList());
-			
-			if (cipher is ImageCipher) //We give permission for the admin to change the encrypted text extracted from OCR
-				(cipher as ImageCipher).EncryptedText = model.EncryptedText;
 
-			if (string.IsNullOrEmpty(cipher.DecryptedText) && model.isStandard)  //When text is not given we cannot approve it as standard
-			{
-				model.isStandard = false;
-				throw new InvalidOperationException("Cipher with unknown answe shouldn't be aproved as standard");
-			}
+			//When text is not given we cannot approve it as standard
+			if (string.IsNullOrWhiteSpace(cipher.DecryptedText) && model.ChallengeType == ChallengeType.Standard)
+				throw new InvalidOperationException("Cipher with unknown answer shouldn't be aproved as standard");
 
-			cipher.Title = model.Title;
+			if (model.ChallengeType == ChallengeType.Experimental && string.IsNullOrWhiteSpace(cipher.DecryptedText) && (model.AllowHint || model.AllowSolution || model.AllowTypeHint))
+				throw new InvalidOperationException("Hints cannot be used for Experimental Ciphers");
+
+			var title = string.IsNullOrEmpty(model.Title) ? cipher.EncryptedText : model.Title;
+			cipher.Title = title;
 			cipher.AllowHint = model.AllowHint;
 			cipher.AllowSolution = model.AllowSolution;
+			cipher.AllowTypeHint = model.AllowTypeHint;
+			cipher.TypeOfCipher = model.CipherType;
 			cipher.IsApproved = true;
-			cipher.ChallengeType = model.isStandard ? ChallengeType.Standard : ChallengeType.Experimental;
+			cipher.ChallengeType = model.ChallengeType; //Give permission to the admin for him to decide which is experimental or not
+
 
 			await cipherRepo.UpdateAsync(cipher);
-
 			return cipher.CreatedByUserId;
 		}
-		public async Task<string> UnapproveCipherAsync(int id)
+		public async Task UnapproveCipherAsync(int id)
 		{
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
 
 			if (cipher == null)
-				throw new InvalidOperationException("There is no cipher with the given Id");
+				throw new InvalidOperationException("Cipher not found");
 			else if (!cipher.IsApproved)
-				throw new InvalidOperationException("The cipher with the given Id is not approved");
+				throw new InvalidOperationException("Cipher is not approved");
 
 			cipher.IsApproved = false;
-			await cipherRepo.UpdateAsync(cipher);
 
-			return cipher.CreatedByUserId;
+			await cipherRepo.UpdateAsync(cipher);
 		}
-		public async Task RejectCipherAsync(int id)
+		public async Task RejectCipherAsync(int id, string reason)
 		{
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
 			if (cipher == null) 
-				throw new InvalidOperationException("There is no cipher with the given Id");
-			else if (cipher.IsApproved) throw new InvalidOperationException("The cipher with the given Id is already approved");
+				throw new InvalidOperationException("Cipher not found");
+
+			else if (cipher.IsApproved) throw new InvalidOperationException("Cipher already approved");
 
 			bool isDeleted = await cipherRepo.DeleteAsync(cipher);
+
+			//WE HAVE TO SEND THE REJECT NOTIFICATION WITH IT'S REASONING TO THE USER
 			if (!isDeleted) throw new InvalidOperationException("Wasn't able to reject the cipher");
 		}
 		public async Task DeleteApprovedCipher(int id)
@@ -175,11 +199,11 @@ namespace Cryptomind.Core.Services
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
 
 			if (cipher == null) 
-				throw new InvalidOperationException("There is no cipher with the given Id");
+				throw new InvalidOperationException("Cipher not found");
 			else if (!cipher.IsApproved) 
-				throw new InvalidOperationException("The cipher with the given Id is not approved");
+				throw new InvalidOperationException("Cipher is not approved, instead you can reject it");
 
-			var solutions = solutionRepo.GetAllAttached().Where(x => x.CipherId == id);
+			var solutions = (await solutionRepo.GetAllAsync()).Where(x => x.CipherId == id);
 
 			foreach (var solution in solutions)
 			{
@@ -189,109 +213,27 @@ namespace Cryptomind.Core.Services
 			bool result = await cipherRepo.DeleteAsync(cipher);
 			if (!result) throw new InvalidOperationException("Wasn't able to delete the cipher");
 		}
-		public async Task UpdateApprovedCipher(int id, ApproveUpdateCipherViewModel model)
+		public async Task UpdateApprovedCipher(int id, UpdateCipherViewModel model)
 		{
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
 
 			if (cipher == null) 
-				throw new InvalidOperationException("There is no cipher with the given Id");
+				throw new InvalidOperationException("Cipher not found");
+
 			else if (!cipher.IsApproved) 
-				throw new InvalidOperationException("The cipher with the given Id is not approved");
+				throw new InvalidOperationException("Cipher is not approved");
 
-			foreach (var cipherIter in cipherRepo.GetAll())
-			{
-				if (cipherIter.Title == model.Title && cipher.Id != id)
-					throw new InvalidOperationException("There is already a cipher with this title");
-			}
+			if (cipherRepo.GetAll().Where(x => x.IsApproved).FirstOrDefault(x => x.Title == model.Title) != null)
+				throw new InvalidOperationException("There is already a cipher with this title");
 
-			//Check this when you see it for SAMUIL
-			//if (cipherRepo.FirstOrDefaultAsync(x => x.Title == model.Title && x.Id != id) != null)
-			//	throw new InvalidOperationException("There is already a cipher with this title");
-
-			Console.WriteLine(model.Title);
 			cipher.Title = model.Title;
 			cipher.AllowHint = model.AllowHint;
 			cipher.AllowSolution = model.AllowSolution;
+
 			if (model.TagIds != null && model.TagIds.Count > 0)
-			{
-				try
-				{
-					await DefineTagsAsync(cipher, model.TagIds.ToList());
-				}
-				catch (InvalidOperationException ex)
-				{
-					throw new InvalidOperationException(ex.Message, ex);
-				}
-			}
+				await DefineTagsAsync(cipher, model.TagIds.ToList());
 
 			await cipherRepo.UpdateAsync(cipher);
-		}
-		public async Task<string> SolveCipherWithLLM(int cipherId)
-		{
-			Cipher? cipher = await cipherRepo.GetByIdAsync(cipherId);
-
-			if (cipher == null)
-				throw new InvalidOperationException("There is no cipher with the given Id");
-
-			if (!string.IsNullOrWhiteSpace(cipher.DecryptedText) &&
-				!string.IsNullOrWhiteSpace(cipher.LLMAnalysis))
-			{
-				return cipher.LLMAnalysis;
-			}
-
-			if (string.IsNullOrWhiteSpace(cipher.MLPrediction))
-			{
-				throw new InvalidOperationException(
-					"Cannot solve cipher: ML prediction not available. Cipher may not have been properly submitted.");
-			}
-
-			var mlPrediction = JsonSerializer.Deserialize<MlPredictionData>(cipher.MLPrediction);
-
-			if (mlPrediction == null)
-			{
-				throw new InvalidOperationException("Failed to parse ML prediction data");
-			}
-
-			var mlResult = new CipherRecognitionResultViewModel
-			{
-				TopPrediction = new PredictionViewModel
-				{
-					Family = mlPrediction.Family,
-					Type = mlPrediction.Type,
-					Confidence = mlPrediction.Confidence
-				},
-				AllPredictions = mlPrediction.AllPredictions?.Select(p => new PredictionViewModel
-				{
-					Family = p.Family,
-					Type = p.Type,
-					Confidence = p.Confidence
-				}).ToList() ?? new List<PredictionViewModel>()
-			};
-
-			string encryptedText;
-			if (cipher is ImageCipher imageCipher)
-			{
-				encryptedText = imageCipher.EncryptedText;
-			}
-			else if (cipher is TextCipher textCipher)
-			{
-				encryptedText = textCipher.EncryptedText;
-			}
-			else
-			{
-				throw new InvalidOperationException("Unknown cipher type");
-			}
-
-			var solution = await llmService.SolveCipherAsync(
-				encryptedText,
-				cipher.DecryptedText,
-				mlResult);
-
-			//Cache the solution, optional
-			cipher.LLMAnalysis = solution;
-			await cipherRepo.UpdateAsync(cipher);
-
-			return solution;
 		}
 		#endregion
 
@@ -483,6 +425,7 @@ namespace Cryptomind.Core.Services
                         AllowsHint = cipher.AllowHint,
                         IsApproved = cipher.IsApproved,
                         IsImage = true,
+						IsLLMRecommended = cipher.IsLLMRecommended,
 						ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
 					});
                 }
@@ -500,6 +443,7 @@ namespace Cryptomind.Core.Services
                         AllowsHint = cipher.AllowHint,
                         IsApproved = cipher.IsApproved,
                         IsImage = false,
+						IsLLMRecommended = cipher.IsLLMRecommended,
 						ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
 					});
                 }

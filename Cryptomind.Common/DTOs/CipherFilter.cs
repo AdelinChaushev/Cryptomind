@@ -12,6 +12,6 @@ namespace Cryptomind.Common.DTOs
 	{
 		public string? SearchTerm { get; set; }
 		public List<TagType>? Tags { get; set; }
-		public ChallengeTypeDTO ChallengeType { get; set; }
+		public ChallengeType ChallengeType { get; set; }
 	}
 }

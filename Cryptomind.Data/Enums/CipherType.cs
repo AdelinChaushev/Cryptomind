@@ -26,5 +26,7 @@ namespace Cryptomind.Data.Enums
 		Morse = 11,
 		Binary = 12,
 		Hex = 13,
+
+		None = 14,
 	}
 }

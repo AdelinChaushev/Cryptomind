@@ -1,15 +1,17 @@
-﻿using Cryptomind.Common.CipherAdminViewModels;
+﻿using Cryptomind.Common.AdminViewModels;
+using Cryptomind.Common.CipherAdminViewModels;
+using Cryptomind.Common.CipherRecognitionViewModels;
 using Cryptomind.Common.CipherViewModels;
 using Cryptomind.Common.DTOs;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Core.Services;
 using Cryptomind.Data.Entities;
+using Cryptomind.Data.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Buffers.Text;
 using static System.Net.Mime.MediaTypeNames;
-using Cryptomind.Data.Enums;
 
 namespace Cryptomind.Controllers
 {
@@ -70,37 +72,29 @@ namespace Cryptomind.Controllers
 			}
 			return BadRequest();
 		}
-		[HttpPost("cipher/{id}/solve")]
-		public async Task<IActionResult> SolveCipher(int id)
+
+		[HttpGet("cipler/{id}/analyze")]
+		public async Task<IActionResult> AnalyzeCipher([FromRoute] int id)
 		{
 			try
 			{
-				var solution = await adminService.SolveCipherWithLLM(id);
-
-				return Ok(new
-				{
-					success = true,
-					analysis = solution
-				});
-			}
-			catch (InvalidOperationException ex)
-			{
-				return BadRequest(new { success = false, message = ex.Message });
+				var result = await adminService.AnalyzeWithLLM(id);
+				return Ok(result);
 			}
 			catch (Exception ex)
 			{
-				return StatusCode(500, new { success = false, message = "An error occurred while solving the cipher" });
+				await Console.Out.WriteLineAsync(ex.Message);
+				return BadRequest(ex.Message);
 			}
 		}
 
 		[HttpPut("cipher/{id}/approve")]
-		public async Task<IActionResult> ApproveCipher([FromRoute] int id, [FromBody] ApproveUpdateCipherViewModel model)
+		public async Task<IActionResult> ApproveCipher([FromRoute] int id, [FromBody] ApproveCipherViewModel model)
 		{
 			try
 			{
 				string userID = await adminService.ApproveCipherAsync(id, model);
 				await badgeService.CheckBadgesByCategory(userID, BadgeCategory.OnUpload);
-				//Here we can update some values for the user which submitted the cipher, like adding that he created a cipher
 
 				return Ok();
 			}
@@ -110,12 +104,13 @@ namespace Cryptomind.Controllers
 			}
 			return BadRequest();
 		}
+
 		[HttpPut("cipher/{id}/unapprove")]
-		public async Task<IActionResult> UnpproveCipher([FromRoute] int id)
+		public async Task<IActionResult> UnapproveCipher([FromRoute] int id)
 		{
 			try
 			{
-				string userID = await adminService.UnapproveCipherAsync(id);
+				await adminService.UnapproveCipherAsync(id);
 				//await badgeService.CheckBadgesByCategory(userID, BadgeCategory.OnUpload);
 				return Ok();
 			}
@@ -127,11 +122,11 @@ namespace Cryptomind.Controllers
 		}
 
 		[HttpDelete("cipher/{id}/reject")]
-		public async Task<IActionResult> RejectCipher([FromRoute] int id)
+		public async Task<IActionResult> RejectCipher([FromRoute] int id, [FromBody] string reason)
 		{
 			try
 			{
-				await adminService.RejectCipherAsync(id);
+				await adminService.RejectCipherAsync(id, reason);
 
 				return Ok();
 			}
@@ -143,7 +138,7 @@ namespace Cryptomind.Controllers
 		}
 
 		[HttpPut("cipher/{id}/update")]
-		public async Task<IActionResult> UpdateCipher([FromRoute] int id, [FromBody] ApproveUpdateCipherViewModel model)
+		public async Task<IActionResult> UpdateCipher([FromRoute] int id, [FromBody] UpdateCipherViewModel model)
 		{
 			try
 			{
@@ -252,20 +247,5 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 		#endregion
-		[HttpGet("test-llm-config")]
-		public IActionResult TestLLMConfig([FromServices] IConfiguration config)
-		{
-			var apiUrl = config["LLMService:ApiUrl"];
-			var model = config["LLMService:Model"];
-			var apiKey = config["LLMService:ApiKey"];
-
-			return Ok(new
-			{
-				ApiUrl = apiUrl,
-				Model = model,
-				ApiKeyExists = !string.IsNullOrEmpty(apiKey),
-				ApiKeyPreview = apiKey?.Substring(0, 10) + "..." // Show first 10 chars only
-			});
-		}
 	}
 }
