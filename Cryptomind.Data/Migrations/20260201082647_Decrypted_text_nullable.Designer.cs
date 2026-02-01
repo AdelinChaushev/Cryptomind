@@ -4,6 +4,7 @@ using Cryptomind.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cryptomind.Data.Migrations
 {
     [DbContext(typeof(CryptomindDbContext))]
-    partial class CryptomindDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260201082647_Decrypted_text_nullable")]
+    partial class Decrypted_text_nullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -80,15 +83,6 @@ namespace Cryptomind.Data.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("LLMAnalysis")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LLMConfidence")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LLMIssues")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LLMReasoning")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MLPrediction")
@@ -303,6 +297,10 @@ namespace Cryptomind.Data.Migrations
 
                     b.Property<int>("HintType")
                         .HasColumnType("int");
+
+                    b.Property<string>("InputText")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()

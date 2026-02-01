@@ -53,10 +53,7 @@ def predict():
     
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-# ============================================================================
-# NEW ENDPOINT - English Text Validation
-# ============================================================================
+    
 @app.route('/api/validate-english', methods=['POST'])
 def validate_english():
     """
