@@ -30,47 +30,6 @@ namespace Cryptomind.Core.Services
 		IEnglishValidationService englishValidationService,
 		UserManager<ApplicationUser> userRepository) : ICipherService
 	{
-		public async Task<bool> AnswerCipherAsync(string userId, string input, int cipherId)
-		{
-			Cipher cipher = cipherRepo.GetAllAttached()
-				.Include(x => x.UsersSolved)
-				.FirstOrDefault(x => x.Id == cipherId);
-
-			if (cipher == null) 
-				throw new InvalidOperationException("There is no cipher with the given Id");
-
-			if (cipher.CreatedByUserId == userId)
-				throw new InvalidOperationException("A cipher cannot be solved by it's user");
-
-			if (cipher.ChallengeType == ChallengeType.Experimental)
-				throw new InvalidOperationException("Experimental ciphers cannot be solved");
-
-			if (cipher.UsersSolved.FirstOrDefault(x => x.UserId == userId) != null)
-				throw new InvalidOperationException("Cannot solve the same cipher 2 times");
-
-			string correctAnswer = string.Empty;
-			if (cipher is TextCipher)
-				correctAnswer = (cipher as TextCipher).DecryptedText;
-			else if (cipher is ImageCipher)
-				correctAnswer = (cipher as ImageCipher).DecryptedText;
-
-			if (correctAnswer == input) //The answer is correct
-			{
-				ApplicationUser user = await userRepository.FindByIdAsync(userId);
-				await solutionRepository.AddAsync(new UserSolution()
-				{
-					CipherId = cipherId,
-					UserId = userId,
-					TimeSolved = DateTime.Now,
-
-				});
-				user.Score += cipher.Points;
-				user.SolvedCount += 1;
-				return true;
-			}
-
-			return false;
-		}
 		public async Task<List<CipherOutputViewModel>> GetApprovedAsync(CipherFilter? filter)
 		{
 			List<Cipher> approved = (await cipherRepo.GetAllAsync()).Where(c => c.IsApproved).ToList();
@@ -83,13 +42,10 @@ namespace Cryptomind.Core.Services
 
 			switch (filter.ChallengeType)
 			{
-				case ChallengeTypeDTO.None:
-					approved = approved;
-					break;
-				case ChallengeTypeDTO.Standard:
+				case ChallengeType.Standard:
 					approved = approved.Where(x => x.ChallengeType == ChallengeType.Standard).ToList();
 					break;
-				case ChallengeTypeDTO.Experimental:
+				case ChallengeType.Experimental:
 					approved = approved.Where(x => x.ChallengeType == ChallengeType.Experimental).ToList();
 					break;
 			}
@@ -104,19 +60,22 @@ namespace Cryptomind.Core.Services
 		public async Task<CipherOutputViewModel?> GetCipherAsync(int id)
 		{
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
+
 			if (cipher == null)
-				throw new InvalidOperationException("There is no cipher with the given Id");
+				throw new InvalidOperationException("Cipher not found");
 
 			return await ToOutputViewModel(cipher);
 		}
-		public Task<HintRequestResponse> RequestHintAsync(HintRequest request)
-		{
-			throw new NotImplementedException();
-		}
 		public async Task<Cipher> SubmitCipherAsync(SubmitCipherViewModel model, string userId)
 		{
-			if (await cipherRepo.GetAllAttached().AnyAsync(c => c.Title == model.Title))
-				throw new InvalidOperationException("Cannot create two ciphers with the same name");
+			if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.Title == model.Title) != null)
+				throw new InvalidOperationException("There is already a cipher with this name");
+
+			if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.EncryptedText == model.EncryptedText) != null)
+				throw new InvalidOperationException("There is already a cipher like this");
+
+			if (string.IsNullOrEmpty(model.DecryptedText) && model.CipherType == CipherType.None)
+				throw new InvalidOperationException("Cannot submit cipher with unknown decrypted text and cipher type");
 
 			Cipher? cipher = null;
 			string encryptedTextForAnalysis = model.EncryptedText;
@@ -129,7 +88,7 @@ namespace Cryptomind.Core.Services
 					Title = title,
 					DecryptedText = model.DecryptedText,
 					EncryptedText = model.EncryptedText,
-					//TypeOfCipher = model.Type,
+					TypeOfCipher = model.CipherType,
 					AllowHint = false,
 					AllowSolution = false,
 					IsApproved = false,
@@ -184,7 +143,12 @@ namespace Cryptomind.Core.Services
 
 			var mlResult = await cipherRecognizerService.ClassifyCipher(encryptedTextForAnalysis);
 
-			//Assign the ML prediction to the property so later the admin can use it.
+			if (mlResult.TopPrediction.Type.ToLower() == "plaintext")
+			{
+				throw new InvalidOperationException(
+					"Your text appears to already be in plaintext. Only encrypted text is allowed.");
+			}
+
 			cipher.MLPrediction = JsonSerializer.Serialize(new
 			{
 				family = mlResult.TopPrediction.Family,
@@ -199,72 +163,62 @@ namespace Cryptomind.Core.Services
 			});
 
 			if (!string.IsNullOrWhiteSpace(model.DecryptedText))
+			{
 				cipher.IsPlaintextValid = await englishValidationService.IsLikelyEnglishAsync(model.DecryptedText);
-
-			//TESTING:
-			if (mlResult.TopPrediction.Type.ToLower() == "plaintext")
-			{
-				//You have to show this to the USER!!!
-				throw new InvalidOperationException("PLAINTEXT ENCRYPTED TEXT IS NOT ALLOWED");
 			}
 
-			var mlConfidence = mlResult.TopPrediction.Confidence;
-			var mlType = mlResult.TopPrediction.Type;
-			var userProvidedType = model.Type != CipherTypeDTO.None;
-			var userProvidedSolution = !string.IsNullOrWhiteSpace(model.DecryptedText);
+			cipher.IsLLMRecommended = DetermineLLMRecommendation(
+				mlConfidence: mlResult.TopPrediction.Confidence * 100,
+				mlType: mlResult.TopPrediction.Type,
+				userProvidedType: model.CipherType != CipherType.None,
+				userProvidedSolution: !string.IsNullOrWhiteSpace(model.DecryptedText),
+				isPlaintextValid: cipher.IsPlaintextValid,
+				typesMatch: model.CipherType.ToString().ToLower() == mlResult.TopPrediction.Type.ToLower()
+			);
 
-			bool LLMRecommendation = false;
-
-			if (userProvidedType && userProvidedSolution)
-			{
-				bool typesMatch = mlType.ToLower() == model.Type.ToString().ToLower();
-				bool isProblematicType = ProblematicCipherTypes.Contains(mlType.ToLower());
-
-				if (mlConfidence > 85 && typesMatch)
-				{
-					LLMRecommendation = false;
-
-					if (cipher.IsPlaintextValid == false)
-					{
-						LLMRecommendation = true;
-					}
-				}
-				else
-				{
-					LLMRecommendation = true;
-				}
-			}
-			else if (userProvidedType && !userProvidedSolution)
-			{
-				LLMRecommendation = true;
-			}
-			else if (!userProvidedType && userProvidedSolution)
-			{
-				bool isProblematicType = ProblematicCipherTypes.Contains(mlType);
-
-				if (mlConfidence > 85 && !isProblematicType)
-				{
-					LLMRecommendation = false;
-					cipher.TypeOfCipher = (CipherType)Enum.Parse(typeof(CipherType), mlType);
-
-					if (cipher.IsPlaintextValid == false)
-					{
-						LLMRecommendation = true;
-					}
-				}
-				else
-				{
-					LLMRecommendation = true;
-				}
-			}
-			else if (!userProvidedType && !userProvidedSolution)
-			{
-				throw new InvalidOperationException("Incomplete submission: Please provide cipher type and/or solution.");
-			}
-
-			cipher.IsLLMRecommended = LLMRecommendation;
 			await cipherRepo.AddAsync(cipher);
 			return cipher;
+		}
+		public async Task<bool> AnswerCipherAsync(string userId, string input, int cipherId)
+		{
+			Cipher? cipher = cipherRepo.GetAllAttached()
+				.Include(x => x.UsersSolved)
+				.FirstOrDefault(x => x.Id == cipherId);
+
+			if (cipher == null) 
+				throw new InvalidOperationException("Cipher not found");
+
+			if (cipher.CreatedByUserId == userId)
+				throw new InvalidOperationException("A cipher cannot be solved by it's user");
+
+			if (cipher.ChallengeType == ChallengeType.Experimental)
+				throw new InvalidOperationException("Experimental ciphers cannot be solved");
+
+			if (cipher.UsersSolved.FirstOrDefault(x => x.UserId == userId) != null)
+				throw new InvalidOperationException("Cannot solve the same cipher 2 times");
+
+			string correctAnswer = cipher.DecryptedText;
+
+			if (correctAnswer == input) //The answer is correct
+			{
+				ApplicationUser user = await userRepository.FindByIdAsync(userId);
+				await solutionRepository.AddAsync(new UserSolution()
+				{
+					CipherId = cipherId,
+					UserId = userId,
+					TimeSolved = DateTime.Now,
+
+				});
+				user.Score += cipher.Points;
+				user.SolvedCount += 1;
+				return true;
+			}
+
+			return false;
+		}
+		public Task<HintRequestResponse> RequestHintAsync(HintRequest request)
+		{
+			throw new NotImplementedException();
 		}
 
 		#region Private methods
@@ -278,41 +232,28 @@ namespace Cryptomind.Core.Services
 		}
 		private async Task<CipherOutputViewModel> ToOutputViewModel(Cipher cipher)
 		{
+			var model = new CipherOutputViewModel
+			{
+				Id = cipher.Id,
+				Title = cipher.Title,
+				CipherText = cipher.EncryptedText,
+				Points = cipher.Points,
+				AllowsAnswer = cipher.AllowSolution,
+				AllowsHint = cipher.AllowHint,
+				ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
+			};
 			if (cipher is ImageCipher)
 			{
 				ImageCipher cipherImage = cipher as ImageCipher;
 				string imageFolderPath = Path.Combine(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..")), cipherImage.ImagePath);
 				string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imageFolderPath))}";
-
-				return (new CipherOutputViewModel
-				{
-					Id = cipher.Id,
-					Title = cipher.Title,
-					IsApproved = cipher.IsApproved,
-					Points = cipher.Points,
-					CipherText = base64,
-					AllowsAnswer = cipher.AllowSolution,
-					AllowsHint = cipher.AllowHint,
-					IsImage = true,
-					ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
-				});
+				//How are we going to pass the image?
+				model.IsImage = true;
 			}
 			else
-			{
-				TextCipher cipherText = cipher as TextCipher;
-				return (new CipherOutputViewModel
-				{
-					Id = cipher.Id,
-					Title = cipher.Title,
-					IsApproved = cipher.IsApproved,
-					CipherText = cipherText.EncryptedText,
-					Points = cipher.Points,
-					AllowsAnswer = cipher.AllowSolution,
-					AllowsHint = cipher.AllowHint,
-					IsImage = false,
-					ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
-				});
-			}
+				model.IsImage = true;
+
+			return model;
 		}
 		private void ValidateImageFile(IFormFile imageFile)
 		{
@@ -333,11 +274,52 @@ namespace Cryptomind.Core.Services
 			if (imageFile.Length == 0)
 				throw new InvalidOperationException("File cannot be empty");
 		}
+		private bool DetermineLLMRecommendation(
+			double mlConfidence,
+			string mlType,
+			bool userProvidedType,
+			bool userProvidedSolution,
+			bool isPlaintextValid,
+			bool typesMatch)
+		{
+			if (!userProvidedType && !userProvidedSolution)
+			{
+				throw new InvalidOperationException(
+					"Incomplete submission: Please provide cipher type and/or solution.");
+			}
+
+			bool isProblematic = ProblematicCipherTypes.Contains(mlType.ToLower());
+
+			if (userProvidedType && userProvidedSolution)
+			{
+				if (mlConfidence > 85 && typesMatch && isPlaintextValid)
+				{
+					return false;
+				}
+				return true;
+			}
+
+			if (userProvidedType && !userProvidedSolution)
+			{
+				return true;
+			}
+
+			if (!userProvidedType && userProvidedSolution)
+			{
+				if (mlConfidence > 85 && !isProblematic && isPlaintextValid)
+				{
+					return false;
+				}
+				return true;
+			}
+
+			return true;
+		}
 		#endregion
 		private static readonly HashSet<string> ProblematicCipherTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 		{
 			"columnar",
-			"railFence",
+			"railfence",
 			"vigenere",
 			"trithemius",
 			"route"
