@@ -1,13 +1,13 @@
 CRYPTOMIND - EXTERNAL DATA VALIDATION RESULTS
 ================================================================================
 
-Test Date: 2026-01-30 17:55:10
+Test Date: 2026-02-01 12:30:07
 Test Sources: Art of War, Metamorphosis, Tale of Two Cities
 Total Samples: 220
 Samples per Type: 20
 Text Length: 200-400 characters
 
-Overall Accuracy: 205/220 (93.18%)
+Overall Accuracy: 210/220 (95.45%)
 
 Caesar               20/20 (100.0%)
 ROT13                20/20 (100.0%)
@@ -15,8 +15,8 @@ Atbash               20/20 (100.0%)
 SimpleSubstitution   19/20 ( 95.0%)
 Vigenere             19/20 ( 95.0%)
 Autokey              20/20 (100.0%)
-Trithemius           18/20 ( 90.0%)
-RailFence            18/20 ( 90.0%)
-Columnar             14/20 ( 70.0%)
-Route                17/20 ( 85.0%)
+Trithemius           19/20 ( 95.0%)
+RailFence            16/20 ( 80.0%)
+Columnar             18/20 ( 90.0%)
+Route                19/20 ( 95.0%)
 Plaintext            20/20 (100.0%)
