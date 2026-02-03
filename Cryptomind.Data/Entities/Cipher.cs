@@ -1,5 +1,6 @@
 ﻿using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,6 +10,8 @@ public abstract class Cipher
 	{
 		CipherTags = new List<CipherTag>();
 		HintsRequested = new List<HintRequest>();
+		AnswerSuggestions = new List<AnswerSuggestion>();
+		LLMData = new CipherLLMData();
 	}
 
 	[Key]
@@ -19,13 +22,7 @@ public abstract class Cipher
 	public string? DecryptedText { get; set; }
 	public string EncryptedText { get; set; }
 	public string MLPrediction { get; set; }
-	public string? LLMAnalysis { get; set; }
-	public string? LLMReasoning { get; set; }
-	public List<string>? LLMIssues { get; set; }
-	public string? LLMConfidence { get; set; }
-	public string? CachedHint { get; set; }
-	public string? CachedSolution { get; set; }
-	public string? CachedTypeHint { get; set; }
+	public CipherLLMData? LLMData { get; set; }
 	public CipherType TypeOfCipher { get; set; }
 	public ChallengeType ChallengeType { get; set; }
 	public DateTime CreatedAt { get; set; }
@@ -36,11 +33,23 @@ public abstract class Cipher
 	public bool IsPlaintextValid { get; set; }
 	public bool IsLLMRecommended { get; set; }
 	public int Points { get; set; }
-
 	[ForeignKey(nameof(CreatedByUser))]
 	public string CreatedByUserId { get; set; }
 	public ApplicationUser CreatedByUser { get; set; }
 	public ICollection<CipherTag> CipherTags { get; set; }
 	public ICollection<HintRequest> HintsRequested { get; set; }
 	public ICollection<UserSolution> UsersSolved { get; set; }
+	public ICollection<AnswerSuggestion> AnswerSuggestions { get; set; }
+}
+
+[Owned]
+public class CipherLLMData
+{
+	public string? Analysis { get; set; }
+	public string? Reasoning { get; set; }
+	public List<string>? Issues { get; set; }
+	public string? Confidence { get; set; }
+	public string CachedHint { get; set; } = string.Empty;
+	public string CachedSolution { get; set; } = string.Empty;
+	public string CachedTypeHint { get; set; } = string.Empty;
 }

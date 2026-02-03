@@ -4,6 +4,7 @@ using Cryptomind.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cryptomind.Data.Migrations
 {
     [DbContext(typeof(CryptomindDbContext))]
-    partial class CryptomindDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260201124307_Add_Answer_Suggestion")]
+    partial class Add_Answer_Suggestion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -107,19 +110,9 @@ namespace Cryptomind.Data.Migrations
                     b.Property<int>("CipherId")
                         .HasColumnType("int");
 
-                    b.Property<string>("DecryptedText")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsApproved")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UplodaedTime")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -269,7 +262,7 @@ namespace Cryptomind.Data.Migrations
                         new
                         {
                             Id = 3,
-                            Category = 2,
+                            Category = 1,
                             Description = "Have your first cipher approved",
                             EarnedBy = 0,
                             Title = "Cipher Creator"
@@ -277,7 +270,7 @@ namespace Cryptomind.Data.Migrations
                         new
                         {
                             Id = 4,
-                            Category = 2,
+                            Category = 1,
                             Description = "Have 5 ciphers approved",
                             EarnedBy = 0,
                             Title = "Community Contributor"
@@ -285,18 +278,10 @@ namespace Cryptomind.Data.Migrations
                         new
                         {
                             Id = 5,
-                            Category = 3,
+                            Category = 2,
                             Description = "Solve at least one cipher from 5 different types",
                             EarnedBy = 0,
                             Title = "Diverse Solver"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Category = 1,
-                            Description = "Solve your first experimental cipher",
-                            EarnedBy = 0,
-                            Title = "Outstanding Cryptographer"
                         });
                 });
 
@@ -619,13 +604,13 @@ namespace Cryptomind.Data.Migrations
             modelBuilder.Entity("Cryptomind.Data.Entities.AnswerSuggestion", b =>
                 {
                     b.HasOne("Cipher", "Cipher")
-                        .WithMany("AnswerSuggestions")
+                        .WithMany()
                         .HasForeignKey("CipherId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Cryptomind.Data.Entities.ApplicationUser", "ApplicationUser")
-                        .WithMany("SuggestedAnswers")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -764,8 +749,6 @@ namespace Cryptomind.Data.Migrations
 
             modelBuilder.Entity("Cipher", b =>
                 {
-                    b.Navigation("AnswerSuggestions");
-
                     b.Navigation("CipherTags");
 
                     b.Navigation("HintsRequested");
@@ -780,8 +763,6 @@ namespace Cryptomind.Data.Migrations
                     b.Navigation("HintsRequested");
 
                     b.Navigation("SolvedCiphers");
-
-                    b.Navigation("SuggestedAnswers");
 
                     b.Navigation("UploadedCiphers");
                 });
