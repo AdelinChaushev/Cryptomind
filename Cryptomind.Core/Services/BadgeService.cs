@@ -41,7 +41,8 @@ namespace Cryptomind.Core.Services
 				{ 3, new UploadCountCriteria(this.statsService, 1) },
 				{ 4, new UploadCountCriteria(this.statsService, 5) },
 				//NoHintsCriteria(statsService, 10)
-				{ 5, new DistinctSolvedCountCriteria(this.statsService, 5) }
+				{ 5, new DistinctSolvedCountCriteria(this.statsService, 5) },
+				{ 6, new SuggestedAnswerCountCriteria(this.statsService, 1) },
 			};
 		}
 
