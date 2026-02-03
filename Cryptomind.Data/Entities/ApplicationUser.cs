@@ -27,6 +27,7 @@ namespace Cryptomind.Data.Entities
         public ICollection<Cipher> UploadedCiphers { get; set; }
         public ICollection<UserSolution> SolvedCiphers { get; set; }
         public ICollection<HintRequest> HintsRequested { get; set; }
+        public ICollection<AnswerSuggestion> SuggestedAnswers { get; set; }
         public ICollection <UserBadge> Badges { get; set; }
         private double CalculateSuccessRate()
         {

@@ -1,6 +1,5 @@
 ﻿using Cryptomind.Common.DTOs;
 using Cryptomind.Core.Contracts;
-using Cryptomind.Common.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System;

@@ -31,6 +31,14 @@ namespace Cryptomind.Core.Services
 				.Distinct()
 				.Count();
 		}
+		public async Task<int> GetApprovedAnswersCount(string userId)
+		{
+			return userRepo.GetAllAttached()
+				.Include(x => x.SuggestedAnswers)
+				.FirstOrDefault(x => x.Id == userId)
+				.SuggestedAnswers
+				.Count(x => x.IsApproved);
+		}
 
 		public async Task<int> GetSolvedCount(string userId)
 			=> (await userRepo.GetByIdAsync(userId)).SolvedCount;

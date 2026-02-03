@@ -23,11 +23,13 @@ namespace Cryptomind.Core.Services
 {
 	public class CipherService(
 		IRepository<Cipher, int> cipherRepo,
-		IRepository<UserSolution, int> solutionRepository,
+		IRepository<UserSolution, int> solutionRepo,
+		IRepository<AnswerSuggestion, int> answerRepo,
 		IOCRService ocrService,
 		ICipherRecognizerService cipherRecognizerService,
 		ILLMService llmService,
 		IEnglishValidationService englishValidationService,
+		UserManager<ApplicationUser> userManager,
 		UserManager<ApplicationUser> userRepository) : ICipherService
 	{
 		public async Task<List<CipherOutputViewModel>> GetApprovedAsync(CipherFilter? filter)
@@ -80,7 +82,7 @@ namespace Cryptomind.Core.Services
 			Cipher? cipher = null;
 			string encryptedTextForAnalysis = model.EncryptedText;
 
-			var title = string.IsNullOrEmpty(model.Title) ? model.EncryptedText : model.Title;
+			var title = string.IsNullOrEmpty(model.Title) ? "TESTING" : model.Title; //Decide what to do if there is no title provided
 			if (model.CipherDefinition == CipherDefinition.TextCipher)
 			{
 				cipher = new TextCipher()
@@ -88,7 +90,7 @@ namespace Cryptomind.Core.Services
 					Title = title,
 					DecryptedText = model.DecryptedText,
 					EncryptedText = model.EncryptedText,
-					TypeOfCipher = model.CipherType,
+					TypeOfCipher = model.CipherType, //Can just send null values instead of having a None value, because what is that cipher type - "none"
 					AllowHint = false,
 					AllowSolution = false,
 					IsApproved = false,
@@ -179,6 +181,39 @@ namespace Cryptomind.Core.Services
 			await cipherRepo.AddAsync(cipher);
 			return cipher;
 		}
+		public async Task SuggestAnswerAsync (SuggestAnswerDTO dto, string userId, int cipherId)
+		{
+			Cipher? cipher = cipherRepo.GetAllAttached()
+				.Include(x => x.AnswerSuggestions)
+				.FirstOrDefault(x => x.Id == cipherId);
+
+			if (cipher == null)
+				throw new InvalidOperationException("Cipher not found");
+
+			if (!string.IsNullOrWhiteSpace(cipher.DecryptedText))
+				throw new InvalidOperationException("Cipher already has an answer");
+
+			if (cipher.ChallengeType == ChallengeType.Standard)
+				throw new InvalidOperationException("Cannot suggest answer on standard cipher");
+
+			if (cipher.CreatedByUserId == userId)
+				throw new InvalidOperationException("You cannot suggest answers on ciphers created by you.");
+
+			if (cipher.AnswerSuggestions.FirstOrDefault(x => x.UserId == userId) != null)
+				throw new InvalidOperationException("You have already suggested an answer for this cipher");
+
+			AnswerSuggestion answer = new AnswerSuggestion
+			{
+				UserId = userId,
+				CipherId = cipherId,
+				Description = dto.Description,
+				DecryptedText = dto.DecryptedText,
+				UplodaedTime = DateTime.UtcNow,
+				IsApproved = false
+			};
+
+			await answerRepo.AddAsync(answer);
+		}
 		public async Task<bool> AnswerCipherAsync(string userId, string input, int cipherId)
 		{
 			Cipher? cipher = cipherRepo.GetAllAttached()
@@ -202,12 +237,11 @@ namespace Cryptomind.Core.Services
 			if (correctAnswer == input) //The answer is correct
 			{
 				ApplicationUser user = await userRepository.FindByIdAsync(userId);
-				await solutionRepository.AddAsync(new UserSolution()
+				await solutionRepo.AddAsync(new UserSolution()
 				{
 					CipherId = cipherId,
 					UserId = userId,
 					TimeSolved = DateTime.Now,
-
 				});
 				user.Score += cipher.Points;
 				user.SolvedCount += 1;
