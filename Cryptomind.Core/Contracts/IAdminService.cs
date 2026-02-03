@@ -17,11 +17,15 @@ namespace Cryptomind.Core.Contracts
     {
         Task<List<CipherReviewOutputViewModel>> AllSubmittedCiphers();
 		Task<List<CipherReviewOutputViewModel>> AllApprovedCiphers(CipherFilter filter);
+		Task<List<AnswerSuggestionViewModel>> AllSubmittedAnswersAsync();
 		Task<CipherReviewOutputViewModel> GetCipherById(int id);
+		Task<AnswerSuggestionReviewViewModel> GetAnswerById(int id);
 		Task<CipherValidationResult> AnalyzeWithLLM(int id);
-
 		Task RejectCipherAsync(int id, string reason);
-        Task<string> ApproveCipherAsync(int id, ApproveCipherViewModel model);
+		Task RejectAnswerAsync(int id, string reason);
+
+		Task<string> ApproveCipherAsync(int id, ApproveCipherViewModel model);
+		Task<string> ApproveAnswerAsync(int id, int points);
 		Task UnapproveCipherAsync(int id);
         Task DeleteApprovedCipher(int id);
         Task UpdateApprovedCipher(int id, UpdateCipherViewModel model);

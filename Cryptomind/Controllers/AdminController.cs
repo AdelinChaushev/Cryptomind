@@ -43,12 +43,28 @@ namespace Cryptomind.Controllers
 			}
 			return BadRequest();
 		}
+
 		[HttpGet("approved-ciphers")]
 		public async Task<IActionResult> GetApprovedCiphers([FromQuery] CipherFilter filter)
 		{
 			try
 			{
 				var result = await adminService.AllApprovedCiphers(filter);
+				return Ok(result);
+			}
+			catch (InvalidOperationException ex)
+			{
+				await Console.Out.WriteLineAsync(ex.Message);
+			}
+			return BadRequest();
+		}
+
+		[HttpGet("pending-answer-suggestions")]
+		public async Task<IActionResult> GetSubmittedAnswers()
+		{
+			try
+			{
+				var result = await adminService.AllSubmittedAnswersAsync();
 				return Ok(result);
 			}
 			catch (InvalidOperationException ex)
@@ -105,13 +121,13 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 
-		[HttpPut("cipher/{id}/unapprove")]
-		public async Task<IActionResult> UnapproveCipher([FromRoute] int id)
+		[HttpDelete("cipher/{id}/reject")]
+		public async Task<IActionResult> RejectCipher([FromRoute] int id, [FromBody] string reason)
 		{
 			try
 			{
-				await adminService.UnapproveCipherAsync(id);
-				//await badgeService.CheckBadgesByCategory(userID, BadgeCategory.OnUpload);
+				await adminService.RejectCipherAsync(id, reason);
+
 				return Ok();
 			}
 			catch (Exception ex)
@@ -121,13 +137,13 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 
-		[HttpDelete("cipher/{id}/reject")]
-		public async Task<IActionResult> RejectCipher([FromRoute] int id, [FromBody] string reason)
+		[HttpPut("cipher/{id}/unapprove")]
+		public async Task<IActionResult> UnapproveCipher([FromRoute] int id)
 		{
 			try
 			{
-				await adminService.RejectCipherAsync(id, reason);
-
+				await adminService.UnapproveCipherAsync(id);
+				//await badgeService.CheckBadgesByCategory(userID, BadgeCategory.OnUpload);
 				return Ok();
 			}
 			catch (Exception ex)
@@ -159,6 +175,54 @@ namespace Cryptomind.Controllers
 			try
 			{
 				await adminService.DeleteApprovedCipher(id);
+
+				return Ok();
+			}
+			catch (Exception ex)
+			{
+				await Console.Out.WriteLineAsync(ex.Message);
+			}
+			return BadRequest();
+		}
+
+		[HttpGet("answer/{id}")]
+		public async Task<IActionResult> GetAnswer([FromRoute] int id)
+		{
+			try
+			{
+				var result = await adminService.GetAnswerById(id);
+				return Ok(result);
+			}
+			catch (InvalidOperationException ex)
+			{
+				await Console.Out.WriteLineAsync(ex.Message);
+			}
+			return BadRequest();
+		}
+
+		[HttpPut("answer/{id}/approve")]
+		public async Task<IActionResult> ApproveAnswer([FromRoute] int id, [FromForm] int points)
+		{
+			try
+			{
+				string userID = await adminService.ApproveAnswerAsync(id, points);
+				await badgeService.CheckBadgesByCategory(userID, BadgeCategory.OnSuggesting);
+
+				return Ok();
+			}
+			catch (InvalidOperationException ex)
+			{
+				await Console.Out.WriteLineAsync(ex.Message);
+			}
+			return BadRequest();
+		}
+
+		[HttpDelete("answer/{id}/reject")]
+		public async Task<IActionResult> RejectAnswer([FromRoute] int id, [FromBody] string reason)
+		{
+			try
+			{
+				await adminService.RejectAnswerAsync(id, reason);
 
 				return Ok();
 			}
