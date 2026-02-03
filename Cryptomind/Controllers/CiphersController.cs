@@ -89,6 +89,24 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 
+		[HttpPost("cipher/{id}/suggest-answer")]
+		[Authorize(AuthenticationSchemes = "Bearer")]
+		public async Task<IActionResult> SuggestAnswer([FromRoute] int id, [FromBody] SuggestAnswerDTO dto)
+		{
+			if (!ModelState.IsValid)
+				return BadRequest(ModelState);
+			try
+			{
+				await cipherService.SuggestAnswerAsync(dto, GetUserId(), id);
+				return Ok("Your suggestion was recieved and will be reviewed by an admin.");
+			}
+			catch (Exception ex)
+			{
+				await Console.Out.WriteLineAsync(ex.Message);
+			}
+			return BadRequest();
+		}
+
 		[HttpPost("cipher/{id}/classify")]
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		public async Task<IActionResult> ClassifyCipher([FromRoute] int id)

@@ -23,6 +23,7 @@ namespace Cryptomind.Core.Services
 	public class AdminService (
 		IRepository<Cipher, int> cipherRepo,
 		IRepository<Tag, int> tagRepo,
+		IRepository<AnswerSuggestion, int> answerRepo,
 		IRepository<UserSolution, int> solutionRepo,
 		UserManager<ApplicationUser> userManager,
 		ILLMService llmService) : IAdminService
@@ -30,7 +31,7 @@ namespace Cryptomind.Core.Services
 		#region Cipher admin methods
 		public async Task<List<CipherReviewOutputViewModel>> AllSubmittedCiphers()
 		{
-			var result = (await cipherRepo.GetAllAsync()).Where(c => c.IsApproved == false).ToList();
+			var result = (await cipherRepo.GetAllAsync()).Where(c => c.IsApproved == false).OrderBy(x => x.CreatedAt).ToList();
 
 			if (result == null) 
 				throw new InvalidOperationException("Wasn't able to retrieve submitted ciphers");
@@ -62,13 +63,40 @@ namespace Cryptomind.Core.Services
 
 			return await ToReviewOutputViewModelMany(result);
         }
+		public async Task<List<AnswerSuggestionViewModel>> AllSubmittedAnswersAsync()
+		{
+			var answerSuggestions = (await answerRepo.GetAllAsync()).Where(x => !x.IsApproved).OrderBy(x => x.UplodaedTime);
+
+			if (answerSuggestions == null)
+				throw new InvalidOperationException("There are no suggested answers that aren't reviewed");
+
+			var models = new List<AnswerSuggestionViewModel>();
+
+			foreach (var answer in answerSuggestions)
+			{
+				var userName = (await userManager.FindByIdAsync(answer.UserId)).UserName;
+
+				if (userName == null)
+					throw new InvalidOperationException("User not found");
+				var model = new AnswerSuggestionViewModel
+				{
+					Description = answer.Description,
+					CipherId = answer.CipherId,
+					Username = userName,
+				};
+
+				models.Add(model);
+			}
+
+			return models;
+		}
 		public async Task<CipherReviewOutputViewModel> GetCipherById(int id) 
 		{
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
 
 			var model = new CipherReviewOutputViewModel();
 			if (cipher == null)
-				throw new InvalidOperationException("There is no cipher with the given Id");
+				throw new InvalidOperationException("Cipher not found");
 
 			model.Id = cipher.Id;
 			model.Title = cipher.Title;
@@ -91,17 +119,41 @@ namespace Cryptomind.Core.Services
 
 			return model;
 		}
+		public async Task<AnswerSuggestionReviewViewModel> GetAnswerById(int id)
+		{
+			var answer = await answerRepo.GetByIdAsync(id);
+			if (answer == null)
+				throw new InvalidOperationException("Answer not found");
+
+			var userName = (await userManager.FindByIdAsync(answer.UserId)).UserName;
+
+			if (userName == null)
+				throw new InvalidOperationException("User not found");
+
+			var model = new AnswerSuggestionReviewViewModel
+			{
+				CipherId = answer.CipherId,
+				Description = answer.Description,
+				DecryptedText = answer.DecryptedText,
+				Username = userName,
+			};
+
+			return model;
+		}
 		public async Task <CipherValidationResult> AnalyzeWithLLM (int id)
 		{
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
 
-			if (!string.IsNullOrWhiteSpace(cipher.LLMAnalysis))
+			if (cipher == null)
+				throw new InvalidOperationException("Ciper not found");
+
+			if (cipher.LLMData.Analysis != null)
 				return new CipherValidationResult
 				{
-					Recommendation = cipher.LLMAnalysis,
-					Reasoning = cipher.LLMReasoning,
-					Confidence = cipher.LLMConfidence,
-					Issues = cipher.LLMIssues,
+					Recommendation = cipher.LLMData.Analysis,
+					Reasoning = cipher.LLMData.Reasoning,
+					Confidence = cipher.LLMData.Confidence,
+					Issues = cipher.LLMData.Issues,
 				};
 
 			var mlPredictionJson = cipher.MLPrediction;
@@ -126,10 +178,10 @@ namespace Cryptomind.Core.Services
 			var type = cipher.TypeOfCipher != CipherType.None ? cipher.TypeOfCipher.ToString() : null;
 
 			var validation = await llmService.ValidateCipherAsync(cipher.EncryptedText, cipher.DecryptedText, mlResult, type);
-			cipher.LLMAnalysis = validation.Recommendation.ToString();
-			cipher.LLMReasoning = validation.Reasoning;
-			cipher.LLMConfidence = validation.Confidence;
-			cipher.LLMIssues = validation.Issues;
+			cipher.LLMData.Analysis = validation.Recommendation.ToString();
+			cipher.LLMData.Confidence = validation.Reasoning;
+			cipher.LLMData.Confidence = validation.Confidence;
+			cipher.LLMData.Issues = validation.Issues;
 			await cipherRepo.UpdateAsync(cipher);
 			return validation;
 		}
@@ -144,9 +196,6 @@ namespace Cryptomind.Core.Services
 
 			if (cipherRepo.GetAll().Where(x => x.IsApproved).FirstOrDefault(x => x.Title == model.Title) != null)
 					throw new InvalidOperationException("There is already a cipher with this title");
-
-			if (model.TagIds != null && model.TagIds.Count > 0)
-                await DefineTagsAsync(cipher, model.TagIds.ToList());
 
 			//When text is not given we cannot approve it as standard
 			if (string.IsNullOrWhiteSpace(cipher.DecryptedText) && model.ChallengeType == ChallengeType.Standard)
@@ -164,9 +213,50 @@ namespace Cryptomind.Core.Services
 			cipher.IsApproved = true;
 			cipher.ChallengeType = model.ChallengeType; //Give permission to the admin for him to decide which is experimental or not
 
+			if (model.TagIds != null && model.TagIds.Count > 0)
+                await DefineTagsAsync(cipher, model.TagIds.ToList());
 
 			await cipherRepo.UpdateAsync(cipher);
 			return cipher.CreatedByUserId;
+		}
+		public async Task<string> ApproveAnswerAsync(int id, int points)
+		{
+			var answer = await answerRepo.FirstOrDefaultAsync(x => x.Id == id);
+
+			if (answer == null)
+				throw new InvalidOperationException("Answer not found");
+
+			var cipher = await cipherRepo.FirstOrDefaultAsync(x => x.Id == answer.CipherId);
+
+			if (cipher == null)
+				throw new InvalidOperationException("Cipher not found");
+
+			if (!string.IsNullOrWhiteSpace(cipher.DecryptedText))
+				throw new InvalidOperationException("Cipher already has an approved answer");
+
+			var user = await userManager.FindByIdAsync(answer.UserId);
+
+			if (user == null)
+				throw new InvalidOperationException("User not found");
+
+			var userSolution = new UserSolution
+			{
+				CipherId = answer.CipherId,
+				UserId = answer.UserId,
+				TimeSolved = DateTime.UtcNow,
+			};
+
+			cipher.DecryptedText = answer.DecryptedText;
+			cipher.ChallengeType = ChallengeType.Standard;
+			answer.IsApproved = true;
+			user.Score += points;
+
+			solutionRepo.Add(userSolution);
+			cipherRepo.Update(cipher);
+			answerRepo.Update(answer);
+			await userManager.UpdateAsync(user);
+
+			return answer.UserId;
 		}
 		public async Task UnapproveCipherAsync(int id)
 		{
@@ -193,6 +283,19 @@ namespace Cryptomind.Core.Services
 
 			//WE HAVE TO SEND THE REJECT NOTIFICATION WITH IT'S REASONING TO THE USER
 			if (!isDeleted) throw new InvalidOperationException("Wasn't able to reject the cipher");
+		}
+		public async Task RejectAnswerAsync(int id, string reason)
+		{
+			AnswerSuggestion? answer = await answerRepo.GetByIdAsync(id);
+			if (answer == null)
+				throw new InvalidOperationException("Answer not found");
+
+			else if (answer.IsApproved) throw new InvalidOperationException("Answer already approved");
+
+			bool isDeleted = await answerRepo.DeleteAsync(answer);
+
+			//WE HAVE TO SEND THE REJECT NOTIFICATION WITH IT'S REASONING TO THE USER
+			if (!isDeleted) throw new InvalidOperationException("Wasn't able to reject the answer");
 		}
 		public async Task DeleteApprovedCipher(int id)
 		{

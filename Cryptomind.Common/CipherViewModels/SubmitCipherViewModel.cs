@@ -11,11 +11,11 @@ namespace Cryptomind.Common.CipherViewModels
 {
 	public class SubmitCipherViewModel
 	{
-		public string Title { get; set; }
+		public string? Title { get; set; }
 		public string? DecryptedText { get; set; }
 		public string EncryptedText { get; set; }
 		public IFormFile? Image { get; set; }
-		public CipherType CipherType { get; set; }
+		public CipherType CipherType { get; set; } //Can just send null values instead of having a None value, because what is that cipher type - "none"
 		public CipherDefinition CipherDefinition { get; set; }
 	}
 }
