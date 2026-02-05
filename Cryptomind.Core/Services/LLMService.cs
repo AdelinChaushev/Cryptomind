@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Cryptomind.Common.CipherRecognitionViewModels;
 using Cryptomind.Core.Contracts;
+using Cryptomind.Data.Enums;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -89,10 +90,37 @@ namespace Cryptomind.Core.Services
 
 		#endregion
 
-		#region User-Facing Content (Natural Language Responses)
-		public async Task<string> GetTypeHintAsync(
+		#region User-facing content
+		public async Task<string> GetHint(Cipher cipher, HintType hintType)
+		{
+			string encryptedText = cipher.EncryptedText;
+			string decryptedText = cipher.DecryptedText;
+			string actualType = cipher.TypeOfCipher.ToString();
+
+			string result = string.Empty;
+
+			switch (hintType)
+			{
+				case HintType.Type:
+						result = await GetTypeHintAsync(encryptedText, actualType, decryptedText);
+					break;
+				case HintType.Hint:
+					result = await GetHintAsync(encryptedText, actualType, decryptedText);
+					break;
+				case HintType.FullSolution:
+					result = await GetFullSolutionAsync(encryptedText, actualType, decryptedText);
+					break;
+			}
+
+			return result;
+		}
+		#endregion
+
+		#region Private methods
+		private async Task<string> GetTypeHintAsync(
 			string encryptedText,
-			string actualType)
+			string actualType,
+			string decryptedText)
 		{
 			var prompt = BuildTypeHintPrompt(encryptedText, actualType);
 
@@ -103,10 +131,10 @@ namespace Cryptomind.Core.Services
 				temperature: 0.7f
 			);
 		}
-		public async Task<string> GetHintAsync(
+		private async Task<string> GetHintAsync(
 			string encryptedText,
 			string actualType,
-			string? decryptedText = null)
+			string decryptedText)
 		{
 			var prompt = BuildEducationalHintPrompt(encryptedText, actualType, decryptedText);
 
@@ -117,7 +145,7 @@ namespace Cryptomind.Core.Services
 				temperature: 0.7f  // Higher temperature for more natural/creative hints
 			);
 		}
-		public async Task<string> GetFullSolutionAsync(
+		private async Task<string> GetFullSolutionAsync(
 			string encryptedText,
 			string actualType,
 			string decryptedText)

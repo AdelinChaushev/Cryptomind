@@ -11,11 +11,10 @@ namespace Cryptomind.Core.Contracts
 {
 	public interface ICipherService
 	{
-		Task<List<CipherOutputViewModel>> GetApprovedAsync(CipherFilter? filter); // Implement functionality to be able to filter by tags
-		Task<CipherOutputViewModel?> GetCipherAsync(int id);
+		Task<List<CipherOutputViewModel>> GetApprovedAsync(CipherFilter? filter, string userId); // Implement functionality to be able to filter by tags
+		Task<CipherOutputViewModel?> GetCipherAsync(int id, string userId);
 		Task<Cipher> SubmitCipherAsync(SubmitCipherViewModel cipher, string userId);
 		Task SuggestAnswerAsync(SuggestAnswerDTO answer, string userId, int cipherId);
 		Task<bool> AnswerCipherAsync(string userId, string input, int cipherId);
-		Task<HintRequestResponse> RequestHintAsync(HintRequest request);
 	}
 }

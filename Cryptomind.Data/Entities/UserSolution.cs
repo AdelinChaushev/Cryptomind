@@ -19,5 +19,9 @@ namespace Cryptomind.Data.Entities
 		public string UserId { get; set; }
 		public ApplicationUser User { get; set; }
 		public DateTime TimeSolved { get; set; }
+		public bool UsedTypeHint { get; set; } = false;
+		public bool UsedSolutionHint { get; set; } = false;
+		public bool UsedFullSolution { get; set; } = false;
+		public int PointsEarned { get; set; }
 	}
 }
