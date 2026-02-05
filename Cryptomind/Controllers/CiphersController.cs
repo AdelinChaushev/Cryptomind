@@ -21,18 +21,20 @@ namespace Cryptomind.Controllers
 		private ICipherService cipherService;
 		private ICipherRecognizerService recognizerService;
 		private IBadgeService badgeService;
-		public CiphersController(ICipherService cipherService, IUserService userService, ICipherRecognizerService recognizerService, IBadgeService badgeService)
+		private IHintService hintService;
+		public CiphersController(ICipherService cipherService, IUserService userService, ICipherRecognizerService recognizerService, IBadgeService badgeService, IHintService hintService)
 		{
 			this.cipherService = cipherService;
 			this.recognizerService = recognizerService;
 			this.badgeService = badgeService;
+			this.hintService = hintService;
 		}
 
 		[HttpGet("all")]
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		public async Task<IActionResult> GetAllCiphers([FromQuery] CipherFilter filter)
 		{
-			var result = await cipherService.GetApprovedAsync(filter);
+			var result = await cipherService.GetApprovedAsync(filter, GetUserId());
 			return Ok(result);
 		}
 
@@ -42,7 +44,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				var result = await cipherService.GetCipherAsync(id);
+				var result = await cipherService.GetCipherAsync(id, GetUserId());
 				return Ok(result);
 			}
 			catch (InvalidOperationException ex)
@@ -88,6 +90,21 @@ namespace Cryptomind.Controllers
 			}
 			return BadRequest();
 		}
+		[HttpPost("cipher/{id}/hint")]
+		[Authorize(AuthenticationSchemes = "Bearer")]
+		public async Task<IActionResult> RequestHint([FromRoute] int id, [FromBody] HintRequestDTO request)
+		{
+			try
+			{
+				string hintContent = await hintService.RequestHintAsync(GetUserId(), id, request.HintType);
+
+				return Ok(new { hintContent });
+			}
+			catch (InvalidOperationException ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
 
 		[HttpPost("cipher/{id}/suggest-answer")]
 		[Authorize(AuthenticationSchemes = "Bearer")]
@@ -99,31 +116,6 @@ namespace Cryptomind.Controllers
 			{
 				await cipherService.SuggestAnswerAsync(dto, GetUserId(), id);
 				return Ok("Your suggestion was recieved and will be reviewed by an admin.");
-			}
-			catch (Exception ex)
-			{
-				await Console.Out.WriteLineAsync(ex.Message);
-			}
-			return BadRequest();
-		}
-
-		[HttpPost("cipher/{id}/classify")]
-		[Authorize(AuthenticationSchemes = "Bearer")]
-		public async Task<IActionResult> ClassifyCipher([FromRoute] int id)
-		{
-			var cipher = await cipherService.GetCipherAsync(id);
-			try
-			{
-				var result = await recognizerService.ClassifyCipher(cipher.CipherText);
-				return Ok(result);
-			}
-			catch (ArgumentException ex)
-			{
-				return BadRequest(new { error = ex.Message });
-			}
-			catch (InvalidOperationException ex)
-			{
-				return StatusCode(503, new { error = ex.Message });
 			}
 			catch (Exception ex)
 			{

@@ -7,11 +7,8 @@ using System.Threading.Tasks;
 
 namespace Cryptomind.Common.DTOs
 {
-	public class HintRequestResponse
+	public class HintRequestDTO
 	{
-		public string? DecryptedText { get; set; }
-		public string Explanataion { get; set; }
-		public bool isSuccess { get; set; }
 		public HintType HintType { get; set; }
 	}
 }
