@@ -28,6 +28,24 @@ namespace Cryptomind.Core.Services
 		UserManager<ApplicationUser> userManager,
 		ILLMService llmService) : IAdminService
 	{
+		private readonly Dictionary<CipherType, int> PointsForType = new Dictionary<CipherType, int>()
+		{
+			[CipherType.Base64] = 50,
+			[CipherType.Hex] = 50,
+			[CipherType.Binary] = 50,
+			[CipherType.Morse] = 50,
+			[CipherType.ROT13] = 75,
+			[CipherType.Caesar] = 100,
+			[CipherType.Atbash] = 125,
+			[CipherType.SimpleSubstitution] = 250,
+			[CipherType.RailFence] = 200,
+			[CipherType.Trithemius] = 275,
+			[CipherType.Vigenere] = 400,
+			[CipherType.Columnar] = 350,
+			[CipherType.Route] = 375,
+			[CipherType.Autokey] = 500,
+		};
+
 		#region Cipher admin methods
 		public async Task<List<CipherReviewOutputViewModel>> AllSubmittedCiphers()
 		{
@@ -65,7 +83,9 @@ namespace Cryptomind.Core.Services
         }
 		public async Task<List<AnswerSuggestionViewModel>> AllSubmittedAnswersAsync()
 		{
-			var answerSuggestions = (await answerRepo.GetAllAsync()).Where(x => !x.IsApproved).OrderBy(x => x.UplodaedTime);
+			var answerSuggestions = (await answerRepo.GetAllAsync())
+				.Where(x => !x.IsApproved)
+				.OrderBy(x => x.UplodaedTime);
 
 			if (answerSuggestions == null)
 				throw new InvalidOperationException("There are no suggested answers that aren't reviewed");
@@ -80,6 +100,7 @@ namespace Cryptomind.Core.Services
 					throw new InvalidOperationException("User not found");
 				var model = new AnswerSuggestionViewModel
 				{
+					Id = answer.Id,
 					Description = answer.Description,
 					CipherId = answer.CipherId,
 					Username = userName,
@@ -212,6 +233,7 @@ namespace Cryptomind.Core.Services
 			cipher.TypeOfCipher = model.CipherType;
 			cipher.IsApproved = true;
 			cipher.ChallengeType = model.ChallengeType; //Give permission to the admin for him to decide which is experimental or not
+			cipher.Points = PointsForType[cipher.TypeOfCipher];
 
 			if (model.TagIds != null && model.TagIds.Count > 0)
                 await DefineTagsAsync(cipher, model.TagIds.ToList());
@@ -243,6 +265,7 @@ namespace Cryptomind.Core.Services
 			{
 				CipherId = answer.CipherId,
 				UserId = answer.UserId,
+				PointsEarned = points,
 				TimeSolved = DateTime.UtcNow,
 			};
 
