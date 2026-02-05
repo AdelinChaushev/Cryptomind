@@ -1,5 +1,6 @@
 ﻿using Cryptomind.Common.CipherRecognitionViewModels;
 using Cryptomind.Core.Services;
+using Cryptomind.Data.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,15 +17,7 @@ namespace Cryptomind.Core.Contracts
 			CipherRecognitionResultViewModel mlResult,
 			string? userProvidedType = null);
 
-		Task<string> GetTypeHintAsync(string encryptedText, string actualType);
-		Task<string> GetHintAsync(
-			string encryptedText,
-			string actualType,
-			string? decryptedText = null);
-		Task<string> GetFullSolutionAsync(
-			string encryptedText,
-			string actualType,
-			string decryptedText);
+		Task<string> GetHint(Cipher cipher, HintType hintType);
 		Task<bool> IsServiceHealthyAsync();
 	}
 }

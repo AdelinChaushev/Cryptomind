@@ -29,12 +29,14 @@ namespace Cryptomind.Core.Services
 		ICipherRecognizerService cipherRecognizerService,
 		ILLMService llmService,
 		IEnglishValidationService englishValidationService,
-		UserManager<ApplicationUser> userManager,
-		UserManager<ApplicationUser> userRepository) : ICipherService
+		UserManager<ApplicationUser> userManager) : ICipherService
 	{
-		public async Task<List<CipherOutputViewModel>> GetApprovedAsync(CipherFilter? filter)
+		public async Task<List<CipherOutputViewModel>> GetApprovedAsync(CipherFilter? filter, string userId)
 		{
-			List<Cipher> approved = (await cipherRepo.GetAllAsync()).Where(c => c.IsApproved).ToList();
+			List<Cipher> approved = cipherRepo.GetAllAttached()
+				.Include(x => x.UsersSolved)
+				.Where(c => c.IsApproved)
+				.ToList();
 
 			if (!string.IsNullOrEmpty(filter.SearchTerm))
 				approved = approved.Where(c => c.Title.Contains(filter.SearchTerm)).ToList();
@@ -55,18 +57,20 @@ namespace Cryptomind.Core.Services
 			List<CipherOutputViewModel> result = new List<CipherOutputViewModel>();
 			foreach (var cipher in approved)
 			{
-				result.Add(await ToOutputViewModel(cipher));
+				result.Add(await ToOutputViewModel(cipher, userId));
 			}
 			return result;
 		}
-		public async Task<CipherOutputViewModel?> GetCipherAsync(int id)
+		public async Task<CipherOutputViewModel?> GetCipherAsync(int id, string userId)
 		{
-			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
+			Cipher? cipher = cipherRepo.GetAllAttached()
+				.Include(x => x.UsersSolved)
+				.FirstOrDefault(x => x.Id == id);
 
 			if (cipher == null)
 				throw new InvalidOperationException("Cipher not found");
 
-			return await ToOutputViewModel(cipher);
+			return await ToOutputViewModel(cipher, userId);
 		}
 		public async Task<Cipher> SubmitCipherAsync(SubmitCipherViewModel model, string userId)
 		{
@@ -218,6 +222,7 @@ namespace Cryptomind.Core.Services
 		{
 			Cipher? cipher = cipherRepo.GetAllAttached()
 				.Include(x => x.UsersSolved)
+				.Include(x => x.HintsRequested)
 				.FirstOrDefault(x => x.Id == cipherId);
 
 			if (cipher == null) 
@@ -234,25 +239,43 @@ namespace Cryptomind.Core.Services
 
 			string correctAnswer = cipher.DecryptedText;
 
-			if (correctAnswer == input) //The answer is correct
+			if (correctAnswer.Trim().Equals(input.Trim(), StringComparison.OrdinalIgnoreCase)) // The answer is correct
 			{
-				ApplicationUser user = await userRepository.FindByIdAsync(userId);
+				var userHints = cipher.HintsRequested
+					.Where(hr => hr.UserId == userId)
+					.ToList();
+
+				bool usedTypeHint = userHints.Any(h => h.HintType == HintType.Type);
+				bool usedSolutionHint = userHints.Any(h => h.HintType == HintType.Hint);
+				bool usedFullSolution = userHints.Any(h => h.HintType == HintType.FullSolution);
+
+				int pointsEarned = CalculatePointsWithPenalty(
+					cipher.Points,
+					usedTypeHint,
+					usedSolutionHint,
+					usedFullSolution);
+
+
+				ApplicationUser user = await userManager.FindByIdAsync(userId);
+
+				if (user == null)
+					throw new InvalidOperationException("User not found");
+
 				await solutionRepo.AddAsync(new UserSolution()
 				{
 					CipherId = cipherId,
 					UserId = userId,
-					TimeSolved = DateTime.Now,
+					TimeSolved = DateTime.UtcNow,
+					UsedTypeHint = usedTypeHint,
+					UsedSolutionHint = usedSolutionHint,
+					UsedFullSolution = usedFullSolution,
+					PointsEarned = pointsEarned
 				});
-				user.Score += cipher.Points;
+				user.Score += pointsEarned;
 				user.SolvedCount += 1;
-				return true;
 			}
 
 			return false;
-		}
-		public Task<HintRequestResponse> RequestHintAsync(HintRequest request)
-		{
-			throw new NotImplementedException();
 		}
 
 		#region Private methods
@@ -264,8 +287,15 @@ namespace Cryptomind.Core.Services
 			}
 			return name;
 		}
-		private async Task<CipherOutputViewModel> ToOutputViewModel(Cipher cipher)
+		private async Task<CipherOutputViewModel> ToOutputViewModel(Cipher cipher, string userId)
 		{
+			bool isSolved = cipher.UsersSolved.Any(x => x.UserId == userId);
+
+			var userHints = cipher.HintsRequested
+					.Where(x => x.UserId == userId)
+					.OrderBy(x => x.HintType)
+					.ToList();
+			
 			var model = new CipherOutputViewModel
 			{
 				Id = cipher.Id,
@@ -275,6 +305,18 @@ namespace Cryptomind.Core.Services
 				AllowsAnswer = cipher.AllowSolution,
 				AllowsHint = cipher.AllowHint,
 				ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
+				AllowsTypeHint = cipher.AllowTypeHint,
+				AllowsSolutionHint = cipher.AllowHint,
+				AllowsFullSolution = cipher.AllowSolution,
+				TypeHintUsed = userHints.Any(x => x.HintType == HintType.Type),
+				SolutionHintUsed = userHints.Any(x => x.HintType == HintType.Hint),
+				FullSolutionUsed = userHints.Any(x => x.HintType == HintType.FullSolution),
+				PreviousHints = userHints.Select(x => new HintData
+				{
+					Type = x.HintType,
+					Content = x.HintContent,
+					RequestedAt = x.RequestedAt
+				}).OrderBy(x => x.Type).ToList(),
 			};
 			if (cipher is ImageCipher)
 			{
@@ -288,6 +330,26 @@ namespace Cryptomind.Core.Services
 				model.IsImage = true;
 
 			return model;
+		}
+
+		private int CalculatePointsWithPenalty(
+			int basePoints,
+			bool usedTypeHint,
+			bool usedSolutionHint,
+			bool usedFullSolution)
+		{
+			double multiplier = 1.0;
+
+			if (usedTypeHint)
+				multiplier -= 0.20; //-50%
+
+			if (usedSolutionHint)
+				multiplier -= 0.30; //-50%
+
+			if (usedFullSolution)
+				multiplier -= 0.40; //-90%
+
+			return (int)(basePoints * multiplier);
 		}
 		private void ValidateImageFile(IFormFile imageFile)
 		{
