@@ -16,20 +16,24 @@ namespace Cryptomind.Core.Services
 	public class BadgeService : IBadgeService
 	{
 		private readonly Dictionary<int, IBadgeCriteria> badgeCriteria;
-		private readonly IBadgeStatisticsService statsService;
 		private readonly IRepository<UserBadge, int> userBadgeRepo;
 		private readonly IRepository<ApplicationUser, string> userRepo;
 		private readonly IRepository<Badge, int> badgeRepo;
+
+		private readonly IBadgeStatisticsService statsService;
+		private readonly INotificationService notificationService;
 		public BadgeService(
-			IBadgeStatisticsService statsService,
 			IRepository<Badge, int> badgeRepo,
 			IRepository<UserBadge, int> userBadgeRepo,
-			IRepository<ApplicationUser, string> userRepo)
+			IRepository<ApplicationUser, string> userRepo,
+			IBadgeStatisticsService statsService,
+			INotificationService notificationService)
 		{
 			this.statsService = statsService;
 			this.userBadgeRepo = userBadgeRepo;
 			this.userRepo = userRepo;
 			this.badgeRepo = badgeRepo;
+			this.notificationService = notificationService;
 
 			// All criteria use the same statsService
 			badgeCriteria = new Dictionary<int, IBadgeCriteria>
@@ -90,6 +94,7 @@ namespace Cryptomind.Core.Services
 			badge.EarnedBy++;
 
 			await userBadgeRepo.AddAsync(userBadge);
+			await notificationService.CreateAndSendNotification(userId, NotificationType.BadgeEarned, $"You earned {badge.Title} badge!", badgeId, string.Empty);
 		}
 	}
 }

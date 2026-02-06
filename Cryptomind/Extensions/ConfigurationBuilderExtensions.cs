@@ -1,4 +1,4 @@
-﻿namespace ClarifEye.Web.Extensions;
+﻿namespace Cryptomind.Web.Extensions;
 
 public static class ConfigurationBuilderExtensions
 {

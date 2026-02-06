@@ -26,7 +26,8 @@ namespace Cryptomind.Core.Services
 		IRepository<AnswerSuggestion, int> answerRepo,
 		IRepository<UserSolution, int> solutionRepo,
 		UserManager<ApplicationUser> userManager,
-		ILLMService llmService) : IAdminService
+		ILLMService llmService,
+		INotificationService notificationService) : IAdminService
 	{
 		private readonly Dictionary<CipherType, int> PointsForType = new Dictionary<CipherType, int>()
 		{
@@ -209,7 +210,7 @@ namespace Cryptomind.Core.Services
 		public async Task<string> ApproveCipherAsync(int id, ApproveCipherViewModel model) 
 		{
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
-
+			string userId = cipher.CreatedByUserId;
 			if (cipher == null) 
 				throw new InvalidOperationException("Cipher not found");
 			else if (cipher.IsApproved) 
@@ -239,6 +240,7 @@ namespace Cryptomind.Core.Services
                 await DefineTagsAsync(cipher, model.TagIds.ToList());
 
 			await cipherRepo.UpdateAsync(cipher);
+			await notificationService.CreateAndSendNotification(userId, NotificationType.CipherApproved, "Your cipher was successfully approved", cipher.Id, string.Empty);
 			return cipher.CreatedByUserId;
 		}
 		public async Task<string> ApproveAnswerAsync(int id, int points)
@@ -278,6 +280,7 @@ namespace Cryptomind.Core.Services
 			cipherRepo.Update(cipher);
 			answerRepo.Update(answer);
 			await userManager.UpdateAsync(user);
+			await notificationService.CreateAndSendNotification(user.Id, NotificationType.AnswerApproved, $"Your answer suggestion was approved +{points} points", cipher.Id, string.Empty);
 
 			return answer.UserId;
 		}
@@ -297,6 +300,7 @@ namespace Cryptomind.Core.Services
 		public async Task RejectCipherAsync(int id, string reason)
 		{
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
+			string userId = cipher.CreatedByUserId;
 			if (cipher == null) 
 				throw new InvalidOperationException("Cipher not found");
 
@@ -306,6 +310,8 @@ namespace Cryptomind.Core.Services
 
 			//WE HAVE TO SEND THE REJECT NOTIFICATION WITH IT'S REASONING TO THE USER
 			if (!isDeleted) throw new InvalidOperationException("Wasn't able to reject the cipher");
+
+			await notificationService.CreateAndSendNotification(userId, NotificationType.CipherRejected, reason, null, string.Empty);
 		}
 		public async Task RejectAnswerAsync(int id, string reason)
 		{
@@ -319,6 +325,8 @@ namespace Cryptomind.Core.Services
 
 			//WE HAVE TO SEND THE REJECT NOTIFICATION WITH IT'S REASONING TO THE USER
 			if (!isDeleted) throw new InvalidOperationException("Wasn't able to reject the answer");
+
+			await notificationService.CreateAndSendNotification(answer.UserId, NotificationType.AnswerRejected, reason, null, string.Empty);
 		}
 		public async Task DeleteApprovedCipher(int id)
 		{
