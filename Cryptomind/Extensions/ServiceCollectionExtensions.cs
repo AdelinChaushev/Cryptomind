@@ -6,7 +6,7 @@ using Cryptomind.Core.Services.OCR;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
 
-namespace ClarifEye.Web.Extensions;
+namespace Cryptomind.Web.Extensions;
 
 public static class ServiceCollectionExtensions
 {
@@ -23,6 +23,7 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<IRepository<ApplicationUser, string>, Repository<ApplicationUser, string>>();
 		services.AddScoped<IRepository<UserBadge, int>, Repository<UserBadge, int>>();
 		services.AddScoped<IRepository<Badge, int>, Repository<Badge, int>>();
+		services.AddScoped<IRepository<Notification, int>, Repository<Notification, int>>();
 
 		return services;
     }
@@ -40,7 +41,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ILLMService, LLMService>();
         services.AddScoped<IEnglishValidationService, EnglishValidationService>();
         services.AddScoped<IHintService, HintService>();
+		services.AddScoped<INotificationService, NotificationService>();
 
-        return services;
+		return services;
     }
 }

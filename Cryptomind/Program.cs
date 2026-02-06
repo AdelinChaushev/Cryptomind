@@ -1,96 +1,108 @@
-using ClarifEye.Web.Extensions;
+using Cryptomind.Core.Contracts;
+using Cryptomind.Core.Hubs;
+using Cryptomind.Core.Services;
 using Cryptomind.Data;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
-using Cryptomind.Core.Contracts;
-using Cryptomind.Core.Services;
+using Cryptomind.Web.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
-    options.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
+	options.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
 });
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// ? SignalR is already added, but let's configure it properly for JWT
+builder.Services.AddSignalR();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<CryptomindDbContext>(options =>
-    options.UseSqlServer(connectionString));
+	options.UseSqlServer(connectionString));
 
 var auth = builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme =
-        JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme =
-        JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme =
-        JwtBearerDefaults.AuthenticationScheme;
+	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+	options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 });
+
 var key = Encoding.ASCII.GetBytes(builder.Configuration["JWT:Secret"]);
+
 auth
-    .AddCookie(c =>
-    {
-        c.Cookie.Name = "token";
-    })
-    .AddJwtBearer(options =>
-    {
-        options.SaveToken = true;
-        options.RequireHttpsMetadata = false;
+	.AddCookie(c =>
+	{
+		c.Cookie.Name = "token";
+	})
+	.AddJwtBearer(options =>
+	{
+		options.SaveToken = true;
+		options.RequireHttpsMetadata = false;
 
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidAudience = builder.Configuration["JWT:ValidAudience"],
-            ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
-            IssuerSigningKey = new SymmetricSecurityKey(key),
-            RoleClaimType = ClaimTypes.Role
+		options.TokenValidationParameters = new TokenValidationParameters
+		{
+			ValidateIssuer = false,
+			ValidateAudience = false,
+			ValidAudience = builder.Configuration["JWT:ValidAudience"],
+			ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+			IssuerSigningKey = new SymmetricSecurityKey(key),
+			RoleClaimType = ClaimTypes.Role
+		};
 
-        };
-        options.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context =>
-            {
-                context.Token = context.Request.Cookies["token"];
-                return Task.CompletedTask;
-            }
-        };
+		options.Events = new JwtBearerEvents
+		{
+			OnMessageReceived = context =>
+			{
+				// Check cookie first
+				context.Token = context.Request.Cookies["token"];
 
+				// ? ADD THIS: Also check query string for SignalR connections
+				// SignalR can't send custom headers, so it uses query string
+				var accessToken = context.Request.Query["access_token"];
+				var path = context.HttpContext.Request.Path;
 
+				if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/notificationHub"))
+				{
+					context.Token = accessToken;
+				}
 
-    });
+				return Task.CompletedTask;
+			}
+		};
+	});
+
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
-    options.Password.RequiredLength = 6;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireDigit = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireLowercase = false;
-    options.SignIn.RequireConfirmedAccount = false;
-    options.User.RequireUniqueEmail = true;
+	options.Password.RequiredLength = 6;
+	options.Password.RequireNonAlphanumeric = false;
+	options.Password.RequireDigit = false;
+	options.Password.RequireUppercase = false;
+	options.Password.RequireLowercase = false;
+	options.SignIn.RequireConfirmedAccount = false;
+	options.User.RequireUniqueEmail = true;
 }).AddEntityFrameworkStores<CryptomindDbContext>();
 
 builder.Services.AddCors(c =>
 {
-    c.AddPolicy("AllowAll", builder =>
-    {
-        builder.WithOrigins("http://localhost:3000") 
-               .AllowAnyHeader()
-               .AllowAnyMethod()
-               .AllowCredentials();
-    });
+	c.AddPolicy("AllowAll", builder =>
+	{
+		builder.WithOrigins("http://localhost:3000")
+			   .AllowAnyHeader()
+			   .AllowAnyMethod()
+			   .AllowCredentials();
+	});
 });
 
 builder.Services.RegisterRepositories();
@@ -121,18 +133,14 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.Run();
 
@@ -166,7 +174,7 @@ async Task SeedRolesAndUsersAsync(IServiceProvider serviceProvider)
 			EmailConfirmed = true
 		};
 
-		var result = await userManager.CreateAsync(admin, "Admin123!"); // Change this password!
+		var result = await userManager.CreateAsync(admin, "Admin123!");
 
 		if (result.Succeeded)
 		{
@@ -174,7 +182,7 @@ async Task SeedRolesAndUsersAsync(IServiceProvider serviceProvider)
 		}
 	}
 
-    var userEmail = "user@cryptomind.com";
+	var userEmail = "user@cryptomind.com";
 	var userEntity = await userManager.FindByEmailAsync(userEmail);
 
 	if (userEntity == null)
