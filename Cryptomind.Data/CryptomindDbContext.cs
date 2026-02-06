@@ -25,6 +25,7 @@ namespace Cryptomind.Data
 		public DbSet<Badge> Badges { get; set; }
 		public DbSet<HintRequest> HintRequests { get; set; }
 		public DbSet<AnswerSuggestion> AnswerSuggestions { get; set; }
+		public DbSet<Notification> Notifications { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder builder)
 		{

@@ -239,7 +239,9 @@ namespace Cryptomind.Core.Services
 
 			string correctAnswer = cipher.DecryptedText;
 
-			if (correctAnswer.Trim().Equals(input.Trim(), StringComparison.OrdinalIgnoreCase)) // The answer is correct
+			bool isCorrect = correctAnswer.Trim().Equals(input.Trim(), StringComparison.OrdinalIgnoreCase);
+
+			if (isCorrect) // The answer is correct
 			{
 				var userHints = cipher.HintsRequested
 					.Where(hr => hr.UserId == userId)
@@ -275,7 +277,7 @@ namespace Cryptomind.Core.Services
 				user.SolvedCount += 1;
 			}
 
-			return false;
+			return isCorrect;
 		}
 
 		#region Private methods

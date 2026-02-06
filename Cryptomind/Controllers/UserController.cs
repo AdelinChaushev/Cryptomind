@@ -98,7 +98,7 @@ namespace Cryptomind.Controllers
         }
 
         [Authorize(AuthenticationSchemes = "Bearer")]
-        [HttpGet("getAccountInfo")]
+        [HttpGet("get-account-info")]
         public async Task<IActionResult> GetAccountInfo()
         {
             var user = await userService.GetUserAccountInfo(GetUserId());
