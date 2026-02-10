@@ -40,6 +40,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IEnglishValidationService, EnglishValidationService>();
         services.AddScoped<IHintService, HintService>();
 		services.AddScoped<INotificationService, NotificationService>();
+		services.AddScoped<ICipherSubmissionService, CipherSubmitionService>();
+		services.AddScoped<IAnswerService, AnswerService>();
 
 		return services;
     }
