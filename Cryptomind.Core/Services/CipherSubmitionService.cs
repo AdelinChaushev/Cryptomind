@@ -46,7 +46,7 @@ namespace Cryptomind.Core.Services
 					TypeOfCipher = model.CipherType, //Can just send null values instead of having a None value, because what is that cipher type - "none"
 					AllowHint = false,
 					AllowSolution = false,
-					IsApproved = false,
+					Status = ApprovalStatus.Pending,
 					CreatedByUserId = userId,
 					CipherTags = new List<CipherTag>(),
 					HintsRequested = new List<HintRequest>()
@@ -82,7 +82,7 @@ namespace Cryptomind.Core.Services
 						ImagePath = relativePath,
 						AllowHint = false,
 						AllowSolution = false,
-						IsApproved = false,
+						Status = ApprovalStatus.Pending,
 						CreatedByUserId = userId,
 						CipherTags = new List<CipherTag>(),
 						HintsRequested = new List<HintRequest>(),

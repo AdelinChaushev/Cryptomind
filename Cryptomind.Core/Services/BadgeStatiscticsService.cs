@@ -1,12 +1,8 @@
 ﻿using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
+using Cryptomind.Data.Enums;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Cryptomind.Core.Services
 {
@@ -37,7 +33,7 @@ namespace Cryptomind.Core.Services
 				.Include(x => x.SuggestedAnswers)
 				.FirstOrDefault(x => x.Id == userId)
 				.SuggestedAnswers
-				.Count(x => x.IsApproved);
+				.Count(x => x.Status == ApprovalStatus.Approved);
 		}
 
 		public async Task<int> GetSolvedCount(string userId)
