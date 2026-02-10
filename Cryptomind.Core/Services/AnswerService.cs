@@ -45,7 +45,7 @@ namespace Cryptomind.Core.Services
 				Description = dto.Description,
 				DecryptedText = dto.DecryptedText,
 				UplodaedTime = DateTime.UtcNow,
-				IsApproved = false
+				Status = ApprovalStatus.Pending,
 			};
 
 			await answerRepo.AddAsync(answer);

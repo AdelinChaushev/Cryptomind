@@ -50,7 +50,7 @@ namespace Cryptomind.Core.Services
 		#region Cipher admin methods
 		public async Task<List<CipherReviewOutputViewModel>> AllSubmittedCiphers()
 		{
-			var result = (await cipherRepo.GetAllAsync()).Where(c => c.IsApproved == false).OrderBy(x => x.CreatedAt).ToList();
+			var result = (await cipherRepo.GetAllAsync()).Where(c => c.Status == ApprovalStatus.Pending).OrderBy(x => x.CreatedAt).ToList();
 
 			if (result == null) 
 				throw new InvalidOperationException("Wasn't able to retrieve submitted ciphers");
@@ -59,7 +59,7 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<List<CipherReviewOutputViewModel>> AllApprovedCiphers(CipherFilter filter)
 		{
-			var result = (await cipherRepo.GetAllAsync()).Where(c => c.IsApproved == true).ToList();
+			var result = (await cipherRepo.GetAllAsync()).Where(c => c.Status == ApprovalStatus.Approved).ToList();
 
 			if (result == null) 
 				throw new InvalidOperationException("Wasn't able to retrieve approved ciphers");
@@ -85,7 +85,7 @@ namespace Cryptomind.Core.Services
 		public async Task<List<AnswerSuggestionViewModel>> AllSubmittedAnswersAsync()
 		{
 			var answerSuggestions = (await answerRepo.GetAllAsync())
-				.Where(x => !x.IsApproved)
+				.Where(x => x.Status == ApprovalStatus.Pending)
 				.OrderBy(x => x.UplodaedTime);
 
 			if (answerSuggestions == null)
@@ -127,7 +127,7 @@ namespace Cryptomind.Core.Services
 			model.CipherText = cipher.EncryptedText;
 			model.AllowsAnswer = cipher.AllowSolution;
 			model.AllowsHint = cipher.AllowHint;
-			model.IsApproved = cipher.IsApproved;
+			model.Status = cipher.Status.ToString();
 			model.IsLLMRecommended = cipher.IsLLMRecommended;
 			model.ChallengeTypeDisplay = cipher.ChallengeType.ToString();
 
@@ -213,10 +213,10 @@ namespace Cryptomind.Core.Services
 			string userId = cipher.CreatedByUserId;
 			if (cipher == null) 
 				throw new InvalidOperationException("Cipher not found");
-			else if (cipher.IsApproved) 
+			else if (cipher.Status == ApprovalStatus.Approved) 
 				throw new InvalidOperationException("Cipher is already approved");
 
-			if (cipherRepo.GetAll().Where(x => x.IsApproved).FirstOrDefault(x => x.Title == model.Title) != null)
+			if (cipherRepo.GetAll().Where(x => x.Status == ApprovalStatus.Approved).FirstOrDefault(x => x.Title == model.Title) != null)
 					throw new InvalidOperationException("There is already a cipher with this title");
 
 			//When text is not given we cannot approve it as standard
@@ -232,7 +232,7 @@ namespace Cryptomind.Core.Services
 			cipher.AllowSolution = model.AllowSolution;
 			cipher.AllowTypeHint = model.AllowTypeHint;
 			cipher.TypeOfCipher = model.CipherType;
-			cipher.IsApproved = true;
+			cipher.Status = ApprovalStatus.Approved;
 			cipher.ChallengeType = model.ChallengeType; //Give permission to the admin for him to decide which is experimental or not
 			cipher.Points = PointsForType[cipher.TypeOfCipher];
 
@@ -273,7 +273,7 @@ namespace Cryptomind.Core.Services
 
 			cipher.DecryptedText = answer.DecryptedText;
 			cipher.ChallengeType = ChallengeType.Standard;
-			answer.IsApproved = true;
+			answer.Status = ApprovalStatus.Approved;
 			user.Score += points;
 
 			solutionRepo.Add(userSolution);
@@ -290,10 +290,10 @@ namespace Cryptomind.Core.Services
 
 			if (cipher == null)
 				throw new InvalidOperationException("Cipher not found");
-			else if (!cipher.IsApproved)
+			else if (cipher.Status != ApprovalStatus.Approved)
 				throw new InvalidOperationException("Cipher is not approved");
 
-			cipher.IsApproved = false;
+			cipher.Status = ApprovalStatus.Rejected;
 
 			await cipherRepo.UpdateAsync(cipher);
 		}
@@ -304,13 +304,12 @@ namespace Cryptomind.Core.Services
 			if (cipher == null) 
 				throw new InvalidOperationException("Cipher not found");
 
-			else if (cipher.IsApproved) throw new InvalidOperationException("Cipher already approved");
+			else if (cipher.Status == ApprovalStatus.Approved) throw new InvalidOperationException("Cipher already approved");
 
-			bool isDeleted = await cipherRepo.DeleteAsync(cipher);
+			cipher.Status = ApprovalStatus.Rejected;
+			if (!(cipher.Status == ApprovalStatus.Rejected)) throw new InvalidOperationException("Wasn't able to reject the cipher");
 
-			//WE HAVE TO SEND THE REJECT NOTIFICATION WITH IT'S REASONING TO THE USER
-			if (!isDeleted) throw new InvalidOperationException("Wasn't able to reject the cipher");
-
+			await cipherRepo.UpdateAsync(cipher);
 			await notificationService.CreateAndSendNotification(userId, NotificationType.CipherRejected, reason, null, string.Empty);
 		}
 		public async Task RejectAnswerAsync(int id, string reason)
@@ -319,13 +318,12 @@ namespace Cryptomind.Core.Services
 			if (answer == null)
 				throw new InvalidOperationException("Answer not found");
 
-			else if (answer.IsApproved) throw new InvalidOperationException("Answer already approved");
+			else if (answer.Status == ApprovalStatus.Approved) throw new InvalidOperationException("Answer already approved");
 
-			bool isDeleted = await answerRepo.DeleteAsync(answer);
+			answer.Status = ApprovalStatus.Rejected;
+			if (!(answer.Status == ApprovalStatus.Rejected)) throw new InvalidOperationException("Wasn't able to reject the answer");
 
-			//WE HAVE TO SEND THE REJECT NOTIFICATION WITH IT'S REASONING TO THE USER
-			if (!isDeleted) throw new InvalidOperationException("Wasn't able to reject the answer");
-
+			await answerRepo.UpdateAsync(answer);
 			await notificationService.CreateAndSendNotification(answer.UserId, NotificationType.AnswerRejected, reason, null, string.Empty);
 		}
 		public async Task DeleteApprovedCipher(int id)
@@ -334,8 +332,8 @@ namespace Cryptomind.Core.Services
 
 			if (cipher == null) 
 				throw new InvalidOperationException("Cipher not found");
-			else if (!cipher.IsApproved) 
-				throw new InvalidOperationException("Cipher is not approved, instead you can reject it");
+			else if (cipher.Status != ApprovalStatus.Approved) 
+				throw new InvalidOperationException("Cipher is not approved.");
 
 			var solutions = (await solutionRepo.GetAllAsync()).Where(x => x.CipherId == id);
 
@@ -354,10 +352,10 @@ namespace Cryptomind.Core.Services
 			if (cipher == null) 
 				throw new InvalidOperationException("Cipher not found");
 
-			else if (!cipher.IsApproved) 
+			else if (cipher.Status != ApprovalStatus.Approved) 
 				throw new InvalidOperationException("Cipher is not approved");
 
-			if (cipherRepo.GetAll().Where(x => x.IsApproved).FirstOrDefault(x => x.Title == model.Title) != null)
+			if (cipherRepo.GetAll().Where(x => x.Status == ApprovalStatus.Approved).FirstOrDefault(x => x.Title == model.Title) != null)
 				throw new InvalidOperationException("There is already a cipher with this title");
 
 			cipher.Title = model.Title;
@@ -384,7 +382,7 @@ namespace Cryptomind.Core.Services
 					Username = user.UserName,
 					Email = user.Email,
 					IsAdmin = await userManager.IsInRoleAsync(user, "Admin"),
-					PendingCiphers = user.UploadedCiphers.Count(c => !c.IsApproved)
+					PendingCiphers = user.UploadedCiphers.Count(c => c.Status == ApprovalStatus.Pending)
 				});
 			}
 
@@ -412,7 +410,7 @@ namespace Cryptomind.Core.Services
 					Id = cipher.Id,
 					Title = cipher.Title,
 					TypeOfCipher = cipher.TypeOfCipher,
-					IsApproved = cipher.IsApproved,
+					Status = cipher.Status.ToString(),
 					Points = cipher.Points,
 					CreatedAt = cipher.CreatedAt,
 					ChallengeType = cipher.ChallengeType,
@@ -429,7 +427,7 @@ namespace Cryptomind.Core.Services
 					Id = cipher.Id,
 					Title = cipher.Title,
 					TypeOfCipher = cipher.TypeOfCipher,
-					IsApproved = cipher.IsApproved,
+					Status = cipher.Status.ToString(),
 					Points = cipher.Points,
 					CreatedAt = cipher.CreatedAt,
 					ChallengeType = cipher.ChallengeType,
@@ -455,8 +453,8 @@ namespace Cryptomind.Core.Services
 				CiphersSolved = user.SolvedCount,
 				HintsRequested = user.HintsRequested.Count(),
 				SolveSuccessRate = user.SuccessRate,
-				ApprovedCiphers = user.UploadedCiphers.Where(x => x.IsApproved).Count(),
-				PendingCiphers = user.UploadedCiphers.Where(x => !x.IsApproved).Count(),
+				ApprovedCiphers = user.UploadedCiphers.Where(x => x.Status == ApprovalStatus.Approved).Count(),
+				PendingCiphers = user.UploadedCiphers.Where(x => x.Status == ApprovalStatus.Pending).Count(),
 				SubmittedCiphers = submittedCiphers,
 				SolvedCiphers = solvedCiphers,
 			};
@@ -557,7 +555,7 @@ namespace Cryptomind.Core.Services
 						CipherText = cipherText,
                         AllowsAnswer = cipher.AllowSolution,
                         AllowsHint = cipher.AllowHint,
-                        IsApproved = cipher.IsApproved,
+                        Status = cipher.Status.ToString(),
                         IsImage = true,
 						IsLLMRecommended = cipher.IsLLMRecommended,
 						ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
@@ -575,7 +573,7 @@ namespace Cryptomind.Core.Services
                         Points = cipher.Points,
                         AllowsAnswer = cipher.AllowSolution,
                         AllowsHint = cipher.AllowHint,
-                        IsApproved = cipher.IsApproved,
+                        Status = cipher.Status.ToString(),
                         IsImage = false,
 						IsLLMRecommended = cipher.IsLLMRecommended,
 						ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
