@@ -1,15 +1,9 @@
-﻿using Cryptomind.Common.CipherRecognitionViewModels;
-using Cryptomind.Common.CipherViewModels;
+﻿using Cryptomind.Common.CipherViewModels;
 using Cryptomind.Common.DTOs;
-using Cryptomind.Common.Enums;
 using Cryptomind.Core.Contracts;
-using Cryptomind.Core.Services;
-using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
 using System.Security.Claims;
 
 namespace Cryptomind.Controllers

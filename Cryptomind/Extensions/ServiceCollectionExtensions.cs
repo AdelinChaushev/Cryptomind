@@ -1,6 +1,4 @@
-﻿
-
-using Cryptomind.Core.Contracts;
+﻿using Cryptomind.Core.Contracts;
 using Cryptomind.Core.Services;
 using Cryptomind.Core.Services.OCR;
 using Cryptomind.Data.Entities;
