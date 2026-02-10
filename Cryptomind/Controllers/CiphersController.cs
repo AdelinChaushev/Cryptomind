@@ -22,16 +22,27 @@ namespace Cryptomind.Controllers
 		private ICipherRecognizerService recognizerService;
 		private IBadgeService badgeService;
 		private IHintService hintService;
-		public CiphersController(ICipherService cipherService, IUserService userService, ICipherRecognizerService recognizerService, IBadgeService badgeService, IHintService hintService)
+		private ICipherSubmissionService cipherSubmissionService;
+		private IAnswerService answerService;
+		public CiphersController(
+			ICipherService cipherService, 
+			IUserService userService, 
+			ICipherRecognizerService recognizerService, 
+			IBadgeService badgeService, 
+			IHintService hintService, 
+			CipherSubmitionService cipherSubmissionService, 
+			AnswerService answerService)
 		{
 			this.cipherService = cipherService;
 			this.recognizerService = recognizerService;
 			this.badgeService = badgeService;
 			this.hintService = hintService;
+			this.cipherSubmissionService = cipherSubmissionService;
+			this.answerService = answerService;
 		}
 
 		[HttpGet("all")]
-		[Authorize(AuthenticationSchemes = "Bearer")]
+		[Authorize(AuthenticationSchemes = "Bearer")] //You might not need this (read-only for users)
 		public async Task<IActionResult> GetAllCiphers([FromQuery] CipherFilter filter)
 		{
 			var result = await cipherService.GetApprovedAsync(filter, GetUserId());
@@ -54,23 +65,6 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 
-		[HttpPost("submit")]
-		[Authorize(AuthenticationSchemes = "Bearer")]
-		[Consumes("multipart/form-data")]
-		public async Task<IActionResult> SubmitCipher([FromForm] SubmitCipherViewModel model)
-		{
-			var userId = GetUserId();
-			try
-			{
-				var cipher = await cipherService.SubmitCipherAsync(model, userId);
-				return Ok(cipher);
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(new { error = ex.Message });
-			}
-		}
-
 		[HttpPost("cipher/{id}/solve")]
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		public async Task<IActionResult> SolveCipher([FromRoute] int id, [FromBody] SolveCipherDTO dto)
@@ -90,6 +84,42 @@ namespace Cryptomind.Controllers
 			}
 			return BadRequest();
 		}
+
+		[HttpPost("submit")]
+		[Authorize(AuthenticationSchemes = "Bearer")]
+		[Consumes("multipart/form-data")]
+		public async Task<IActionResult> SubmitCipher([FromForm] SubmitCipherViewModel model)
+		{
+			var userId = GetUserId();
+			try
+			{
+				var cipher = await cipherSubmissionService.SubmitCipherAsync(model, userId);
+				return Ok(cipher);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(new { error = ex.Message });
+			}
+		}
+
+		[HttpPost("cipher/{id}/suggest-answer")]
+		[Authorize(AuthenticationSchemes = "Bearer")]
+		public async Task<IActionResult> SuggestAnswer([FromRoute] int id, [FromBody] SuggestAnswerDTO dto)
+		{
+			if (!ModelState.IsValid)
+				return BadRequest(ModelState);
+			try
+			{
+				await answerService.SuggestAnswerAsync(dto, GetUserId(), id);
+				return Ok("Your suggestion was recieved and will be reviewed by an admin.");
+			}
+			catch (Exception ex)
+			{
+				await Console.Out.WriteLineAsync(ex.Message);
+			}
+			return BadRequest();
+		}
+
 		[HttpPost("cipher/{id}/hint")]
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		public async Task<IActionResult> RequestHint([FromRoute] int id, [FromBody] HintRequestDTO request)
@@ -106,24 +136,6 @@ namespace Cryptomind.Controllers
 			}
 		}
 
-		[HttpPost("cipher/{id}/suggest-answer")]
-		[Authorize(AuthenticationSchemes = "Bearer")]
-		public async Task<IActionResult> SuggestAnswer([FromRoute] int id, [FromBody] SuggestAnswerDTO dto)
-		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-			try
-			{
-				await cipherService.SuggestAnswerAsync(dto, GetUserId(), id);
-				return Ok("Your suggestion was recieved and will be reviewed by an admin.");
-			}
-			catch (Exception ex)
-			{
-				await Console.Out.WriteLineAsync(ex.Message);
-			}
-			return BadRequest();
-		}
-
 		[HttpGet("ml-health")]
 		public async Task<IActionResult> CheckMLHealth()
 		{
@@ -138,7 +150,6 @@ namespace Cryptomind.Controllers
 			}
 			return BadRequest();
 		}
-
 		private string GetUserId()
 		   => User.FindFirstValue(ClaimTypes.NameIdentifier);
 	}
