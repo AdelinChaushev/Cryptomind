@@ -1,13 +1,9 @@
-using Cryptomind.Core.Contracts;
 using Cryptomind.Core.Hubs;
-using Cryptomind.Core.Services;
 using Cryptomind.Data;
 using Cryptomind.Data.Entities;
-using Cryptomind.Data.Repositories;
 using Cryptomind.Web.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
