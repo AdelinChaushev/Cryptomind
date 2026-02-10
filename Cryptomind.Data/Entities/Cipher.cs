@@ -29,7 +29,7 @@ public abstract class Cipher
 	public bool AllowTypeHint { get; set; }
 	public bool AllowHint { get; set; }
 	public bool AllowSolution { get; set; }
-	public bool IsApproved { get; set; }
+	public ApprovalStatus Status { get; set; }
 	public bool IsPlaintextValid { get; set; }
 	public bool IsLLMRecommended { get; set; }
 	public int Points { get; set; }
