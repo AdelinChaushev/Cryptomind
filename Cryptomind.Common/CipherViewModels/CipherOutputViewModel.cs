@@ -13,6 +13,7 @@ namespace Cryptomind.Common.CipherViewModels
 		public string Title { get; set; }
 		public string CipherText { get; set; }
 		public int Points { get; set; }
+		public int SolvedUsersCount { get; set; }
 		public bool AllowsAnswer { get; set; }
 		public bool AllowsHint { get; set; }
 		public string ChallengeTypeDisplay { get; set; }
