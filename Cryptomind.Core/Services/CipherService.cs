@@ -1,5 +1,6 @@
 ﻿using Cryptomind.Common.CipherViewModels;
 using Cryptomind.Common.DTOs;
+using Cryptomind.Common.Enums;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
@@ -15,7 +16,6 @@ namespace Cryptomind.Core.Services
 		IRepository<AnswerSuggestion, int> answerRepo,
 		UserManager<ApplicationUser> userManager) : ICipherService
 	{
-		//FIRST SERVICE - STAY HERE.
 		public async Task<List<CipherOutputViewModel>> GetApprovedAsync(CipherFilter? filter, string userId)
 		{
 			List<Cipher> approved = cipherRepo.GetAllAttached()
@@ -36,6 +36,17 @@ namespace Cryptomind.Core.Services
 					break;
 				case ChallengeType.Experimental:
 					approved = approved.Where(x => x.ChallengeType == ChallengeType.Experimental).ToList();
+					break;
+			}
+
+			switch (filter.CipherDefinition)
+			{
+				case CipherDefinition.ImageCipher:
+					approved = approved.Where(x => x is ImageCipher).ToList();
+					break;
+
+				case CipherDefinition.TextCipher:
+					approved = approved.Where(x => x is TextCipher).ToList();
 					break;
 			}
 
