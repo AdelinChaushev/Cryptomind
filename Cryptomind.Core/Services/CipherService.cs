@@ -20,7 +20,7 @@ namespace Cryptomind.Core.Services
 		{
 			List<Cipher> approved = cipherRepo.GetAllAttached()
 				.Include(x => x.UsersSolved)
-				.Where(c => c.IsApproved)
+				.Where(c => c.Status == ApprovalStatus.Approved)
 				.ToList();
 
 			if (!string.IsNullOrEmpty(filter.SearchTerm))

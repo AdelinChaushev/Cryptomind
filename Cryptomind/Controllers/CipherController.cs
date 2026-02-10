@@ -1,6 +1,7 @@
 ﻿using Cryptomind.Common.CipherViewModels;
 using Cryptomind.Common.DTOs;
 using Cryptomind.Core.Contracts;
+using Cryptomind.Core.Services;
 using Cryptomind.Data.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +11,7 @@ namespace Cryptomind.Controllers
 {
 	[Route("api/ciphers")]
 	[ApiController]
-	public class CiphersController : ControllerBase
+	public class CipherController : ControllerBase
 	{
 		private ICipherService cipherService;
 		private ICipherRecognizerService recognizerService;
@@ -18,7 +19,7 @@ namespace Cryptomind.Controllers
 		private IHintService hintService;
 		private ICipherSubmissionService cipherSubmissionService;
 		private IAnswerService answerService;
-		public CiphersController(
+		public CipherController(
 			ICipherService cipherService, 
 			IUserService userService, 
 			ICipherRecognizerService recognizerService, 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cryptomind.Data.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -18,7 +19,7 @@ namespace Cryptomind.Data.Entities
 		[ForeignKey(nameof(ApplicationUser))]
 		public string UserId { get; set; }
 		public ApplicationUser ApplicationUser { get; set; }
-		public bool IsApproved { get; set; }
+		public ApprovalStatus Status { get; set; }
 		public string Description { get; set; }
 		public string DecryptedText { get; set; }
 		public DateTime UplodaedTime { get; set; }

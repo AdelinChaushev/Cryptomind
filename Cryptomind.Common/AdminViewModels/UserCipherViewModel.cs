@@ -12,7 +12,7 @@ namespace Cryptomind.Common.AdminViewModels
 		public int Id { get; set; }
 		public string Title { get; set; }
 		public CipherType TypeOfCipher { get; set; }
-		public bool IsApproved { get; set; }
+		public string Status { get; set; }
 		public int Points { get; set; }
 		public DateTime CreatedAt { get; set; }
 		public DateTime? SolvedAt { get; set; }  // If in solved list
