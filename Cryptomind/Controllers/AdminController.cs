@@ -1,17 +1,10 @@
 ﻿using Cryptomind.Common.AdminViewModels;
 using Cryptomind.Common.CipherAdminViewModels;
-using Cryptomind.Common.CipherRecognitionViewModels;
-using Cryptomind.Common.CipherViewModels;
 using Cryptomind.Common.DTOs;
 using Cryptomind.Core.Contracts;
-using Cryptomind.Core.Services;
-using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Buffers.Text;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Cryptomind.Controllers
 {
