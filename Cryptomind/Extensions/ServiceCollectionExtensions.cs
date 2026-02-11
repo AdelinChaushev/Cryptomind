@@ -31,7 +31,9 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<IUserService, UserService>();
 		services.AddScoped<ICipherService, CipherService>();
-        services.AddScoped<IAdminService, AdminService>();
+        services.AddScoped<IAdminCipherService, AdminCipherService>();
+        services.AddScoped<IAdminAnswerService, AdminAnswerService>();
+        services.AddScoped<IAdminUserService, AdminUserService>();
         services.AddScoped<ICipherRecognizerService, CipherRecognizerService>();
 		services.AddScoped<IOCRService, OCRService>();
         services.AddScoped<IBadgeService, BadgeService>();
@@ -40,8 +42,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IEnglishValidationService, EnglishValidationService>();
         services.AddScoped<IHintService, HintService>();
 		services.AddScoped<INotificationService, NotificationService>();
-		services.AddScoped<ICipherSubmissionService, CipherSubmitionService>();
-		services.AddScoped<IAnswerService, AnswerService>();
+		services.AddScoped<ICipherSubmissionService, CipherSubmissionService>();
+		services.AddScoped<IAnswerSubmissionService, AnswerSubmissionService>();
 
 		return services;
     }

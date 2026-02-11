@@ -1,4 +1,4 @@
-﻿using Cryptomind.Common.CipherViewModels;
+﻿using Cryptomind.Common.ViewModels.CipherViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
