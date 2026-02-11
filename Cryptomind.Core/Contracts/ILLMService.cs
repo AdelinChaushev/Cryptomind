@@ -1,4 +1,4 @@
-﻿using Cryptomind.Common.CipherRecognitionViewModels;
+﻿using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
 using Cryptomind.Core.Services;
 using Cryptomind.Data.Enums;
 using System;

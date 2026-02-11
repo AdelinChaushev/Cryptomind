@@ -1,5 +1,5 @@
-﻿using Cryptomind.Common.CipherViewModels;
-using Cryptomind.Common.DTOs;
+﻿using Cryptomind.Common.DTOs;
+using Cryptomind.Common.ViewModels.CipherViewModels;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Core.Services;
 using Cryptomind.Data.Enums;
@@ -18,15 +18,15 @@ namespace Cryptomind.Controllers
 		private IBadgeService badgeService;
 		private IHintService hintService;
 		private ICipherSubmissionService cipherSubmissionService;
-		private IAnswerService answerService;
+		private IAnswerSubmissionService answerService;
 		public CipherController(
 			ICipherService cipherService, 
 			IUserService userService, 
 			ICipherRecognizerService recognizerService, 
 			IBadgeService badgeService, 
 			IHintService hintService, 
-			CipherSubmitionService cipherSubmissionService, 
-			AnswerService answerService)
+			ICipherSubmissionService cipherSubmissionService, 
+			IAnswerSubmissionService answerService)
 		{
 			this.cipherService = cipherService;
 			this.recognizerService = recognizerService;
@@ -68,7 +68,7 @@ namespace Cryptomind.Controllers
 				return BadRequest(ModelState);
 			try
 			{
-				bool result = await cipherService.AnswerCipherAsync(GetUserId(), dto.UserSolution, id);
+				bool result = await cipherService.SolveCipherAsync(GetUserId(), dto.UserSolution, id);
 				await badgeService.CheckBadgesByCategory(GetUserId(), BadgeCategory.OnSolve);
 				//Update user stats
 				return Ok(result);

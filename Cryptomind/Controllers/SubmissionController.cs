@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Cryptomind.Core.Contracts;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cryptomind.Controllers
@@ -7,6 +8,7 @@ namespace Cryptomind.Controllers
 	[ApiController]
 	public class SubmissionController : ControllerBase
 	{
-
+		private ICipherSubmissionService cipherSubmissionService;
+		private IAnswerSubmissionService answerSubmissionService;
 	}
 }
