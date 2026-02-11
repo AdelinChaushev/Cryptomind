@@ -1,6 +1,6 @@
-﻿using Cryptomind.Common.CipherViewModels;
-using Cryptomind.Common.DTOs;
+﻿using Cryptomind.Common.DTOs;
 using Cryptomind.Common.Enums;
+using Cryptomind.Common.ViewModels.CipherViewModels;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
@@ -50,6 +50,19 @@ namespace Cryptomind.Core.Services
 					break;
 			}
 
+			switch (filter.OrderTerm)
+			{
+				case CipherOrderTerm.Newest:
+					approved = approved.OrderByDescending(x => x.CreatedAt).ToList();
+					break;
+				case CipherOrderTerm.Oldest:
+					approved = approved.OrderBy(x => x.CreatedAt).ToList();
+					break;
+				case CipherOrderTerm.MostPopular:
+					approved = approved.OrderByDescending(x => x.UsersSolved).ToList();
+					break;
+			}
+
 			List<CipherOutputViewModel> result = new List<CipherOutputViewModel>();
 			foreach (var cipher in approved)
 			{
@@ -68,7 +81,7 @@ namespace Cryptomind.Core.Services
 
 			return await ToOutputViewModel(cipher, userId);
 		}
-		public async Task<bool> AnswerCipherAsync(string userId, string input, int cipherId)
+		public async Task<bool> SolveCipherAsync(string userId, string input, int cipherId)
 		{
 			Cipher? cipher = cipherRepo.GetAllAttached()
 				.Include(x => x.UsersSolved)

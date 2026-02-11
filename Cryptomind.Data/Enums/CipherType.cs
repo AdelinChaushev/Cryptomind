@@ -26,7 +26,5 @@ namespace Cryptomind.Data.Enums
 		Morse = 11,
 		Binary = 12,
 		Hex = 13,
-
-		None = 14, //Can just send null values instead of having a None value, because what is that cipher type - "none"
 	}
 }
