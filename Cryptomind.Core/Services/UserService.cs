@@ -1,5 +1,4 @@
 ﻿using Cryptomind.Core.Contracts;
-using Cryptomind.Common.UserViewModels;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
@@ -14,6 +13,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Cryptomind.Common.ViewModels.UserViewModels;
 
 namespace Cryptomind.Core.Services
 {

@@ -15,7 +15,8 @@ namespace Cryptomind.Core.Services
 		{
 			return userRepo.GetAllAttached()
 				.Include(x => x.UploadedCiphers)
-				.FirstOrDefault(x => x.Id == userId).UploadedCiphers.Count;
+				.FirstOrDefault(x => x.Id == userId).UploadedCiphers
+				.Count(x => x.Status == ApprovalStatus.Approved);
 		}
 
 		public async Task<int> GetDestinctCipherTypesSolved(string userId)

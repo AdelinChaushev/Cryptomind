@@ -1,6 +1,5 @@
-﻿using Cryptomind.Common.AdminViewModels;
-using Cryptomind.Common.CipherAdminViewModels;
-using Cryptomind.Common.DTOs;
+﻿using Cryptomind.Common.DTOs;
+using Cryptomind.Common.ViewModels.AdminViewModels;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -13,36 +12,23 @@ namespace Cryptomind.Controllers
 	[Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
 	public class AdminController : ControllerBase
 	{
-		private IAdminService adminService;
+		private IAdminCipherService adminCipherService;
+		private IAdminAnswerService adminAnswerService;
+		private IAdminUserService adminUserService;
 		private IBadgeService badgeService;
-		public AdminController(IAdminService service, IBadgeService badgeService)
+		public AdminController(IAdminCipherService service, IBadgeService badgeService)
 		{
-			this.adminService = service;
+			this.adminCipherService = service;
 			this.badgeService = badgeService;
 		}
 
 		#region Cipher-specific
-		[HttpGet("pending-ciphers")]
-		public async Task<IActionResult> GetSubmittedCiphers()
-		{
-			try
-			{
-				var result = await adminService.AllSubmittedCiphers();
-				return Ok(result);
-			}
-			catch (InvalidOperationException ex)
-			{
-				await Console.Out.WriteLineAsync(ex.Message);
-			}
-			return BadRequest();
-		}
-
 		[HttpGet("approved-ciphers")]
 		public async Task<IActionResult> GetApprovedCiphers([FromQuery] CipherFilter filter)
 		{
 			try
 			{
-				var result = await adminService.AllApprovedCiphers(filter);
+				var result = await adminCipherService.AllApprovedCiphers(filter);
 				return Ok(result);
 			}
 			catch (InvalidOperationException ex)
@@ -52,12 +38,12 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 
-		[HttpGet("pending-answer-suggestions")]
-		public async Task<IActionResult> GetSubmittedAnswers()
+		[HttpGet("pending-ciphers")]
+		public async Task<IActionResult> GetSubmittedCiphers()
 		{
 			try
 			{
-				var result = await adminService.AllSubmittedAnswersAsync();
+				var result = await adminCipherService.AllSubmittedCiphers();
 				return Ok(result);
 			}
 			catch (InvalidOperationException ex)
@@ -72,7 +58,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				var cipher = await adminService.GetCipherById(id);
+				var cipher = await adminCipherService.GetCipherById(id);
 				return Ok(cipher);
 			}
 			catch (InvalidOperationException ex)
@@ -87,7 +73,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				var result = await adminService.AnalyzeWithLLM(id);
+				var result = await adminCipherService.AnalyzeWithLLM(id);
 				return Ok(result);
 			}
 			catch (Exception ex)
@@ -102,7 +88,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				string userID = await adminService.ApproveCipherAsync(id, model);
+				string userID = await adminCipherService.ApproveCipherAsync(id, model);
 				await badgeService.CheckBadgesByCategory(userID, BadgeCategory.OnUpload);
 
 				return Ok();
@@ -119,7 +105,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				await adminService.RejectCipherAsync(id, reason);
+				await adminCipherService.RejectCipherAsync(id, reason);
 
 				return Ok();
 			}
@@ -135,7 +121,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				await adminService.UnapproveCipherAsync(id);
+				await adminCipherService.UnapproveCipherAsync(id);
 				//await badgeService.CheckBadgesByCategory(userID, BadgeCategory.OnUpload);
 				return Ok();
 			}
@@ -151,7 +137,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				await adminService.UpdateApprovedCipher(id, model);
+				await adminCipherService.UpdateApprovedCipher(id, model);
 
 				return Ok();
 			}
@@ -167,11 +153,28 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				await adminService.DeleteApprovedCipher(id);
+				await adminCipherService.DeleteApprovedCipher(id);
 
 				return Ok();
 			}
 			catch (Exception ex)
+			{
+				await Console.Out.WriteLineAsync(ex.Message);
+			}
+			return BadRequest();
+		}
+		#endregion
+
+		#region Answer-specific
+		[HttpGet("pending-answer-suggestions")]
+		public async Task<IActionResult> GetSubmittedAnswers()
+		{
+			try
+			{
+				var result = await adminAnswerService.AllSubmittedAnswersAsync();
+				return Ok(result);
+			}
+			catch (InvalidOperationException ex)
 			{
 				await Console.Out.WriteLineAsync(ex.Message);
 			}
@@ -183,7 +186,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				var result = await adminService.GetAnswerById(id);
+				var result = await adminAnswerService.GetAnswerById(id);
 				return Ok(result);
 			}
 			catch (InvalidOperationException ex)
@@ -198,7 +201,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				string userID = await adminService.ApproveAnswerAsync(id, points);
+				string userID = await adminAnswerService.ApproveAnswerAsync(id, points);
 				await badgeService.CheckBadgesByCategory(userID, BadgeCategory.OnSuggesting);
 
 				return Ok();
@@ -215,7 +218,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				await adminService.RejectAnswerAsync(id, reason);
+				await adminAnswerService.RejectAnswerAsync(id, reason);
 
 				return Ok();
 			}
@@ -233,7 +236,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				var result = await adminService.GetAllUsers();
+				var result = await adminUserService.GetAllUsers();
 
 				return Ok(result);
 			}
@@ -249,7 +252,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				var result = await adminService.GetUser(id);
+				var result = await adminUserService.GetUser(id);
 				return Ok(result);
 			}
 			catch (Exception ex)
@@ -264,7 +267,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				await adminService.MakeAdmin(id);
+				await adminUserService.MakeAdmin(id);
 				return Ok();
 			}
 			catch (Exception ex)
@@ -279,7 +282,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				await adminService.BanUserAsync(id, reason);
+				await adminUserService.BanUserAsync(id, reason);
 				return Ok();
 			}
 			catch (Exception ex)
@@ -294,7 +297,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				await adminService.UnbanUserAsync(id);
+				await adminUserService.UnbanUserAsync(id);
 				return Ok();
 			}
 			catch (Exception ex)
