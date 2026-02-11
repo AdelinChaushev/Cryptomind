@@ -23,7 +23,7 @@ public abstract class Cipher
 	public string EncryptedText { get; set; }
 	public string MLPrediction { get; set; }
 	public CipherLLMData? LLMData { get; set; }
-	public CipherType TypeOfCipher { get; set; }
+	public CipherType? TypeOfCipher { get; set; }
 	public ChallengeType ChallengeType { get; set; }
 	public DateTime CreatedAt { get; set; }
 	public bool AllowTypeHint { get; set; }

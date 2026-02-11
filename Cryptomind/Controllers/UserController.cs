@@ -1,9 +1,9 @@
-﻿using Cryptomind.Common.AuthenticationViewModels;
-using Cryptomind.Data.Entities;
+﻿using Cryptomind.Data.Entities;
 using Cryptomind.Core.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Cryptomind.Common.ViewModels.AuthenticationViewModels;
 
 namespace Cryptomind.Controllers
 {
