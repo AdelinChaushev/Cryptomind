@@ -14,6 +14,7 @@ namespace Cryptomind.Data.Entities
         {
             UploadedCiphers = new List<Cipher>();
             HintsRequested = new List<HintRequest>();
+            Notifications = new List<Notification>();
         }
         public int Score { get; set; }
         public int SolvedCount { get; set; }
@@ -27,7 +28,9 @@ namespace Cryptomind.Data.Entities
         public ICollection<Cipher> UploadedCiphers { get; set; }
         public ICollection<UserSolution> SolvedCiphers { get; set; }
         public ICollection<HintRequest> HintsRequested { get; set; }
+        public ICollection<AnswerSuggestion> SuggestedAnswers { get; set; }
         public ICollection <UserBadge> Badges { get; set; }
+        public ICollection<Notification> Notifications { get; set; }
         private double CalculateSuccessRate()
         {
             if (SolvedCount == 0 || AttemptedCiphers == 0) return 0;

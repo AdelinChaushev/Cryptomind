@@ -1,12 +1,8 @@
 ﻿using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
+using Cryptomind.Data.Enums;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Cryptomind.Core.Services
 {
@@ -19,7 +15,8 @@ namespace Cryptomind.Core.Services
 		{
 			return userRepo.GetAllAttached()
 				.Include(x => x.UploadedCiphers)
-				.FirstOrDefault(x => x.Id == userId).UploadedCiphers.Count;
+				.FirstOrDefault(x => x.Id == userId).UploadedCiphers
+				.Count(x => x.Status == ApprovalStatus.Approved);
 		}
 
 		public async Task<int> GetDestinctCipherTypesSolved(string userId)
@@ -30,6 +27,14 @@ namespace Cryptomind.Core.Services
 				.Select(x => x.Cipher.TypeOfCipher)
 				.Distinct()
 				.Count();
+		}
+		public async Task<int> GetApprovedAnswersCount(string userId)
+		{
+			return userRepo.GetAllAttached()
+				.Include(x => x.SuggestedAnswers)
+				.FirstOrDefault(x => x.Id == userId)
+				.SuggestedAnswers
+				.Count(x => x.Status == ApprovalStatus.Approved);
 		}
 
 		public async Task<int> GetSolvedCount(string userId)
