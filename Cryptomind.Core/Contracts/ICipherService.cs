@@ -1,6 +1,8 @@
-﻿using Cryptomind.Common.CipherViewModels;
-using Cryptomind.Common.DTOs;
+﻿using Cryptomind.Common.DTOs;
+using Cryptomind.Common.ViewModels.CipherViewModels;
 using Cryptomind.Data.Entities;
+using Cryptomind.Data.Enums;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +13,8 @@ namespace Cryptomind.Core.Contracts
 {
 	public interface ICipherService
 	{
-		Task<List<CipherOutputViewModel>> GetApprovedAsync(CipherFilter? filter); // Implement functionality to be able to filter by tags
-		Task<CipherOutputViewModel?> GetCipherAsync(int id);
-		Task<Cipher> SubmitCipherAsync(SubmitCipherViewModel cipher, string userId);
-		Task<bool> AnswerCipherAsync(string userId,string input, int cipherId);
-		Task<HintRequestResponse> RequestHintAsync(HintRequest request);
+		Task<List<CipherOutputViewModel>> GetApprovedAsync(CipherFilter? filter, string userId); // Implement functionality to be able to filter by tags
+		Task<CipherOutputViewModel?> GetCipherAsync(int id, string userId);
+		Task<bool> SolveCipherAsync(string userId, string input, int cipherId);
 	}
 }

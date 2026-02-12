@@ -1,12 +1,10 @@
-﻿
-
-using Cryptomind.Core.Contracts;
+﻿using Cryptomind.Core.Contracts;
 using Cryptomind.Core.Services;
 using Cryptomind.Core.Services.OCR;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
 
-namespace ClarifEye.Web.Extensions;
+namespace Cryptomind.Web.Extensions;
 
 public static class ServiceCollectionExtensions
 {
@@ -19,9 +17,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRepository<Tag, int>, Repository<Tag, int>>();
         services.AddScoped<IRepository<HintRequest, int>, Repository<HintRequest, int>>();
         services.AddScoped<IRepository<UserSolution, int>, Repository<UserSolution, int>>();
+		services.AddScoped<IRepository<AnswerSuggestion, int>, Repository<AnswerSuggestion, int>>();
 		services.AddScoped<IRepository<ApplicationUser, string>, Repository<ApplicationUser, string>>();
 		services.AddScoped<IRepository<UserBadge, int>, Repository<UserBadge, int>>();
 		services.AddScoped<IRepository<Badge, int>, Repository<Badge, int>>();
+		services.AddScoped<IRepository<Notification, int>, Repository<Notification, int>>();
 
 		return services;
     }
@@ -31,14 +31,20 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<IUserService, UserService>();
 		services.AddScoped<ICipherService, CipherService>();
-        services.AddScoped<IAdminService, AdminService>();
+        services.AddScoped<IAdminCipherService, AdminCipherService>();
+        services.AddScoped<IAdminAnswerService, AdminAnswerService>();
+        services.AddScoped<IAdminUserService, AdminUserService>();
         services.AddScoped<ICipherRecognizerService, CipherRecognizerService>();
 		services.AddScoped<IOCRService, OCRService>();
         services.AddScoped<IBadgeService, BadgeService>();
 		services.AddScoped<IBadgeStatisticsService, BadgeStatiscticsService>();
-        //services.AddScoped<ILLMService, LLMService>();
-        services.AddScoped<ILLMService, MockLLMService>();
+        services.AddScoped<ILLMService, LLMService>();
+        services.AddScoped<IEnglishValidationService, EnglishValidationService>();
+        services.AddScoped<IHintService, HintService>();
+		services.AddScoped<INotificationService, NotificationService>();
+		services.AddScoped<ICipherSubmissionService, CipherSubmissionService>();
+		services.AddScoped<IAnswerSubmissionService, AnswerSubmissionService>();
 
-        return services;
+		return services;
     }
 }

@@ -22,6 +22,118 @@ namespace Cryptomind.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Cipher", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("AllowHint")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("AllowSolution")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("AllowTypeHint")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("ChallengeType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("DecryptedText")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EncryptedText")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
+
+                    b.Property<bool>("IsLLMRecommended")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPlaintextValid")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MLPrediction")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Points")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("TypeOfCipher")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.ToTable("Cipher");
+
+                    b.HasDiscriminator<string>("EntityType").HasValue("Cipher");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("Cryptomind.Data.Entities.AnswerSuggestion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CipherId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DecryptedText")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UplodaedTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CipherId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AnswerSuggestions");
+                });
+
             modelBuilder.Entity("Cryptomind.Data.Entities.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -135,7 +247,7 @@ namespace Cryptomind.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Badge");
+                    b.ToTable("Badges");
 
                     b.HasData(
                         new
@@ -157,7 +269,7 @@ namespace Cryptomind.Data.Migrations
                         new
                         {
                             Id = 3,
-                            Category = 1,
+                            Category = 2,
                             Description = "Have your first cipher approved",
                             EarnedBy = 0,
                             Title = "Cipher Creator"
@@ -165,7 +277,7 @@ namespace Cryptomind.Data.Migrations
                         new
                         {
                             Id = 4,
-                            Category = 1,
+                            Category = 2,
                             Description = "Have 5 ciphers approved",
                             EarnedBy = 0,
                             Title = "Community Contributor"
@@ -173,77 +285,19 @@ namespace Cryptomind.Data.Migrations
                         new
                         {
                             Id = 5,
-                            Category = 2,
+                            Category = 3,
                             Description = "Solve at least one cipher from 5 different types",
                             EarnedBy = 0,
                             Title = "Diverse Solver"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Category = 1,
+                            Description = "Solve your first experimental cipher",
+                            EarnedBy = 0,
+                            Title = "Outstanding Cryptographer"
                         });
-                });
-
-            modelBuilder.Entity("Cryptomind.Data.Entities.Cipher", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("AllowHint")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("AllowSolution")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("ChallengeType")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedByUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("DecryptedText")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EntityType")
-                        .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("nvarchar(13)");
-
-                    b.Property<bool>("IsApproved")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LLMAnalysis")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MLPrediction")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Points")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("TypeOfCipher")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedByUserId");
-
-                    b.ToTable("Cipher");
-
-                    b.HasDiscriminator<string>("EntityType").HasValue("Cipher");
-
-                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Cryptomind.Data.Entities.CipherTag", b =>
@@ -272,12 +326,15 @@ namespace Cryptomind.Data.Migrations
                     b.Property<int>("CipherId")
                         .HasColumnType("int");
 
+                    b.Property<string>("HintContent")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("HintType")
                         .HasColumnType("int");
 
-                    b.Property<string>("InputText")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("RequestedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -290,6 +347,47 @@ namespace Cryptomind.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("HintRequests");
+                });
+
+            modelBuilder.Entity("Cryptomind.Data.Entities.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Link")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int?>("RelatedEntityId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("Cryptomind.Data.Entities.Tag", b =>
@@ -346,8 +444,20 @@ namespace Cryptomind.Data.Migrations
                     b.Property<int>("CipherId")
                         .HasColumnType("int");
 
+                    b.Property<int>("PointsEarned")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("TimeSolved")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("UsedFullSolution")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("UsedSolutionHint")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("UsedTypeHint")
+                        .HasColumnType("bit");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -497,11 +607,7 @@ namespace Cryptomind.Data.Migrations
 
             modelBuilder.Entity("Cryptomind.Data.Entities.ImageCipher", b =>
                 {
-                    b.HasBaseType("Cryptomind.Data.Entities.Cipher");
-
-                    b.Property<string>("EncryptedText")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.HasBaseType("Cipher");
 
                     b.Property<string>("ImagePath")
                         .IsRequired()
@@ -515,22 +621,12 @@ namespace Cryptomind.Data.Migrations
 
             modelBuilder.Entity("Cryptomind.Data.Entities.TextCipher", b =>
                 {
-                    b.HasBaseType("Cryptomind.Data.Entities.Cipher");
-
-                    b.Property<string>("EncryptedText")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.ToTable("Cipher", t =>
-                        {
-                            t.Property("EncryptedText")
-                                .HasColumnName("TextCipher_EncryptedText");
-                        });
+                    b.HasBaseType("Cipher");
 
                     b.HasDiscriminator().HasValue("TextCipher");
                 });
 
-            modelBuilder.Entity("Cryptomind.Data.Entities.Cipher", b =>
+            modelBuilder.Entity("Cipher", b =>
                 {
                     b.HasOne("Cryptomind.Data.Entities.ApplicationUser", "CreatedByUser")
                         .WithMany("UploadedCiphers")
@@ -538,12 +634,70 @@ namespace Cryptomind.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.OwnsOne("CipherLLMData", "LLMData", b1 =>
+                        {
+                            b1.Property<int>("CipherId")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Analysis")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("CachedHint")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("CachedSolution")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("CachedTypeHint")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Confidence")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Issues")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Reasoning")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("CipherId");
+
+                            b1.ToTable("Cipher");
+
+                            b1.WithOwner()
+                                .HasForeignKey("CipherId");
+                        });
+
                     b.Navigation("CreatedByUser");
+
+                    b.Navigation("LLMData");
+                });
+
+            modelBuilder.Entity("Cryptomind.Data.Entities.AnswerSuggestion", b =>
+                {
+                    b.HasOne("Cipher", "Cipher")
+                        .WithMany("AnswerSuggestions")
+                        .HasForeignKey("CipherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Cryptomind.Data.Entities.ApplicationUser", "ApplicationUser")
+                        .WithMany("SuggestedAnswers")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("Cipher");
                 });
 
             modelBuilder.Entity("Cryptomind.Data.Entities.CipherTag", b =>
                 {
-                    b.HasOne("Cryptomind.Data.Entities.Cipher", "Cipher")
+                    b.HasOne("Cipher", "Cipher")
                         .WithMany("CipherTags")
                         .HasForeignKey("CipherId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -562,7 +716,7 @@ namespace Cryptomind.Data.Migrations
 
             modelBuilder.Entity("Cryptomind.Data.Entities.HintRequest", b =>
                 {
-                    b.HasOne("Cryptomind.Data.Entities.Cipher", "Cipher")
+                    b.HasOne("Cipher", "Cipher")
                         .WithMany("HintsRequested")
                         .HasForeignKey("CipherId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -577,6 +731,17 @@ namespace Cryptomind.Data.Migrations
                     b.Navigation("ApplicationUser");
 
                     b.Navigation("Cipher");
+                });
+
+            modelBuilder.Entity("Cryptomind.Data.Entities.Notification", b =>
+                {
+                    b.HasOne("Cryptomind.Data.Entities.ApplicationUser", "User")
+                        .WithMany("Notifications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Cryptomind.Data.Entities.UserBadge", b =>
@@ -600,7 +765,7 @@ namespace Cryptomind.Data.Migrations
 
             modelBuilder.Entity("Cryptomind.Data.Entities.UserSolution", b =>
                 {
-                    b.HasOne("Cryptomind.Data.Entities.Cipher", "Cipher")
+                    b.HasOne("Cipher", "Cipher")
                         .WithMany("UsersSolved")
                         .HasForeignKey("CipherId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -668,13 +833,28 @@ namespace Cryptomind.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Cipher", b =>
+                {
+                    b.Navigation("AnswerSuggestions");
+
+                    b.Navigation("CipherTags");
+
+                    b.Navigation("HintsRequested");
+
+                    b.Navigation("UsersSolved");
+                });
+
             modelBuilder.Entity("Cryptomind.Data.Entities.ApplicationUser", b =>
                 {
                     b.Navigation("Badges");
 
                     b.Navigation("HintsRequested");
 
+                    b.Navigation("Notifications");
+
                     b.Navigation("SolvedCiphers");
+
+                    b.Navigation("SuggestedAnswers");
 
                     b.Navigation("UploadedCiphers");
                 });
@@ -682,15 +862,6 @@ namespace Cryptomind.Data.Migrations
             modelBuilder.Entity("Cryptomind.Data.Entities.Badge", b =>
                 {
                     b.Navigation("UserBadges");
-                });
-
-            modelBuilder.Entity("Cryptomind.Data.Entities.Cipher", b =>
-                {
-                    b.Navigation("CipherTags");
-
-                    b.Navigation("HintsRequested");
-
-                    b.Navigation("UsersSolved");
                 });
 
             modelBuilder.Entity("Cryptomind.Data.Entities.Tag", b =>

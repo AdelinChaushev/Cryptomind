@@ -18,11 +18,14 @@ namespace Cryptomind.Data
 		: base(options) { }
 
 		public DbSet<ApplicationUser> Users { get; set; }
-		public DbSet<CipherTag> CipherTags { get; set; }
-		public DbSet<Tag> Tags { get; set; }
-		public DbSet<HintRequest> HintRequests { get; set; }
 		public DbSet<ImageCipher> ImageCiphers { get; set; }
 		public DbSet<TextCipher> TextCiphers { get; set; }
+		public DbSet<CipherTag> CipherTags { get; set; }
+		public DbSet<Tag> Tags { get; set; }
+		public DbSet<Badge> Badges { get; set; }
+		public DbSet<HintRequest> HintRequests { get; set; }
+		public DbSet<AnswerSuggestion> AnswerSuggestions { get; set; }
+		public DbSet<Notification> Notifications { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder builder)
 		{
@@ -51,6 +54,9 @@ namespace Cryptomind.Data
 				.WithMany(c => c.UsersSolved)
 				.HasForeignKey(us => us.CipherId)
 				.OnDelete(DeleteBehavior.Restrict); // Prevent multiple cascade paths
+
+			builder.Entity<Cipher>()
+				.OwnsOne(c => c.LLMData);
 
 			builder.Entity<Badge>().HasData(
 				new Badge
@@ -87,6 +93,13 @@ namespace Cryptomind.Data
 					Title = "Diverse Solver",
 					Description = "Solve at least one cipher from 5 different types",
 					Category = BadgeCategory.Periodic
+				},
+				new Badge
+				{
+					Id = 6,
+					Title = "Outstanding Cryptographer",
+					Description = "Solve your first experimental cipher",
+					Category = BadgeCategory.OnSuggesting
 				});
 
 			base.OnModelCreating(builder);

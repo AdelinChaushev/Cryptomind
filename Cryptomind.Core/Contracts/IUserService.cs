@@ -1,4 +1,4 @@
-﻿using Cryptomind.Common.UserViewModels;
+﻿using Cryptomind.Common.ViewModels.UserViewModels;
 using Cryptomind.Data.Entities;
 using System;
 using System.Collections.Generic;

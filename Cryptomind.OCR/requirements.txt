@@ -10,7 +10,7 @@ numpy==1.24.3
 
 # Utilities
 Werkzeug==3.0.1
-requests==2.31.0        ← ADD THIS LINE
+requests==2.31.0 
 
 # Optional: Better production server
 # gunicorn==21.2.0  # For Linux/Mac deployment

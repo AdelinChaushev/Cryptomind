@@ -1,15 +1,9 @@
-﻿using Cryptomind.Common.CipherAdminViewModels;
-using Cryptomind.Common.CipherViewModels;
-using Cryptomind.Common.DTOs;
+﻿using Cryptomind.Common.DTOs;
+using Cryptomind.Common.ViewModels.AdminViewModels;
 using Cryptomind.Core.Contracts;
-using Cryptomind.Core.Services;
-using Cryptomind.Data.Entities;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Buffers.Text;
-using static System.Net.Mime.MediaTypeNames;
 using Cryptomind.Data.Enums;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Cryptomind.Controllers
 {
@@ -18,21 +12,23 @@ namespace Cryptomind.Controllers
 	[Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
 	public class AdminController : ControllerBase
 	{
-		private IAdminService adminService;
+		private IAdminCipherService adminCipherService;
+		private IAdminAnswerService adminAnswerService;
+		private IAdminUserService adminUserService;
 		private IBadgeService badgeService;
-		public AdminController(IAdminService service, IBadgeService badgeService)
+		public AdminController(IAdminCipherService service, IBadgeService badgeService)
 		{
-			this.adminService = service;
+			this.adminCipherService = service;
 			this.badgeService = badgeService;
 		}
 
 		#region Cipher-specific
-		[HttpGet("pending-ciphers")]
-		public async Task<IActionResult> GetSubmittedCiphers()
+		[HttpGet("approved-ciphers")]
+		public async Task<IActionResult> GetApprovedCiphers([FromQuery] CipherFilter filter)
 		{
 			try
 			{
-				var result = await adminService.AllSubmittedCiphers();
+				var result = await adminCipherService.AllApprovedCiphers(filter);
 				return Ok(result);
 			}
 			catch (InvalidOperationException ex)
@@ -41,12 +37,13 @@ namespace Cryptomind.Controllers
 			}
 			return BadRequest();
 		}
-		[HttpGet("approved-ciphers")]
-		public async Task<IActionResult> GetApprovedCiphers([FromQuery] CipherFilter filter)
+
+		[HttpGet("pending-ciphers")]
+		public async Task<IActionResult> GetSubmittedCiphers()
 		{
 			try
 			{
-				var result = await adminService.AllApprovedCiphers(filter);
+				var result = await adminCipherService.AllSubmittedCiphers();
 				return Ok(result);
 			}
 			catch (InvalidOperationException ex)
@@ -61,7 +58,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				var cipher = await adminService.GetCipherById(id);
+				var cipher = await adminCipherService.GetCipherById(id);
 				return Ok(cipher);
 			}
 			catch (InvalidOperationException ex)
@@ -70,53 +67,30 @@ namespace Cryptomind.Controllers
 			}
 			return BadRequest();
 		}
-		[HttpPost("cipher/{id}/solve")]
-		public async Task<IActionResult> SolveCipher(int id)
+
+		[HttpGet("cipler/{id}/analyze")]
+		public async Task<IActionResult> AnalyzeCipher([FromRoute] int id)
 		{
 			try
 			{
-				var solution = await adminService.SolveCipherWithLLM(id);
-
-				return Ok(new
-				{
-					success = true,
-					analysis = solution
-				});
-			}
-			catch (InvalidOperationException ex)
-			{
-				return BadRequest(new { success = false, message = ex.Message });
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, new { success = false, message = "An error occurred while solving the cipher" });
-			}
-		}
-
-		[HttpPut("cipher/{id}/approve")]
-		public async Task<IActionResult> ApproveCipher([FromRoute] int id, [FromBody] ApproveUpdateCipherViewModel model)
-		{
-			try
-			{
-				string userID = await adminService.ApproveCipherAsync(id, model);
-				await badgeService.CheckBadgesByCategory(userID, BadgeCategory.OnUpload);
-				//Here we can update some values for the user which submitted the cipher, like adding that he created a cipher
-
-				return Ok();
+				var result = await adminCipherService.AnalyzeWithLLM(id);
+				return Ok(result);
 			}
 			catch (Exception ex)
 			{
 				await Console.Out.WriteLineAsync(ex.Message);
+				return BadRequest(ex.Message);
 			}
-			return BadRequest();
 		}
-		[HttpPut("cipher/{id}/unapprove")]
-		public async Task<IActionResult> UnpproveCipher([FromRoute] int id)
+
+		[HttpPut("cipher/{id}/approve")]
+		public async Task<IActionResult> ApproveCipher([FromRoute] int id, [FromBody] ApproveCipherViewModel model)
 		{
 			try
 			{
-				string userID = await adminService.UnapproveCipherAsync(id);
-				//await badgeService.CheckBadgesByCategory(userID, BadgeCategory.OnUpload);
+				string userID = await adminCipherService.ApproveCipherAsync(id, model);
+				await badgeService.CheckBadgesByCategory(userID, BadgeCategory.OnUpload);
+
 				return Ok();
 			}
 			catch (Exception ex)
@@ -127,11 +101,11 @@ namespace Cryptomind.Controllers
 		}
 
 		[HttpDelete("cipher/{id}/reject")]
-		public async Task<IActionResult> RejectCipher([FromRoute] int id)
+		public async Task<IActionResult> RejectCipher([FromRoute] int id, [FromBody] string reason)
 		{
 			try
 			{
-				await adminService.RejectCipherAsync(id);
+				await adminCipherService.RejectCipherAsync(id, reason);
 
 				return Ok();
 			}
@@ -142,12 +116,28 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 
-		[HttpPut("cipher/{id}/update")]
-		public async Task<IActionResult> UpdateCipher([FromRoute] int id, [FromBody] ApproveUpdateCipherViewModel model)
+		[HttpPut("cipher/{id}/unapprove")]
+		public async Task<IActionResult> UnapproveCipher([FromRoute] int id)
 		{
 			try
 			{
-				await adminService.UpdateApprovedCipher(id, model);
+				await adminCipherService.UnapproveCipherAsync(id);
+				//await badgeService.CheckBadgesByCategory(userID, BadgeCategory.OnUpload);
+				return Ok();
+			}
+			catch (Exception ex)
+			{
+				await Console.Out.WriteLineAsync(ex.Message);
+			}
+			return BadRequest();
+		}
+
+		[HttpPut("cipher/{id}/update")]
+		public async Task<IActionResult> UpdateCipher([FromRoute] int id, [FromBody] UpdateCipherViewModel model)
+		{
+			try
+			{
+				await adminCipherService.UpdateApprovedCipher(id, model);
 
 				return Ok();
 			}
@@ -163,7 +153,72 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				await adminService.DeleteApprovedCipher(id);
+				await adminCipherService.DeleteApprovedCipher(id);
+
+				return Ok();
+			}
+			catch (Exception ex)
+			{
+				await Console.Out.WriteLineAsync(ex.Message);
+			}
+			return BadRequest();
+		}
+		#endregion
+
+		#region Answer-specific
+		[HttpGet("pending-answer-suggestions")]
+		public async Task<IActionResult> GetSubmittedAnswers()
+		{
+			try
+			{
+				var result = await adminAnswerService.AllSubmittedAnswersAsync();
+				return Ok(result);
+			}
+			catch (InvalidOperationException ex)
+			{
+				await Console.Out.WriteLineAsync(ex.Message);
+			}
+			return BadRequest();
+		}
+
+		[HttpGet("answer/{id}")]
+		public async Task<IActionResult> GetAnswer([FromRoute] int id)
+		{
+			try
+			{
+				var result = await adminAnswerService.GetAnswerById(id);
+				return Ok(result);
+			}
+			catch (InvalidOperationException ex)
+			{
+				await Console.Out.WriteLineAsync(ex.Message);
+			}
+			return BadRequest();
+		}
+
+		[HttpPut("answer/{id}/approve")]
+		public async Task<IActionResult> ApproveAnswer([FromRoute] int id, [FromForm] int points)
+		{
+			try
+			{
+				string userID = await adminAnswerService.ApproveAnswerAsync(id, points);
+				await badgeService.CheckBadgesByCategory(userID, BadgeCategory.OnSuggesting);
+
+				return Ok();
+			}
+			catch (InvalidOperationException ex)
+			{
+				await Console.Out.WriteLineAsync(ex.Message);
+			}
+			return BadRequest();
+		}
+
+		[HttpDelete("answer/{id}/reject")]
+		public async Task<IActionResult> RejectAnswer([FromRoute] int id, [FromBody] string reason)
+		{
+			try
+			{
+				await adminAnswerService.RejectAnswerAsync(id, reason);
 
 				return Ok();
 			}
@@ -181,7 +236,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				var result = await adminService.GetAllUsers();
+				var result = await adminUserService.GetAllUsers();
 
 				return Ok(result);
 			}
@@ -197,7 +252,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				var result = await adminService.GetUser(id);
+				var result = await adminUserService.GetUser(id);
 				return Ok(result);
 			}
 			catch (Exception ex)
@@ -212,7 +267,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				await adminService.MakeAdmin(id);
+				await adminUserService.MakeAdmin(id);
 				return Ok();
 			}
 			catch (Exception ex)
@@ -227,7 +282,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				await adminService.BanUserAsync(id, reason);
+				await adminUserService.BanUserAsync(id, reason);
 				return Ok();
 			}
 			catch (Exception ex)
@@ -242,7 +297,7 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				await adminService.UnbanUserAsync(id);
+				await adminUserService.UnbanUserAsync(id);
 				return Ok();
 			}
 			catch (Exception ex)
@@ -252,20 +307,5 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 		#endregion
-		[HttpGet("test-llm-config")]
-		public IActionResult TestLLMConfig([FromServices] IConfiguration config)
-		{
-			var apiUrl = config["LLMService:ApiUrl"];
-			var model = config["LLMService:Model"];
-			var apiKey = config["LLMService:ApiKey"];
-
-			return Ok(new
-			{
-				ApiUrl = apiUrl,
-				Model = model,
-				ApiKeyExists = !string.IsNullOrEmpty(apiKey),
-				ApiKeyPreview = apiKey?.Substring(0, 10) + "..." // Show first 10 chars only
-			});
-		}
 	}
 }

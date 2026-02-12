@@ -1,4 +1,5 @@
-﻿using Cryptomind.Data.Enums;
+﻿using Cryptomind.Common.Enums;
+using Cryptomind.Data.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +11,9 @@ namespace Cryptomind.Common.DTOs
 	public class CipherFilter
 	{
 		public string? SearchTerm { get; set; }
-		//public Difficulty (enum) Difficulty { get; set; }
 		public List<TagType>? Tags { get; set; }
-		public ChallengeType challengeType { get; set; }
+		public ChallengeType ChallengeType { get; set; }
+		public CipherDefinition CipherDefinition { get; set; }
+		public CipherOrderTerm OrderTerm { get; set; }
 	}
 }
