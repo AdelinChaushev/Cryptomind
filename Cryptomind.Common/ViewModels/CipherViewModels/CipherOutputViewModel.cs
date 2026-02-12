@@ -11,14 +11,14 @@ namespace Cryptomind.Common.ViewModels.CipherViewModels
 	{
 		public int Id { get; set; }
 		public string Title { get; set; }
-		public string CipherText { get; set; }
+		public string? CipherText { get; set; }
 		public int Points { get; set; }
 		public int SolvedUsersCount { get; set; }
 		public bool AllowsAnswer { get; set; }
 		public bool AllowsHint { get; set; }
 		public string ChallengeTypeDisplay { get; set; }
 		public bool IsImage { get; set; }
-		public string ImageBase64 { get; set; } //For image
+		public string? ImageBase64 { get; set; } //For image
 		public bool AllowsTypeHint { get; set; }
 		public bool AllowsSolutionHint { get; set; }
 		public bool AllowsFullSolution { get; set; }
