@@ -182,9 +182,6 @@ namespace Cryptomind.Core.Services
 			if (string.IsNullOrWhiteSpace(cipher.DecryptedText) && model.ChallengeType == ChallengeType.Standard)
 				throw new InvalidOperationException("Cipher with unknown answer shouldn't be aproved as standard");
 
-			if (model.CipherType == null && model.ChallengeType == ChallengeType.Standard)
-				throw new InvalidOperationException("Cipher with unknown cipher type shouldn't be approved as standard");
-
 			if (model.ChallengeType == ChallengeType.Experimental && string.IsNullOrWhiteSpace(cipher.DecryptedText) && (model.AllowHint || model.AllowSolution || model.AllowTypeHint))
 				throw new InvalidOperationException("Hints cannot be used for Experimental Ciphers");
 
@@ -193,7 +190,6 @@ namespace Cryptomind.Core.Services
 			cipher.AllowHint = model.AllowHint;
 			cipher.AllowSolution = model.AllowSolution;
 			cipher.AllowTypeHint = model.AllowTypeHint;
-			cipher.TypeOfCipher = model.CipherType;
 			cipher.Status = ApprovalStatus.Approved;
 			cipher.ChallengeType = model.ChallengeType; //Give permission to the admin for him to decide which is experimental or not
 
