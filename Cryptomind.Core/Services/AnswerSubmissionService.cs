@@ -5,6 +5,8 @@ using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
 using Cryptomind.Common.ViewModels.AnswerSubmissionViewModels;
 using Microsoft.EntityFrameworkCore;
+using Cryptomind.Common.ViewModels.AdminViewModels;
+using Cryptomind.Common.Enums;
 
 namespace Cryptomind.Core.Services
 {
@@ -13,6 +15,11 @@ namespace Cryptomind.Core.Services
 		IRepository<UserSolution, int> solutionRepo,
 		IRepository<AnswerSuggestion, int> answerRepo) : IAnswerSubmissionService
 	{
+		public Task<List<AnswerSuggestionReviewViewModel>> SubmittedAnswers(SubmittedOrderTerm orderingTerm, string userId)
+		{
+			throw new NotImplementedException();
+		}
+
 		public async Task SuggestAnswerAsync(SuggestAnswerDTO dto, string userId, int cipherId)
 		{
 			Cipher? cipher = cipherRepo.GetAllAttached()
@@ -45,10 +52,6 @@ namespace Cryptomind.Core.Services
 			};
 
 			await answerRepo.AddAsync(answer);
-		}
-		public async Task<List<AnswerSubmissionViewModel>> GetSubmittedAnswers()
-		{
-			throw new NotImplementedException();
 		}
 	}
 }
