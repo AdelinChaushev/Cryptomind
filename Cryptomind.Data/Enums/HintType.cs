@@ -8,7 +8,8 @@ namespace Cryptomind.Data.Enums
 {
     public enum HintType
     {
-        Hint = 0,
-        FullSolution = 1,
+        Type = 0,
+        Hint = 1,
+        FullSolution = 2,
     }
 }

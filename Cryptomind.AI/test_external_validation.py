@@ -391,7 +391,7 @@ with open('testing/external_validation_sentences.txt', 'w', encoding='utf-8') as
 print("✅ Sentences saved to testing/external_validation_sentences.txt")
 
 # Save summary results
-with open('testing/external_validation_results.txt', 'w', encoding='utf-8') as f:
+with open('testing/results/external_validation_results.txt', 'w', encoding='utf-8') as f:
     f.write("CRYPTOMIND - EXTERNAL DATA VALIDATION RESULTS\n")
     f.write("="*80 + "\n\n")
     f.write(f"Test Date: {timestamp}\n")
@@ -406,7 +406,7 @@ with open('testing/external_validation_results.txt', 'w', encoding='utf-8') as f
             acc = (data['correct'] / data['total'] * 100)
             f.write(f"{cipher:20s} {data['correct']:2d}/{data['total']:2d} ({acc:5.1f}%)\n")
 
-print("✅ Results saved to testing/external_validation_results.txt")
+print("✅ Results saved to testing/results/external_validation_results.txt")
 print("="*80)
 
 print("\n📁 OUTPUT FILES:")
