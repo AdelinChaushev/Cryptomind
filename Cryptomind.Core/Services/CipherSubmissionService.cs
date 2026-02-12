@@ -49,7 +49,8 @@ namespace Cryptomind.Core.Services
 					Status = ApprovalStatus.Pending,
 					CreatedByUserId = userId,
 					CipherTags = new List<CipherTag>(),
-					HintsRequested = new List<HintRequest>()
+					HintsRequested = new List<HintRequest>(),
+					CreatedAt = DateTime.UtcNow
 				};
 			}
 			else if (model.CipherDefinition == CipherDefinition.ImageCipher)
@@ -88,6 +89,7 @@ namespace Cryptomind.Core.Services
 						HintsRequested = new List<HintRequest>(),
 						EncryptedText = result.ExtractedText,
 						OCRConfidence = result.Confidence,
+						CreatedAt = DateTime.UtcNow
 					};
 				}
 				catch (Exception ex)
@@ -100,8 +102,7 @@ namespace Cryptomind.Core.Services
 
 			if (mlResult.TopPrediction.Type.ToLower() == "plaintext")
 			{
-				throw new InvalidOperationException(
-					"Your text appears to already be in plaintext. Only encrypted text is allowed.");
+				throw new InvalidOperationException("Your text appears to already be in plaintext. Only encrypted text is allowed.");
 			}
 
 			cipher.MLPrediction = JsonSerializer.Serialize(new
