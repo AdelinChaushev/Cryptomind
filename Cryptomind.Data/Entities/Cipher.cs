@@ -30,6 +30,9 @@ public abstract class Cipher
 	public bool AllowHint { get; set; }
 	public bool AllowSolution { get; set; }
 	public ApprovalStatus Status { get; set; }
+	public DateTime? ApprovedAt { get; set; }
+	public DateTime? RejectedAt { get; set; }
+	public string? RejectionReason { get; set; }
 	public bool IsPlaintextValid { get; set; }
 	public bool IsLLMRecommended { get; set; }
 	public int Points { get; set; }
@@ -38,7 +41,7 @@ public abstract class Cipher
 	public ApplicationUser CreatedByUser { get; set; }
 	public ICollection<CipherTag> CipherTags { get; set; }
 	public ICollection<HintRequest> HintsRequested { get; set; }
-	public ICollection<UserSolution> UsersSolved { get; set; }
+	public ICollection<UserSolution> UserSolutions { get; set; }
 	public ICollection<AnswerSuggestion> AnswerSuggestions { get; set; }
 }
 
