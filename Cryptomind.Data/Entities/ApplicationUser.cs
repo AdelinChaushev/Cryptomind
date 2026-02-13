@@ -13,8 +13,10 @@ namespace Cryptomind.Data.Entities
         public ApplicationUser()
         {
             UploadedCiphers = new List<Cipher>();
+            CipherAnswers = new List<UserSolution>();
             HintsRequested = new List<HintRequest>();
             Notifications = new List<Notification>();
+            Badges = new List<UserBadge>();
         }
         public int Score { get; set; }
         public int SolvedCount { get; set; }
@@ -26,7 +28,7 @@ namespace Cryptomind.Data.Entities
 		public DateTime? BannedAt { get; set; }
 		public double SuccessRate => CalculateSuccessRate();
         public ICollection<Cipher> UploadedCiphers { get; set; }
-        public ICollection<UserSolution> SolvedCiphers { get; set; }
+        public ICollection<UserSolution> CipherAnswers { get; set; }
         public ICollection<HintRequest> HintsRequested { get; set; }
         public ICollection<AnswerSuggestion> SuggestedAnswers { get; set; }
         public ICollection <UserBadge> Badges { get; set; }

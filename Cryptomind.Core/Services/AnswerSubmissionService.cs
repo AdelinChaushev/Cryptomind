@@ -15,11 +15,6 @@ namespace Cryptomind.Core.Services
 		IRepository<UserSolution, int> solutionRepo,
 		IRepository<AnswerSuggestion, int> answerRepo) : IAnswerSubmissionService
 	{
-		public Task<List<AnswerSuggestionReviewViewModel>> SubmittedAnswers(SubmittedOrderTerm orderingTerm, string userId)
-		{
-			throw new NotImplementedException();
-		}
-
 		public async Task SuggestAnswerAsync(SuggestAnswerDTO dto, string userId, int cipherId)
 		{
 			Cipher? cipher = cipherRepo.GetAllAttached()
@@ -52,6 +47,44 @@ namespace Cryptomind.Core.Services
 			};
 
 			await answerRepo.AddAsync(answer);
+		}
+		public async Task<List<AnswerSubmissionViewModel>> SubmittedAnswers(string userId)
+		{
+			var answers = answerRepo.GetAllAttached()
+				.Include(x => x.Cipher)
+				.Include(x => x.ApplicationUser)
+				.Where(x => x.UserId == userId)
+				.ToList();
+
+			if (answers.Count == 0)
+				return null;
+
+			var models = new List<AnswerSubmissionViewModel>();
+			foreach (var answer in answers)
+			{
+				var model = new AnswerSubmissionViewModel()
+				{
+					CipherTitle = answer.Cipher.Title,
+					SuggestedAnswer = answer.DecryptedText,
+					Status = answer.Status.ToString(),
+					SubmittedAt = answer.UplodaedTime,
+				};
+
+				if (answer.Status == ApprovalStatus.Approved)
+				{
+					model.PointsEarned = answer.PointsEarned;
+					model.ApprovedDate = answer.ApprovalDate;
+				}
+				else if (answer.Status == ApprovalStatus.Rejected)
+				{
+					model.RejectionReason = answer.RejectionReason;
+					model.RejectionDate = answer.RejectionDate;
+				}
+
+				models.Add(model);
+			}
+
+			return models;
 		}
 	}
 }

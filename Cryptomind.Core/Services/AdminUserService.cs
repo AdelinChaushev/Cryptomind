@@ -31,7 +31,7 @@ namespace Cryptomind.Core.Services
 		{
 			ApplicationUser? user = await userManager.Users
 					.Include(x => x.UploadedCiphers)
-					.Include(x => x.SolvedCiphers)
+					.Include(x => x.CipherAnswers)
 						.ThenInclude(x => x.Cipher)
 					.Include(x => x.HintsRequested)
 					.FirstOrDefaultAsync(x => x.Id == userId);
@@ -60,7 +60,7 @@ namespace Cryptomind.Core.Services
 
 				submittedCiphers.Add(viewModel);
 			}
-			foreach (var userSolution in user.SolvedCiphers)
+			foreach (var userSolution in user.CipherAnswers)
 			{
 				var cipher = userSolution.Cipher;
 				var type = cipher.TypeOfCipher == null ? null : cipher.TypeOfCipher.ToString();
