@@ -86,40 +86,20 @@ namespace Cryptomind.Core.Services
 					result = result.OrderBy(x => x.CreatedAt).ToList();
 					break;
 				case CipherOrderTerm.MostPopular:
-					result = result.OrderByDescending(x => x.UsersSolved).ToList();
+					result = result.OrderByDescending(x => x.UserSolutions).ToList();
 					break;
 			}
 
 			return await ToReviewOutputViewModelMany(result);
         }
-		public async Task<CipherReviewOutputViewModel> GetCipherById(int id) 
+		public async Task<CipherDetailedReviewOutputViewModel> GetCipherById(int id) 
 		{
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
 
-			var model = new CipherReviewOutputViewModel();
 			if (cipher == null)
 				throw new InvalidOperationException("Cipher not found");
 
-			model.Id = cipher.Id;
-			model.Title = cipher.Title;
-			model.DecryptedText = cipher.DecryptedText;
-			model.Points = cipher.Points;
-			model.CipherText = cipher.EncryptedText;
-			model.AllowsAnswer = cipher.AllowSolution;
-			model.AllowsHint = cipher.AllowHint;
-			model.Status = cipher.Status.ToString();
-			model.IsLLMRecommended = cipher.IsLLMRecommended;
-			model.ChallengeTypeDisplay = cipher.ChallengeType.ToString();
-
-			//What is that?
-			//string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imageFolderPath))}";
-
-			if (cipher is ImageCipher)
-				model.IsImage = true;
-			else
-				model.IsImage = false;	
-
-			return model;
+			return await ToDetailedReviewOutputViewModel(cipher);
 		}
 		public async Task <CipherValidationResult> AnalyzeWithLLM (int id)
 		{
@@ -191,7 +171,18 @@ namespace Cryptomind.Core.Services
 			cipher.AllowSolution = model.AllowSolution;
 			cipher.AllowTypeHint = model.AllowTypeHint;
 			cipher.Status = ApprovalStatus.Approved;
+			cipher.ApprovedAt = DateTime.UtcNow;
 			cipher.ChallengeType = model.ChallengeType; //Give permission to the admin for him to decide which is experimental or not
+
+			//if (cipher.TypeOfCipher == null) If the admin decides to approve it, maybe we should assing the ML predicted type
+			//{
+			//	string jsonString = cipher.MLPrediction;
+
+			//	var response = JsonSerializer.Deserialize<MlPredictionData>(jsonString);
+
+			//	var topPrediction = response.AllPredictions
+			//				.MaxBy(p => p.Confidence);
+			//}
 
 			cipher.Points = cipher.TypeOfCipher.HasValue
 				? PointsForType[cipher.TypeOfCipher.Value]
@@ -215,6 +206,8 @@ namespace Cryptomind.Core.Services
 
 			cipher.Status = ApprovalStatus.Rejected;
 			if (!(cipher.Status == ApprovalStatus.Rejected)) throw new InvalidOperationException("Wasn't able to reject the cipher");
+			cipher.RejectedAt = DateTime.UtcNow;
+			cipher.RejectionReason = reason;
 
 			await cipherRepo.UpdateAsync(cipher);
 			await notificationService.CreateAndSendNotification(userId, NotificationType.CipherRejected, reason, null, string.Empty);
@@ -299,54 +292,50 @@ namespace Cryptomind.Core.Services
 		}
 		private async Task<List<CipherReviewOutputViewModel>> ToReviewOutputViewModelMany(List<Cipher> result)
 		{
-            List<CipherReviewOutputViewModel> output = new List<CipherReviewOutputViewModel>();
-            foreach (var cipher in result)
-            {
+			List<CipherReviewOutputViewModel> output = new List<CipherReviewOutputViewModel>();
+			foreach (var cipher in result)
+			{
+				output.Add(new CipherReviewOutputViewModel
+				{
+					Id = cipher.Id,
+					Title = cipher.Title,
+					DecryptedText = cipher.DecryptedText,
+					Status = cipher.Status.ToString(),
+					IsImage = cipher is ImageCipher,
+					IsLLMRecommended = cipher.IsLLMRecommended,
+					ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
+				});
+			}
+			return output;
+		}
+		private async Task<CipherDetailedReviewOutputViewModel> ToDetailedReviewOutputViewModel(Cipher cipher)
+		{
+			var model = new CipherDetailedReviewOutputViewModel()
+			{
+				Id = cipher.Id,
+				Title = cipher.Title,
+				DecryptedText = cipher.DecryptedText,
+				Points = cipher.Points,
+				CipherText = cipher.EncryptedText,
+				AllowType = cipher.AllowTypeHint,
+				AllowHint = cipher.AllowHint,
+				AllowFullSolution = cipher.AllowSolution,
+				Status = cipher.Status.ToString(),
+				IsLLMRecommended = cipher.IsLLMRecommended,
+				ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
+				IsImage = cipher is ImageCipher,
+			};
 
-                if (cipher is ImageCipher)
-                {
-                    ImageCipher cipherImage = cipher as ImageCipher;
-					string cipherText = (cipher as ImageCipher).EncryptedText;
-                    string imageFolderPath = Path.Combine(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..")), cipherImage.ImagePath);
-                    string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imageFolderPath))}";
+			if (cipher is ImageCipher)
+			{
+				ImageCipher cipherImage = cipher as ImageCipher;
+				string imageFolderPath = Path.Combine(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..")), cipherImage.ImagePath);
+				string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imageFolderPath))}";
+				model.ImageBase64 = base64;
+			}
 
-                    output.Add(new CipherReviewOutputViewModel
-                    {
-                        Id = cipher.Id,
-                        Title = cipher.Title,
-                        DecryptedText = cipher.DecryptedText,
-                        Points = cipher.Points,
-                        //Image = base64,
-						CipherText = cipherText,
-                        AllowsAnswer = cipher.AllowSolution,
-                        AllowsHint = cipher.AllowHint,
-                        Status = cipher.Status.ToString(),
-                        IsImage = true,
-						IsLLMRecommended = cipher.IsLLMRecommended,
-						ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
-					});
-                }
-                else
-                {
-                    TextCipher cipherText = cipher as TextCipher;
-                    output.Add(new CipherReviewOutputViewModel
-                    {
-                        Id = cipher.Id,
-                        Title = cipher.Title,
-                        DecryptedText = cipher.DecryptedText,
-                        CipherText = cipherText.EncryptedText,
-                        Points = cipher.Points,
-                        AllowsAnswer = cipher.AllowSolution,
-                        AllowsHint = cipher.AllowHint,
-                        Status = cipher.Status.ToString(),
-                        IsImage = false,
-						IsLLMRecommended = cipher.IsLLMRecommended,
-						ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
-					});
-                }
-            }
-            return output;
-        }
+			return model;
+		}
 		#endregion
 	}
 }

@@ -64,8 +64,6 @@ namespace Cryptomind.Controllers
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		public async Task<IActionResult> SolveCipher([FromRoute] int id, [FromBody] SolveCipherDTO dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
 			try
 			{
 				bool result = await cipherService.SolveCipherAsync(GetUserId(), dto.UserSolution, id);
@@ -101,8 +99,6 @@ namespace Cryptomind.Controllers
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		public async Task<IActionResult> SuggestAnswer([FromRoute] int id, [FromBody] SuggestAnswerDTO dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
 			try
 			{
 				await answerService.SuggestAnswerAsync(dto, GetUserId(), id);

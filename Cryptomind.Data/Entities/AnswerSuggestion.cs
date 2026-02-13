@@ -19,9 +19,13 @@ namespace Cryptomind.Data.Entities
 		[ForeignKey(nameof(ApplicationUser))]
 		public string UserId { get; set; }
 		public ApplicationUser ApplicationUser { get; set; }
-		public ApprovalStatus Status { get; set; }
 		public string Description { get; set; }
 		public string DecryptedText { get; set; }
+		public ApprovalStatus Status { get; set; }
+		public string? RejectionReason { get; set; }
+		public int PointsEarned { get; set; }
 		public DateTime UplodaedTime { get; set; }
+		public DateTime? ApprovalDate { get; set; }
+		public DateTime? RejectionDate { get; set; }
 	}
 }

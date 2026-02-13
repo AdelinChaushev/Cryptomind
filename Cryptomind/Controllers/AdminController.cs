@@ -16,9 +16,11 @@ namespace Cryptomind.Controllers
 		private IAdminAnswerService adminAnswerService;
 		private IAdminUserService adminUserService;
 		private IBadgeService badgeService;
-		public AdminController(IAdminCipherService service, IBadgeService badgeService)
+		public AdminController(IAdminCipherService adminCipherService, IAdminAnswerService adminAnswerService, IAdminUserService adminUserService, IBadgeService badgeService)
 		{
-			this.adminCipherService = service;
+			this.adminCipherService = adminCipherService;
+			this.adminAnswerService = adminAnswerService;
+			this.adminUserService = adminUserService;
 			this.badgeService = badgeService;
 		}
 
@@ -100,7 +102,7 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 
-		[HttpDelete("cipher/{id}/reject")]
+		[HttpPut("cipher/{id}/reject")]
 		public async Task<IActionResult> RejectCipher([FromRoute] int id, [FromBody] string reason)
 		{
 			try
@@ -213,7 +215,7 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 
-		[HttpDelete("answer/{id}/reject")]
+		[HttpPut("answer/{id}/reject")]
 		public async Task<IActionResult> RejectAnswer([FromRoute] int id, [FromBody] string reason)
 		{
 			try
