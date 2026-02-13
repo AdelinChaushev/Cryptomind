@@ -70,7 +70,7 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 
-		[HttpGet("cipler/{id}/analyze")]
+		[HttpGet("cipher/{id}/analyze")]
 		public async Task<IActionResult> AnalyzeCipher([FromRoute] int id)
 		{
 			try
@@ -263,8 +263,8 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 
-		[HttpPut("user/{id}/ban")]
-		public async Task<IActionResult> BanUser([FromRoute] string id, [FromForm] string reason)
+		[HttpPut("user/ban")]
+		public async Task<IActionResult> BanUser([FromQuery] string id, [FromForm] string reason)
 		{
 			try
 			{
@@ -278,8 +278,8 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 
-		[HttpPut("user/{id}/unban")]
-		public async Task<IActionResult> UnBanUser([FromRoute] string id)
+		[HttpPut("user/unban")]
+		public async Task<IActionResult> UnBanUser([FromBody] string id)
 		{
 			try
 			{
