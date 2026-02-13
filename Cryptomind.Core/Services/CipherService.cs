@@ -184,9 +184,12 @@ namespace Cryptomind.Core.Services
 					.ToList();
 
 			var successfullSolutionCount = cipher.UserSolutions.Count(x => x.IsCorrect);
-			var unsuccessfullSolutionCount = cipher.UserSolutions.Count(x => x.IsCorrect);
+			var allSolutions = cipher.UserSolutions.Count;
 
-			var successRate = (successfullSolutionCount / unsuccessfullSolutionCount) * 100;
+			var successRate = allSolutions == 0 
+				? 0
+				: ((double)successfullSolutionCount / allSolutions) * 100;
+
 			List<CipherSolverViewModel> recentSolvers = new List<CipherSolverViewModel>();
 
 			foreach (var userSolution in cipher.UserSolutions)
