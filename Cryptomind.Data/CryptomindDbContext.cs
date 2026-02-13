@@ -51,7 +51,7 @@ namespace Cryptomind.Data
 
 			builder.Entity<UserSolution>()
 				.HasOne(us => us.Cipher)
-				.WithMany(c => c.UsersSolved)
+				.WithMany(c => c.UserSolutions)
 				.HasForeignKey(us => us.CipherId)
 				.OnDelete(DeleteBehavior.Restrict); // Prevent multiple cascade paths
 

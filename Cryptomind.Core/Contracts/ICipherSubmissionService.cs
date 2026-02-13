@@ -1,4 +1,6 @@
-﻿using Cryptomind.Common.ViewModels.CipherViewModels;
+﻿using Cryptomind.Common.Enums;
+using Cryptomind.Common.ViewModels.CipherSubmissionViewModels;
+using Cryptomind.Common.ViewModels.CipherViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +12,6 @@ namespace Cryptomind.Core.Contracts
 	public interface ICipherSubmissionService
 	{
 		Task<Cipher> SubmitCipherAsync(SubmitCipherViewModel cipher, string userId);
+		Task<List<CipherSubmissionViewModel>> SubmittedCiphers(string userId);
 	}
 }
