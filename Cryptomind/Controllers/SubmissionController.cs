@@ -19,7 +19,7 @@ namespace Cryptomind.Controllers
 			this.answerSubmissionService = answerSubmissionService;
 		}
 
-		[HttpGet("/my-submissions")]
+		[HttpGet("")]
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		public async Task<IActionResult> GetAllSubmissions()
 		{

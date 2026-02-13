@@ -44,6 +44,7 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<INotificationService, NotificationService>();
 		services.AddScoped<ICipherSubmissionService, CipherSubmissionService>();
 		services.AddScoped<IAnswerSubmissionService, AnswerSubmissionService>();
+        services.AddScoped<ILeaderboardService, LeaderboardService>();
 
 		return services;
     }
