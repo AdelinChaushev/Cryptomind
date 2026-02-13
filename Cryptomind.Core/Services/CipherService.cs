@@ -156,6 +156,51 @@ namespace Cryptomind.Core.Services
 			{
 				Id = cipher.Id,
 				Title = cipher.Title,
+<<<<<<< Updated upstream
+=======
+				AlreadySolved = cipher.UserSolutions.FirstOrDefault(x => x.UserId == userId) != null,
+				ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
+				IsImage = cipher is ImageCipher
+			};
+
+			return model;
+		}
+		private async Task<CipherDetailedOutputViewModel> ToDetailedOutputViewModel(Cipher cipher, string userId)
+		{
+			bool isSolved = cipher.UserSolutions.Any(x => x.UserId == userId);
+
+			var userHints = cipher.HintsRequested
+					.Where(x => x.UserId == userId)
+					.OrderBy(x => x.HintType)
+					.ToList();
+			
+			double successfullSolutionCount = cipher.UserSolutions.Count(x => x.IsCorrect);
+			double unsuccessfullSolutionCount = cipher.UserSolutions.Count(x => x.IsCorrect);
+			double successRate = 0;
+            if (successfullSolutionCount != 0 || unsuccessfullSolutionCount != 0)
+			{
+                 successRate = successfullSolutionCount / (unsuccessfullSolutionCount + successfullSolutionCount) * 100;
+            }
+
+			List<CipherSolverViewModel> recentSolvers = new List<CipherSolverViewModel>();
+
+			foreach (var userSolution in cipher.UserSolutions)
+			{
+				var solvedAt = userSolution.TimeSolved;
+				var userName = userSolution.User.UserName;
+
+				var cipherSolver = new CipherSolverViewModel
+				{
+					UserName = userName,
+					SolvedSince = GetTimeSpan(solvedAt)
+				};
+			}
+
+			var model = new CipherDetailedOutputViewModel
+			{
+				Id = cipher.Id,
+				Title = cipher.Title,
+>>>>>>> Stashed changes
 				CipherText = cipher.EncryptedText,
 				SolvedUsersCount = cipher.UsersSolved.Count,
 				AlreadySolved = cipher.UsersSolved.FirstOrDefault(x => x.UserId == userId) != null,
