@@ -185,7 +185,7 @@ namespace Cryptomind.Core.Services
 				model.IsImage = true;
 			}
 			else
-				model.IsImage = true;
+				model.IsImage = false;
 
 			return model;
 		}
