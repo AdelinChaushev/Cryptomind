@@ -2,6 +2,7 @@ using Cryptomind.Core.Hubs;
 using Cryptomind.Data;
 using Cryptomind.Data.Entities;
 using Cryptomind.Web.Extensions;
+using Cryptomind.Core.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -133,6 +134,7 @@ app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
+app.UseMiddleware<BanCheckMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();
