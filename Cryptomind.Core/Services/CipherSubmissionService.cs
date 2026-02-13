@@ -1,4 +1,6 @@
 ﻿using Cryptomind.Common.Enums;
+using Cryptomind.Common.ViewModels.AnswerSubmissionViewModels;
+using Cryptomind.Common.ViewModels.CipherSubmissionViewModels;
 using Cryptomind.Common.ViewModels.CipherViewModels;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Core.Services.OCR;
@@ -6,6 +8,7 @@ using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -135,7 +138,46 @@ namespace Cryptomind.Core.Services
 			await cipherRepo.AddAsync(cipher);
 			return cipher;
 		}
+		public async Task<List<CipherSubmissionViewModel>> SubmittedCiphers(string userId)
+		{
+			var ciphers = cipherRepo.GetAllAttached()
+				.Include(x => x.UserSolutions)
+				.Include(x => x.CipherTags)
+				.Where(x => x.CreatedByUserId == userId)
+				.ToList();
 
+			if (ciphers.Count == 0)
+				return null;
+
+			var models = new List<CipherSubmissionViewModel>();
+			foreach (var cipher in ciphers)
+			{
+				var model = new CipherSubmissionViewModel()
+				{
+					Title = cipher.Title,
+					CipherText = cipher.EncryptedText,
+					SubmittedTime = cipher.CreatedAt,
+					Status = cipher.Status.ToString(),
+				};
+
+				if (cipher.Status == ApprovalStatus.Approved)
+				{
+					model.ApprovedTime = cipher.ApprovedAt;
+					model.ApprovedAs = cipher.ChallengeType.ToString();
+					model.AssignedTags = cipher.CipherTags.Select(x => x.Tag).ToList();
+					model.SolvedByCount = cipher.UserSolutions.Count(x => x.IsCorrect);
+				}
+				else if (cipher.Status == ApprovalStatus.Rejected)
+				{
+					model.RejectionTime = cipher.RejectedAt;
+					model.RejectionReason = cipher.RejectionReason;
+				}
+
+				models.Add(model);
+			}
+
+			return models;
+		}
 		#region Private methods
 		private string MakeSafeFilename(string name)
 		{
@@ -205,6 +247,7 @@ namespace Cryptomind.Core.Services
 
 			return true;
 		}
+
 		#endregion
 		private static readonly HashSet<string> ProblematicCipherTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 		{
