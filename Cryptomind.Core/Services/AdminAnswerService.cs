@@ -96,11 +96,14 @@ namespace Cryptomind.Core.Services
 				UserId = answer.UserId,
 				PointsEarned = points,
 				TimeSolved = DateTime.UtcNow,
+				IsCorrect = true,
 			};
 
 			cipher.DecryptedText = answer.DecryptedText;
 			cipher.ChallengeType = ChallengeType.Standard;
 			answer.Status = ApprovalStatus.Approved;
+			answer.ApprovalDate = DateTime.UtcNow;
+			answer.PointsEarned = points;
 			user.Score += points;
 
 			solutionRepo.Add(userSolution);
@@ -121,6 +124,9 @@ namespace Cryptomind.Core.Services
 
 			answer.Status = ApprovalStatus.Rejected;
 			if (!(answer.Status == ApprovalStatus.Rejected)) throw new InvalidOperationException("Wasn't able to reject the answer");
+
+			answer.RejectionDate = DateTime.UtcNow;
+			answer.RejectionReason = reason;
 
 			await answerRepo.UpdateAsync(answer);
 			await notificationService.CreateAndSendNotification(answer.UserId, NotificationType.AnswerRejected, reason, null, string.Empty);
