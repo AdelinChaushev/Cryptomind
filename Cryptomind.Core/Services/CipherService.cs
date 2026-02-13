@@ -174,46 +174,7 @@ namespace Cryptomind.Core.Services
 
 			return model;
 		}
-		private async Task<CipherDetailedOutputViewModel> ToDetailedOutputViewModel(Cipher cipher, string userId)
-		{
-			bool isSolved = cipher.UserSolutions.Any(x => x.UserId == userId);
-
-			var userHints = cipher.HintsRequested
-					.Where(x => x.UserId == userId)
-					.OrderBy(x => x.HintType)
-					.ToList();
-
-			var successfullSolutionCount = cipher.UserSolutions.Count(x => x.IsCorrect);
-			var unsuccessfullSolutionCount = cipher.UserSolutions.Count(x => x.IsCorrect);
-
-			var successRate = (successfullSolutionCount / unsuccessfullSolutionCount) * 100;
-			List<CipherSolverViewModel> recentSolvers = new List<CipherSolverViewModel>();
-
-			foreach (var userSolution in cipher.UserSolutions)
-			{
-				var solvedAt = userSolution.TimeSolved;
-				var userName = userSolution.User.UserName;
-
-				var cipherSolver = new CipherSolverViewModel
-				{
-					UserName = userName,
-					SolvedSince = GetTimeSpan(solvedAt)
-				};
-			}
-
-			var model = new CipherDetailedOutputViewModel
-			{
-				Id = cipher.Id,
-				Title = cipher.Title,
-<<<<<<< Updated upstream
-=======
-				AlreadySolved = cipher.UserSolutions.FirstOrDefault(x => x.UserId == userId) != null,
-				ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
-				IsImage = cipher is ImageCipher
-			};
-
-			return model;
-		}
+		
 		private async Task<CipherDetailedOutputViewModel> ToDetailedOutputViewModel(Cipher cipher, string userId)
 		{
 			bool isSolved = cipher.UserSolutions.Any(x => x.UserId == userId);
@@ -249,7 +210,6 @@ namespace Cryptomind.Core.Services
 			{
 				Id = cipher.Id,
 				Title = cipher.Title,
->>>>>>> Stashed changes
 				CipherText = cipher.EncryptedText,
 				SolvedUsersCount = cipher.UserSolutions.Count,
 				AlreadySolved = cipher.UserSolutions.FirstOrDefault(x => x.UserId == userId) != null,
