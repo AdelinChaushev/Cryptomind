@@ -7,9 +7,13 @@ using System.Threading.Tasks;
 
 namespace Cryptomind.Common.ViewModels.AdminViewModels
 {
-    public class CipherReviewOutputViewModel : CipherOutputViewModel
+    public class CipherReviewOutputViewModel
     {
-        public string DecryptedText { get; set; }
+		public int Id { get; set; }
+		public string Title { get; set; }
+		public bool IsImage { get; set; }
+		public string ChallengeTypeDisplay { get; set; }
+		public string DecryptedText { get; set; }
         public string Status { get; set; }
         public bool IsLLMRecommended { get; set; }
     }
