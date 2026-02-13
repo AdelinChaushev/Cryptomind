@@ -21,7 +21,7 @@ namespace Cryptomind.Core.Services
 		{
 			var cipher = await cipherRepo.GetAllAttached()
 				.Include(x => x.HintsRequested)
-				.Include(x => x.UsersSolved)
+				.Include(x => x.UserSolutions)
 				.FirstOrDefaultAsync(x => x.Id == cipherId);
 
 			if (cipher == null)
@@ -30,7 +30,7 @@ namespace Cryptomind.Core.Services
 			if (cipher.CreatedByUserId == userId)
 				throw new InvalidOperationException("You cannot request hints for your own cipher");
 
-			if (cipher.UsersSolved.Any(x => x.UserId == userId))
+			if (cipher.UserSolutions.Any(x => x.UserId == userId))
 				throw new InvalidOperationException("You have already solved this cipher");
 
 			bool isAllowed = hintType switch

@@ -4,6 +4,7 @@ using Cryptomind.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cryptomind.Data.Migrations
 {
     [DbContext(typeof(CryptomindDbContext))]
-    partial class CryptomindDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260212160903_Fix_Cipher")]
+    partial class Fix_Cipher
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -98,7 +101,7 @@ namespace Cryptomind.Data.Migrations
 
                     b.HasIndex("CreatedByUserId");
 
-                    b.ToTable("Cipher", (string)null);
+                    b.ToTable("Cipher");
 
                     b.HasDiscriminator<string>("EntityType").HasValue("Cipher");
 
@@ -152,7 +155,7 @@ namespace Cryptomind.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AnswerSuggestions", (string)null);
+                    b.ToTable("AnswerSuggestions");
                 });
 
             modelBuilder.Entity("Cryptomind.Data.Entities.ApplicationUser", b =>
@@ -268,7 +271,7 @@ namespace Cryptomind.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Badges", (string)null);
+                    b.ToTable("Badges");
 
                     b.HasData(
                         new
@@ -333,7 +336,7 @@ namespace Cryptomind.Data.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("CipherTags", (string)null);
+                    b.ToTable("CipherTags");
                 });
 
             modelBuilder.Entity("Cryptomind.Data.Entities.HintRequest", b =>
@@ -367,7 +370,7 @@ namespace Cryptomind.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("HintRequests", (string)null);
+                    b.ToTable("HintRequests");
                 });
 
             modelBuilder.Entity("Cryptomind.Data.Entities.Notification", b =>
@@ -408,7 +411,7 @@ namespace Cryptomind.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("Cryptomind.Data.Entities.Tag", b =>
@@ -424,7 +427,7 @@ namespace Cryptomind.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tags", (string)null);
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("Cryptomind.Data.Entities.UserBadge", b =>
@@ -451,7 +454,7 @@ namespace Cryptomind.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserBadge", (string)null);
+                    b.ToTable("UserBadge");
                 });
 
             modelBuilder.Entity("Cryptomind.Data.Entities.UserSolution", b =>
@@ -493,7 +496,7 @@ namespace Cryptomind.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserSolution", (string)null);
+                    b.ToTable("UserSolution");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -658,7 +661,7 @@ namespace Cryptomind.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.OwnsOne("Cipher.LLMData#CipherLLMData", "LLMData", b1 =>
+                    b.OwnsOne("CipherLLMData", "LLMData", b1 =>
                         {
                             b1.Property<int>("CipherId")
                                 .HasColumnType("int");
@@ -689,7 +692,7 @@ namespace Cryptomind.Data.Migrations
 
                             b1.HasKey("CipherId");
 
-                            b1.ToTable("Cipher", (string)null);
+                            b1.ToTable("Cipher");
 
                             b1.WithOwner()
                                 .HasForeignKey("CipherId");
