@@ -21,10 +21,6 @@ namespace Cryptomind.Controllers
 		[HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
             try
             {
                 ApplicationUser? user = await userService.CreateUser(model.Username, model.Email, model.Password);
@@ -49,11 +45,6 @@ namespace Cryptomind.Controllers
 			//REMOVE THIS IN PRODUCTION!!!
 			//model.Email = "admin@cryptomind.com";
 			//model.Password = "Admin123!";
-
-			if (!ModelState.IsValid)
-			{
-				return BadRequest("Invalid Credentials");
-			}
 
 			ApplicationUser? user = await userService.Authenticate(model.Email, model.Password);
 			if (user == null)
