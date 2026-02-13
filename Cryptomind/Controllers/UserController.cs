@@ -97,37 +97,6 @@ namespace Cryptomind.Controllers
             var user = await userService.GetUserAccountInfo(GetUserId());
             return Ok(user);
         }
-
-		//[Authorize(AuthenticationSchemes = "Bearer")]
-		//[HttpGet("my-submissions/ciphers")]
-		//public async Task<IActionResult> GetMySubmittedCiphers()
-		//{
-		//	try
-		//	{
-		//		var ciphers = await userService.GetUserSubmittedCiphersAsync(GetUserId());
-		//		return Ok(ciphers);
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		return BadRequest(new { error = ex.Message });
-		//	}
-		//}
-
-		//[Authorize(AuthenticationSchemes = "Bearer")]
-		//[HttpGet("my-submissions/answers")]
-		//public async Task<IActionResult> GetMySubmittedAnswers()
-		//{
-		//	try
-		//	{
-		//		var answers = await userService.GetUserSubmittedAnswersAsync(GetUserId());
-		//		return Ok(answers);
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		return BadRequest(new { error = ex.Message });
-		//	}
-		//}
-		//Common methods
 		private void AddCookie(string token)
         {
             HttpContext.Response.Cookies.Append("token", token, new CookieOptions()

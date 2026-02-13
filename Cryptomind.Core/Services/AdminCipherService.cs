@@ -20,10 +20,8 @@ namespace Cryptomind.Core.Services
 {
 	public class AdminCipherService (
 		IRepository<Cipher, int> cipherRepo,
-		IRepository<AnswerSuggestion, int> answerRepo,
 		IRepository<UserSolution, int> solutionRepo,
 		IRepository<Tag, int> tagRepo,
-		UserManager<ApplicationUser> userManager,
 		ILLMService llmService,
 		INotificationService notificationService) : IAdminCipherService
 	{
@@ -47,16 +45,21 @@ namespace Cryptomind.Core.Services
 
 		public async Task<List<CipherReviewOutputViewModel>> AllSubmittedCiphers()
 		{
-			var result = (await cipherRepo.GetAllAsync()).Where(c => c.Status == ApprovalStatus.Pending).OrderBy(x => x.CreatedAt).ToList();
+			var result = (await cipherRepo.GetAllAsync())
+				.Where(c => c.Status == ApprovalStatus.Pending)
+				.OrderBy(x => x.CreatedAt)
+				.ToList();
 
 			if (result == null) 
 				throw new InvalidOperationException("Wasn't able to retrieve submitted ciphers");
 
-			return await ToReviewOutputViewModelMany(result);
+			return ToReviewOutputViewModelMany(result);
 		}
 		public async Task<List<CipherReviewOutputViewModel>> AllApprovedCiphers(CipherFilter filter)
 		{
-			var result = (await cipherRepo.GetAllAsync()).Where(c => c.Status == ApprovalStatus.Approved).ToList();
+			var result = (await cipherRepo.GetAllAsync())
+				.Where(c => c.Status == ApprovalStatus.Approved)
+				.ToList();
 
 			if (result == null) 
 				throw new InvalidOperationException("Wasn't able to retrieve approved ciphers");
@@ -90,7 +93,7 @@ namespace Cryptomind.Core.Services
 					break;
 			}
 
-			return await ToReviewOutputViewModelMany(result);
+			return ToReviewOutputViewModelMany(result);
         }
 		public async Task<CipherDetailedReviewOutputViewModel> GetCipherById(int id) 
 		{
@@ -108,7 +111,7 @@ namespace Cryptomind.Core.Services
 			if (cipher == null)
 				throw new InvalidOperationException("Ciper not found");
 
-			if (cipher.LLMData.Analysis != null)
+			if (cipher.LLMData.Analysis != null) //Review when refining API requests.
 				return new CipherValidationResult
 				{
 					Recommendation = cipher.LLMData.Analysis,
@@ -136,26 +139,30 @@ namespace Cryptomind.Core.Services
 				}).ToList()
 			};
 
-			string? type = cipher.TypeOfCipher == null ? null : cipher.TypeOfCipher.ToString();
+			string type = cipher.TypeOfCipher?.ToString() ?? "Unknown";
 
 			var validation = await llmService.ValidateCipherAsync(cipher.EncryptedText, cipher.DecryptedText, mlResult, type);
 			cipher.LLMData.Analysis = validation.Recommendation.ToString();
 			cipher.LLMData.Confidence = validation.Reasoning;
 			cipher.LLMData.Confidence = validation.Confidence;
 			cipher.LLMData.Issues = validation.Issues;
+
 			await cipherRepo.UpdateAsync(cipher);
 			return validation;
 		}
 		public async Task<string> ApproveCipherAsync(int id, ApproveCipherViewModel model) 
 		{
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
-			string userId = cipher.CreatedByUserId;
+
 			if (cipher == null) 
 				throw new InvalidOperationException("Cipher not found");
 			else if (cipher.Status == ApprovalStatus.Approved) 
 				throw new InvalidOperationException("Cipher is already approved");
 
-			if (cipherRepo.GetAll().Where(x => x.Status == ApprovalStatus.Approved).FirstOrDefault(x => x.Title == model.Title) != null)
+			string userId = cipher.CreatedByUserId;
+
+			//We check trough all the ciphers doesn't matter if they are approved, rejected or pending.
+			if (cipherRepo.GetAll().FirstOrDefault(x => x.Title == model.Title) != null)
 					throw new InvalidOperationException("There is already a cipher with this title");
 
 			//When text is not given we cannot approve it as standard
@@ -172,7 +179,8 @@ namespace Cryptomind.Core.Services
 			cipher.AllowTypeHint = model.AllowTypeHint;
 			cipher.Status = ApprovalStatus.Approved;
 			cipher.ApprovedAt = DateTime.UtcNow;
-			cipher.ChallengeType = model.ChallengeType; //Give permission to the admin for him to decide which is experimental or not
+			//Give permission to the admin for him to decide which is experimental or not, not really sure if needed? //REVIEW THIS.
+			cipher.ChallengeType = model.ChallengeType;
 
 			//if (cipher.TypeOfCipher == null) If the admin decides to approve it, maybe we should assing the ML predicted type
 			//{
@@ -198,14 +206,15 @@ namespace Cryptomind.Core.Services
 		public async Task RejectCipherAsync(int id, string reason)
 		{
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
-			string userId = cipher.CreatedByUserId;
-			if (cipher == null) 
-				throw new InvalidOperationException("Cipher not found");
 
-			else if (cipher.Status == ApprovalStatus.Approved) throw new InvalidOperationException("Cipher already approved");
+			if (cipher == null)
+				throw new InvalidOperationException("Cipher not found");
+			else if (cipher.Status == ApprovalStatus.Approved) 
+				throw new InvalidOperationException("Cipher already approved");
+
+			string userId = cipher.CreatedByUserId;
 
 			cipher.Status = ApprovalStatus.Rejected;
-			if (!(cipher.Status == ApprovalStatus.Rejected)) throw new InvalidOperationException("Wasn't able to reject the cipher");
 			cipher.RejectedAt = DateTime.UtcNow;
 			cipher.RejectionReason = reason;
 
@@ -222,7 +231,7 @@ namespace Cryptomind.Core.Services
 			else if (cipher.Status != ApprovalStatus.Approved) 
 				throw new InvalidOperationException("Cipher is not approved");
 
-			if (cipherRepo.GetAll().Where(x => x.Status == ApprovalStatus.Approved).FirstOrDefault(x => x.Title == model.Title) != null)
+			if (cipherRepo.GetAll().FirstOrDefault(x => x.Title == model.Title) != null)
 				throw new InvalidOperationException("There is already a cipher with this title");
 
 			cipher.Title = model.Title;
@@ -251,22 +260,22 @@ namespace Cryptomind.Core.Services
 			}
 
 			bool result = await cipherRepo.DeleteAsync(cipher);
-			if (!result) throw new InvalidOperationException("Wasn't able to delete the cipher");
+			if (!result) 
+				throw new InvalidOperationException("Wasn't able to delete the cipher");
 		}
 
 		#region Common methods
-		private async Task DefineTagsAsync (Cipher? cipher, List<int> tagIds)
+		private async Task DefineTagsAsync (Cipher cipher, List<int> tagIds)
 		{
 			List<Tag> existingAssignedTags = (await tagRepo.GetAllAsync()).Where(x => tagIds.Contains(x.Id)).ToList();
 
 			//ADD THIS IN PRODUCTION!!!
 			//if (existingAssignedTags.Count != tagIds.Count)
 			//	throw new InvalidOperationException("One or more tag IDs don't exist");
-			
-			if (cipher.CipherTags != null)
+
+			//This is the creation of the cipher
+			if (cipher.CipherTags.Count > 0)
 				cipher.CipherTags?.Clear();
-			else
-				cipher.CipherTags = new List<CipherTag>();
 
 			foreach (var tag in existingAssignedTags)
 			{
@@ -277,7 +286,7 @@ namespace Cryptomind.Core.Services
 				});
 			}
 		}
-		private async Task<List<CipherReviewOutputViewModel>> ToReviewOutputViewModelMany(List<Cipher> result)
+		private List<CipherReviewOutputViewModel> ToReviewOutputViewModelMany(List<Cipher> result)
 		{
 			List<CipherReviewOutputViewModel> output = new List<CipherReviewOutputViewModel>();
 			foreach (var cipher in result)

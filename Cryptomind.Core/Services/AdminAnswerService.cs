@@ -55,10 +55,12 @@ namespace Cryptomind.Core.Services
 			if (answer == null)
 				throw new InvalidOperationException("Answer not found");
 
-			var userName = (await userManager.FindByIdAsync(answer.UserId)).UserName;
+			var user = await userManager.FindByIdAsync(answer.UserId);
 
-			if (userName == null)
+			if (user == null)
 				throw new InvalidOperationException("User not found");
+			
+			var userName = user.UserName;
 
 			var model = new AnswerSuggestionReviewViewModel
 			{
@@ -82,7 +84,11 @@ namespace Cryptomind.Core.Services
 			if (cipher == null)
 				throw new InvalidOperationException("Cipher not found");
 
-			if (!string.IsNullOrWhiteSpace(cipher.DecryptedText))
+			if (cipher.ChallengeType == ChallengeType.Standard)
+				throw new InvalidOperationException("Answer suggestions can only be upplied to standard ciphers");
+
+			//The above statement already checks it
+			if (!string.IsNullOrWhiteSpace(cipher.DecryptedText)) 
 				throw new InvalidOperationException("Cipher already has an approved answer");
 
 			var user = await userManager.FindByIdAsync(answer.UserId);
@@ -101,17 +107,21 @@ namespace Cryptomind.Core.Services
 
 			cipher.DecryptedText = answer.DecryptedText;
 			cipher.ChallengeType = ChallengeType.Standard;
+
 			answer.Status = ApprovalStatus.Approved;
 			answer.ApprovalDate = DateTime.UtcNow;
 			answer.PointsEarned = points;
+
 			user.Score += points;
 
 			solutionRepo.Add(userSolution);
 			cipherRepo.Update(cipher);
 			answerRepo.Update(answer);
 			await userManager.UpdateAsync(user);
-			await notificationService.CreateAndSendNotification(user.Id, NotificationType.AnswerApproved, $"Your answer suggestion was approved +{points} points", cipher.Id, string.Empty);
 
+			await notificationService.CreateAndSendNotification(user.Id, NotificationType.AnswerApproved, 
+				$"Your answer suggestion was approved +{points} points", 
+				cipher.Id, string.Empty);
 			return answer.UserId;
 		}
 		public async Task RejectAnswerAsync(int id, string reason)
@@ -123,8 +133,6 @@ namespace Cryptomind.Core.Services
 			else if (answer.Status == ApprovalStatus.Approved) throw new InvalidOperationException("Answer already approved");
 
 			answer.Status = ApprovalStatus.Rejected;
-			if (!(answer.Status == ApprovalStatus.Rejected)) throw new InvalidOperationException("Wasn't able to reject the answer");
-
 			answer.RejectionDate = DateTime.UtcNow;
 			answer.RejectionReason = reason;
 

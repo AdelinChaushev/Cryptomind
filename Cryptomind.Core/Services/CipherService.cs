@@ -192,7 +192,7 @@ namespace Cryptomind.Core.Services
 
 			List<CipherSolverViewModel> recentSolvers = new List<CipherSolverViewModel>();
 
-			foreach (var userSolution in cipher.UserSolutions)
+			foreach (var userSolution in cipher.UserSolutions.Where(x => x.IsCorrect))
 			{
 				var solvedAt = userSolution.TimeSolved;
 				var userName = userSolution.User.UserName;
