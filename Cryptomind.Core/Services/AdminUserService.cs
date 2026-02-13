@@ -13,6 +13,9 @@ namespace Cryptomind.Core.Services
 		{
 			var userViewModels = new List<UserViewModel>();
 
+			if (userManager.Users.ToList().Count > 0)
+				throw new InvalidOperationException("There are no users.");
+
 			foreach (var user in userManager.Users.ToList())
 			{
 				userViewModels.Add(new UserViewModel
@@ -32,16 +35,15 @@ namespace Cryptomind.Core.Services
 			ApplicationUser? user = await userManager.Users
 					.Include(x => x.UploadedCiphers)
 					.Include(x => x.CipherAnswers)
-						.ThenInclude(x => x.Cipher)
+					.ThenInclude(x => x.Cipher)
 					.Include(x => x.HintsRequested)
 					.FirstOrDefaultAsync(x => x.Id == userId);
 
 			if (user == null)
-				throw new ArgumentException("There is no user with this ID");
+				throw new ArgumentException("User not found.");
 
 			List<UserCipherViewModel> submittedCiphers = new List<UserCipherViewModel>();
 			List<UserCipherViewModel> solvedCiphers = new List<UserCipherViewModel>();
-
 
 			foreach (var cipher in user.UploadedCiphers)
 			{
@@ -87,7 +89,7 @@ namespace Cryptomind.Core.Services
 				IsAdmin = isAdmin,
 				Username = user.UserName,
 				IsEmailConfirmed = user.EmailConfirmed,
-				IsBanned = user.isBanned,
+				IsBanned = user.IsBanned,
 				BanReason = user.BanReason,
 				BannedAt = user.BannedAt,
 				RegisteredAt = user.RegisteredAt,
@@ -109,13 +111,9 @@ namespace Cryptomind.Core.Services
 				throw new ArgumentException("There is no user with this ID");
 
 			if (!await userManager.IsInRoleAsync(user, "Admin"))
-			{
 				await userManager.AddToRoleAsync(user, "Admin");
-			}
 			else
-			{
 				throw new ArgumentException("The user is already an admin");
-			}
 		}
 		public async Task BanUserAsync(string userId, string reason)
 		{
@@ -123,13 +121,13 @@ namespace Cryptomind.Core.Services
 			if (user == null)
 				throw new ArgumentException("There is no user with this ID");
 
-			if (user.isBanned)
+			if (user.IsBanned)
 				throw new InvalidOperationException("This user is already banned");
 
 			await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
 			await userManager.SetLockoutEnabledAsync(user, true);
 
-			user.isBanned = true;
+			user.IsBanned = true;
 			user.BanReason = reason;
 			user.BannedAt = DateTime.Now;
 			await userManager.UpdateAsync(user);
@@ -140,12 +138,12 @@ namespace Cryptomind.Core.Services
 			if (user == null)
 				throw new ArgumentException("There is no user with this ID");
 
-			if (!user.isBanned)
+			if (!user.IsBanned)
 				throw new InvalidOperationException("This is user is not banned");
 
 			await userManager.SetLockoutEndDateAsync(user, DateTime.Now);
 
-			user.isBanned = false;
+			user.IsBanned = false;
 			user.BanReason = null;
 			user.BannedAt = null;
 			await userManager.UpdateAsync(user);
