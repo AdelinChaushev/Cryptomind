@@ -80,7 +80,6 @@ namespace Cryptomind.Controllers
             await userService.DeactivateAccount(GetUserId());
             return Ok();
         }
-
 		#endregion
 
 		[Authorize(AuthenticationSchemes = "Bearer")]
@@ -141,6 +140,6 @@ namespace Cryptomind.Controllers
             });
         }
         private string GetUserId()
-            => User.FindFirstValue(ClaimTypes.NameIdentifier); 
+            => User.FindFirstValue(ClaimTypes.NameIdentifier);
     }
 }
