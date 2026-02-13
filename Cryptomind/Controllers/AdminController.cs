@@ -118,22 +118,6 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 
-		[HttpPut("cipher/{id}/unapprove")]
-		public async Task<IActionResult> UnapproveCipher([FromRoute] int id)
-		{
-			try
-			{
-				await adminCipherService.UnapproveCipherAsync(id);
-				//await badgeService.CheckBadgesByCategory(userID, BadgeCategory.OnUpload);
-				return Ok();
-			}
-			catch (Exception ex)
-			{
-				await Console.Out.WriteLineAsync(ex.Message);
-			}
-			return BadRequest();
-		}
-
 		[HttpPut("cipher/{id}/update")]
 		public async Task<IActionResult> UpdateCipher([FromRoute] int id, [FromBody] UpdateCipherViewModel model)
 		{
