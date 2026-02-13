@@ -185,7 +185,7 @@ namespace Cryptomind.Core.Services
 					.ToList();
 			
 			double successfullSolutionCount = cipher.UserSolutions.Count(x => x.IsCorrect);
-			double unsuccessfullSolutionCount = cipher.UserSolutions.Count(x => x.IsCorrect);
+			double unsuccessfullSolutionCount = cipher.UserSolutions.Count(x => !x.IsCorrect);
 			double successRate = 0;
             if (successfullSolutionCount != 0 || unsuccessfullSolutionCount != 0)
 			{
@@ -202,8 +202,9 @@ namespace Cryptomind.Core.Services
 				var cipherSolver = new CipherSolverViewModel
 				{
 					UserName = userName,
-					SolvedSince = GetTimeSpan(solvedAt)
+					SolvedSince = solvedAt
 				};
+				recentSolvers.Add(cipherSolver);
 			}
 
 			var model = new CipherDetailedOutputViewModel
@@ -215,7 +216,7 @@ namespace Cryptomind.Core.Services
 				AlreadySolved = cipher.UserSolutions.FirstOrDefault(x => x.UserId == userId) != null,
 				Points = cipher.Points,
 				IsImage = cipher is ImageCipher,
-				SuccessRate = successRate,			
+				SuccessRate = successRate,
 				AllowsAnswer = cipher.AllowSolution,
 				AllowsHint = cipher.AllowHint,
 				ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
@@ -228,7 +229,9 @@ namespace Cryptomind.Core.Services
 				TypeHintUsed = userHints.Any(x => x.HintType == HintType.Type),
 				SolutionHintUsed = userHints.Any(x => x.HintType == HintType.Hint),
 				FullSolutionUsed = userHints.Any(x => x.HintType == HintType.FullSolution),
-				Tags = cipher.CipherTags.Select(x => x.Tag).ToList(),
+				AllSubmissions = cipher.UserSolutions.Count(),
+                SuccessfulSubmissions = (int)successfullSolutionCount,
+                Tags = cipher.CipherTags.Select(x => x.Tag).ToList(),
 				PreviousHints = userHints.Select(x => new HintData
 				{
 					Type = x.HintType,
