@@ -74,8 +74,9 @@ namespace Cryptomind.Controllers
 			catch (Exception ex)
 			{
 				await Console.Out.WriteLineAsync(ex.Message);
-			}
-			return BadRequest();
+                return BadRequest(ex.Message);
+            }
+			
 		}
 
 		[HttpPost("submit")]
