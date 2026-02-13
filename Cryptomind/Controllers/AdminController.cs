@@ -70,7 +70,7 @@ namespace Cryptomind.Controllers
 			return BadRequest();
 		}
 
-		[HttpGet("cipler/{id}/analyze")]
+		[HttpGet("cipher/{id}/analyze")]
 		public async Task<IActionResult> AnalyzeCipher([FromRoute] int id)
 		{
 			try
