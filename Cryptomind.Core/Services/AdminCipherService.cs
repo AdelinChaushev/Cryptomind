@@ -212,19 +212,6 @@ namespace Cryptomind.Core.Services
 			await cipherRepo.UpdateAsync(cipher);
 			await notificationService.CreateAndSendNotification(userId, NotificationType.CipherRejected, reason, null, string.Empty);
 		}
-		public async Task UnapproveCipherAsync(int id) //Still not sure if needed - REVIEW THIS
-		{
-			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
-
-			if (cipher == null)
-				throw new InvalidOperationException("Cipher not found");
-			else if (cipher.Status != ApprovalStatus.Approved)
-				throw new InvalidOperationException("Cipher is not approved");
-
-			cipher.Status = ApprovalStatus.Rejected;
-
-			await cipherRepo.UpdateAsync(cipher);
-		}
 		public async Task UpdateApprovedCipher(int id, UpdateCipherViewModel model)
 		{
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
