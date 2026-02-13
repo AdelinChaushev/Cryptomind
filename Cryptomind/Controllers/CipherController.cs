@@ -10,6 +10,7 @@ using System.Security.Claims;
 namespace Cryptomind.Controllers
 {
 	[Route("api/ciphers")]
+	[Authorize(AuthenticationSchemes = "Bearer")]
 	[ApiController]
 	public class CipherController : ControllerBase
 	{
@@ -37,7 +38,6 @@ namespace Cryptomind.Controllers
 		}
 
 		[HttpGet("all")]
-		[Authorize(AuthenticationSchemes = "Bearer")] //You might not need this (read-only for users)
 		public async Task<IActionResult> GetAllCiphers([FromQuery] CipherFilter filter)
 		{
 			var result = await cipherService.GetApprovedAsync(filter, GetUserId());
@@ -45,7 +45,6 @@ namespace Cryptomind.Controllers
 		}
 
 		[HttpGet("cipher/{id}")]
-		[Authorize(AuthenticationSchemes = "Bearer")]
 		public async Task<IActionResult> GetCipherById([FromRoute] int id)
 		{
 			try
@@ -61,7 +60,6 @@ namespace Cryptomind.Controllers
 		}
 
 		[HttpPost("cipher/{id}/solve")]
-		[Authorize(AuthenticationSchemes = "Bearer")]
 		public async Task<IActionResult> SolveCipher([FromRoute] int id, [FromBody] SolveCipherDTO dto)
 		{
 			try
@@ -79,7 +77,6 @@ namespace Cryptomind.Controllers
 		}
 
 		[HttpPost("submit")]
-		[Authorize(AuthenticationSchemes = "Bearer")]
 		[Consumes("multipart/form-data")]
 		public async Task<IActionResult> SubmitCipher([FromForm] SubmitCipherViewModel model)
 		{
@@ -96,7 +93,6 @@ namespace Cryptomind.Controllers
 		}
 
 		[HttpPost("cipher/{id}/suggest-answer")]
-		[Authorize(AuthenticationSchemes = "Bearer")]
 		public async Task<IActionResult> SuggestAnswer([FromRoute] int id, [FromBody] SuggestAnswerDTO dto)
 		{
 			try
@@ -112,7 +108,6 @@ namespace Cryptomind.Controllers
 		}
 
 		[HttpPost("cipher/{id}/hint")]
-		[Authorize(AuthenticationSchemes = "Bearer")]
 		public async Task<IActionResult> RequestHint([FromRoute] int id, [FromBody] HintRequestDTO request)
 		{
 			try
@@ -141,7 +136,10 @@ namespace Cryptomind.Controllers
 			}
 			return BadRequest();
 		}
+
+		#region Private-methods
 		private string GetUserId()
 		   => User.FindFirstValue(ClaimTypes.NameIdentifier);
+		#endregion
 	}
 }
