@@ -103,10 +103,9 @@ namespace Cryptomind.Core.Services
 			if (cipher == null)
 				throw new InvalidOperationException("Ciper not found");
 
-			if (cipher.LLMData.Analysis != null) //Review when refining API requests.
+			if (cipher.LLMData.Reasoning != null) //Review when refining API requests.
 				return new CipherValidationResult
 				{
-					Recommendation = cipher.LLMData.Analysis,
 					Reasoning = cipher.LLMData.Reasoning,
 					Confidence = cipher.LLMData.Confidence,
 					Issues = cipher.LLMData.Issues,
@@ -134,7 +133,6 @@ namespace Cryptomind.Core.Services
 			string type = cipher.TypeOfCipher?.ToString() ?? "Unknown";
 
 			var validation = await llmService.ValidateCipherAsync(cipher.EncryptedText, cipher.DecryptedText, mlResult, type);
-			cipher.LLMData.Analysis = validation.Recommendation.ToString();
 			cipher.LLMData.Confidence = validation.Reasoning;
 			cipher.LLMData.Confidence = validation.Confidence;
 			cipher.LLMData.Issues = validation.Issues;
@@ -259,7 +257,9 @@ namespace Cryptomind.Core.Services
 		#region Common methods
 		private async Task DefineTagsAsync (Cipher cipher, List<int> tagIds)
 		{
-			List<Tag> existingAssignedTags = (await tagRepo.GetAllAsync()).Where(x => tagIds.Contains(x.Id)).ToList();
+			List<Tag> assignedExistingTags = (await tagRepo.GetAllAsync())
+				.Where(x => tagIds.Contains(x.Id))
+				.ToList();
 
 			//ADD THIS IN PRODUCTION!!!
 			//if (existingAssignedTags.Count != tagIds.Count)
@@ -269,7 +269,7 @@ namespace Cryptomind.Core.Services
 			if (cipher.CipherTags.Count > 0)
 				cipher.CipherTags?.Clear();
 
-			foreach (var tag in existingAssignedTags)
+			foreach (var tag in assignedExistingTags)
 			{
 				cipher.CipherTags.Add(new CipherTag
 				{
