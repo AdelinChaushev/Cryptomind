@@ -5,24 +5,24 @@ using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
 using Cryptomind.Common.ViewModels.AnswerSubmissionViewModels;
 using Microsoft.EntityFrameworkCore;
-using Cryptomind.Common.ViewModels.AdminViewModels;
-using Cryptomind.Common.Enums;
 
 namespace Cryptomind.Core.Services
 {
 	public class AnswerSubmissionService (
 		IRepository<Cipher, int> cipherRepo,
-		IRepository<UserSolution, int> solutionRepo,
 		IRepository<AnswerSuggestion, int> answerRepo) : IAnswerSubmissionService
 	{
 		public async Task SuggestAnswerAsync(SuggestAnswerDTO dto, string userId, int cipherId)
 		{
-			Cipher? cipher = cipherRepo.GetAllAttached()
+			Cipher? cipher = await cipherRepo.GetAllAttached()
 				.Include(x => x.AnswerSuggestions)
-				.FirstOrDefault(x => x.Id == cipherId);
+				.FirstOrDefaultAsync(x => x.Id == cipherId);
 
 			if (cipher == null)
 				throw new InvalidOperationException("Cipher not found");
+
+			if (cipher.Status != ApprovalStatus.Approved)
+				throw new InvalidOperationException("Can suggest answers only on approved ciphers");
 
 			if (!string.IsNullOrWhiteSpace(cipher.DecryptedText))
 				throw new InvalidOperationException("Cipher already has an answer");
@@ -33,8 +33,8 @@ namespace Cryptomind.Core.Services
 			if (cipher.CreatedByUserId == userId)
 				throw new InvalidOperationException("You cannot suggest answers on ciphers created by you.");
 
-			if (cipher.AnswerSuggestions.FirstOrDefault(x => x.UserId == userId) != null)
-				throw new InvalidOperationException("You have already suggested an answer for this cipher");
+			if (cipher.AnswerSuggestions.FirstOrDefault(x => x.UserId == userId && x.DecryptedText == dto.DecryptedText) != null)
+				throw new InvalidOperationException("You cannot suggest the same answer twice.");
 
 			AnswerSuggestion answer = new AnswerSuggestion
 			{
@@ -50,14 +50,11 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<List<AnswerSubmissionViewModel>> SubmittedAnswers(string userId)
 		{
-			var answers = answerRepo.GetAllAttached()
+			var answers = await answerRepo.GetAllAttached()
 				.Include(x => x.Cipher)
 				.Include(x => x.ApplicationUser)
 				.Where(x => x.UserId == userId)
-				.ToList();
-
-			if (answers.Count == 0)
-				return null;
+				.ToListAsync();
 
 			var models = new List<AnswerSubmissionViewModel>();
 			foreach (var answer in answers)
