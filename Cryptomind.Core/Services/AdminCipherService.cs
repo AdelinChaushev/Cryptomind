@@ -2,17 +2,9 @@
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Cryptomind.Data.Enums;
 using Cryptomind.Common.Enums;
-using System;
-using System.Buffers.Text;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Cryptomind.Common.ViewModels.AdminViewModels;
 using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
 
@@ -162,7 +154,7 @@ namespace Cryptomind.Core.Services
 			string userId = cipher.CreatedByUserId;
 
 			//We check trough all the ciphers doesn't matter if they are approved, rejected or pending.
-			if (cipherRepo.GetAll().FirstOrDefault(x => x.Title == model.Title) != null)
+			if (cipherRepo.GetAll().FirstOrDefault(x => x.Title == model.Title && x.Id != id) != null)
 					throw new InvalidOperationException("There is already a cipher with this title");
 
 			//When text is not given we cannot approve it as standard

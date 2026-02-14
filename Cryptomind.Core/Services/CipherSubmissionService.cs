@@ -145,11 +145,11 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<List<CipherSubmissionViewModel>> SubmittedCiphers(string userId)
 		{
-			var ciphers = cipherRepo.GetAllAttached()
+			var ciphers = await cipherRepo.GetAllAttached()
 				.Include(x => x.UserSolutions)
 				.Include(x => x.CipherTags)
 				.Where(x => x.CreatedByUserId == userId)
-				.ToList();
+				.ToListAsync();
 
 			if (ciphers.Count == 0)
 				return null;
