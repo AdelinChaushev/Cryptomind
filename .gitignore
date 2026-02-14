@@ -375,3 +375,4 @@ FodyWeavers.xsd
 *.ico
 *.tif
 *.tiff
+/venv
