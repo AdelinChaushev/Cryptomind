@@ -25,7 +25,7 @@ namespace Cryptomind.Controllers
 			string? userId = GetUserId();
 			if (string.IsNullOrEmpty(userId))
 			{
-				return BadRequest(new { error = "User ID not found in token" });
+				return BadRequest("User ID not found in token");
 			}
 
 			var result = await cipherService.GetApprovedAsync(filter, userId);
@@ -40,7 +40,7 @@ namespace Cryptomind.Controllers
 				string? userId = GetUserId();
 				if (string.IsNullOrEmpty(userId))
 				{
-					return BadRequest(new { error = "User ID not found in token" });
+					return BadRequest("User ID not found in token");
 				}
 
 				var result = await cipherService.GetCipherAsync(id, userId);
@@ -48,7 +48,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
@@ -60,17 +60,16 @@ namespace Cryptomind.Controllers
 				string? userId = GetUserId();
 				if (string.IsNullOrEmpty(userId))
 				{
-					return BadRequest(new { error = "User ID not found in token" });
+					return BadRequest("User ID not found in token");
 				}
 
 				bool result = await cipherService.SolveCipherAsync(userId, dto.UserSolution, id);
 				await badgeService.CheckBadgesByCategory(userId, BadgeCategory.OnSolve);
-
 				return Ok(result);
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
@@ -81,7 +80,7 @@ namespace Cryptomind.Controllers
 			string? userId = GetUserId();
 			if (string.IsNullOrEmpty(userId))
 			{
-				return BadRequest(new { error = "User ID not found in token" });
+				return BadRequest("User ID not found in token");
 			}
 
 			try
@@ -91,7 +90,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
@@ -103,7 +102,7 @@ namespace Cryptomind.Controllers
 				string? userId = GetUserId();
 				if (string.IsNullOrEmpty(userId))
 				{
-					return BadRequest(new { error = "User ID not found in token" });
+					return BadRequest("User ID not found in token");
 				}
 
 				await answerService.SuggestAnswerAsync(dto, userId, id);
@@ -111,7 +110,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
@@ -123,7 +122,7 @@ namespace Cryptomind.Controllers
 				string? userId = GetUserId();
 				if (string.IsNullOrEmpty(userId))
 				{
-					return BadRequest(new { error = "User ID not found in token" });
+					return BadRequest("User ID not found in token");
 				}
 
 				string hintContent = await hintService.RequestHintAsync(userId, id, request.HintType);
@@ -131,7 +130,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
@@ -145,7 +144,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
