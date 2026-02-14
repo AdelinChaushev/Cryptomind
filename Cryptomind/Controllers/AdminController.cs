@@ -27,7 +27,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
@@ -41,7 +41,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
@@ -55,7 +55,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
@@ -69,7 +69,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
@@ -84,7 +84,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
@@ -98,7 +98,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
@@ -112,7 +112,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
@@ -126,7 +126,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 		#endregion
@@ -142,7 +142,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
@@ -156,7 +156,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
@@ -171,7 +171,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
@@ -185,7 +185,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 		#endregion
@@ -201,7 +201,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
@@ -215,7 +215,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
@@ -229,7 +229,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
@@ -243,7 +243,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
@@ -257,7 +257,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 		#endregion
