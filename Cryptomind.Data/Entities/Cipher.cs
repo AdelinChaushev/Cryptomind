@@ -48,9 +48,9 @@ public abstract class Cipher
 [Owned]
 public class CipherLLMData
 {
-	public string? Analysis { get; set; }
 	public string? Reasoning { get; set; }
 	public List<string>? Issues { get; set; }
+	public string? PredictedType { get; set; }
 	public string? Confidence { get; set; }
 	public string CachedHint { get; set; } = string.Empty;
 	public string CachedSolution { get; set; } = string.Empty;
