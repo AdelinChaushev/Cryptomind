@@ -20,7 +20,7 @@ namespace Cryptomind.Core.Middlewares
 		{
 			var path = context.Request.Path.Value?.ToLower();
 
-			if (path.StartsWith("/api/user/logout"))
+			if (path.StartsWith("/api/auth/logout"))
 			{
 				await _next(context);
 				return;
