@@ -12,8 +12,6 @@ namespace Cryptomind.Common.ViewModels.UserViewModels
 		public string Email { get; set; }
 		public string[] Roles { get; set; }
 		public DateTime RegisteredAt { get; set; }
-		//If the user is already banned he wouldn't be able to go to the profile page
-		//public DateTime? BannedAt { get; set; }
 		public int Points { get; set; }
 		public int SolvedCount { get; set; }
 		public int Score { get; set; }
