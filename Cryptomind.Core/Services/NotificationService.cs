@@ -2,12 +2,7 @@
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
-using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cryptomind.Core.Services
 {
@@ -16,12 +11,13 @@ namespace Cryptomind.Core.Services
 		IRepository<Notification, int> notificationRepo,
 		IRepository<Cipher, int> cipherRepo,
 		IRepository<AnswerSuggestion, int> answerRepo,
-		IRepository<Badge, int> badgeRepo
-		): INotificationService
+		IRepository<Badge, int> badgeRepo): INotificationService
 	{
 		public async Task CreateAndSendNotification(string userId, NotificationType type, string message, int? relatedEntityId, string link)
 		{
-			var user = userRepo.GetAllAttached().FirstOrDefault(x => x.Id == userId);
+			var user = await userRepo
+				.GetAllAttached()
+				.FirstOrDefaultAsync(x => x.Id == userId);
 
 			if (user == null)
 				throw new InvalidOperationException("User not found");
@@ -39,7 +35,9 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<int> GetUnreadCount(string userId)
 		{
-			var user = userRepo.GetAllAttached().FirstOrDefault(x => x.Id == userId);
+			var user = await userRepo
+				.GetAllAttached()
+				.FirstOrDefaultAsync(x => x.Id == userId);
 
 			if (user == null)
 				throw new InvalidOperationException("User not found");
@@ -48,7 +46,9 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<List<Notification>> GetUserNotifications(string userId, int limit = 20)
 		{
-			var user = userRepo.GetAllAttached().FirstOrDefault(x => x.Id == userId);
+			var user = await userRepo
+				.GetAllAttached()
+				.FirstOrDefaultAsync(x => x.Id == userId);
 
 			if (user == null)
 				throw new InvalidOperationException("User not found");
@@ -57,7 +57,9 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task MarkAsRead(int notificationId, string userId)
 		{
-			var user = userRepo.GetAllAttached().FirstOrDefault(x => x.Id == userId);
+			var user = await userRepo
+				.GetAllAttached()
+				.FirstOrDefaultAsync(x => x.Id == userId);
 
 			if (user == null)
 				throw new InvalidOperationException("User not found");
