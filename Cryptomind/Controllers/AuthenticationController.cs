@@ -23,7 +23,7 @@ namespace Cryptomind.Controllers
 
 				if (user == null)
 				{
-					return BadRequest(new { error = "User creation failed" });
+					return BadRequest("User creation failed");
 				}
 
 				string token = await authService.GenerateJSONWebToken(user);
@@ -32,7 +32,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
@@ -44,7 +44,7 @@ namespace Cryptomind.Controllers
 				ApplicationUser? user = await authService.Authenticate(model.Email, model.Password);
 				if (user == null)
 				{
-					return BadRequest(new { error = "Invalid Credentials" });
+					return BadRequest("Invalid Credentials");
 				}
 
 				string token = await authService.GenerateJSONWebToken(user);
@@ -53,7 +53,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
@@ -70,7 +70,7 @@ namespace Cryptomind.Controllers
 				Expires = DateTimeOffset.Now.AddDays(-1)
 			});
 
-			return Ok(new { message = "Logged out successfully" });
+			return Ok("Logged out successfully");
 		}
 
 		[HttpPost("deactivate")]
@@ -82,15 +82,15 @@ namespace Cryptomind.Controllers
 				string? userId = GetUserId();
 				if (string.IsNullOrEmpty(userId))
 				{
-					return BadRequest(new { error = "User ID not found in token" });
+					return BadRequest("User ID not found in token");
 				}
 
 				await authService.DeactivateAccount(userId);
-				return Ok(new { message = "Account deactivated" });
+				return Ok("Account deactivated");
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(new { error = ex.Message });
+				return BadRequest(ex.Message);
 			}
 		}
 
