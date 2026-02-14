@@ -10,20 +10,12 @@ namespace Cryptomind.Controllers
 	[ApiController]
 	[Route("api/admin")]
 	[Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
-	public class AdminController : ControllerBase
+	public class AdminController(
+		IAdminCipherService adminCipherService,
+		IAdminAnswerService adminAnswerService,
+		IAdminUserService adminUserService,
+		IBadgeService badgeService) : ControllerBase
 	{
-		private IAdminCipherService adminCipherService;
-		private IAdminAnswerService adminAnswerService;
-		private IAdminUserService adminUserService;
-		private IBadgeService badgeService;
-		public AdminController(IAdminCipherService adminCipherService, IAdminAnswerService adminAnswerService, IAdminUserService adminUserService, IBadgeService badgeService)
-		{
-			this.adminCipherService = adminCipherService;
-			this.adminAnswerService = adminAnswerService;
-			this.adminUserService = adminUserService;
-			this.badgeService = badgeService;
-		}
-
 		#region Cipher-specific
 		[HttpGet("approved-ciphers")]
 		public async Task<IActionResult> GetApprovedCiphers([FromQuery] CipherFilter filter)
@@ -33,11 +25,10 @@ namespace Cryptomind.Controllers
 				var result = await adminCipherService.AllApprovedCiphers(filter);
 				return Ok(result);
 			}
-			catch (InvalidOperationException ex)
+			catch (Exception ex)
 			{
-				await Console.Out.WriteLineAsync(ex.Message);
+				return BadRequest(new { error = ex.Message });
 			}
-			return BadRequest();
 		}
 
 		[HttpGet("pending-ciphers")]
@@ -48,11 +39,10 @@ namespace Cryptomind.Controllers
 				var result = await adminCipherService.AllSubmittedCiphers();
 				return Ok(result);
 			}
-			catch (InvalidOperationException ex)
+			catch (Exception ex)
 			{
-				await Console.Out.WriteLineAsync(ex.Message);
+				return BadRequest(new { error = ex.Message });
 			}
-			return BadRequest();
 		}
 
 		[HttpGet("cipher/{id}")]
@@ -63,11 +53,10 @@ namespace Cryptomind.Controllers
 				var cipher = await adminCipherService.GetCipherById(id);
 				return Ok(cipher);
 			}
-			catch (InvalidOperationException ex)
+			catch (Exception ex)
 			{
-				await Console.Out.WriteLineAsync(ex.Message);
+				return BadRequest(new { error = ex.Message });
 			}
-			return BadRequest();
 		}
 
 		[HttpGet("cipher/{id}/analyze")]
@@ -80,8 +69,7 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				await Console.Out.WriteLineAsync(ex.Message);
-				return BadRequest(ex.Message);
+				return BadRequest(new { error = ex.Message });
 			}
 		}
 
@@ -90,16 +78,14 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				string userID = await adminCipherService.ApproveCipherAsync(id, model);
-				await badgeService.CheckBadgesByCategory(userID, BadgeCategory.OnUpload);
-
+				string userId = await adminCipherService.ApproveCipherAsync(id, model);
+				await badgeService.CheckBadgesByCategory(userId, BadgeCategory.OnUpload);
 				return Ok();
 			}
 			catch (Exception ex)
 			{
-				await Console.Out.WriteLineAsync(ex.Message);
+				return BadRequest(new { error = ex.Message });
 			}
-			return BadRequest();
 		}
 
 		[HttpPut("cipher/{id}/reject")]
@@ -108,14 +94,12 @@ namespace Cryptomind.Controllers
 			try
 			{
 				await adminCipherService.RejectCipherAsync(id, reason);
-
 				return Ok();
 			}
 			catch (Exception ex)
 			{
-				await Console.Out.WriteLineAsync(ex.Message);
+				return BadRequest(new { error = ex.Message });
 			}
-			return BadRequest();
 		}
 
 		[HttpPut("cipher/{id}/update")]
@@ -124,14 +108,12 @@ namespace Cryptomind.Controllers
 			try
 			{
 				await adminCipherService.UpdateApprovedCipher(id, model);
-
 				return Ok();
 			}
 			catch (Exception ex)
 			{
-				await Console.Out.WriteLineAsync(ex.Message);
+				return BadRequest(new { error = ex.Message });
 			}
-			return BadRequest();
 		}
 
 		[HttpDelete("cipher/{id}/delete")]
@@ -140,14 +122,12 @@ namespace Cryptomind.Controllers
 			try
 			{
 				await adminCipherService.DeleteApprovedCipher(id);
-
 				return Ok();
 			}
 			catch (Exception ex)
 			{
-				await Console.Out.WriteLineAsync(ex.Message);
+				return BadRequest(new { error = ex.Message });
 			}
-			return BadRequest();
 		}
 		#endregion
 
@@ -160,11 +140,10 @@ namespace Cryptomind.Controllers
 				var result = await adminAnswerService.AllSubmittedAnswersAsync();
 				return Ok(result);
 			}
-			catch (InvalidOperationException ex)
+			catch (Exception ex)
 			{
-				await Console.Out.WriteLineAsync(ex.Message);
+				return BadRequest(new { error = ex.Message });
 			}
-			return BadRequest();
 		}
 
 		[HttpGet("answer/{id}")]
@@ -175,11 +154,10 @@ namespace Cryptomind.Controllers
 				var result = await adminAnswerService.GetAnswerById(id);
 				return Ok(result);
 			}
-			catch (InvalidOperationException ex)
+			catch (Exception ex)
 			{
-				await Console.Out.WriteLineAsync(ex.Message);
+				return BadRequest(new { error = ex.Message });
 			}
-			return BadRequest();
 		}
 
 		[HttpPut("answer/{id}/approve")]
@@ -187,16 +165,14 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				string userID = await adminAnswerService.ApproveAnswerAsync(id, points);
-				await badgeService.CheckBadgesByCategory(userID, BadgeCategory.OnSuggesting);
-
+				string userId = await adminAnswerService.ApproveAnswerAsync(id, points);
+				await badgeService.CheckBadgesByCategory(userId, BadgeCategory.OnSuggesting);
 				return Ok();
 			}
-			catch (InvalidOperationException ex)
+			catch (Exception ex)
 			{
-				await Console.Out.WriteLineAsync(ex.Message);
+				return BadRequest(new { error = ex.Message });
 			}
-			return BadRequest();
 		}
 
 		[HttpPut("answer/{id}/reject")]
@@ -205,14 +181,12 @@ namespace Cryptomind.Controllers
 			try
 			{
 				await adminAnswerService.RejectAnswerAsync(id, reason);
-
 				return Ok();
 			}
 			catch (Exception ex)
 			{
-				await Console.Out.WriteLineAsync(ex.Message);
+				return BadRequest(new { error = ex.Message });
 			}
-			return BadRequest();
 		}
 		#endregion
 
@@ -223,14 +197,12 @@ namespace Cryptomind.Controllers
 			try
 			{
 				var result = await adminUserService.GetAllUsers();
-
 				return Ok(result);
 			}
 			catch (Exception ex)
 			{
-				await Console.Out.WriteLineAsync(ex.Message);
+				return BadRequest(new { error = ex.Message });
 			}
-			return BadRequest();
 		}
 
 		[HttpGet("user/{id}")]
@@ -243,9 +215,8 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				await Console.Out.WriteLineAsync(ex.Message);
+				return BadRequest(new { error = ex.Message });
 			}
-			return BadRequest();
 		}
 
 		[HttpPut("user/{id}/admin")]
@@ -258,9 +229,8 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				await Console.Out.WriteLineAsync(ex.Message);
+				return BadRequest(new { error = ex.Message });
 			}
-			return BadRequest();
 		}
 
 		[HttpPut("user/ban")]
@@ -273,9 +243,8 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				await Console.Out.WriteLineAsync(ex.Message);
+				return BadRequest(new { error = ex.Message });
 			}
-			return BadRequest();
 		}
 
 		[HttpPut("user/unban")]
@@ -288,9 +257,8 @@ namespace Cryptomind.Controllers
 			}
 			catch (Exception ex)
 			{
-				await Console.Out.WriteLineAsync(ex.Message);
+				return BadRequest(new { error = ex.Message });
 			}
-			return BadRequest();
 		}
 		#endregion
 	}

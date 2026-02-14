@@ -1,19 +1,12 @@
 ﻿using Cryptomind.Core.Contracts;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cryptomind.Controllers
 {
 	[Route("api/leaderboard")]
 	[ApiController]
-	public class LeaderboardController : ControllerBase
+	public class LeaderboardController(ILeaderboardService leaderboardService) : ControllerBase
 	{
-		private ILeaderboardService leaderboardService;
-		public LeaderboardController(ILeaderboardService leaderboardService)
-		{
-			this.leaderboardService = leaderboardService;
-		}
-
 		[HttpGet]
 		[Route("")]
 		public async Task<IActionResult> LeaderBoard()

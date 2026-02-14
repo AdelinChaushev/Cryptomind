@@ -13,56 +13,40 @@ using System.Threading.Tasks;
 
 namespace Cryptomind.Core.Services
 {
-	public class BadgeService : IBadgeService
+	public class BadgeService(
+		IRepository<UserBadge, int> userBadgeRepo,
+		IRepository<ApplicationUser, string> userRepo,
+		IRepository<Badge, int> badgeRepo,
+		IBadgeStatisticsService statsService,
+		INotificationService notificationService) : IBadgeService
 	{
-		private readonly Dictionary<int, IBadgeCriteria> badgeCriteria;
-		private readonly IRepository<UserBadge, int> userBadgeRepo;
-		private readonly IRepository<ApplicationUser, string> userRepo;
-		private readonly IRepository<Badge, int> badgeRepo;
-
-		private readonly IBadgeStatisticsService statsService;
-		private readonly INotificationService notificationService;
-		public BadgeService(
-			IRepository<Badge, int> badgeRepo,
-			IRepository<UserBadge, int> userBadgeRepo,
-			IRepository<ApplicationUser, string> userRepo,
-			IBadgeStatisticsService statsService,
-			INotificationService notificationService)
+		//The key should be matching with the badge ID!!!
+		private readonly Dictionary<int, IBadgeCriteria> badgeCriteria = new Dictionary<int, IBadgeCriteria>
 		{
-			this.statsService = statsService;
-			this.userBadgeRepo = userBadgeRepo;
-			this.userRepo = userRepo;
-			this.badgeRepo = badgeRepo;
-			this.notificationService = notificationService;
-
-			// All criteria use the same statsService
-			badgeCriteria = new Dictionary<int, IBadgeCriteria>
-			{
-				{ 1, new SolvedCountCriteria(this.statsService, 1) },
-				{ 2, new SolvedCountCriteria(this.statsService, 25) },
-				//new ScoreCriteria(statsService, 500)
-				//new ScoreCriteria(statsService, 2000)
-				{ 3, new UploadCountCriteria(this.statsService, 1) },
-				{ 4, new UploadCountCriteria(this.statsService, 5) },
-				//NoHintsCriteria(statsService, 10)
-				{ 5, new DistinctSolvedCountCriteria(this.statsService, 5) },
-				{ 6, new SuggestedAnswerCountCriteria(this.statsService, 1) },
-			};
-		}
+			{ 1, new SolvedCountCriteria(statsService, 1) },
+			{ 2, new SolvedCountCriteria(statsService, 25) },
+			//new ScoreCriteria(statsService, 500)
+			//new ScoreCriteria(statsService, 2000)
+			{ 3, new UploadCountCriteria(statsService, 1) },
+			{ 4, new UploadCountCriteria(statsService, 5) },
+			//NoHintsCriteria(statsService, 10)
+			{ 5, new DistinctSolvedCountCriteria(statsService, 5) },
+			{ 6, new SuggestedAnswerCountCriteria(statsService, 1) },
+		};
 
 		public async Task CheckBadgesByCategory(string userId, BadgeCategory category)
 		{
-			var userBadgeIds = userBadgeRepo.GetAllAttached()
+			var userBadgeIds = await userBadgeRepo.GetAllAttached()
 				.Where(x => x.UserId == userId)
 				.Select(x => x.BadgeId)
-				.ToList();
+				.ToListAsync();
 
 			foreach (var kvp in badgeCriteria.Where(b => b.Value.Category == category))
 			{
 				int badgeId = kvp.Key;
 				IBadgeCriteria criteria = kvp.Value;
 
-				if (userBadgeIds.Contains(badgeId))
+				if (userBadgeIds.Contains(badgeId)) //First time checking
 					continue;
 
 				if (await criteria.IsSatisfied(userId))
@@ -80,16 +64,28 @@ namespace Cryptomind.Core.Services
 				EarnedAt = DateTime.UtcNow
 			};
 
-			var user = userRepo.GetAllAttached().Include(x => x.Badges).FirstOrDefault(x => x.Id == userId);
+			var user = await userRepo.GetAllAttached()
+				.Include(x => x.Badges)
+				.FirstOrDefaultAsync(x => x.Id == userId);
+
+			if (user == null)
+				throw new InvalidOperationException("User not found");
+
 			if (user.Badges.FirstOrDefault(x => x.BadgeId == userBadge.BadgeId) != null)
-				throw new InvalidOperationException("User already has this badge"); // second time checking it
+				throw new InvalidOperationException("User already has this badge"); // Second time checking it (Line 49)
+
+
+			var badge = await badgeRepo.GetAllAttached()
+				.Include(x => x.UserBadges)
+				.FirstOrDefaultAsync(x => x.Id == badgeId);
+
+			if (badge == null)
+				throw new InvalidOperationException("Badge not found");
+
+			if (badge.UserBadges.FirstOrDefault(x => x.UserId == userId) != null)
+				throw new InvalidOperationException("This badge is already assigned to this user"); // Third time checking it
 
 			user.Badges.Add(userBadge);
-
-			var badge = badgeRepo.GetAllAttached().Include(x => x.UserBadges).FirstOrDefault(x => x.Id == badgeId);
-			if (badge.UserBadges.FirstOrDefault(x => x.UserId == userId) != null)
-				throw new InvalidOperationException("This badge is already assigned to this user"); // third time checking it
-
 			badge.UserBadges.Add(userBadge);
 			badge.EarnedBy++;
 
