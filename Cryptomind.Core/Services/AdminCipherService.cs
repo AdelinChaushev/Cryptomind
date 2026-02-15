@@ -156,15 +156,16 @@ namespace Cryptomind.Core.Services
 			if (cipherRepo.GetAll().FirstOrDefault(x => x.Title == model.Title && x.Id != id) != null)
 					throw new InvalidOperationException("There is already a cipher with this title");
 
-			//When text is not given we cannot approve it as standard
-			if (string.IsNullOrWhiteSpace(cipher.DecryptedText) && model.ChallengeType == ChallengeType.Standard)
-				throw new InvalidOperationException("Cipher with unknown answer cannot be aproved as standard");
 
-			//When type is not given we cannot approve it as standard
-			if ((cipher.TypeOfCipher != null && model.TypeOfCipher == null) && model.ChallengeType == ChallengeType.Standard)
-				throw new InvalidOperationException("Cipher with unknown type cannot be approved as standard");
+			//When type is not given we cannot approve it
+			if (model.TypeOfCipher == null)
+				throw new InvalidOperationException("Cipher with unknown type cannot be approved because the points for each cipher as based on it's type.");
 
-			if (model.ChallengeType == ChallengeType.Experimental && string.IsNullOrWhiteSpace(cipher.DecryptedText) && (model.AllowHint || model.AllowSolution || model.AllowTypeHint))
+			cipher.ChallengeType = string.IsNullOrWhiteSpace(cipher.DecryptedText)
+				? ChallengeType.Experimental
+				: ChallengeType.Standard;
+
+			if (cipher.ChallengeType == ChallengeType.Experimental && (model.AllowHint || model.AllowSolution || model.AllowTypeHint))
 				throw new InvalidOperationException("Hints cannot be used for Experimental Ciphers");
 
 			var title = string.IsNullOrEmpty(model.Title) ? cipher.EncryptedText : model.Title;
@@ -174,18 +175,8 @@ namespace Cryptomind.Core.Services
 			cipher.AllowTypeHint = model.AllowTypeHint;
 			cipher.Status = ApprovalStatus.Approved;
 			cipher.ApprovedAt = DateTime.UtcNow;
-			//Give permission to the admin for him to decide which is experimental or not, not really sure if needed? //REVIEW THIS.
-			cipher.ChallengeType = model.ChallengeType;
+			cipher.TypeOfCipher = model.TypeOfCipher;
 
-			//if (cipher.TypeOfCipher == null) If the admin decides to approve it, maybe we should assing the ML predicted type
-			//{
-			//	string jsonString = cipher.MLPrediction;
-
-			//	var response = JsonSerializer.Deserialize<MlPredictionData>(jsonString);
-
-			//	var topPrediction = response.AllPredictions
-			//				.MaxBy(p => p.Confidence);
-			//}
 
 			cipher.Points = cipher.TypeOfCipher.HasValue
 				? PointsForType[cipher.TypeOfCipher.Value]
