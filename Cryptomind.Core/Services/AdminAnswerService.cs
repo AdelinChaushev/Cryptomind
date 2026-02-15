@@ -4,11 +4,6 @@ using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Cryptomind.Core.Services
 {
@@ -25,17 +20,16 @@ namespace Cryptomind.Core.Services
 				.Where(x => x.Status == ApprovalStatus.Pending)
 				.OrderBy(x => x.UplodaedTime);
 
-			if (answerSuggestions == null)
-				throw new InvalidOperationException("There are no suggested answers that aren't reviewed");
-
 			var models = new List<AnswerSuggestionViewModel>();
 
 			foreach (var answer in answerSuggestions)
 			{
-				var userName = (await userManager.FindByIdAsync(answer.UserId)).UserName;
-
-				if (userName == null)
+				var user = await userManager.FindByIdAsync(answer.UserId);
+				if (user == null)
 					throw new InvalidOperationException("User not found");
+
+				var userName = user.UserName;
+
 				var model = new AnswerSuggestionViewModel
 				{
 					Id = answer.Id,
@@ -55,10 +49,12 @@ namespace Cryptomind.Core.Services
 			if (answer == null)
 				throw new InvalidOperationException("Answer not found");
 
-			var userName = (await userManager.FindByIdAsync(answer.UserId)).UserName;
+			var user = await userManager.FindByIdAsync(answer.UserId);
 
-			if (userName == null)
+			if (user == null)
 				throw new InvalidOperationException("User not found");
+			
+			var userName = user.UserName;
 
 			var model = new AnswerSuggestionReviewViewModel
 			{
@@ -70,49 +66,114 @@ namespace Cryptomind.Core.Services
 
 			return model;
 		}
-		public async Task<string> ApproveAnswerAsync(int id, int points)
+		public async Task<List<string>> ApproveAnswerAsync(int id, int points)
 		{
-			var answer = await answerRepo.FirstOrDefaultAsync(x => x.Id == id);
+			var selectedAnswer = await answerRepo.FirstOrDefaultAsync(x => x.Id == id);
 
-			if (answer == null)
+			if (selectedAnswer == null)
 				throw new InvalidOperationException("Answer not found");
 
-			var cipher = await cipherRepo.FirstOrDefaultAsync(x => x.Id == answer.CipherId);
+			var firstCorrectAnswerSuggestion = (await answerRepo.GetAllAsync())
+				.Where(x => x.CipherId == selectedAnswer.CipherId)
+				.Where(x => x.DecryptedText == selectedAnswer.DecryptedText)
+				.OrderBy(x => x.UplodaedTime)
+				.First();
+
+			var cipher = await cipherRepo.FirstOrDefaultAsync(x => x.Id == firstCorrectAnswerSuggestion.CipherId);
 
 			if (cipher == null)
 				throw new InvalidOperationException("Cipher not found");
 
-			if (!string.IsNullOrWhiteSpace(cipher.DecryptedText))
+			if (cipher.ChallengeType == ChallengeType.Standard)
+				throw new InvalidOperationException("Answer suggestions can only be applied to experimental ciphers");
+
+			//The above statement already checks it
+			if (!string.IsNullOrWhiteSpace(cipher.DecryptedText)) 
 				throw new InvalidOperationException("Cipher already has an approved answer");
 
-			var user = await userManager.FindByIdAsync(answer.UserId);
+			var user = await userManager.FindByIdAsync(firstCorrectAnswerSuggestion.UserId);
+
+			var otherCorrectAnswerSuggestions = (await answerRepo.GetAllAsync())
+				.Where(x => x.CipherId == selectedAnswer.CipherId)
+				.Where(x => x.DecryptedText == selectedAnswer.DecryptedText && x.Id != firstCorrectAnswerSuggestion.Id)
+				.Where(x => x.Status == ApprovalStatus.Pending);
+
+			var wrongAnswerSuggestions = (await answerRepo.GetAllAsync())
+				.Where(x => x.CipherId == selectedAnswer.CipherId)
+				.Where(x => x.DecryptedText != selectedAnswer.DecryptedText)
+				.Where(x => x.Status == ApprovalStatus.Pending);
 
 			if (user == null)
 				throw new InvalidOperationException("User not found");
 
+			int pointsGranted = points + cipher.Points;
+
 			var userSolution = new UserSolution
 			{
-				CipherId = answer.CipherId,
-				UserId = answer.UserId,
-				PointsEarned = points,
+				CipherId = firstCorrectAnswerSuggestion.CipherId,
+				UserId = firstCorrectAnswerSuggestion.UserId,
+				PointsEarned = pointsGranted,
 				TimeSolved = DateTime.UtcNow,
 				IsCorrect = true,
 			};
 
-			cipher.DecryptedText = answer.DecryptedText;
+			cipher.DecryptedText = firstCorrectAnswerSuggestion.DecryptedText;
 			cipher.ChallengeType = ChallengeType.Standard;
-			answer.Status = ApprovalStatus.Approved;
-			answer.ApprovalDate = DateTime.UtcNow;
-			answer.PointsEarned = points;
-			user.Score += points;
 
-			solutionRepo.Add(userSolution);
-			cipherRepo.Update(cipher);
-			answerRepo.Update(answer);
+			firstCorrectAnswerSuggestion.Status = ApprovalStatus.Approved;
+			firstCorrectAnswerSuggestion.ApprovalDate = DateTime.UtcNow;
+			firstCorrectAnswerSuggestion.PointsEarned = pointsGranted;
+
+			user.Score += pointsGranted;
+			List<string> userIds = new List<string>();
+			userIds.Add(user.Id);
+
+			foreach (var correctAnswer in otherCorrectAnswerSuggestions)
+			{
+				var currentUser = await userManager.FindByIdAsync(correctAnswer.UserId);
+
+				if (currentUser == null)
+					throw new InvalidOperationException("User not found.");
+
+				var otherUserSolution = new UserSolution
+				{
+					CipherId = correctAnswer.CipherId,
+					UserId = correctAnswer.UserId,
+					PointsEarned = cipher.Points,
+					TimeSolved = DateTime.UtcNow,
+					IsCorrect = true,
+				};
+				currentUser.Score += cipher.Points;
+				userIds.Add(currentUser.Id);
+
+				correctAnswer.Status = ApprovalStatus.Approved;
+				correctAnswer.ApprovalDate = DateTime.UtcNow;
+				correctAnswer.PointsEarned = cipher.Points;
+
+				await answerRepo.UpdateAsync(correctAnswer);
+				await solutionRepo.AddAsync(otherUserSolution);
+				await userManager.UpdateAsync(currentUser);
+
+				await notificationService.CreateAndSendNotification(currentUser.Id, NotificationType.AnswerApproved,
+					$"Your answer suggestion was approved +{cipher.Points} points",
+					cipher.Id, string.Empty);
+			}
+
+			foreach(var wrongAnswer in wrongAnswerSuggestions)
+			{
+				await RejectAnswerAsync(wrongAnswer.Id, "Another answer was approved for this cipher");
+			}
+
+			await solutionRepo.AddAsync(userSolution);
+			await cipherRepo.UpdateAsync(cipher);
+			await answerRepo.UpdateAsync(firstCorrectAnswerSuggestion);
 			await userManager.UpdateAsync(user);
-			await notificationService.CreateAndSendNotification(user.Id, NotificationType.AnswerApproved, $"Your answer suggestion was approved +{points} points", cipher.Id, string.Empty);
 
-			return answer.UserId;
+			await notificationService.CreateAndSendNotification(user.Id, NotificationType.AnswerApproved, 
+				$"Your answer was approved +{pointsGranted} points", 
+				cipher.Id, string.Empty);
+
+			return userIds;
 		}
 		public async Task RejectAnswerAsync(int id, string reason)
 		{
@@ -123,8 +184,6 @@ namespace Cryptomind.Core.Services
 			else if (answer.Status == ApprovalStatus.Approved) throw new InvalidOperationException("Answer already approved");
 
 			answer.Status = ApprovalStatus.Rejected;
-			if (!(answer.Status == ApprovalStatus.Rejected)) throw new InvalidOperationException("Wasn't able to reject the answer");
-
 			answer.RejectionDate = DateTime.UtcNow;
 			answer.RejectionReason = reason;
 

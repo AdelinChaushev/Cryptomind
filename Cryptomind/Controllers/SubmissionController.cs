@@ -1,6 +1,5 @@
 ﻿using Cryptomind.Core.Contracts;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -8,18 +7,11 @@ namespace Cryptomind.Controllers
 {
 	[Route("api/submissions")]
 	[ApiController]
-	public class SubmissionController : ControllerBase
+	public class SubmissionController(
+		ICipherSubmissionService cipherSubmissionService,
+		IAnswerSubmissionService answerSubmissionService) : ControllerBase
 	{
-		private ICipherSubmissionService cipherSubmissionService;
-		private IAnswerSubmissionService answerSubmissionService;
-
-		public SubmissionController(ICipherSubmissionService cipherSubmissionService, IAnswerSubmissionService answerSubmissionService)
-		{
-			this.cipherSubmissionService = cipherSubmissionService;
-			this.answerSubmissionService = answerSubmissionService;
-		}
-
-		[HttpGet("/my-submissions")]
+		[HttpGet("")]
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		public async Task<IActionResult> GetAllSubmissions()
 		{
@@ -31,7 +23,9 @@ namespace Cryptomind.Controllers
 			return Ok(new { ciphers, answers });
 		}
 
+		#region Private methods
 		private string GetUserId()
 		   => User.FindFirstValue(ClaimTypes.NameIdentifier);
+		#endregion
 	}
 }
