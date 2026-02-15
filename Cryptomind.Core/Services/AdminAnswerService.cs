@@ -170,7 +170,7 @@ namespace Cryptomind.Core.Services
 			await userManager.UpdateAsync(user);
 
 			await notificationService.CreateAndSendNotification(user.Id, NotificationType.AnswerApproved, 
-				$"Your answer suggestion was approved +{pointsGranted} points", 
+				$"Your answer was approved +{pointsGranted} points", 
 				cipher.Id, string.Empty);
 
 			return userIds;
