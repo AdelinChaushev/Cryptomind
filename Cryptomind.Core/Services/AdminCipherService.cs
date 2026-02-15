@@ -133,9 +133,10 @@ namespace Cryptomind.Core.Services
 			string type = cipher.TypeOfCipher?.ToString() ?? "Unknown";
 
 			var validation = await llmService.ValidateCipherAsync(cipher.EncryptedText, cipher.DecryptedText, mlResult, type);
-			cipher.LLMData.Confidence = validation.Reasoning;
+			cipher.LLMData.Reasoning = validation.Reasoning;
 			cipher.LLMData.Confidence = validation.Confidence;
 			cipher.LLMData.Issues = validation.Issues;
+			cipher.LLMData.PredictedType = validation.PredictedType;
 
 			await cipherRepo.UpdateAsync(cipher);
 			return validation;
@@ -157,7 +158,11 @@ namespace Cryptomind.Core.Services
 
 			//When text is not given we cannot approve it as standard
 			if (string.IsNullOrWhiteSpace(cipher.DecryptedText) && model.ChallengeType == ChallengeType.Standard)
-				throw new InvalidOperationException("Cipher with unknown answer shouldn't be aproved as standard");
+				throw new InvalidOperationException("Cipher with unknown answer cannot be aproved as standard");
+
+			//When type is not given we cannot approve it as standard
+			if ((cipher.TypeOfCipher != null && model.TypeOfCipher == null) && model.ChallengeType == ChallengeType.Standard)
+				throw new InvalidOperationException("Cipher with unknown type cannot be approved as standard");
 
 			if (model.ChallengeType == ChallengeType.Experimental && string.IsNullOrWhiteSpace(cipher.DecryptedText) && (model.AllowHint || model.AllowSolution || model.AllowTypeHint))
 				throw new InvalidOperationException("Hints cannot be used for Experimental Ciphers");
