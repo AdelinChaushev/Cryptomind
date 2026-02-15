@@ -34,7 +34,6 @@ namespace Cryptomind.Core.Services
 			[CipherType.Route] = 375,
 			[CipherType.Autokey] = 500,
 		};
-
 		public async Task<List<string>> GetRecentCipherSubmissionTitles()
 		{
 			return (await cipherRepo.GetAllAsync())
