@@ -19,10 +19,10 @@ namespace Cryptomind.Core.Services
 	{
 		public async Task<List<CipherOutputViewModel>> GetApprovedAsync(CipherFilter? filter, string userId)
 		{
-			List<Cipher> approved = cipherRepo.GetAllAttached()
+			List<Cipher> approved = await cipherRepo.GetAllAttached()
 				.Include(x => x.UserSolutions)
 				.Where(c => c.Status == ApprovalStatus.Approved)
-				.ToList();
+				.ToListAsync();
 
 			if (!string.IsNullOrEmpty(filter.SearchTerm))
 				approved = approved.Where(c => c.Title.Contains(filter.SearchTerm)).ToList();
@@ -76,10 +76,10 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<CipherDetailedOutputViewModel?> GetCipherAsync(int id, string userId)
 		{
-			Cipher? cipher = cipherRepo.GetAllAttached()
+			Cipher? cipher = await cipherRepo.GetAllAttached()
 				.Include(x => x.UserSolutions)
 				.ThenInclude(x => x.User)
-				.FirstOrDefault(x => x.Id == id);
+				.FirstOrDefaultAsync(x => x.Id == id);
 
 			if (cipher == null)
 				throw new InvalidOperationException("Cipher not found");
@@ -88,10 +88,10 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<bool> SolveCipherAsync(string userId, string input, int cipherId)
 		{
-			Cipher? cipher = cipherRepo.GetAllAttached()
+			Cipher? cipher = await cipherRepo.GetAllAttached()
 				.Include(x => x.UserSolutions)
 				.Include(x => x.HintsRequested)
-				.FirstOrDefault(x => x.Id == cipherId);
+				.FirstOrDefaultAsync(x => x.Id == cipherId);
 
 			if (cipher == null) 
 				throw new InvalidOperationException("Cipher not found");
@@ -192,9 +192,16 @@ namespace Cryptomind.Core.Services
                  successRate = successfullSolutionCount / (unsuccessfullSolutionCount + successfullSolutionCount) * 100;
             }
 
+			var successfullSolutionCount = cipher.UserSolutions.Count(x => x.IsCorrect);
+			var allSolutions = cipher.UserSolutions.Count;
+
+			var successRate = allSolutions == 0 
+				? 0
+				: ((double)successfullSolutionCount / allSolutions) * 100;
+
 			List<CipherSolverViewModel> recentSolvers = new List<CipherSolverViewModel>();
 
-			foreach (var userSolution in cipher.UserSolutions)
+			foreach (var userSolution in cipher.UserSolutions.Where(x => x.IsCorrect))
 			{
 				var solvedAt = userSolution.TimeSolved;
 				var userName = userSolution.User.UserName;

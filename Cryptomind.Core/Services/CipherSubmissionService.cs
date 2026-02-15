@@ -27,7 +27,7 @@ namespace Cryptomind.Core.Services
 		public async Task<Cipher> SubmitCipherAsync(SubmitCipherViewModel model, string userId)
 		{
 			if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.Title == model.Title) != null)
-				throw new InvalidOperationException("There is already a cipher with this name");
+				throw new InvalidOperationException("There is already a cipher with this title");
 
 			if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.EncryptedText == model.EncryptedText) != null)
 				throw new InvalidOperationException("There is already a cipher like this");
@@ -78,7 +78,12 @@ namespace Cryptomind.Core.Services
 							await imageStream.CopyToAsync(fileStream);
 						}
 					}
+
 					string relativePath = Path.Combine("Images", safeTitle + originalExtension);
+
+					if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.EncryptedText == result.ExtractedText) != null)
+						throw new InvalidOperationException("There is already a cipher like this");
+
 					cipher = new ImageCipher()
 					{
 						Title = title,
@@ -140,11 +145,11 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<List<CipherSubmissionViewModel>> SubmittedCiphers(string userId)
 		{
-			var ciphers = cipherRepo.GetAllAttached()
+			var ciphers = await cipherRepo.GetAllAttached()
 				.Include(x => x.UserSolutions)
 				.Include(x => x.CipherTags)
 				.Where(x => x.CreatedByUserId == userId)
-				.ToList();
+				.ToListAsync();
 
 			if (ciphers.Count == 0)
 				return null;

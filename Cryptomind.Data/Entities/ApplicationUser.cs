@@ -21,7 +21,7 @@ namespace Cryptomind.Data.Entities
         public int Score { get; set; }
         public int SolvedCount { get; set; }
         public int AttemptedCiphers { get; set; }
-		public bool isBanned { get; set; }
+		public bool IsBanned { get; set; }
 		public string? BanReason { get; set; }
         public int LeaderBoardPlace { get; set; }
 		public DateTime RegisteredAt { get; set; }
