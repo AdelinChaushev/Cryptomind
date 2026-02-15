@@ -13,17 +13,27 @@ namespace Cryptomind.Core.Services
 		{
 			var userViewModels = new List<UserViewModel>();
 
-			if (userManager.Users.ToList().Count > 0)
-				throw new InvalidOperationException("There are no users.");
+			var users = await userManager
+				.Users
+				.Include(x => x.UploadedCiphers)
+				.ToListAsync();
 
-			foreach (var user in userManager.Users.ToList())
+			if (!users.Any())
+				return userViewModels;
+
+			var admins = await userManager.GetUsersInRoleAsync("Admin");
+			var adminIds = admins
+				.Select(x => x.Id)
+				.ToHashSet();
+
+			foreach (var user in users)
 			{
 				userViewModels.Add(new UserViewModel
 				{
 					Id = user.Id,
 					Username = user.UserName,
 					Email = user.Email,
-					IsAdmin = await userManager.IsInRoleAsync(user, "Admin"),
+					IsAdmin = adminIds.Contains(user.Id),
 					PendingCiphers = user.UploadedCiphers.Count(c => c.Status == ApprovalStatus.Pending)
 				});
 			}
@@ -94,12 +104,12 @@ namespace Cryptomind.Core.Services
 				BannedAt = user.BannedAt,
 				RegisteredAt = user.RegisteredAt,
 				TotalScore = user.Score,
-				CiphersSubmitted = user.UploadedCiphers.Count(),
+				CiphersSubmitted = user.UploadedCiphers.Count,
 				CiphersSolved = user.SolvedCount,
 				HintsRequested = user.HintsRequested.Count(),
 				SolveSuccessRate = user.SuccessRate,
-				ApprovedCiphers = user.UploadedCiphers.Where(x => x.Status == ApprovalStatus.Approved).Count(),
-				PendingCiphers = user.UploadedCiphers.Where(x => x.Status == ApprovalStatus.Pending).Count(),
+				ApprovedCiphers = user.UploadedCiphers.Count(x => x.Status == ApprovalStatus.Approved),
+				PendingCiphers = user.UploadedCiphers.Count(x => x.Status == ApprovalStatus.Pending),
 				SubmittedCiphers = submittedCiphers,
 				SolvedCiphers = solvedCiphers,
 			};

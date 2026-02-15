@@ -11,8 +11,6 @@ namespace Cryptomind.Core.Contracts
     public interface IUserService
     {
         Task<IEnumerable<string>> GetRolesUsers(string id);
-        Task RemoveUserFromRole(string userId, string role);
-        Task AddUserToRole(string userId, string role);
         Task<AccountViewModel?> GetUserAccountInfo(string id);
 
     }

@@ -3,13 +3,9 @@ using Cryptomind.Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Cryptomind.Core.Services
 {
@@ -20,11 +16,9 @@ namespace Cryptomind.Core.Services
 		public async Task<ApplicationUser> Authenticate(string email, string password)
 		{
 			var user = await userManager.FindByEmailAsync(email);
-
-			if (user != null && await userManager.CheckPasswordAsync(user, password))
-				return user;
-
-			return null;
+			if (user == null || !await userManager.CheckPasswordAsync(user, password))
+				throw new UnauthorizedAccessException("Invalid credentials");
+			return user;
 		}
 		public async Task<string> GenerateJSONWebToken(ApplicationUser user)
 		{
@@ -49,7 +43,7 @@ namespace Cryptomind.Core.Services
 			var token = new JwtSecurityToken(
 				issuer: configuration["JWT:ValidIssuer"],
 				audience: configuration["JWT:ValidAudience"],
-				expires: DateTime.Now.AddHours(3),
+				expires: DateTime.UtcNow.AddHours(3),
 				claims: authClaims,
 				signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256));
 
@@ -58,19 +52,19 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<ApplicationUser> CreateUser(string userName, string email, string password)
 		{
-			ApplicationUser user = new ApplicationUser()
-			{
-				UserName = userName,
-				Email = email,
-				EmailConfirmed = true,
-				RegisteredAt = DateTime.Now,
-			};
-
 			var userExist = await userManager.FindByEmailAsync(email);
 			if (userExist != null)
 			{
 				throw new ArgumentException("User with this email already exists");
 			}
+
+			ApplicationUser user = new ApplicationUser()
+			{
+				UserName = userName,
+				Email = email,
+				EmailConfirmed = true,
+				RegisteredAt = DateTime.UtcNow,
+			};
 
 			var result = await userManager.CreateAsync(user, password);
 			if (!result.Succeeded)

@@ -11,8 +11,7 @@ namespace Cryptomind.Core.Contracts
 	{
 		Task<int> GetSolvedCount(string userId);
 		Task<int> GetApprovedCount(string userId);
-		Task<int> GetDestinctCipherTypesSolved(string userId);
+		Task<int> GetDistinctCipherTypesSolved(string userId);
 		Task<int> GetApprovedAnswersCount(string userId);
-		Task<ApplicationUser> GetUser(string userId);
 	}
 }
