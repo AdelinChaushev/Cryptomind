@@ -2,12 +2,7 @@
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
-using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cryptomind.Core.Services
 {
@@ -16,25 +11,18 @@ namespace Cryptomind.Core.Services
 	{
 		public async Task<List<LeaderboardPlaceViewModel>> GetLeaderboard()
 		{
-			var users = (await userRepo.GetAllAsync())
+			var users = await userRepo.GetAllAttached()
 				.OrderByDescending(x => x.Score)
-				.ToList();
+				.ToListAsync();
 
 			var models = new List<LeaderboardPlaceViewModel>();
 
-			for (int i = 0; i < users.Count; i++)
+			return users.Select((user, index) => new LeaderboardPlaceViewModel
 			{
-				var model = new LeaderboardPlaceViewModel
-				{
-					Username = users[i].UserName,
-					Points = users[i].Score,
-					Place = i + 1,
-				};
-
-				models.Add(model);
-			}
-
-			return models;
+				Username = user.UserName,
+				Points = user.Score,
+				Place = index + 1,
+			}).ToList();
 		}
 	}
 }

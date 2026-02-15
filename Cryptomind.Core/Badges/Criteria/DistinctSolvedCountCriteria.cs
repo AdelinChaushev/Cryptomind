@@ -21,7 +21,7 @@ namespace Cryptomind.Core.Badges.Criteria
 
 		public async Task<bool> IsSatisfied(string userId)
 		{
-			var distinctSolvedCount = await _statsService.GetDestinctCipherTypesSolved(userId);
+			var distinctSolvedCount = await _statsService.GetDistinctCipherTypesSolved(userId);
 			return distinctSolvedCount >= _requiredCount;
 		}
 	}

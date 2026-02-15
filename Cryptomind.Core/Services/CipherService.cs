@@ -70,7 +70,7 @@ namespace Cryptomind.Core.Services
 			List<CipherOutputViewModel> result = new List<CipherOutputViewModel>();
 			foreach (var cipher in approved)
 			{
-				result.Add(await ToOutputViewModel(cipher, userId));
+				result.Add(ToOutputViewModel(cipher, userId));
 			}
 			return result;
 		}
@@ -79,6 +79,7 @@ namespace Cryptomind.Core.Services
 			Cipher? cipher = await cipherRepo.GetAllAttached()
 				.Include(x => x.UserSolutions)
 				.ThenInclude(x => x.User)
+				.Include(x => x.HintsRequested)
 				.FirstOrDefaultAsync(x => x.Id == id);
 
 			if (cipher == null)
@@ -154,7 +155,7 @@ namespace Cryptomind.Core.Services
 		}
 
 		#region Private methods	
-		private async Task<CipherOutputViewModel> ToOutputViewModel(Cipher cipher, string userId)
+		private CipherOutputViewModel ToOutputViewModel(Cipher cipher, string userId)
 		{
 			bool isSolved = cipher.UserSolutions.Any(x => x.UserId == userId);
 
@@ -202,6 +203,8 @@ namespace Cryptomind.Core.Services
 					UserName = userName,
 					SolvedSince = GetTimeSpan(solvedAt)
 				};
+
+				recentSolvers.Add(cipherSolver);
 			}
 
 			var model = new CipherDetailedOutputViewModel
@@ -253,13 +256,13 @@ namespace Cryptomind.Core.Services
 			double multiplier = 1.0;
 
 			if (usedTypeHint)
-				multiplier -= 0.20; //-50%
+				multiplier -= 0.20; //-20%
 
 			if (usedSolutionHint)
-				multiplier -= 0.30; //-50%
+				multiplier -= 0.30; //-30%
 
 			if (usedFullSolution)
-				multiplier -= 0.40; //-90%
+				multiplier -= 0.40; //-40%
 
 			return (int)(basePoints * multiplier);
 		}

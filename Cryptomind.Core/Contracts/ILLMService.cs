@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Cryptomind.Core.Services.LLMService;
 
 namespace Cryptomind.Core.Contracts
 {
@@ -18,6 +19,5 @@ namespace Cryptomind.Core.Contracts
 			string? userProvidedType = null);
 
 		Task<string> GetHint(Cipher cipher, HintType hintType);
-		Task<bool> IsServiceHealthyAsync();
 	}
 }

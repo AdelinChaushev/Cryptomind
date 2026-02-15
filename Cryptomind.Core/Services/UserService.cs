@@ -2,16 +2,6 @@
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Cryptomind.Common.ViewModels.UserViewModels;
 
@@ -22,32 +12,24 @@ namespace Cryptomind.Core.Services
 		UserManager<ApplicationUser> userManager) : IUserService
 	{
 		public async Task<IEnumerable<string>> GetRolesUsers(string id)
-			=> await userManager.GetRolesAsync(await userManager.FindByIdAsync(id));
-		public async Task RemoveUserFromRole(string userId, string role)
 		{
-			var user = await userManager.FindByIdAsync(userId);
-			if (!await userManager.IsInRoleAsync(user, role))
-			{
-				return;
-			}
+			var user = await userManager.FindByIdAsync(id);
 
-			await userManager.RemoveFromRoleAsync(user, role);
-		} //Not used anywhere
-		public async Task AddUserToRole(string userId, string role)
-		{
-			var user = await userManager.FindByIdAsync(userId);
-			if (await userManager.IsInRoleAsync(user, role))
-			{
-				return;
-			}
-			await userManager.AddToRoleAsync(user, role);
-		} //Not used anywhere.
+			if (user == null)
+				throw new NullReferenceException("User not found");
+
+			return await userManager.GetRolesAsync(user);
+
+		}
 		public async Task<AccountViewModel?> GetUserAccountInfo(string id)
 		{
-			var user = userRepo.GetAllAttached()
+			var user = await userRepo.GetAllAttached()
 				.Include(x => x.Badges)
 				.ThenInclude(x => x.Badge)
-				.FirstOrDefault(x => x.Id == id);
+				.FirstOrDefaultAsync(x => x.Id == id);
+
+			if (user == null)
+				throw new NullReferenceException("User not found");
 
 			ICollection<BadgeViewModel> badges = user.Badges.Select(x => new BadgeViewModel
 			{
@@ -62,7 +44,6 @@ namespace Cryptomind.Core.Services
 				Email = user.Email,
 				Roles = (await userManager.GetRolesAsync(user)).ToArray(),
 				RegisteredAt = user.RegisteredAt,
-				Points = user.Score,
 				SolvedCount = user.SolvedCount,
 				Score = user.Score,
 				AttemptedCiphers = user.AttemptedCiphers,

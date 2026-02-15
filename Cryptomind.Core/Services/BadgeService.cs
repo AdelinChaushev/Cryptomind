@@ -5,11 +5,6 @@ using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Cryptomind.Core.Services
 {
@@ -46,7 +41,7 @@ namespace Cryptomind.Core.Services
 				int badgeId = kvp.Key;
 				IBadgeCriteria criteria = kvp.Value;
 
-				if (userBadgeIds.Contains(badgeId)) //First time checking
+				if (userBadgeIds.Contains(badgeId))
 					continue;
 
 				if (await criteria.IsSatisfied(userId))
@@ -57,23 +52,12 @@ namespace Cryptomind.Core.Services
 		}
 		private async Task AwardBadge(string userId, int badgeId)
 		{
-			var userBadge = new UserBadge
-			{
-				UserId = userId,
-				BadgeId = badgeId,
-				EarnedAt = DateTime.UtcNow
-			};
-
 			var user = await userRepo.GetAllAttached()
 				.Include(x => x.Badges)
 				.FirstOrDefaultAsync(x => x.Id == userId);
 
 			if (user == null)
 				throw new InvalidOperationException("User not found");
-
-			if (user.Badges.FirstOrDefault(x => x.BadgeId == userBadge.BadgeId) != null)
-				throw new InvalidOperationException("User already has this badge"); // Second time checking it (Line 49)
-
 
 			var badge = await badgeRepo.GetAllAttached()
 				.Include(x => x.UserBadges)
@@ -82,8 +66,12 @@ namespace Cryptomind.Core.Services
 			if (badge == null)
 				throw new InvalidOperationException("Badge not found");
 
-			if (badge.UserBadges.FirstOrDefault(x => x.UserId == userId) != null)
-				throw new InvalidOperationException("This badge is already assigned to this user"); // Third time checking it
+			var userBadge = new UserBadge
+			{
+				UserId = userId,
+				BadgeId = badgeId,
+				EarnedAt = DateTime.UtcNow
+			};
 
 			user.Badges.Add(userBadge);
 			badge.UserBadges.Add(userBadge);
