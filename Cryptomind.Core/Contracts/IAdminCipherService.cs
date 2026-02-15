@@ -13,7 +13,10 @@ namespace Cryptomind.Core.Contracts
 {
     public interface IAdminCipherService
     {
-        Task<List<CipherReviewOutputViewModel>> AllSubmittedCiphers();
+		Task<List<string>> GetRecentCipherSubmissionTitles();
+		Task<int> GetPendingCiphersCount();
+		Task<int> GetApprovedCiphersCount();
+		Task<List<CipherReviewOutputViewModel>> AllSubmittedCiphers();
 		Task<List<CipherReviewOutputViewModel>> AllApprovedCiphers(CipherFilter filter);
 		Task<CipherDetailedReviewOutputViewModel> GetCipherById(int id);
 		Task RejectCipherAsync(int id, string reason);
