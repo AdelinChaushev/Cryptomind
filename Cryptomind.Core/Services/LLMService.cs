@@ -591,6 +591,5 @@ public class CipherValidationResult
 	[JsonPropertyName("reasoning")]
 	public string Reasoning { get; set; } = string.Empty;
 }
-
 	#endregion
 }
