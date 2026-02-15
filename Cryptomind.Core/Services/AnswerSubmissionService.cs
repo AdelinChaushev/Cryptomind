@@ -30,6 +30,9 @@ namespace Cryptomind.Core.Services
 			if (cipher.ChallengeType == ChallengeType.Standard)
 				throw new InvalidOperationException("Cannot suggest answer on standard cipher");
 
+			if (string.IsNullOrWhiteSpace(dto.DecryptedText))
+				throw new InvalidOperationException("You cannot suggest empty answer");
+
 			if (cipher.CreatedByUserId == userId)
 				throw new InvalidOperationException("You cannot suggest answers on ciphers created by you.");
 
