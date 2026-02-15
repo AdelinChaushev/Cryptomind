@@ -63,7 +63,7 @@ namespace Cryptomind.Core.Services
 					approved = approved.OrderBy(x => x.CreatedAt).ToList();
 					break;
 				case CipherOrderTerm.MostPopular:
-					approved = approved.OrderByDescending(x => x.UserSolutions).ToList();
+					approved = approved.OrderByDescending(x => x.UserSolutions.Count).ToList();
 					break;
 			}
 

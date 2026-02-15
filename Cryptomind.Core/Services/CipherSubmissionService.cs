@@ -53,7 +53,7 @@ namespace Cryptomind.Core.Services
 					CreatedByUserId = userId,
 					CipherTags = new List<CipherTag>(),
 					HintsRequested = new List<HintRequest>(),
-					CreatedAt = DateTime.UtcNow
+					CreatedAt = DateTime.UtcNow,
 				};
 			}
 			else if (model.CipherDefinition == CipherDefinition.ImageCipher)
