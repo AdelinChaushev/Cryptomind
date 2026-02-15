@@ -14,6 +14,16 @@ namespace Cryptomind.Core.Services
 		INotificationService notificationService,
 		UserManager<ApplicationUser> userManager) : IAdminAnswerService
 	{
+		public async Task<int> GetPendingAnswersCount()
+		{
+			return (await answerRepo.GetAllAsync())
+				.Count(x => x.Status == ApprovalStatus.Pending);
+		}
+		public async Task<int> GetApprovedAnswersCount()
+		{
+			return (await answerRepo.GetAllAsync())
+				.Count(x => x.Status == ApprovalStatus.Approved);
+		}
 		public async Task<List<AnswerSuggestionViewModel>> AllSubmittedAnswersAsync()
 		{
 			var answerSuggestions = (await answerRepo.GetAllAsync())

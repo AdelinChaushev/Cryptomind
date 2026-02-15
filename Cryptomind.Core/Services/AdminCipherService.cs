@@ -35,6 +35,25 @@ namespace Cryptomind.Core.Services
 			[CipherType.Autokey] = 500,
 		};
 
+		public async Task<List<string>> GetRecentCipherSubmissionTitles()
+		{
+			return (await cipherRepo.GetAllAsync())
+				.Where(x => x.Status == ApprovalStatus.Pending)
+				.OrderByDescending(x => x.CreatedAt)
+				.Take(5)
+				.Select(x => x.Title)
+				.ToList();
+		}
+		public async Task<int> GetPendingCiphersCount()
+		{
+			return (await cipherRepo.GetAllAsync())
+				.Count(x => x.Status == ApprovalStatus.Pending);
+		}
+		public async Task<int> GetApprovedCiphersCount()
+		{
+			return (await cipherRepo.GetAllAsync())
+				.Count(x => x.Status == ApprovalStatus.Approved);
+		}
 		public async Task<List<CipherReviewOutputViewModel>> AllSubmittedCiphers()
 		{
 			var result = (await cipherRepo.GetAllAsync())
@@ -106,9 +125,13 @@ namespace Cryptomind.Core.Services
 			if (cipher.LLMData.Reasoning != null)
 				return new CipherValidationResult
 				{
+					PredictedType = cipher.LLMData.PredictedType,
 					Reasoning = cipher.LLMData.Reasoning,
 					Confidence = cipher.LLMData.Confidence,
 					Issues = cipher.LLMData.Issues,
+					SolutionCorrect = cipher.LLMData.SolutionCorrect,
+					IsAppropriate = cipher.LLMData.IsAppropriate ?? true,
+					IsSolvable = cipher.LLMData.IsSolvable
 				};
 
 			var mlPredictionJson = cipher.MLPrediction;
@@ -137,6 +160,9 @@ namespace Cryptomind.Core.Services
 			cipher.LLMData.Confidence = validation.Confidence;
 			cipher.LLMData.Issues = validation.Issues;
 			cipher.LLMData.PredictedType = validation.PredictedType;
+			cipher.LLMData.SolutionCorrect = validation.SolutionCorrect;
+			cipher.LLMData.IsAppropriate = validation.IsAppropriate;
+			cipher.LLMData.IsSolvable = validation.IsSolvable;
 
 			await cipherRepo.UpdateAsync(cipher);
 			return validation;
