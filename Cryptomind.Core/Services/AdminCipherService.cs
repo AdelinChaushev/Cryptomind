@@ -7,6 +7,8 @@ using Cryptomind.Common.Enums;
 using System.Text.Json;
 using Cryptomind.Common.ViewModels.AdminViewModels;
 using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
+using static Cryptomind.Core.Services.LLMService;
+using Microsoft.AspNetCore.Identity;
 
 namespace Cryptomind.Core.Services
 {
@@ -15,7 +17,8 @@ namespace Cryptomind.Core.Services
 		IRepository<UserSolution, int> solutionRepo,
 		IRepository<Tag, int> tagRepo,
 		ILLMService llmService,
-		INotificationService notificationService) : IAdminCipherService
+		INotificationService notificationService,
+		UserManager<ApplicationUser> userManager) : IAdminCipherService
 	{
 		private readonly Dictionary<CipherType, int> PointsForType = new Dictionary<CipherType, int>()
 		{
@@ -60,7 +63,7 @@ namespace Cryptomind.Core.Services
 				.OrderBy(x => x.CreatedAt)
 				.ToList();
 
-			if (result == null) 
+			if (result.Any()) //Should we be throwing an exception? Empty is normal state
 				throw new InvalidOperationException("Wasn't able to retrieve submitted ciphers");
 
 			return ToReviewOutputViewModelMany(result);
@@ -177,8 +180,11 @@ namespace Cryptomind.Core.Services
 
 			string userId = cipher.CreatedByUserId;
 
+			if ((await userManager.FindByIdAsync(userId)) != null)
+				throw new InvalidOperationException("User not found.");
+
 			//We check trough all the ciphers doesn't matter if they are approved, rejected or pending.
-			if (cipherRepo.GetAll().FirstOrDefault(x => x.Title == model.Title && x.Id != id) != null)
+			if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.Title == model.Title && x.Id != id) != null)
 					throw new InvalidOperationException("There is already a cipher with this title");
 
 
@@ -193,7 +199,7 @@ namespace Cryptomind.Core.Services
 			if (cipher.ChallengeType == ChallengeType.Experimental && (model.AllowHint || model.AllowSolution || model.AllowTypeHint))
 				throw new InvalidOperationException("Hints cannot be used for Experimental Ciphers");
 
-			var title = string.IsNullOrEmpty(model.Title) ? cipher.EncryptedText : model.Title;
+			var title = string.IsNullOrEmpty(model.Title) ? cipher.EncryptedText : model.Title; //Not good to keep the full title
 			cipher.Title = title;
 			cipher.AllowHint = model.AllowHint;
 			cipher.AllowSolution = model.AllowSolution;
@@ -224,6 +230,9 @@ namespace Cryptomind.Core.Services
 				throw new InvalidOperationException("Cipher already approved");
 
 			string userId = cipher.CreatedByUserId;
+
+			if ((await userManager.FindByIdAsync(userId)) != null)
+				throw new InvalidOperationException("User not found.");
 
 			cipher.Status = ApprovalStatus.Rejected;
 			cipher.RejectedAt = DateTime.UtcNow;

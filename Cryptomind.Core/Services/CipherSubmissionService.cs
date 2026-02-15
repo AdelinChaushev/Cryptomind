@@ -1,20 +1,13 @@
 ﻿using Cryptomind.Common.Enums;
-using Cryptomind.Common.ViewModels.AnswerSubmissionViewModels;
 using Cryptomind.Common.ViewModels.CipherSubmissionViewModels;
 using Cryptomind.Common.ViewModels.CipherViewModels;
 using Cryptomind.Core.Contracts;
-using Cryptomind.Core.Services.OCR;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Cryptomind.Core.Services
 {
@@ -26,10 +19,10 @@ namespace Cryptomind.Core.Services
 	{
 		public async Task<Cipher> SubmitCipherAsync(SubmitCipherViewModel model, string userId)
 		{
-			if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.Title == model.Title) != null)
+			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.Title == model.Title) != null)
 				throw new InvalidOperationException("There is already a cipher with this title");
 
-			if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.EncryptedText == model.EncryptedText) != null)
+			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.EncryptedText == model.EncryptedText) != null)
 				throw new InvalidOperationException("There is already a cipher like this");
 
 			if (string.IsNullOrEmpty(model.DecryptedText) && model.CipherType == null)
@@ -137,7 +130,7 @@ namespace Cryptomind.Core.Services
 				userProvidedType: model.CipherType != null,
 				userProvidedSolution: !string.IsNullOrWhiteSpace(model.DecryptedText),
 				isPlaintextValid: cipher.IsPlaintextValid,
-				typesMatch: model.CipherType.ToString().ToLower() == mlResult.TopPrediction.Type.ToLower()
+				typesMatch: model.CipherType?.ToString().ToLower() == mlResult.TopPrediction.Type.ToLower()
 			);
 
 			await cipherRepo.AddAsync(cipher);
@@ -152,7 +145,7 @@ namespace Cryptomind.Core.Services
 				.ToListAsync();
 
 			if (ciphers.Count == 0)
-				return null;
+				return new List<CipherSubmissionViewModel>();
 
 			var models = new List<CipherSubmissionViewModel>();
 			foreach (var cipher in ciphers)
@@ -205,11 +198,12 @@ namespace Cryptomind.Core.Services
 
 			// File size validation (e.g., max 5MB)
 			const int maxSizeInBytes = 5 * 1024 * 1024;
+			if (imageFile.Length == 0)
+				throw new InvalidOperationException("File cannot be empty");
+
 			if (imageFile.Length > maxSizeInBytes)
 				throw new InvalidOperationException("File size cannot exceed 5MB");
 
-			if (imageFile.Length == 0)
-				throw new InvalidOperationException("File cannot be empty");
 		}
 		private bool DetermineLLMRecommendation(
 			double mlConfidence,
@@ -219,12 +213,6 @@ namespace Cryptomind.Core.Services
 			bool isPlaintextValid,
 			bool typesMatch)
 		{
-			if (!userProvidedType && !userProvidedSolution)
-			{
-				throw new InvalidOperationException(
-					"Incomplete submission: Please provide cipher type and/or solution.");
-			}
-
 			bool isProblematic = ProblematicCipherTypes.Contains(mlType.ToLower());
 
 			if (userProvidedType && userProvidedSolution)
