@@ -16,6 +16,7 @@ namespace Cryptomind.Core.Services
 		{
 			Cipher? cipher = await cipherRepo.GetAllAttached()
 				.Include(x => x.AnswerSuggestions)
+				.Where(x => x.Status == ApprovalStatus.Approved)
 				.FirstOrDefaultAsync(x => x.Id == cipherId);
 
 			if (cipher == null)
