@@ -63,8 +63,9 @@ namespace Cryptomind.Core.Services
 				.OrderBy(x => x.CreatedAt)
 				.ToList();
 
-			if (result.Any()) //Should we be throwing an exception? Empty is normal state
-				throw new InvalidOperationException("Wasn't able to retrieve submitted ciphers");
+			if (!result.Any())
+				return new List<CipherReviewOutputViewModel>();
+				//throw new InvalidOperationException("Wasn't able to retrieve submitted ciphers");
 
 			return ToReviewOutputViewModelMany(result);
 		}
@@ -74,8 +75,9 @@ namespace Cryptomind.Core.Services
 				.Where(c => c.Status == ApprovalStatus.Approved)
 				.ToList();
 
-			if (result == null) 
-				throw new InvalidOperationException("Wasn't able to retrieve approved ciphers");
+			if (!result.Any())
+				return new List<CipherReviewOutputViewModel>();
+				//throw new InvalidOperationException("Wasn't able to retrieve approved ciphers");
 
 			if (!string.IsNullOrEmpty(filter.SearchTerm))
 				result = result.Where(c => c.Title.Contains(filter.SearchTerm)).ToList();
@@ -180,7 +182,7 @@ namespace Cryptomind.Core.Services
 
 			string userId = cipher.CreatedByUserId;
 
-			if ((await userManager.FindByIdAsync(userId)) != null)
+			if ((await userManager.FindByIdAsync(userId)) == null)
 				throw new InvalidOperationException("User not found.");
 
 			//We check trough all the ciphers doesn't matter if they are approved, rejected or pending.
@@ -197,7 +199,7 @@ namespace Cryptomind.Core.Services
 				: ChallengeType.Standard;
 
 			if (cipher.ChallengeType == ChallengeType.Experimental && (model.AllowHint || model.AllowSolution || model.AllowTypeHint))
-				throw new InvalidOperationException("Hints cannot be used for Experimental Ciphers");
+				throw new InvalidOperationException("Hints cannot be used for experimental ciphers");
 
 			var title = string.IsNullOrEmpty(model.Title) ? cipher.EncryptedText : model.Title; //Not good to keep the full title
 			cipher.Title = title;
