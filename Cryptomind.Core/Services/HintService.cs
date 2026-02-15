@@ -25,7 +25,7 @@ namespace Cryptomind.Core.Services
 			if (cipher.CreatedByUserId == userId)
 				throw new InvalidOperationException("You cannot request hints for your own cipher");
 
-			if (cipher.UserSolutions.Any(x => x.UserId == userId))
+			if (cipher.UserSolutions.Any(x => x.UserId == userId && x.IsCorrect))
 				throw new InvalidOperationException("You have already solved this cipher");
 
 			bool isAllowed = hintType switch
