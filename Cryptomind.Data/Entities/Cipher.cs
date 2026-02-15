@@ -52,6 +52,9 @@ public class CipherLLMData
 	public List<string>? Issues { get; set; }
 	public string? PredictedType { get; set; }
 	public string? Confidence { get; set; }
+	public bool? SolutionCorrect { get; set; }
+	public bool? IsAppropriate { get; set; }
+	public bool? IsSolvable { get; set; }
 	public string CachedHint { get; set; } = string.Empty;
 	public string CachedSolution { get; set; } = string.Empty;
 	public string CachedTypeHint { get; set; } = string.Empty;

@@ -9,6 +9,8 @@ namespace Cryptomind.Core.Contracts
 {
 	public interface IAdminAnswerService
 	{
+		Task<int> GetPendingAnswersCount();
+		Task<int> GetApprovedAnswersCount();
 		Task<List<AnswerSuggestionViewModel>> AllSubmittedAnswersAsync();
 		Task<AnswerSuggestionReviewViewModel> GetAnswerById(int id);
 		Task<List<string>> ApproveAnswerAsync(int id, int points);

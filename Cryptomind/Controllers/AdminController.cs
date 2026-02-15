@@ -16,6 +16,19 @@ namespace Cryptomind.Controllers
 		IAdminUserService adminUserService,
 		IBadgeService badgeService) : ControllerBase
 	{
+		[HttpGet("dashboard")]
+		public async Task<IActionResult> GetDashboard()
+		{
+			return Ok(new DashboardViewModel
+			{
+				ApprovedCiphersCount = await adminCipherService.GetApprovedCiphersCount(),
+				PendingCiphersCount = await adminCipherService.GetPendingCiphersCount(),
+				PendingCipherTitles = await adminCipherService.GetRecentCipherSubmissionTitles(),
+				ApprovedAnswersCount = await adminAnswerService.GetApprovedAnswersCount(),
+				PendingAnswersCount = await adminAnswerService.GetPendingAnswersCount(),
+			});
+		}
+
 		#region Cipher-specific
 		[HttpGet("approved-ciphers")]
 		public async Task<IActionResult> GetApprovedCiphers([FromQuery] CipherFilter filter)
