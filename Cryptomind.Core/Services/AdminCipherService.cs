@@ -103,7 +103,7 @@ namespace Cryptomind.Core.Services
 			if (cipher == null)
 				throw new InvalidOperationException("Ciper not found");
 
-			if (cipher.LLMData.Reasoning != null) //Review when refining API requests.
+			if (cipher.LLMData.Reasoning != null)
 				return new CipherValidationResult
 				{
 					Reasoning = cipher.LLMData.Reasoning,
