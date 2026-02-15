@@ -14,6 +14,7 @@ namespace Cryptomind.Common.ViewModels.AdminViewModels
 		public bool AllowTypeHint { get; set; }
 		public bool AllowHint { get; set; }
 		public bool AllowSolution { get; set; }
+		public CipherType? TypeOfCipher { get; set; }
 		public ChallengeType ChallengeType { get; set; }
 		public ICollection<int>? TagIds { get; set; }
 	}
