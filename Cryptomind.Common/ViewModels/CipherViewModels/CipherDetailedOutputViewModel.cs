@@ -31,7 +31,10 @@ namespace Cryptomind.Common.ViewModels.CipherViewModels
 		public bool TypeHintUsed { get; set; }
 		public bool SolutionHintUsed { get; set; }
 		public bool FullSolutionUsed { get; set; }
-		public List<CipherSolverViewModel> RecentSolvers { get; set; }
+
+		public int AllSubmissions { get; set; }
+        public int SuccessfulSubmissions { get; set; }
+        public List<CipherSolverViewModel> RecentSolvers { get; set; }
 		public List<HintData> PreviousHints { get; set; }
 		public List<Tag> Tags { get; set; }
 	}
