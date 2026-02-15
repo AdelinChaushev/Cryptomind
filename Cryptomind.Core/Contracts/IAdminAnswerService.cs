@@ -11,7 +11,7 @@ namespace Cryptomind.Core.Contracts
 	{
 		Task<List<AnswerSuggestionViewModel>> AllSubmittedAnswersAsync();
 		Task<AnswerSuggestionReviewViewModel> GetAnswerById(int id);
-		Task<string> ApproveAnswerAsync(int id, int points);
+		Task<List<string>> ApproveAnswerAsync(int id, int points);
 		Task RejectAnswerAsync(int id, string reason);
 	}
 }
