@@ -85,7 +85,7 @@ namespace Cryptomind.Core.Services
 
 			var firstCorrectAnswerSuggestion = (await answerRepo.GetAllAsync())
 				.Where(x => x.CipherId == selectedAnswer.CipherId)
-				.Where(x => x.DecryptedText == selectedAnswer.DecryptedText)
+				.Where(x => x.DecryptedText.Trim().ToLower() == selectedAnswer.DecryptedText.Trim().ToLower())
 				.OrderBy(x => x.UplodaedTime)
 				.First();
 
@@ -105,12 +105,12 @@ namespace Cryptomind.Core.Services
 
 			var otherCorrectAnswerSuggestions = (await answerRepo.GetAllAsync())
 				.Where(x => x.CipherId == selectedAnswer.CipherId)
-				.Where(x => x.DecryptedText == selectedAnswer.DecryptedText && x.Id != firstCorrectAnswerSuggestion.Id)
+				.Where(x => x.DecryptedText.Trim().ToLower() == selectedAnswer.DecryptedText.Trim().ToLower() && x.Id != firstCorrectAnswerSuggestion.Id)
 				.Where(x => x.Status == ApprovalStatus.Pending);
 
 			var wrongAnswerSuggestions = (await answerRepo.GetAllAsync())
 				.Where(x => x.CipherId == selectedAnswer.CipherId)
-				.Where(x => x.DecryptedText != selectedAnswer.DecryptedText)
+				.Where(x => x.DecryptedText.Trim().ToLower() != selectedAnswer.DecryptedText.Trim().ToLower())
 				.Where(x => x.Status == ApprovalStatus.Pending);
 
 			if (user == null)
