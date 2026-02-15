@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Cryptomind.Core.Services
 {
-	public class BadgeStatiscticsService(
+	public class BadgeStatisticsService(
 		IRepository<Cipher, int> cipherRepo, 
 		IRepository<ApplicationUser, string> userRepo,
 		IRepository<UserSolution, int> solutionRepo) : IBadgeStatisticsService
@@ -18,7 +18,7 @@ namespace Cryptomind.Core.Services
 				.SelectMany(u => u.UploadedCiphers)
 				.CountAsync(c => c.Status == ApprovalStatus.Approved);
 		}
-		public async Task<int> GetDestinctCipherTypesSolved(string userId)
+		public async Task<int> GetDistinctCipherTypesSolved(string userId)
 		{
 			return await solutionRepo.GetAllAttached()
 				.Where(s => s.UserId == userId)
@@ -26,7 +26,6 @@ namespace Cryptomind.Core.Services
 				.Distinct()
 				.CountAsync();
 		}
-
 		public async Task<int> GetApprovedAnswersCount(string userId)
 		{
 			return await userRepo.GetAllAttached()
@@ -34,13 +33,12 @@ namespace Cryptomind.Core.Services
 				.SelectMany(u => u.SuggestedAnswers)
 				.CountAsync(a => a.Status == ApprovalStatus.Approved);
 		}
-
-
 		public async Task<int> GetSolvedCount(string userId)
-			=> (await userRepo.GetByIdAsync(userId)).SolvedCount;
-
-		public async Task<ApplicationUser> GetUser(string userId)
-			=> await userRepo.GetByIdAsync(userId);
-
+		{
+			var user = await userRepo.GetByIdAsync(userId);
+			if (user == null)
+				throw new InvalidOperationException("User not found");
+			return user.SolvedCount;
+		}
 	}
 }
