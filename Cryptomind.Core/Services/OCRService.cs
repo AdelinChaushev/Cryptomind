@@ -2,207 +2,47 @@
 using Cryptomind.Core.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
+using Cryptomind.Common.Constants;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace Cryptomind.Core.Services.OCR
 {
 	public class OCRService : IOCRService
 	{
-		private readonly HttpClient _httpClient;
-		private readonly string _ocrApiUrl;
+		private readonly HttpClient httpClient;
+		private readonly string ocrApiUrl;
 
-		private const int ApiTimeoutSeconds = 30;
+		private const int ApiTimeoutSeconds = OCRServiceConstants.ApiTimeoutSeconds;
 
 		public OCRService(
 			IHttpClientFactory httpClientFactory,
 			IConfiguration configuration)
 		{
-			_httpClient = httpClientFactory.CreateClient();
-			_httpClient.Timeout = TimeSpan.FromSeconds(ApiTimeoutSeconds);
-
-			_ocrApiUrl = configuration["OCRService:ApiUrl"] ?? "http://localhost:5001";
+			httpClient = httpClientFactory.CreateClient();
+			httpClient.Timeout = TimeSpan.FromSeconds(ApiTimeoutSeconds);
+			ocrApiUrl = configuration["OCRService:ApiUrl"] ?? "http://localhost:5001";
 		}
 		public async Task<OCRResultDTO> ExtractTextFromImageAsync(IFormFile imageFile)
 		{
 			if (imageFile == null || imageFile.Length == 0)
-			{
 				throw new ArgumentException("Image file cannot be empty", nameof(imageFile));
-			}
 
-			try
-			{
-				// Prepare multipart form data
-				using var content = new MultipartFormDataContent();
-				using var fileStream = imageFile.OpenReadStream();
-				using var streamContent = new StreamContent(fileStream);
-
-				streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(imageFile.ContentType);
-				content.Add(streamContent, "image", imageFile.FileName);
-
-				// Call Python OCR service
-				var response = await _httpClient.PostAsync($"{_ocrApiUrl}/ocr/extract", content);
-
-				if (!response.IsSuccessStatusCode)
-				{
-					var errorContent = await response.Content.ReadAsStringAsync();
-					throw new InvalidOperationException(
-						$"OCR API returned error (Status {response.StatusCode}): {errorContent}"
-					);
-				}
-
-				var responseJson = await response.Content.ReadAsStringAsync();
-
-				var pythonResponse = JsonSerializer.Deserialize<PythonOCRResponse>(
-					responseJson,
-					new JsonSerializerOptions
-					{
-						PropertyNameCaseInsensitive = true
-					}
-				);
-
-				if (pythonResponse == null)
-				{
-					throw new InvalidOperationException("Failed to parse OCR API response");
-				}
-
-				if (!pythonResponse.Success)
-				{
-					throw new InvalidOperationException(
-						$"OCR extraction failed: {pythonResponse.Error ?? "Unknown error"}"
-					);
-				}
-
-				return ConvertToDTO(pythonResponse);
-			}
-			catch (HttpRequestException ex)
-			{
-				throw new InvalidOperationException(
-					$"OCR service is unavailable. Please ensure the Python OCR API is running at {_ocrApiUrl}",
-					ex
-				);
-			}
-			catch (TaskCanceledException ex)
-			{
-				throw new InvalidOperationException(
-					$"OCR service request timed out after {ApiTimeoutSeconds} seconds",
-					ex
-				);
-			}
-			catch (JsonException ex)
-			{
-				throw new InvalidOperationException(
-					"Failed to parse response from OCR service. The service may be returning invalid data.",
-					ex
-				);
-			}
-			catch (InvalidOperationException)
-			{
-				throw;
-			}
-			catch (Exception ex)
-			{
-				throw new InvalidOperationException(
-					$"An unexpected error occurred during OCR extraction: {ex.Message}",
-					ex
-				);
-			}
+			return await SendOCRRequestAsync(imageFile, "ocr/extract");
 		}
+
 		public async Task<OCRResultDTO> ExtractTextWithMultipleMethodsAsync(IFormFile imageFile)
 		{
 			if (imageFile == null || imageFile.Length == 0)
-			{
 				throw new ArgumentException("Image file cannot be empty", nameof(imageFile));
-			}
 
-			try
-			{
-				// Prepare multipart form data
-				using var content = new MultipartFormDataContent();
-				using var fileStream = imageFile.OpenReadStream();
-				using var streamContent = new StreamContent(fileStream);
-
-				streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(imageFile.ContentType);
-				content.Add(streamContent, "image", imageFile.FileName);
-
-				// Call Python OCR service with multiple methods endpoint
-				var response = await _httpClient.PostAsync($"{_ocrApiUrl}/ocr/extract-multiple", content);
-
-				if (!response.IsSuccessStatusCode)
-				{
-					var errorContent = await response.Content.ReadAsStringAsync();
-					throw new InvalidOperationException(
-						$"OCR API returned error (Status {response.StatusCode}): {errorContent}"
-					);
-				}
-
-				var responseJson = await response.Content.ReadAsStringAsync();
-
-				var pythonResponse = JsonSerializer.Deserialize<PythonOCRResponse>(
-					responseJson,
-					new JsonSerializerOptions
-					{
-						PropertyNameCaseInsensitive = true
-					}
-				);
-
-				if (pythonResponse == null)
-				{
-					throw new InvalidOperationException("Failed to parse OCR API response");
-				}
-
-				if (!pythonResponse.Success)
-				{
-					throw new InvalidOperationException(
-						$"OCR extraction with multiple methods failed: {pythonResponse.Error ?? "Unknown error"}"
-					);
-				}
-
-				return ConvertToDTO(pythonResponse);
-			}
-			catch (HttpRequestException ex)
-			{
-				throw new InvalidOperationException(
-					$"OCR service is unavailable. Please ensure the Python OCR API is running at {_ocrApiUrl}",
-					ex
-				);
-			}
-			catch (TaskCanceledException ex)
-			{
-				throw new InvalidOperationException(
-					$"OCR service request timed out after {ApiTimeoutSeconds} seconds",
-					ex
-				);
-			}
-			catch (JsonException ex)
-			{
-				throw new InvalidOperationException(
-					"Failed to parse response from OCR service. The service may be returning invalid data.",
-					ex
-				);
-			}
-			catch (InvalidOperationException)
-			{
-				throw;
-			}
-			catch (Exception ex)
-			{
-				throw new InvalidOperationException(
-					$"An unexpected error occurred during OCR extraction: {ex.Message}",
-					ex
-				);
-			}
+			return await SendOCRRequestAsync(imageFile, "ocr/extract-multiple");
 		}
 		public async Task<bool> IsServiceHealthyAsync()
 		{
 			try
 			{
-				var response = await _httpClient.GetAsync($"{_ocrApiUrl}/health");
+				var response = await httpClient.GetAsync($"{ocrApiUrl}/health");
 				return response.IsSuccessStatusCode;
 			}
 			catch
@@ -210,6 +50,8 @@ namespace Cryptomind.Core.Services.OCR
 				return false;
 			}
 		}
+
+		#region Private methods
 		private OCRResultDTO ConvertToDTO(PythonOCRResponse pythonResponse)
 		{
 			return new OCRResultDTO
@@ -241,6 +83,35 @@ namespace Cryptomind.Core.Services.OCR
 				Recommendation = pythonValidation.Recommendation ?? string.Empty
 			};
 		}
+		private async Task<OCRResultDTO> SendOCRRequestAsync(IFormFile imageFile, string endpoint)
+		{
+			using var content = new MultipartFormDataContent();
+			using var fileStream = imageFile.OpenReadStream();
+			using var streamContent = new StreamContent(fileStream);
+
+			streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(imageFile.ContentType);
+			content.Add(streamContent, "image", imageFile.FileName);
+
+			var response = await httpClient.PostAsync($"{ocrApiUrl}/{endpoint}", content);
+
+			if (!response.IsSuccessStatusCode)
+			{
+				var errorContent = await response.Content.ReadAsStringAsync();
+				throw new InvalidOperationException($"OCR API returned error (Status {response.StatusCode}): {errorContent}");
+			}
+
+			var responseJson = await response.Content.ReadAsStringAsync();
+			var pythonResponse = JsonSerializer.Deserialize<PythonOCRResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+			if (pythonResponse == null)
+				throw new InvalidOperationException("Failed to parse OCR API response");
+
+			if (!pythonResponse.Success)
+				throw new InvalidOperationException($"OCR extraction failed: {pythonResponse.Error ?? "Unknown error"}");
+
+			return ConvertToDTO(pythonResponse);
+		}
+		#endregion
 
 		#region Internal Models for Python API
 		private class PythonOCRResponse
@@ -256,9 +127,6 @@ namespace Cryptomind.Core.Services.OCR
 
 			[JsonPropertyName("char_count")]
 			public int CharCount { get; set; }
-
-			[JsonPropertyName("method")]
-			public string Method { get; set; }
 
 			[JsonPropertyName("validation")]
 			public PythonValidation Validation { get; set; }
