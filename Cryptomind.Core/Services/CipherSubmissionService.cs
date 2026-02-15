@@ -19,10 +19,10 @@ namespace Cryptomind.Core.Services
 	{
 		public async Task<Cipher> SubmitCipherAsync(SubmitCipherViewModel model, string userId)
 		{
-			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.Title == model.Title) != null)
+			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.Title == model.Title && x.CreatedByUserId != userId))
 				throw new InvalidOperationException("There is already a cipher with this title");
 
-			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.EncryptedText == model.EncryptedText) != null)
+			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.EncryptedText == model.EncryptedText && x.CreatedByUserId != userId))
 				throw new InvalidOperationException("There is already a cipher like this");
 
 			if (string.IsNullOrEmpty(model.DecryptedText) && model.CipherType == null)

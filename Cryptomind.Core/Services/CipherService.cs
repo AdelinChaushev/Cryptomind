@@ -80,6 +80,7 @@ namespace Cryptomind.Core.Services
 				.Include(x => x.UserSolutions)
 				.ThenInclude(x => x.User)
 				.Include(x => x.HintsRequested)
+				.Where(x => x.Status == ApprovalStatus.Approved)
 				.FirstOrDefaultAsync(x => x.Id == id);
 
 			if (cipher == null)
@@ -92,6 +93,7 @@ namespace Cryptomind.Core.Services
 			Cipher? cipher = await cipherRepo.GetAllAttached()
 				.Include(x => x.UserSolutions)
 				.Include(x => x.HintsRequested)
+				.Where(x => x.Status == ApprovalStatus.Approved)
 				.FirstOrDefaultAsync(x => x.Id == cipherId);
 
 			if (cipher == null) 

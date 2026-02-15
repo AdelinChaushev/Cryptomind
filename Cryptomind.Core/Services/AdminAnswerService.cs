@@ -210,7 +210,7 @@ namespace Cryptomind.Core.Services
 				throw new InvalidOperationException("User not found");
 
 			await answerRepo.UpdateAsync(answer);
-			await notificationService.CreateAndSendNotification(answer.UserId, NotificationType.AnswerRejected, reason, null, string.Empty);
+			await notificationService.CreateAndSendNotification(answer.UserId, NotificationType.AnswerRejected, reason, answer.Id, string.Empty);
 		}
 		#endregion
 	}
