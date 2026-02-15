@@ -177,6 +177,7 @@ namespace Cryptomind.Core.Services
 
 			return model;
 		}
+		
 		private async Task<CipherDetailedOutputViewModel> ToDetailedOutputViewModel(Cipher cipher, string userId)
 		{
 			bool isSolved = cipher.UserSolutions.Any(x => x.UserId == userId);
@@ -185,6 +186,14 @@ namespace Cryptomind.Core.Services
 					.Where(x => x.UserId == userId)
 					.OrderBy(x => x.HintType)
 					.ToList();
+			
+			double successfullSolutionCount = cipher.UserSolutions.Count(x => x.IsCorrect);
+			double unsuccessfullSolutionCount = cipher.UserSolutions.Count(x => !x.IsCorrect);
+			double successRate = 0;
+            if (successfullSolutionCount != 0 || unsuccessfullSolutionCount != 0)
+			{
+                 successRate = successfullSolutionCount / (unsuccessfullSolutionCount + successfullSolutionCount) * 100;
+            }
 
 			var successfullSolutionCount = cipher.UserSolutions.Count(x => x.IsCorrect);
 			var allSolutions = cipher.UserSolutions.Count;
@@ -203,9 +212,8 @@ namespace Cryptomind.Core.Services
 				var cipherSolver = new CipherSolverViewModel
 				{
 					UserName = userName,
-					SolvedSince = GetTimeSpan(solvedAt)
+					SolvedSince = solvedAt
 				};
-
 				recentSolvers.Add(cipherSolver);
 			}
 
@@ -218,7 +226,7 @@ namespace Cryptomind.Core.Services
 				AlreadySolved = cipher.UserSolutions.FirstOrDefault(x => x.UserId == userId) != null,
 				Points = cipher.Points,
 				IsImage = cipher is ImageCipher,
-				SuccessRate = successRate,			
+				SuccessRate = successRate,
 				AllowsAnswer = cipher.AllowSolution,
 				AllowsHint = cipher.AllowHint,
 				ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
@@ -231,7 +239,9 @@ namespace Cryptomind.Core.Services
 				TypeHintUsed = userHints.Any(x => x.HintType == HintType.Type),
 				SolutionHintUsed = userHints.Any(x => x.HintType == HintType.Hint),
 				FullSolutionUsed = userHints.Any(x => x.HintType == HintType.FullSolution),
-				Tags = cipher.CipherTags.Select(x => x.Tag).ToList(),
+				AllSubmissions = cipher.UserSolutions.Count(),
+                SuccessfulSubmissions = (int)successfullSolutionCount,
+                Tags = cipher.CipherTags.Select(x => x.Tag).ToList(),
 				PreviousHints = userHints.Select(x => new HintData
 				{
 					Type = x.HintType,
