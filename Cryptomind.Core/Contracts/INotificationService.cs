@@ -11,7 +11,7 @@ namespace Cryptomind.Core.Contracts
 	public interface INotificationService
 	{
 		Task CreateAndSendNotification(string userId, NotificationType type, string message, int? relatedEntityId, string link);
-		Task<List<Notification>> GetUserNotifications(string userId, int limit = 20);
+		Task<List<Notification>> GetUserNotifications(string userId);
 		Task MarkAsRead(int notificationId, string userId);
 		Task<int> GetUnreadCount(string userId);
 	}

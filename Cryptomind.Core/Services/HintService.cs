@@ -3,18 +3,13 @@ using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Cryptomind.Core.Services
 {
 	public class HintService(
 		IRepository<Cipher, int> cipherRepo,
 		IRepository<HintRequest, int> hintRequestRepo,
-		ILLMService llmSerice
+		ILLMService llmService
 		) : IHintService
 	{
 		public async Task<string> RequestHintAsync(string userId, int cipherId, HintType hintType)
@@ -35,8 +30,8 @@ namespace Cryptomind.Core.Services
 
 			bool isAllowed = hintType switch
 			{
-				HintType.Type=> cipher.AllowTypeHint,
-				HintType.Hint=> cipher.AllowHint,
+				HintType.Type => cipher.AllowTypeHint,
+				HintType.Hint => cipher.AllowHint,
 				HintType.FullSolution => cipher.AllowSolution,
 				_ => false
 			};
@@ -53,24 +48,12 @@ namespace Cryptomind.Core.Services
 				return existingHint.HintContent;
 			}
 
-			string cachedHint = string.Empty;
-			switch (hintType)
-			{
-				case HintType.Type:
-					cachedHint = cipher.LLMData.CachedTypeHint;
-					break;
-				case HintType.Hint:
-					cachedHint = cipher.LLMData.CachedHint;
-					break;
-				case HintType.FullSolution:
-					cachedHint = cipher.LLMData.CachedSolution;
-					break;
-			}
+			string cachedHint = GetCachedHint(cipher, hintType);
 
-			if (cachedHint != string.Empty)
+			if (!string.IsNullOrEmpty(cachedHint))
 				return cachedHint;
 
-			string hintContent = await llmSerice.GetHint(cipher, hintType);
+			string hintContent = await llmService.GetHint(cipher, hintType);
 
 			var hintRequest = new HintRequest
 			{
@@ -81,22 +64,31 @@ namespace Cryptomind.Core.Services
 				HintContent = hintContent,
 			};
 
-			switch (hintType)
-			{
-				case HintType.Type:
-					cipher.LLMData.CachedTypeHint = hintContent;
-					break;
-				case HintType.Hint:
-					cipher.LLMData.CachedHint = hintContent;
-					break;
-				case HintType.FullSolution:
-					cipher.LLMData.CachedSolution = hintContent;
-					break;
-			}
+			SetCachedHint(cipher, hintType, hintContent);
 
 			await hintRequestRepo.AddAsync(hintRequest);
 			await cipherRepo.UpdateAsync(cipher);
 			return hintContent;
 		}
+
+		#region Private methods
+		private string GetCachedHint(Cipher cipher, HintType hintType) => hintType switch
+		{
+			HintType.Type => cipher.LLMData.CachedTypeHint,
+			HintType.Hint => cipher.LLMData.CachedHint,
+			HintType.FullSolution => cipher.LLMData.CachedSolution,
+			_ => null
+		};
+
+		private void SetCachedHint(Cipher cipher, HintType hintType, string content)
+		{
+			switch (hintType)
+			{
+				case HintType.Type: cipher.LLMData.CachedTypeHint = content; break;
+				case HintType.Hint: cipher.LLMData.CachedHint = content; break;
+				case HintType.FullSolution: cipher.LLMData.CachedSolution = content; break;
+			}
+		}
+		#endregion
 	}
 }

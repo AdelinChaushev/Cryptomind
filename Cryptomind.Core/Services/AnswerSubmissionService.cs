@@ -36,7 +36,8 @@ namespace Cryptomind.Core.Services
 			if (cipher.CreatedByUserId == userId)
 				throw new InvalidOperationException("You cannot suggest answers on ciphers created by you.");
 
-			if (cipher.AnswerSuggestions.FirstOrDefault(x => x.UserId == userId && x.DecryptedText == dto.DecryptedText) != null)
+			if (cipher.AnswerSuggestions.Any(x => x.UserId == userId && 
+				x.DecryptedText.Trim().ToLower() == dto.DecryptedText.Trim().ToLower()))
 				throw new InvalidOperationException("You cannot suggest the same answer twice.");
 
 			AnswerSuggestion answer = new AnswerSuggestion
@@ -55,7 +56,6 @@ namespace Cryptomind.Core.Services
 		{
 			var answers = await answerRepo.GetAllAttached()
 				.Include(x => x.Cipher)
-				.Include(x => x.ApplicationUser)
 				.Where(x => x.UserId == userId)
 				.ToListAsync();
 
