@@ -165,8 +165,12 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				string userId = await adminAnswerService.ApproveAnswerAsync(id, points);
-				await badgeService.CheckBadgesByCategory(userId, BadgeCategory.OnSuggesting);
+				List<string> userIds = await adminAnswerService.ApproveAnswerAsync(id, points);
+
+				foreach (var userId in userIds)
+				{
+					await badgeService.CheckBadgesByCategory(userId, BadgeCategory.OnSuggesting);	
+				}
 				return Ok();
 			}
 			catch (Exception ex)
