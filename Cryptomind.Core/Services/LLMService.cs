@@ -287,6 +287,11 @@ namespace Cryptomind.Core.Services
 			- SimpleSubstitution (26! combinations)
 			- Columnar/Route (needs column order or route pattern)
 
+			TASK 3 - TYPE VERIFICATION:
+			Does the ciphertext actually match the user-provided type ({userProvidedType})?
+			Analyze the statistical properties of the ciphertext and assess whether it is consistent with the claimed type.
+			Your confidence reflects how certain you are that the ciphertext matches the user-provided type.
+
 			This assessment is informational for the admin — they make the final decision on how to categorize it.
 
 			is_solvable MUST always be true or false. Never null.
@@ -298,11 +303,13 @@ namespace Cryptomind.Core.Services
 			================================================================================
 
 			{{
+			  ""predicted_type"": ""must be one of the 14 supported types listed above"",
+			  ""confidence"": ""high"" | ""medium"" | ""low"",
 			  ""is_appropriate"": true | false,
 			  ""is_solvable"": true | false,
 			  ""issues"": [""list any specific problems found""],
 			  ""recommendation"": ""approve"" | ""reject"",
-			  ""reasoning"": ""2-3 sentences. If rejecting, explain why. If approving, briefly note the solvability assessment.""
+			  ""reasoning"": ""2-3 sentences. If rejecting, explain why. If approving, briefly note the solvability assessment and type confidence.""
 			}}
 
 			Recommendation rules:
