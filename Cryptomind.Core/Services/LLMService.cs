@@ -198,53 +198,61 @@ namespace Cryptomind.Core.Services
 				mlResult.AllPredictions.Take(5).Select(p => $"{p.Type} ({p.Confidence:P0})"));
 			int textLength = encryptedText.Length;
 			return $@"You are a cryptanalysis expert validating a cipher submission for an educational platform.
+
 			ENCRYPTED TEXT ({textLength} characters):
 			{encryptedText}
-			
+
 			USER-PROVIDED TYPE: {userProvidedType}
 			USER-PROVIDED SOLUTION: {decryptedText}
-			
+
 			ML ANALYSIS:
 			- Top Prediction: {mlResult.TopPrediction.Type} ({mlResult.TopPrediction.Confidence:P0} confidence)
 			- All Predictions: {allPredictions}
-			
+
+			SUPPORTED CIPHER TYPES (the only valid types for this platform):
+			Substitution family: Caesar, ROT13, Atbash, SimpleSubstitution
+			Polyalphabetic family: Vigenere, Autokey, Trithemius
+			Transposition family: RailFence, Columnar, Route
+			Encoding family: Base64, Morse, Binary, Hex
+
 			================================================================================
 			YOUR THREE TASKS
 			================================================================================
 			TASK 1 - APPROPRIATENESS CHECK:
 			After decrypting, is this legitimate cipher content suitable for an educational platform?
 			Reject if: spam, inappropriate content, random gibberish that is clearly not a real cipher, offensive material.
-			
+
 			TASK 2 - VERIFY THE TYPE:
 			Evaluate whether the user-provided type ({userProvidedType}) is correct.
+			The predicted type in your response MUST be one of the 14 supported types listed above.
 			Cross-check it against the ML prediction using this logic:
-			
-			- If ML AND your own analysis independently agree on the same type → commit to that 
+
+			- If ML AND your own analysis independently agree on the same type → commit to that
 			  type confidently, do not let the user override it, set recommendation to approve
 			- If ML is uncertain OR your own analysis disagrees with ML → trust the user over ML
-			
+
 			Known confusion pairs and ML confidence thresholds where ML is considered uncertain:
 			- Columnar/RailFence: ML unreliable below 90% confidence
 			- Vigenere/Trithemius: ML unreliable below 70% confidence
 			- Caesar/SimpleSubstitution: low priority, functionally similar
-			
+
 			TEXT LENGTH IMPACT ON ML RELIABILITY:
 			- Below 150 chars: ML very unreliable
 			- 150-199 chars: Reduced ML reliability
 			- 200-400 chars: Optimal range
 			Current length: {textLength} chars
-			
+
 			TASK 3 - VERIFY THE SOLUTION:
 			Check that the solution is genuinely valid English plaintext.
 			Look for coherent words, natural grammar, and reasonable length relative to the ciphertext.
 			A correct solution should be similar in length to the ciphertext (within ~10%).
-			
+
 			================================================================================
 			JSON RESPONSE FORMAT
 			================================================================================
-			
+
 			{{
-			  ""predicted_type"": ""your determination of the correct cipher type"",
+			  ""predicted_type"": ""must be one of the 14 supported types listed above"",
 			  ""confidence"": ""high"" | ""medium"" | ""low"",
 			  ""solution_correct"": true | false,
 			  ""is_appropriate"": true | false,
@@ -252,9 +260,11 @@ namespace Cryptomind.Core.Services
 			  ""recommendation"": ""approve"" | ""reject"" | ""manual_review"",
 			  ""reasoning"": ""2-3 sentences explaining your decision, referencing confusion patterns if relevant""
 			}}
-			
-			Use ""manual_review"" only when YOU genuinely cannot determine the correct type after your own analysis. If you are confident, commit to it.
-			Use ""reject"" if content is inappropriate, spam, or clearly not a real cipher.";
+
+			Recommendation rules:
+			- ""approve"": content is appropriate, type is identifiable, solution is valid
+			- ""manual_review"": use ONLY when you are genuinely uncertain between two or more of the 14 supported types after your own analysis
+			- ""reject"": use when content is inappropriate, spam, clearly not a real cipher, or the cipher cannot be matched to any of the 14 supported types";
 		}
 
 		private string BuildCase2Prompt(
@@ -265,12 +275,18 @@ namespace Cryptomind.Core.Services
 
 			return $@"You are a cryptanalysis expert reviewing a cipher submission for an educational platform.
 			The user has submitted a cipher with a type but no solution.
-			
+
 			ENCRYPTED TEXT ({textLength} characters):
 			{encryptedText}
-			
+
 			USER-PROVIDED TYPE: {userProvidedType}
-			
+
+			SUPPORTED CIPHER TYPES (the only valid types for this platform):
+			Substitution family: Caesar, ROT13, Atbash, SimpleSubstitution
+			Polyalphabetic family: Vigenere, Autokey, Trithemius
+			Transposition family: RailFence, Columnar, Route
+			Encoding family: Base64, Morse, Binary, Hex
+
 			================================================================================
 			YOUR TWO TASKS
 			================================================================================
@@ -278,35 +294,35 @@ namespace Cryptomind.Core.Services
 			TASK 1 - APPROPRIATENESS CHECK:
 			Is this legitimate cipher content suitable for an educational platform?
 			Reject if: spam, inappropriate content, random gibberish that is clearly not a real cipher, offensive material.
-			
-			TASK 3 - SOLVABILITY ASSESSMENT:
+			Also reject if the encrypted text cannot be matched to any of the 14 supported types listed above.
+
+			TASK 2 - SOLVABILITY ASSESSMENT:
 			Given the cipher type ({userProvidedType}), can this cipher be solved without the original key?
-			
+
 			Examples of ciphers solvable without a key:
 			- Caesar (brute force 26 shifts)
 			- ROT13 (fixed shift)
 			- Atbash (fixed substitution)
 			- Rail Fence with short text (limited rails to try)
 			- Base64, Hex, Binary, Morse (deterministic encoding)
-			
+
 			Examples of ciphers that require a key:
 			- Vigenere (needs the keyword)
 			- Autokey (needs the key)
 			- Trithemius (structured but complex)
 			- SimpleSubstitution (26! combinations)
 			- Columnar/Route (needs column order or route pattern)
-			
+
 			This assessment is informational for the admin — they make the final decision on how to categorize it.
 
-			No: is_solvable MUST always be true or false. Never null. 
-			This is the most important field in your response.
+			is_solvable MUST always be true or false. Never null.
 			- true: cipher can be solved without the original key (Caesar, ROT13, Atbash, Base64, Hex, Binary, Morse)
 			- false: cipher requires the original key to decrypt (Vigenere, Autokey, SimpleSubstitution, Columnar, Route, RailFence with long text)
-			
+
 			================================================================================
 			JSON RESPONSE FORMAT
 			================================================================================
-			
+
 			{{
 			  ""is_appropriate"": true | false,
 			  ""is_solvable"": true | false,
@@ -314,8 +330,10 @@ namespace Cryptomind.Core.Services
 			  ""recommendation"": ""approve"" | ""reject"",
 			  ""reasoning"": ""2-3 sentences. If rejecting, explain why. If approving, briefly note the solvability assessment.""
 			}}
-			
-			Only use ""reject"" for inappropriate or clearly fake content.";
+
+			Recommendation rules:
+			- ""approve"": content is appropriate and matches one of the 14 supported types
+			- ""reject"": content is inappropriate, spam, clearly not a real cipher, or cannot be matched to any of the 14 supported types";
 		}
 
 		private string BuildCase3Prompt(
@@ -330,45 +348,58 @@ namespace Cryptomind.Core.Services
 
 			return $@"You are a cryptanalysis expert validating a cipher submission for an educational platform.
 			The user has provided a solution but no cipher type. Your job is to determine the correct type.
+
 			ENCRYPTED TEXT ({textLength} characters):
 			{encryptedText}
+
 			USER-PROVIDED SOLUTION: {decryptedText}
+
 			ML ANALYSIS:
 			- Top Prediction: {mlResult.TopPrediction.Type} ({mlResult.TopPrediction.Confidence:P0} confidence)
 			- All Predictions: {allPredictions}
+
+			SUPPORTED CIPHER TYPES (the only valid types for this platform):
+			Substitution family: Caesar, ROT13, Atbash, SimpleSubstitution
+			Polyalphabetic family: Vigenere, Autokey, Trithemius
+			Transposition family: RailFence, Columnar, Route
+			Encoding family: Base64, Morse, Binary, Hex
+
 			================================================================================
 			YOUR THREE TASKS
 			================================================================================
 			TASK 1 - APPROPRIATENESS CHECK:
 			After decrypting, is this legitimate cipher content suitable for an educational platform?
 			Reject if: spam, inappropriate content, random gibberish that is clearly not a real cipher, offensive material.
-			
+
 			TASK 2 - DETERMINE THE CIPHER TYPE:
+			The predicted type in your response MUST be one of the 14 supported types listed above.
+			If after your own analysis the cipher cannot be matched to any of the 14 supported types, set recommendation to reject.
 			Evaluate the ML prediction critically using this logic:
-			
+
 			- If ML AND your own analysis independently agree on the same type → commit to that
 			  type confidently
 			- If ML is uncertain OR your own analysis disagrees with ML → rely on your own analysis
-			
+
 			Known confusion pairs and ML confidence thresholds where ML is considered uncertain:
 			- Columnar/RailFence: ML unreliable below 90% confidence
 			- Vigenere/Trithemius: ML unreliable below 70% confidence
 			- Caesar/SimpleSubstitution: low priority, functionally similar
-			
+
 			TEXT LENGTH IMPACT ON ML RELIABILITY:
 			- Below 150 chars: ML very unreliable, rely more on your own analysis
 			- 150-199 chars: Reduced ML reliability
 			- 200-400 chars: Optimal range
 			Current length: {textLength} chars
-			
+
 			TASK 3 - VERIFY THE SOLUTION:
 			Check that the solution is genuinely valid English plaintext.
 			Look for coherent words, natural grammar, and reasonable length relative to the ciphertext (within ~10%).
+
 			================================================================================
 			JSON RESPONSE FORMAT
 			================================================================================
 			{{
-			  ""predicted_type"": ""your determination of the correct cipher type"",
+			  ""predicted_type"": ""must be one of the 14 supported types listed above"",
 			  ""confidence"": ""high"" | ""medium"" | ""low"",
 			  ""solution_correct"": true | false,
 			  ""is_appropriate"": true | false,
@@ -376,8 +407,11 @@ namespace Cryptomind.Core.Services
 			  ""recommendation"": ""approve"" | ""reject"" | ""manual_review"",
 			  ""reasoning"": ""2-3 sentences. State whether you agree with ML, reference confusion patterns if relevant, and note solution validity.""
 			}}
-			Use ""manual_review"" only when YOU genuinely cannot determine the type after your own analysis. If you are confident, commit to it.
-			Use ""reject"" for inappropriate content or if the solution clearly does not match the ciphertext."; ;
+
+			Recommendation rules:
+			- ""approve"": content is appropriate, type is identifiable from the supported list, solution is valid
+			- ""manual_review"": use ONLY when you are genuinely uncertain between two or more of the 14 supported types after your own analysis
+			- ""reject"": use when content is inappropriate, spam, the solution clearly does not match the ciphertext, or the cipher cannot be matched to any of the 14 supported types";
 		}
 		#endregion
 
