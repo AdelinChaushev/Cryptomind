@@ -13,34 +13,34 @@ namespace Cryptomind.Core.Services
 	{
 		public async Task<int> GetApprovedCount(string userId)
 		{
-			return userRepo.GetAllAttached()
-				.Include(x => x.UploadedCiphers)
-				.FirstOrDefault(x => x.Id == userId).UploadedCiphers
-				.Count(x => x.Status == ApprovalStatus.Approved);
+			return await userRepo.GetAllAttached()
+				.Where(u => u.Id == userId)
+				.SelectMany(u => u.UploadedCiphers)
+				.CountAsync(c => c.Status == ApprovalStatus.Approved);
 		}
-
 		public async Task<int> GetDestinctCipherTypesSolved(string userId)
 		{
-			return solutionRepo.GetAllAttached()
-				.Include(x => x.Cipher)
-				.Where(x => x.UserId == userId)
-				.Select(x => x.Cipher.TypeOfCipher)
+			return await solutionRepo.GetAllAttached()
+				.Where(s => s.UserId == userId)
+				.Select(s => s.Cipher.TypeOfCipher)
 				.Distinct()
-				.Count();
+				.CountAsync();
 		}
+
 		public async Task<int> GetApprovedAnswersCount(string userId)
 		{
-			return userRepo.GetAllAttached()
-				.Include(x => x.SuggestedAnswers)
-				.FirstOrDefault(x => x.Id == userId)
-				.SuggestedAnswers
-				.Count(x => x.Status == ApprovalStatus.Approved);
+			return await userRepo.GetAllAttached()
+				.Where(u => u.Id == userId)
+				.SelectMany(u => u.SuggestedAnswers)
+				.CountAsync(a => a.Status == ApprovalStatus.Approved);
 		}
+
 
 		public async Task<int> GetSolvedCount(string userId)
 			=> (await userRepo.GetByIdAsync(userId)).SolvedCount;
 
 		public async Task<ApplicationUser> GetUser(string userId)
 			=> await userRepo.GetByIdAsync(userId);
+
 	}
 }

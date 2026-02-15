@@ -53,6 +53,23 @@ namespace Cryptomind.Core.Services
 				return existingHint.HintContent;
 			}
 
+			string cachedHint = string.Empty;
+			switch (hintType)
+			{
+				case HintType.Type:
+					cachedHint = cipher.LLMData.CachedTypeHint;
+					break;
+				case HintType.Hint:
+					cachedHint = cipher.LLMData.CachedHint;
+					break;
+				case HintType.FullSolution:
+					cachedHint = cipher.LLMData.CachedSolution;
+					break;
+			}
+
+			if (cachedHint != string.Empty)
+				return cachedHint;
+
 			string hintContent = await llmSerice.GetHint(cipher, hintType);
 
 			var hintRequest = new HintRequest
@@ -64,7 +81,21 @@ namespace Cryptomind.Core.Services
 				HintContent = hintContent,
 			};
 
+			switch (hintType)
+			{
+				case HintType.Type:
+					cipher.LLMData.CachedTypeHint = hintContent;
+					break;
+				case HintType.Hint:
+					cipher.LLMData.CachedHint = hintContent;
+					break;
+				case HintType.FullSolution:
+					cipher.LLMData.CachedSolution = hintContent;
+					break;
+			}
+
 			await hintRequestRepo.AddAsync(hintRequest);
+			await cipherRepo.UpdateAsync(cipher);
 			return hintContent;
 		}
 	}
