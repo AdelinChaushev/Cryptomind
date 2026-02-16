@@ -4,6 +4,7 @@ using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace Cryptomind.Core.Services
 {
@@ -28,13 +29,16 @@ namespace Cryptomind.Core.Services
 
 			foreach (var user in users)
 			{
+				var roles = await userManager.GetRolesAsync(user);
+
 				userViewModels.Add(new UserViewModel
 				{
 					Id = user.Id,
 					Username = user.UserName,
 					Email = user.Email,
 					IsAdmin = adminIds.Contains(user.Id),
-					PendingCiphers = user.UploadedCiphers.Count(c => c.Status == ApprovalStatus.Pending)
+					PendingCiphers = user.UploadedCiphers.Count(c => c.Status == ApprovalStatus.Pending),
+					Role = roles.Contains("Admin") ? "Admin" : roles.FirstOrDefault() ?? "User",
 				});
 			}
 
@@ -133,6 +137,9 @@ namespace Cryptomind.Core.Services
 
 			if (user.IsBanned)
 				throw new InvalidOperationException("This user is already banned");
+
+			if (await userManager.IsInRoleAsync(user, "Admin"))
+				throw new InvalidOperationException("Admins cannot be banned.");
 
 			await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
 			await userManager.SetLockoutEnabledAsync(user, true);
