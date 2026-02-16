@@ -30,6 +30,8 @@ public abstract class Cipher
 	public bool AllowHint { get; set; }
 	public bool AllowSolution { get; set; }
 	public ApprovalStatus Status { get; set; }
+	public bool IsDeleted { get; set; }
+	public DateTime? DeletedAt { get; set; }
 	public DateTime? ApprovedAt { get; set; }
 	public DateTime? RejectedAt { get; set; }
 	public string? RejectionReason { get; set; }

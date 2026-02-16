@@ -9,6 +9,8 @@ using Cryptomind.Common.ViewModels.AdminViewModels;
 using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
 using static Cryptomind.Core.Services.LLMService;
 using Microsoft.AspNetCore.Identity;
+using Cryptomind.Common.Exceptions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cryptomind.Core.Services
 {
@@ -49,30 +51,34 @@ namespace Cryptomind.Core.Services
 		public async Task<int> GetPendingCiphersCount()
 		{
 			return (await cipherRepo.GetAllAsync())
-				.Count(x => x.Status == ApprovalStatus.Pending);
+				.Count(x => x.Status == ApprovalStatus.Pending && !x.IsDeleted);
 		}
 		public async Task<int> GetApprovedCiphersCount()
 		{
 			return (await cipherRepo.GetAllAsync())
-				.Count(x => x.Status == ApprovalStatus.Approved);
+				.Count(x => x.Status == ApprovalStatus.Approved && !x.IsDeleted);
+		}
+		public async Task<int> GetDeletedCiphersCount()
+		{
+			return (await cipherRepo.GetAllAsync())
+				.Count(x => x.IsDeleted);
 		}
 		public async Task<List<CipherReviewOutputViewModel>> AllSubmittedCiphers()
 		{
 			var result = (await cipherRepo.GetAllAsync())
-				.Where(c => c.Status == ApprovalStatus.Pending)
+				.Where(c => c.Status == ApprovalStatus.Pending && !c.IsDeleted)
 				.OrderBy(x => x.CreatedAt)
 				.ToList();
 
 			if (!result.Any())
 				return new List<CipherReviewOutputViewModel>();
-				//throw new InvalidOperationException("Wasn't able to retrieve submitted ciphers");
 
 			return ToReviewOutputViewModelMany(result);
 		}
 		public async Task<List<CipherReviewOutputViewModel>> AllApprovedCiphers(CipherFilter filter)
 		{
 			var result = (await cipherRepo.GetAllAsync())
-				.Where(c => c.Status == ApprovalStatus.Approved)
+				.Where(c => c.Status == ApprovalStatus.Approved && !c.IsDeleted)
 				.ToList();
 
 			if (!result.Any())
@@ -126,6 +132,9 @@ namespace Cryptomind.Core.Services
 			if (cipher == null)
 				throw new InvalidOperationException("Ciper not found");
 
+			if (cipher.IsDeleted)
+				throw new InvalidOperationException("This cipher is deleted.");
+
 			if (cipher.LLMData.Reasoning != null)
 				return new CipherValidationResult
 				{
@@ -175,9 +184,11 @@ namespace Cryptomind.Core.Services
 		{
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
 
-			if (cipher == null) 
+			if (cipher == null)
 				throw new InvalidOperationException("Cipher not found");
-			else if (cipher.Status == ApprovalStatus.Approved) 
+			else if (cipher.IsDeleted)
+				throw new InvalidOperationException("Cipher is deleted");
+			else if (cipher.Status == ApprovalStatus.Approved)
 				throw new InvalidOperationException("Cipher is already approved");
 
 			string userId = cipher.CreatedByUserId;
@@ -186,7 +197,7 @@ namespace Cryptomind.Core.Services
 				throw new InvalidOperationException("User not found.");
 
 			//We check trough all the ciphers doesn't matter if they are approved, rejected or pending.
-			if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.Title == model.Title && x.Id != id) != null)
+			if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.Title == model.Title && x.Id != id && !x.IsDeleted) != null)
 					throw new InvalidOperationException("There is already a cipher with this title");
 
 
@@ -228,12 +239,14 @@ namespace Cryptomind.Core.Services
 
 			if (cipher == null)
 				throw new InvalidOperationException("Cipher not found");
-			else if (cipher.Status == ApprovalStatus.Approved) 
+			else if (cipher.IsDeleted)
+				throw new InvalidOperationException("Cipher is deleted");
+			else if (cipher.Status == ApprovalStatus.Approved)
 				throw new InvalidOperationException("Cipher already approved");
 
 			string userId = cipher.CreatedByUserId;
 
-			if ((await userManager.FindByIdAsync(userId)) != null)
+			if ((await userManager.FindByIdAsync(userId)) == null)
 				throw new InvalidOperationException("User not found.");
 
 			cipher.Status = ApprovalStatus.Rejected;
@@ -249,11 +262,12 @@ namespace Cryptomind.Core.Services
 
 			if (cipher == null) 
 				throw new InvalidOperationException("Cipher not found");
-
-			else if (cipher.Status != ApprovalStatus.Approved) 
+			else if (cipher.IsDeleted)
+				throw new InvalidOperationException("Cipher is deleted");
+			else if (cipher.Status != ApprovalStatus.Approved)
 				throw new InvalidOperationException("Cipher is not approved");
 
-			if (cipherRepo.GetAll().FirstOrDefault(x => x.Title == model.Title) != null)
+			if (cipherRepo.GetAll().FirstOrDefault(x => x.Title == model.Title && x.Id != id && !x.IsDeleted) != null)
 				throw new InvalidOperationException("There is already a cipher with this title");
 
 			cipher.Title = model.Title;
@@ -265,25 +279,79 @@ namespace Cryptomind.Core.Services
 
 			await cipherRepo.UpdateAsync(cipher);
 		}
-		public async Task DeleteApprovedCipher(int id)
+		public async Task SoftDeleteCipher(int id)
 		{
-			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
+			Cipher? cipher = await cipherRepo.GetAllAttached()
+				.Include(x => x.AnswerSuggestions)
+				.FirstOrDefaultAsync(x => x.Id == id);
 
-			if (cipher == null) 
+			if (cipher == null)
 				throw new InvalidOperationException("Cipher not found");
-			else if (cipher.Status != ApprovalStatus.Approved) 
-				throw new InvalidOperationException("Cipher is not approved.");
+			else if (cipher.IsDeleted)
+				throw new InvalidOperationException("Cipher is already deleted");
+			else if (cipher.Status == ApprovalStatus.Rejected)
+				throw new InvalidOperationException("There is no meaning to delete a rejected cipher.");
 
-			var solutions = (await solutionRepo.GetAllAsync()).Where(x => x.CipherId == id);
-
-			foreach (var solution in solutions)
+			if (cipher.AnswerSuggestions.Any())
 			{
-				await solutionRepo.DeleteAsync(solution);
+				foreach (var answer in cipher.AnswerSuggestions)
+				{
+					await notificationService.CreateAndSendNotification(answer.UserId, NotificationType.AnswerCipherDeleted,
+						$"A cipher you submitted an answer for ('{cipher.Title}') has been removed by an admin.", answer.Id, string.Empty);
+				}
 			}
 
-			bool result = await cipherRepo.DeleteAsync(cipher);
-			if (!result) 
-				throw new InvalidOperationException("Wasn't able to delete the cipher");
+			cipher.IsDeleted = true;
+			cipher.DeletedAt = DateTime.UtcNow;
+			await notificationService.CreateAndSendNotification(cipher.CreatedByUserId, NotificationType.CipherDeleted,
+				$"Your cipher '{cipher.Title}' has been removed by an admin.", cipher.Id, string.Empty);
+			await cipherRepo.UpdateAsync(cipher);
+		}
+		public async Task Restore (int id, string? newTitle = null)
+		{
+			Cipher? cipher = await cipherRepo.GetAllAttached()
+				.Include(x => x.AnswerSuggestions)
+				.FirstOrDefaultAsync(x => x.Id == id);
+
+			if (cipher == null)
+				throw new InvalidOperationException("Cipher not found");
+			else if (!cipher.IsDeleted)
+				throw new InvalidOperationException("Cipher is not deleted");
+			
+			bool titleConflict = (await cipherRepo.GetAllAsync())
+				.Any(x => x.Title == cipher.Title && x.Id != cipher.Id && !x.IsDeleted);
+
+			if (titleConflict && newTitle == null)
+				throw new TitleConflictException("A cipher with this title already exists");
+
+			if (newTitle != null)
+			{
+				//if (string.IsNullOrEmpty(newTitle))
+				//	throw new InvalidOperationException("Title is required");
+
+				titleConflict = (await cipherRepo.GetAllAsync())
+					.Any(x => x.Title == newTitle && x.Id != cipher.Id && !x.IsDeleted);
+
+				if (titleConflict)
+					throw new TitleConflictException("A cipher with this title already exists");
+
+				cipher.Title = newTitle;
+			}
+
+			if (cipher.AnswerSuggestions.Any())
+			{
+				foreach (var answer in cipher.AnswerSuggestions)
+				{
+					await notificationService.CreateAndSendNotification(answer.UserId, NotificationType.AnswerCipherRestored,
+						$"A cipher you submitted an answer for ('{answer.Cipher.Title}') has been restored and is now active again.", answer.Id, string.Empty);
+				}
+			}
+
+			cipher.IsDeleted = false;
+			cipher.DeletedAt = null;
+			await notificationService.CreateAndSendNotification(cipher.CreatedByUserId, NotificationType.CipherRestored,
+				$"Your cipher '{cipher.Title}' has been restored and is now active again.", cipher.Id, string.Empty);
+			await cipherRepo.UpdateAsync(cipher);
 		}
 
 		#region Common methods

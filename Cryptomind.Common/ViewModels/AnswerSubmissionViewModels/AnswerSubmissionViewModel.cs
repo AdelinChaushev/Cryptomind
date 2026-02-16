@@ -15,6 +15,8 @@ namespace Cryptomind.Common.ViewModels.AnswerSubmissionViewModels
 		public string SuggestedAnswer { get; set; }
 		public string Status { get; set; }
 		public DateTime SubmittedAt { get; set; }
+		//Deleted state
+		public DateTime? CipherDeletedAt { get; set; }
 		//Approved state
 		public int? PointsEarned { get; set; }
 		public DateTime? ApprovedDate { get; set; }
