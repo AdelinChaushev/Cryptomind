@@ -21,7 +21,7 @@ namespace Cryptomind.Core.Services
 		{
 			List<Cipher> approved = await cipherRepo.GetAllAttached()
 				.Include(x => x.UserSolutions)
-				.Where(c => c.Status == ApprovalStatus.Approved)
+				.Where(c => c.Status == ApprovalStatus.Approved && !c.IsDeleted)
 				.ToListAsync();
 
 			if (!string.IsNullOrEmpty(filter.SearchTerm))
@@ -80,7 +80,7 @@ namespace Cryptomind.Core.Services
 				.Include(x => x.UserSolutions)
 				.ThenInclude(x => x.User)
 				.Include(x => x.HintsRequested)
-				.Where(x => x.Status == ApprovalStatus.Approved)
+				.Where(x => x.Status == ApprovalStatus.Approved && !x.IsDeleted)
 				.FirstOrDefaultAsync(x => x.Id == id);
 
 			if (cipher == null)
@@ -93,10 +93,10 @@ namespace Cryptomind.Core.Services
 			Cipher? cipher = await cipherRepo.GetAllAttached()
 				.Include(x => x.UserSolutions)
 				.Include(x => x.HintsRequested)
-				.Where(x => x.Status == ApprovalStatus.Approved)
+				.Where(x => x.Status == ApprovalStatus.Approved && !x.IsDeleted)
 				.FirstOrDefaultAsync(x => x.Id == cipherId);
 
-			if (cipher == null) 
+			if (cipher == null)
 				throw new InvalidOperationException("Cipher not found");
 
 			if (cipher.CreatedByUserId == userId)
@@ -177,7 +177,7 @@ namespace Cryptomind.Core.Services
 
 			return model;
 		}
-		
+
 		private async Task<CipherDetailedOutputViewModel> ToDetailedOutputViewModel(Cipher cipher, string userId)
 		{
 			bool isSolved = cipher.UserSolutions.Any(x => x.UserId == userId);
@@ -186,21 +186,17 @@ namespace Cryptomind.Core.Services
 					.Where(x => x.UserId == userId)
 					.OrderBy(x => x.HintType)
 					.ToList();
-			
+
 			double successfullSolutionCount = cipher.UserSolutions.Count(x => x.IsCorrect);
 			double unsuccessfullSolutionCount = cipher.UserSolutions.Count(x => !x.IsCorrect);
 			double successRate = 0;
-            if (successfullSolutionCount != 0 || unsuccessfullSolutionCount != 0)
-			{
-                 successRate = successfullSolutionCount / (unsuccessfullSolutionCount + successfullSolutionCount) * 100;
-            }
+			successRate = successfullSolutionCount / (unsuccessfullSolutionCount + successfullSolutionCount) * 100;
 
-			var successfullSolutionCount = cipher.UserSolutions.Count(x => x.IsCorrect);
 			var allSolutions = cipher.UserSolutions.Count;
 
-			var successRate = allSolutions == 0 
-				? 0
-				: ((double)successfullSolutionCount / allSolutions) * 100;
+			successRate = allSolutions == 0
+			? 0
+			: ((double)successfullSolutionCount / allSolutions) * 100;
 
 			List<CipherSolverViewModel> recentSolvers = new List<CipherSolverViewModel>();
 
@@ -240,8 +236,8 @@ namespace Cryptomind.Core.Services
 				SolutionHintUsed = userHints.Any(x => x.HintType == HintType.Hint),
 				FullSolutionUsed = userHints.Any(x => x.HintType == HintType.FullSolution),
 				AllSubmissions = cipher.UserSolutions.Count(),
-                SuccessfulSubmissions = (int)successfullSolutionCount,
-                Tags = cipher.CipherTags.Select(x => x.Tag).ToList(),
+				SuccessfulSubmissions = (int)successfullSolutionCount,
+				Tags = cipher.CipherTags.Select(x => x.Tag).ToList(),
 				PreviousHints = userHints.Select(x => new HintData
 				{
 					Type = x.HintType,
@@ -256,7 +252,6 @@ namespace Cryptomind.Core.Services
 				string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imageFolderPath))}";
 				model.ImageBase64 = base64;
 			}
-
 			return model;
 		}
 		private int CalculatePointsWithPenalty(
@@ -278,7 +273,7 @@ namespace Cryptomind.Core.Services
 
 			return (int)(basePoints * multiplier);
 		}
-		private TimeSpan GetTimeSpan (DateTime solvedAt)
+		private TimeSpan GetTimeSpan(DateTime solvedAt)
 		{
 			return DateTime.UtcNow - solvedAt;
 		}
