@@ -81,6 +81,11 @@ namespace Cryptomind.Core.Services
 					model.RejectionReason = answer.RejectionReason;
 					model.RejectionDate = answer.RejectionDate;
 				}
+				if (answer.Cipher.IsDeleted)
+				{
+					model.Status = "CipherDeleted";
+					model.CipherDeletedAt = answer.Cipher.DeletedAt;
+				}
 
 				models.Add(model);
 			}

@@ -62,6 +62,9 @@ namespace Cryptomind.Core.Services
 			if (answer == null)
 				throw new InvalidOperationException("Answer not found");
 
+			if (answer.Status != ApprovalStatus.Pending)
+				throw new InvalidOperationException("Answer is already resolved");
+
 			var user = await userManager.FindByIdAsync(answer.UserId);
 
 			if (user == null)
@@ -85,6 +88,9 @@ namespace Cryptomind.Core.Services
 
 			if (selectedAnswer == null)
 				throw new InvalidOperationException("Answer not found");
+
+			if (selectedAnswer.Status != ApprovalStatus.Pending)
+				throw new InvalidOperationException("Answer is already resolved");
 
 			var firstCorrectAnswerSuggestion = (await answerRepo.GetAllAsync())
 				.Where(x => x.CipherId == selectedAnswer.CipherId)
@@ -175,7 +181,10 @@ namespace Cryptomind.Core.Services
 
 			foreach(var wrongAnswer in wrongAnswerSuggestions)
 			{
-				await RejectAnswer("Another answer was approved for this cipher", wrongAnswer);
+				if (otherCorrectAnswerSuggestions.Any(x => x.UserId == wrongAnswer.UserId))
+					await RejectAnswer("Your other answer was approved", wrongAnswer);
+				else
+					await RejectAnswer("Another answer was approved for this cipher", wrongAnswer);
 			}
 
 			await solutionRepo.AddAsync(userSolution);
