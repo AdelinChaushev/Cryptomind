@@ -19,6 +19,9 @@ namespace Cryptomind.Core.Services
 	{
 		public async Task<Cipher> SubmitCipherAsync(SubmitCipherViewModel model, string userId)
 		{
+			if (string.IsNullOrEmpty(model.Title))
+				throw new InvalidOperationException("Title is required");
+
 			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.Title == model.Title && x.CreatedByUserId != userId))
 				throw new InvalidOperationException("There is already a cipher with this title");
 

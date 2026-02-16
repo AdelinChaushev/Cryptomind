@@ -196,10 +196,12 @@ namespace Cryptomind.Core.Services
 			if ((await userManager.FindByIdAsync(userId)) == null)
 				throw new InvalidOperationException("User not found.");
 
+			if (string.IsNullOrEmpty(model.Title))
+				throw new InvalidOperationException("Title is required.");
+
 			//We check trough all the ciphers doesn't matter if they are approved, rejected or pending.
 			if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.Title == model.Title && x.Id != id && !x.IsDeleted) != null)
 					throw new InvalidOperationException("There is already a cipher with this title");
-
 
 			//When type is not given we cannot approve it
 			if (model.TypeOfCipher == null)
@@ -267,6 +269,8 @@ namespace Cryptomind.Core.Services
 			else if (cipher.Status != ApprovalStatus.Approved)
 				throw new InvalidOperationException("Cipher is not approved");
 
+			if (string.IsNullOrEmpty(model.Title))
+				throw new InvalidOperationException("Title is required.");
 			if (cipherRepo.GetAll().FirstOrDefault(x => x.Title == model.Title && x.Id != id && !x.IsDeleted) != null)
 				throw new InvalidOperationException("There is already a cipher with this title");
 
@@ -326,8 +330,8 @@ namespace Cryptomind.Core.Services
 
 			if (newTitle != null)
 			{
-				//if (string.IsNullOrEmpty(newTitle))
-				//	throw new InvalidOperationException("Title is required");
+				if (string.IsNullOrEmpty(newTitle)) //THINK OF THAT.
+					throw new InvalidOperationException("Title is required");
 
 				titleConflict = (await cipherRepo.GetAllAsync())
 					.Any(x => x.Title == newTitle && x.Id != cipher.Id && !x.IsDeleted);
