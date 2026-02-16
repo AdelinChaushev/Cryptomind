@@ -1,6 +1,8 @@
 ﻿using Cryptomind.Common.DTOs;
+using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.ViewModels.AdminViewModels;
 using Cryptomind.Core.Contracts;
+using Cryptomind.Core.Services;
 using Cryptomind.Data.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,6 +25,7 @@ namespace Cryptomind.Controllers
 			{
 				ApprovedCiphersCount = await adminCipherService.GetApprovedCiphersCount(),
 				PendingCiphersCount = await adminCipherService.GetPendingCiphersCount(),
+				DeletedCiphersCount = await adminCipherService.GetDeletedCiphersCount(),
 				PendingCipherTitles = await adminCipherService.GetRecentCipherSubmissionTitles(),
 				ApprovedAnswersCount = await adminAnswerService.GetApprovedAnswersCount(),
 				PendingAnswersCount = await adminAnswerService.GetPendingAnswersCount(),
@@ -129,15 +132,32 @@ namespace Cryptomind.Controllers
 			}
 		}
 
-		[HttpDelete("cipher/{id}/delete")]
+		[HttpPut("cipher/{id}/delete")]
 		public async Task<IActionResult> DeleteCipher([FromRoute] int id)
 		{
 			try
 			{
-				await adminCipherService.DeleteApprovedCipher(id);
+				await adminCipherService.SoftDeleteCipher(id);
 				return Ok();
 			}
 			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
+		[HttpPut("cipher/{id}/restore")]
+		public async Task<IActionResult> Restore([FromRoute]int id, [FromQuery]string? newTitle = null)
+		{
+			try
+			{
+				await adminCipherService.Restore(id, newTitle);
+				return Ok();
+			}
+			catch (TitleConflictException ex)
+			{
+				return Conflict(ex.Message);
+			}
+			catch (InvalidOperationException ex)
 			{
 				return BadRequest(ex.Message);
 			}
