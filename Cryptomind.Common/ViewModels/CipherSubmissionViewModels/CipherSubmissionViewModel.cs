@@ -15,6 +15,8 @@ namespace Cryptomind.Common.ViewModels.CipherSubmissionViewModels
 		public string CipherText { get; set; }
 		public DateTime SubmittedTime { get; set; }
 		public string Status { get; set; }
+		//Deleted state
+		public DateTime? DeletedTime { get; set; }
 		//Approved state
 		public DateTime? ApprovedTime { get; set; }
 		public string? ApprovedAs { get; set; }

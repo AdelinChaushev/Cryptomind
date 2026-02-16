@@ -158,7 +158,12 @@ namespace Cryptomind.Core.Services
 					Status = cipher.Status.ToString(),
 				};
 
-				if (cipher.Status == ApprovalStatus.Approved)
+				if (cipher.IsDeleted)
+				{
+					model.Status = "CipherDeleted";
+					model.DeletedTime = cipher.DeletedAt;
+				}
+				else if (cipher.Status == ApprovalStatus.Approved)
 				{
 					model.ApprovedTime = cipher.ApprovedAt;
 					model.ApprovedAs = cipher.ChallengeType.ToString();
