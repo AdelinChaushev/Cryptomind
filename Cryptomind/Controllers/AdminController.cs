@@ -33,6 +33,20 @@ namespace Cryptomind.Controllers
 		}
 
 		#region Cipher-specific
+		[HttpGet("pending-ciphers")]
+		public async Task<IActionResult> GetPendingCiphers()
+		{
+			try
+			{
+				var result = await adminCipherService.AllPendingCiphers();
+				return Ok(result);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
+
 		[HttpGet("approved-ciphers")]
 		public async Task<IActionResult> GetApprovedCiphers([FromQuery] CipherFilter filter)
 		{
@@ -47,12 +61,12 @@ namespace Cryptomind.Controllers
 			}
 		}
 
-		[HttpGet("pending-ciphers")]
-		public async Task<IActionResult> GetSubmittedCiphers()
+		[HttpGet("deleted-ciphers")]
+		public async Task<IActionResult> GetDeletediphers([FromQuery] CipherFilter filter)
 		{
 			try
 			{
-				var result = await adminCipherService.AllSubmittedCiphers();
+				var result = await adminCipherService.AllDeletedCiphers(filter);
 				return Ok(result);
 			}
 			catch (Exception ex)
