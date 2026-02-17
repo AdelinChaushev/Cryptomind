@@ -184,14 +184,7 @@ namespace Cryptomind.Core.Services
 					.OrderBy(x => x.HintType)
 					.ToList();
 			
-			double successfullSolutionCount = cipher.UserSolutions.Count(x => x.IsCorrect);
-			double unsuccessfullSolutionCount = cipher.UserSolutions.Count(x => !x.IsCorrect);
-			double successRate = 0;
-            if (successfullSolutionCount != 0 || unsuccessfullSolutionCount != 0)
-			{
-                 successRate = successfullSolutionCount / (unsuccessfullSolutionCount + successfullSolutionCount) * 100;
-            }
-
+			
 			var successfullSolutionCount = cipher.UserSolutions.Count(x => x.IsCorrect);
 			var allSolutions = cipher.UserSolutions.Count;
 
