@@ -25,7 +25,7 @@ namespace Cryptomind.Core.Services
 			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.Title == model.Title))
 				throw new InvalidOperationException("There is already a cipher with this title");
 
-			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.EncryptedText == model.EncryptedText && x.CreatedByUserId != userId))
+			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.EncryptedText == model.EncryptedText))
 				throw new InvalidOperationException("There is already a cipher like this");
 
 			if (string.IsNullOrEmpty(model.DecryptedText) && model.CipherType == null)
