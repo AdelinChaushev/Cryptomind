@@ -11,7 +11,6 @@ namespace Cryptomind.Core.Services
 {
 	public class AuthService(
 		UserManager<ApplicationUser> userManager,
-		SignInManager<ApplicationUser> signInManager,
 		IConfiguration configuration) : IAuthService
 	{
 		public async Task<ApplicationUser> Authenticate(string email, string password)
@@ -88,7 +87,6 @@ namespace Cryptomind.Core.Services
 
 			user.IsDeactivated = true;
 			user.DeactivatedAt = DateTime.UtcNow;
-			await signInManager.SignOutAsync();
 			await userManager.UpdateAsync(user);
 		}
 	}

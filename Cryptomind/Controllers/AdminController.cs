@@ -229,11 +229,11 @@ namespace Cryptomind.Controllers
 
 		#region User-specific
 		[HttpGet("users")]
-		public async Task<IActionResult> GetAllUsers()
+		public async Task<IActionResult> GetAllUsers([FromQuery] UserFilter filter)
 		{
 			try
 			{
-				var result = await adminUserService.GetAllUsers();
+				var result = await adminUserService.GetAllUsers(filter);
 				return Ok(result);
 			}
 			catch (Exception ex)
