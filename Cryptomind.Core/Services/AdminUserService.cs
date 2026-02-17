@@ -11,7 +11,7 @@ namespace Cryptomind.Core.Services
 {
 	public class AdminUserService (UserManager<ApplicationUser> userManager) : IAdminUserService
 	{
-		public async Task<List<UserViewModel>> GetAllUsers(UserFilter? filter)
+		public async Task<List<UserViewModel>> GetAllUsers(UserFilter filter)
 		{
 			var userViewModels = new List<UserViewModel>();
 
