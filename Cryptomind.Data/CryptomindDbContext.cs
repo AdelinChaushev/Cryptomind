@@ -58,6 +58,10 @@ namespace Cryptomind.Data
 			builder.Entity<Cipher>()
 				.OwnsOne(c => c.LLMData);
 
+			builder.Entity<UserBadge>()
+				.HasIndex(ub => new { ub.UserId, ub.BadgeId })
+				.IsUnique();
+
 			builder.Entity<Badge>().HasData(
 				new Badge
 				{
