@@ -15,7 +15,7 @@ namespace Cryptomind.Common.ViewModels.CipherViewModels
 		public string? DecryptedText { get; set; }
 		public string? EncryptedText { get; set; }
 		public IFormFile? Image { get; set; }
-		public CipherType? CipherType { get; set; } //Can just send null values instead of having a None value, because what is that cipher type - "none"
+		public CipherType? CipherType { get; set; }
 		public CipherDefinition CipherDefinition { get; set; }
 	}
 }

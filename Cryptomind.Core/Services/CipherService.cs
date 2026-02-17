@@ -17,6 +17,10 @@ namespace Cryptomind.Core.Services
 		IRepository<AnswerSuggestion, int> answerRepo,
 		UserManager<ApplicationUser> userManager) : ICipherService
 	{
+		private const double TypeHintPenalty = 0.20;
+		private const double SolutionHintPenalty = 0.30;
+		private const double FullSolutionHintPenalty = 0.40;
+
 		public async Task<List<CipherOutputViewModel>> GetApprovedAsync(CipherFilter filter, string userId)
 		{
 			List<Cipher> approved = await cipherRepo.GetAllAttached()
@@ -262,13 +266,13 @@ namespace Cryptomind.Core.Services
 			double multiplier = 1.0;
 
 			if (usedTypeHint)
-				multiplier -= 0.20; //-20%
+				multiplier -= TypeHintPenalty; //-20%
 
 			if (usedSolutionHint)
-				multiplier -= 0.30; //-30%
+				multiplier -= SolutionHintPenalty; //-30%
 
 			if (usedFullSolution)
-				multiplier -= 0.40; //-40%
+				multiplier -= FullSolutionHintPenalty; //-40%
 
 			return (int)(basePoints * multiplier);
 		}
