@@ -177,7 +177,6 @@ namespace Cryptomind.Core.Services
 
 			return model;
 		}
-
 		private async Task<CipherDetailedOutputViewModel> ToDetailedOutputViewModel(Cipher cipher, string userId)
 		{
 			bool isSolved = cipher.UserSolutions.Any(x => x.UserId == userId);
@@ -203,12 +202,12 @@ namespace Cryptomind.Core.Services
 			foreach (var userSolution in cipher.UserSolutions.Where(x => x.IsCorrect))
 			{
 				var solvedAt = userSolution.TimeSolved;
-				var userName = userSolution.User.UserName;
+				var userName = userSolution.User.IsDeactivated ? "Anonymous" : userSolution.User.UserName;
 
 				var cipherSolver = new CipherSolverViewModel
 				{
 					UserName = userName,
-					SolvedSince = solvedAt
+					SolvedSince = GetTimeSpan(solvedAt),
 				};
 				recentSolvers.Add(cipherSolver);
 			}
