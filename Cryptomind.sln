@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cryptomind.Core", "Cryptomi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cryptomind.Common", "Cryptomind.Common\Cryptomind.Common.csproj", "{C8CAEE5A-AF26-4C84-AF16-F434CA1BAE4B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cryptomind.Tests", "Cryptomind.Tests\Cryptomind.Tests.csproj", "{2DB8EC5B-7328-4CCC-9E0B-49AE7EF1756B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{C8CAEE5A-AF26-4C84-AF16-F434CA1BAE4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8CAEE5A-AF26-4C84-AF16-F434CA1BAE4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8CAEE5A-AF26-4C84-AF16-F434CA1BAE4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DB8EC5B-7328-4CCC-9E0B-49AE7EF1756B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DB8EC5B-7328-4CCC-9E0B-49AE7EF1756B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DB8EC5B-7328-4CCC-9E0B-49AE7EF1756B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DB8EC5B-7328-4CCC-9E0B-49AE7EF1756B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

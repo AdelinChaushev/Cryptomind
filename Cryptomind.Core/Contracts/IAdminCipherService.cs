@@ -18,8 +18,9 @@ namespace Cryptomind.Core.Contracts
 		Task<int> GetPendingCiphersCount();
 		Task<int> GetApprovedCiphersCount();
 		Task<int> GetDeletedCiphersCount();
-		Task<List<CipherReviewOutputViewModel>> AllSubmittedCiphers();
+		Task<List<CipherReviewOutputViewModel>> AllPendingCiphers();
 		Task<List<CipherReviewOutputViewModel>> AllApprovedCiphers(CipherFilter filter);
+		Task<List<CipherReviewOutputViewModel>> AllDeletedCiphers(CipherFilter filter);
 		Task<CipherDetailedReviewOutputViewModel> GetCipherById(int id);
 		Task<string> ApproveCipherAsync(int id, ApproveCipherViewModel model);
 		Task RejectCipherAsync(int id, string reason);
