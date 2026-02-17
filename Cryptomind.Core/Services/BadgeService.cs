@@ -66,21 +66,19 @@ namespace Cryptomind.Core.Services
 			if (badge == null)
 				throw new InvalidOperationException("Badge not found");
 
+			var userBadge = new UserBadge
+			{
+				UserId = userId,
+				BadgeId = badgeId,
+				EarnedAt = DateTime.UtcNow
+			};
 			try
 			{
-				var userBadge = new UserBadge
-				{
-					UserId = userId,
-					BadgeId = badgeId,
-					EarnedAt = DateTime.UtcNow
-				};
-
-				user.Badges.Add(userBadge);
-				badge.UserBadges.Add(userBadge);
-				badge.EarnedBy++;
-
 				await userBadgeRepo.AddAsync(userBadge);
 
+				badge.EarnedBy++;
+
+				await badgeRepo.UpdateAsync(badge);
 				await notificationService.CreateAndSendNotification(
 					userId,
 					NotificationType.BadgeEarned,
@@ -90,7 +88,7 @@ namespace Cryptomind.Core.Services
 			}
 			catch (DbUpdateException)
 			{
-				// Badge already awarded by concurrent request - safe to ignore
+				// Badge already awarded by concurrent request
 				return;
 			}
 		}
