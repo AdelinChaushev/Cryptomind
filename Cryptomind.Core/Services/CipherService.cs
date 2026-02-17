@@ -17,7 +17,7 @@ namespace Cryptomind.Core.Services
 		IRepository<AnswerSuggestion, int> answerRepo,
 		UserManager<ApplicationUser> userManager) : ICipherService
 	{
-		public async Task<List<CipherOutputViewModel>> GetApprovedAsync(CipherFilter? filter, string userId)
+		public async Task<List<CipherOutputViewModel>> GetApprovedAsync(CipherFilter filter, string userId)
 		{
 			List<Cipher> approved = await cipherRepo.GetAllAttached()
 				.Include(x => x.UserSolutions)

@@ -63,7 +63,7 @@ namespace Cryptomind.Core.Services
 			return (await cipherRepo.GetAllAsync())
 				.Count(x => x.IsDeleted);
 		}
-		public async Task<List<CipherReviewOutputViewModel>> AllSubmittedCiphers()
+		public async Task<List<CipherReviewOutputViewModel>> AllPendingCiphers()
 		{
 			var result = (await cipherRepo.GetAllAsync())
 				.Where(c => c.Status == ApprovalStatus.Pending && !c.IsDeleted)
@@ -101,16 +101,6 @@ namespace Cryptomind.Core.Services
 					break;
 			}
 
-			switch (filter.IsCipherDeleted)
-			{
-				case true:
-                    result = result.Where(x => !x.IsDeleted).ToList();
-                    break;
-                case false:
-                    result = result.Where(x => x.IsDeleted).ToList();
-                    break;
-            }
-
 			switch (filter.OrderTerm)
 			{
 				case CipherOrderTerm.Newest:
@@ -126,6 +116,47 @@ namespace Cryptomind.Core.Services
 
 			return ToReviewOutputViewModelMany(result);
         }
+		public async Task<List<CipherReviewOutputViewModel>> AllDeletedCiphers(CipherFilter filter)
+		{
+			var result = (await cipherRepo.GetAllAsync())
+				.Where(c => c.IsDeleted)
+				.ToList();
+
+			if (!result.Any())
+				return new List<CipherReviewOutputViewModel>();
+			//throw new InvalidOperationException("Wasn't able to retrieve approved ciphers");
+
+			if (!string.IsNullOrEmpty(filter.SearchTerm))
+				result = result.Where(c => c.Title.Contains(filter.SearchTerm)).ToList();
+
+			if (filter.Tags != null)
+				result = result.Where(c => c.CipherTags.Any(t => filter.Tags.Contains(t.Tag.Type))).ToList();
+
+			switch (filter.ChallengeType)
+			{
+				case ChallengeType.Standard:
+					result = result.Where(x => x.ChallengeType == ChallengeType.Standard).ToList();
+					break;
+				case ChallengeType.Experimental:
+					result = result.Where(x => x.ChallengeType == ChallengeType.Experimental).ToList();
+					break;
+			}
+
+			switch (filter.OrderTerm)
+			{
+				case CipherOrderTerm.Newest:
+					result = result.OrderByDescending(x => x.CreatedAt).ToList();
+					break;
+				case CipherOrderTerm.Oldest:
+					result = result.OrderBy(x => x.CreatedAt).ToList();
+					break;
+				case CipherOrderTerm.MostPopular:
+					result = result.OrderByDescending(x => x.UserSolutions).ToList();
+					break;
+			}
+
+			return ToReviewOutputViewModelMany(result);
+		}
 		public async Task<CipherDetailedReviewOutputViewModel> GetCipherById(int id) 
 		{
 			Cipher? cipher = await cipherRepo.GetAllAttached()
@@ -226,8 +257,7 @@ namespace Cryptomind.Core.Services
 			if (cipher.ChallengeType == ChallengeType.Experimental && (model.AllowHint || model.AllowSolution || model.AllowTypeHint))
 				throw new InvalidOperationException("Hints cannot be used for experimental ciphers");
 
-			var title = string.IsNullOrEmpty(model.Title) ? cipher.EncryptedText : model.Title; //Not good to keep the full title
-			cipher.Title = title;
+			cipher.Title = model.Title;
 			cipher.AllowHint = model.AllowHint;
 			cipher.AllowSolution = model.AllowSolution;
 			cipher.AllowTypeHint = model.AllowTypeHint;
@@ -400,6 +430,7 @@ namespace Cryptomind.Core.Services
 			List<CipherReviewOutputViewModel> output = new List<CipherReviewOutputViewModel>();
 			foreach (var cipher in result)
 			{
+				string challengeType = !cipher.IsDeleted ? cipher.ChallengeType.ToString() : "CipherDeleted";
 				output.Add(new CipherReviewOutputViewModel
 				{
 					Id = cipher.Id,
@@ -408,7 +439,7 @@ namespace Cryptomind.Core.Services
 					Status = cipher.Status.ToString(),
 					IsImage = cipher is ImageCipher,
 					IsLLMRecommended = cipher.IsLLMRecommended,
-					ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
+					ChallengeTypeDisplay = challengeType,
 				});
 			}
 			return output;
