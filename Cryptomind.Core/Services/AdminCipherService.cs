@@ -101,6 +101,16 @@ namespace Cryptomind.Core.Services
 					break;
 			}
 
+			switch (filter.IsCipherDeleted)
+			{
+				case IsCipherDeleted.NotDeleted:
+                    result = result.Where(x => !x.IsDeleted).ToList();
+                    break;
+                case IsCipherDeleted.Deleted:
+                    result = result.Where(x => x.IsDeleted).ToList();
+                    break;
+            }
+
 			switch (filter.OrderTerm)
 			{
 				case CipherOrderTerm.Newest:
@@ -118,7 +128,9 @@ namespace Cryptomind.Core.Services
         }
 		public async Task<CipherDetailedReviewOutputViewModel> GetCipherById(int id) 
 		{
-			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
+			Cipher? cipher = await cipherRepo.GetAllAttached()
+				.Include(x => x.CreatedByUser)
+				.FirstOrDefaultAsync(x => x.Id == id);
 
 			if (cipher == null)
 				throw new InvalidOperationException("Cipher not found");
@@ -409,6 +421,7 @@ namespace Cryptomind.Core.Services
 				DecryptedText = cipher.DecryptedText,
 				Points = cipher.Points,
 				CipherText = cipher.EncryptedText,
+				CreatorUserName = cipher.CreatedByUser.UserName,
 				AllowType = cipher.AllowTypeHint,
 				AllowHint = cipher.AllowHint,
 				AllowFullSolution = cipher.AllowSolution,
