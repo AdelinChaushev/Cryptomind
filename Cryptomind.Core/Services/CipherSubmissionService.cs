@@ -22,7 +22,7 @@ namespace Cryptomind.Core.Services
 			if (string.IsNullOrEmpty(model.Title))
 				throw new InvalidOperationException("Title is required");
 
-			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.Title == model.Title && x.CreatedByUserId != userId))
+			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.Title == model.Title))
 				throw new InvalidOperationException("There is already a cipher with this title");
 
 			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.EncryptedText == model.EncryptedText && x.CreatedByUserId != userId))
@@ -34,15 +34,14 @@ namespace Cryptomind.Core.Services
 			Cipher? cipher = null;
 			string encryptedTextForAnalysis = model.EncryptedText;
 
-			var title = string.IsNullOrEmpty(model.Title) ? "TESTING" : model.Title; //Decide what to do if there is no title provided
 			if (model.CipherDefinition == CipherDefinition.TextCipher)
 			{
 				cipher = new TextCipher()
 				{
-					Title = title,
+					Title = model.Title,
 					DecryptedText = model.DecryptedText,
 					EncryptedText = model.EncryptedText,
-					TypeOfCipher = model.CipherType, //Can just send null values instead of having a None value, because what is that cipher type - "none"
+					TypeOfCipher = model.CipherType,
 					AllowHint = false,
 					AllowSolution = false,
 					Status = ApprovalStatus.Pending,
@@ -82,7 +81,7 @@ namespace Cryptomind.Core.Services
 
 					cipher = new ImageCipher()
 					{
-						Title = title,
+						Title = model.Title,
 						DecryptedText = model.DecryptedText,
 						ImagePath = relativePath,
 						AllowHint = false,
