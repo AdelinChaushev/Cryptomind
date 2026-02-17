@@ -11,6 +11,7 @@ namespace Cryptomind.Core.Services
 {
 	public class AuthService(
 		UserManager<ApplicationUser> userManager,
+		SignInManager<ApplicationUser> signInManager,
 		IConfiguration configuration) : IAuthService
 	{
 		public async Task<ApplicationUser> Authenticate(string email, string password)
@@ -18,6 +19,8 @@ namespace Cryptomind.Core.Services
 			var user = await userManager.FindByEmailAsync(email);
 			if (user == null || !await userManager.CheckPasswordAsync(user, password))
 				throw new UnauthorizedAccessException("Invalid credentials");
+			if (user.IsDeactivated)
+				throw new InvalidOperationException("This account is deactivated.");
 			return user;
 		}
 		public async Task<string> GenerateJSONWebToken(ApplicationUser user)
@@ -80,8 +83,13 @@ namespace Cryptomind.Core.Services
 
 			if (user == null)
 				throw new InvalidOperationException("User not found.");
+			if (user.IsDeactivated)
+				throw new InvalidOperationException("User is already deactivated");
 
-			await userManager.DeleteAsync(user);
+			user.IsDeactivated = true;
+			user.DeactivatedAt = DateTime.UtcNow;
+			await signInManager.SignOutAsync();
+			await userManager.UpdateAsync(user);
 		}
 	}
 }
