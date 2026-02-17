@@ -72,13 +72,25 @@ namespace Cryptomind.Core.Services
 				BadgeId = badgeId,
 				EarnedAt = DateTime.UtcNow
 			};
+			try
+			{
+				await userBadgeRepo.AddAsync(userBadge);
 
-			user.Badges.Add(userBadge);
-			badge.UserBadges.Add(userBadge);
-			badge.EarnedBy++;
+				badge.EarnedBy++;
 
-			await userBadgeRepo.AddAsync(userBadge);
-			await notificationService.CreateAndSendNotification(userId, NotificationType.BadgeEarned, $"You earned {badge.Title} badge!", badgeId, string.Empty);
+				await badgeRepo.UpdateAsync(badge);
+				await notificationService.CreateAndSendNotification(
+					userId,
+					NotificationType.BadgeEarned,
+					$"You earned {badge.Title} badge!",
+					badgeId,
+					string.Empty);
+			}
+			catch (DbUpdateException)
+			{
+				// Badge already awarded by concurrent request
+				return;
+			}
 		}
 	}
 }
