@@ -12,9 +12,10 @@ namespace Cryptomind.Common.ViewModels.AdminViewModels
 		public int Id { get; set; }
 		public string Title { get; set; }
 		public bool IsImage { get; set; }
-		public string ChallengeTypeDisplay { get; set; }
-		public string DecryptedText { get; set; }
-        public string Status { get; set; }
+        public string SubmittedBy { get; set; }
+        public DateTime? SubmittedAt { get; set; }
+        public int PercentageOfConfidence { get; set; }
+        public string MlPrediction { get; set; }
         public bool IsLLMRecommended { get; set; }
     }
 }
