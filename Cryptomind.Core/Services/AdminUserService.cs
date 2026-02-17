@@ -1,4 +1,5 @@
-﻿using Cryptomind.Common.ViewModels.AdminViewModels;
+﻿using Cryptomind.Common.DTOs;
+using Cryptomind.Common.ViewModels.AdminViewModels;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
@@ -10,7 +11,7 @@ namespace Cryptomind.Core.Services
 {
 	public class AdminUserService (UserManager<ApplicationUser> userManager) : IAdminUserService
 	{
-		public async Task<List<UserViewModel>> GetAllUsers()
+		public async Task<List<UserViewModel>> GetAllUsers(UserFilter? filter)
 		{
 			var userViewModels = new List<UserViewModel>();
 
@@ -22,10 +23,28 @@ namespace Cryptomind.Core.Services
 			if (!users.Any())
 				return userViewModels;
 
-			var admins = await userManager.GetUsersInRoleAsync("Admin");
-			var adminIds = admins
+			var adminIds = (await userManager.GetUsersInRoleAsync("Admin"))
 				.Select(x => x.Id)
 				.ToHashSet();
+
+			switch (filter.IsBanned)
+			{
+				case true:
+					users = users.Where(x => x.IsBanned).ToList();
+					break;
+				case false:
+					users = users.Where(x => !x.IsBanned).ToList();
+					break;
+			}
+			switch (filter.IsDeactivated)
+			{
+				case true:
+					users = users.Where(x => x.IsDeactivated).ToList();
+					break;
+				case false:
+					users = users.Where(x => !x.IsDeactivated).ToList();
+					break;
+			}
 
 			foreach (var user in users)
 			{

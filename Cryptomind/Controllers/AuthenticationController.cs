@@ -85,6 +85,16 @@ namespace Cryptomind.Controllers
 				}
 
 				await authService.DeactivateAccount(userId);
+
+				Response.Cookies.Delete("token", new CookieOptions
+				{
+					HttpOnly = true,
+					IsEssential = true,
+					SameSite = SameSiteMode.None,
+					Secure = true,
+					Expires = DateTimeOffset.UtcNow.AddDays(-1)
+				});
+
 				return Ok("Account deactivated");
 			}
 			catch (Exception ex)

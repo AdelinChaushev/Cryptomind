@@ -103,10 +103,10 @@ namespace Cryptomind.Core.Services
 
 			switch (filter.IsCipherDeleted)
 			{
-				case IsCipherDeleted.NotDeleted:
+				case true:
                     result = result.Where(x => !x.IsDeleted).ToList();
                     break;
-                case IsCipherDeleted.Deleted:
+                case false:
                     result = result.Where(x => x.IsDeleted).ToList();
                     break;
             }
@@ -319,6 +319,7 @@ namespace Cryptomind.Core.Services
 
 			cipher.IsDeleted = true;
 			cipher.DeletedAt = DateTime.UtcNow;
+
 			await notificationService.CreateAndSendNotification(cipher.CreatedByUserId, NotificationType.CipherDeleted,
 				$"Your cipher '{cipher.Title}' has been removed by an admin.", cipher.Id, string.Empty);
 			await cipherRepo.UpdateAsync(cipher);
