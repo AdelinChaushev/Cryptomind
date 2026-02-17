@@ -66,19 +66,33 @@ namespace Cryptomind.Core.Services
 			if (badge == null)
 				throw new InvalidOperationException("Badge not found");
 
-			var userBadge = new UserBadge
+			try
 			{
-				UserId = userId,
-				BadgeId = badgeId,
-				EarnedAt = DateTime.UtcNow
-			};
+				var userBadge = new UserBadge
+				{
+					UserId = userId,
+					BadgeId = badgeId,
+					EarnedAt = DateTime.UtcNow
+				};
 
-			user.Badges.Add(userBadge);
-			badge.UserBadges.Add(userBadge);
-			badge.EarnedBy++;
+				user.Badges.Add(userBadge);
+				badge.UserBadges.Add(userBadge);
+				badge.EarnedBy++;
 
-			await userBadgeRepo.AddAsync(userBadge);
-			await notificationService.CreateAndSendNotification(userId, NotificationType.BadgeEarned, $"You earned {badge.Title} badge!", badgeId, string.Empty);
+				await userBadgeRepo.AddAsync(userBadge);
+
+				await notificationService.CreateAndSendNotification(
+					userId,
+					NotificationType.BadgeEarned,
+					$"You earned {badge.Title} badge!",
+					badgeId,
+					string.Empty);
+			}
+			catch (DbUpdateException)
+			{
+				// Badge already awarded by concurrent request - safe to ignore
+				return;
+			}
 		}
 	}
 }
