@@ -46,9 +46,13 @@ namespace Cryptomind.Controllers
 				var result = await cipherService.GetCipherAsync(id, userId);
 				return Ok(result);
 			}
-			catch (Exception ex)
+			catch (InvalidOperationException ex) when (ex.Message == "This cipher has been removed")
 			{
-				return BadRequest(ex.Message);
+				return NotFound(new { message = ex.Message, isDeleted = true });
+			}
+			catch (InvalidOperationException ex)
+			{
+				return NotFound(new { message = ex.Message, isDeleted = false });
 			}
 		}
 

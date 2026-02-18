@@ -20,6 +20,5 @@ namespace Cryptomind.Data.Enums
 		AnswerCipherRestored = 7,
 		//Badges related
 		BadgeEarned = 8,
-		
 	}
 }
