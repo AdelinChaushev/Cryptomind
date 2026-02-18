@@ -22,10 +22,12 @@ namespace Cryptomind.Data.Entities
         public int SolvedCount { get; set; }
         public int AttemptedCiphers { get; set; }
 		public bool IsBanned { get; set; }
+        public bool IsDeactivated { get; set; }
 		public string? BanReason { get; set; }
         public int LeaderBoardPlace { get; set; }
 		public DateTime RegisteredAt { get; set; }
 		public DateTime? BannedAt { get; set; }
+        public DateTime? DeactivatedAt { get; set; }
 		public double SuccessRate => CalculateSuccessRate();
         public ICollection<Cipher> UploadedCiphers { get; set; }
         public ICollection<UserSolution> CipherAnswers { get; set; }
@@ -35,9 +37,9 @@ namespace Cryptomind.Data.Entities
         public ICollection<Notification> Notifications { get; set; }
         private double CalculateSuccessRate()
         {
-            if (SolvedCount == 0 || AttemptedCiphers == 0) return 0;
+			if (AttemptedCiphers == 0) return 0;
 
-            return (double)(SolvedCount / AttemptedCiphers) * 100;
-        }
+			return ((double)SolvedCount / AttemptedCiphers) * 100;
+		}
 	}
 }

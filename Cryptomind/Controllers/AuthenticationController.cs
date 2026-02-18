@@ -41,15 +41,14 @@ namespace Cryptomind.Controllers
 		{
 			try
 			{
-				ApplicationUser? user = await authService.Authenticate(model.Email, model.Password);
-				if (user == null)
-				{
-					return BadRequest("Invalid Credentials");
-				}
-
+				ApplicationUser user = await authService.Authenticate(model.Email, model.Password);
 				string token = await authService.GenerateJSONWebToken(user);
 				AddCookie(token);
 				return Ok(new { token });
+			}
+			catch (UnauthorizedAccessException ex)
+			{
+				return Unauthorized(ex.Message);
 			}
 			catch (Exception ex)
 			{
@@ -67,7 +66,7 @@ namespace Cryptomind.Controllers
 				IsEssential = true,
 				SameSite = SameSiteMode.None,
 				Secure = true,
-				Expires = DateTimeOffset.Now.AddDays(-1)
+				Expires = DateTimeOffset.UtcNow.AddDays(-1)
 			});
 
 			return Ok("Logged out successfully");
@@ -86,6 +85,16 @@ namespace Cryptomind.Controllers
 				}
 
 				await authService.DeactivateAccount(userId);
+
+				Response.Cookies.Delete("token", new CookieOptions
+				{
+					HttpOnly = true,
+					IsEssential = true,
+					SameSite = SameSiteMode.None,
+					Secure = true,
+					Expires = DateTimeOffset.UtcNow.AddDays(-1)
+				});
+
 				return Ok("Account deactivated");
 			}
 			catch (Exception ex)
@@ -103,7 +112,7 @@ namespace Cryptomind.Controllers
 				Secure = true,
 				SameSite = SameSiteMode.None,
 				IsEssential = true,
-				Expires = DateTimeOffset.Now.AddHours(3),
+				Expires = DateTimeOffset.UtcNow.AddHours(3),
 			});
 		}
 

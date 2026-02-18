@@ -5,43 +5,39 @@ using System.Text.Json.Serialization;
 using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Enums;
+using Cryptomind.Common.Constants;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace Cryptomind.Core.Services
 {
 	public class LLMService : ILLMService
 	{
-		private readonly HttpClient _httpClient;
-		private readonly string _apiUrl;
-		private readonly string _apiKey;
-		private readonly string _validationModel;  // Cheap model for admin validation
-		private readonly string _educationalModel; // Better model for user-facing content
-		private readonly ILogger<LLMService> _logger;
+		private readonly HttpClient httpClient;
+		private readonly string apiUrl;
+		private readonly string apiKey;
+		private readonly string validationModel;  // Cheap model for admin validation
+		private readonly string educationalModel; // Better model for user-facing content
 
-		private const int ApiTimeoutSeconds = 60;
+		private const int ApiTimeoutSeconds = LLMConstants.ApiTimeoutSeconds;
 
 		public LLMService(
 			IHttpClientFactory httpClientFactory,
-			IConfiguration configuration,
-			ILogger<LLMService> logger)
+			IConfiguration configuration)
 		{
-			_httpClient = httpClientFactory.CreateClient();
-			_httpClient.Timeout = TimeSpan.FromSeconds(ApiTimeoutSeconds);
+			httpClient = httpClientFactory.CreateClient();
+			httpClient.Timeout = TimeSpan.FromSeconds(ApiTimeoutSeconds);
 
-			_apiUrl = configuration["LLMService:ApiUrl"]
+			apiUrl = configuration["LLMService:ApiUrl"]
 				?? throw new InvalidOperationException("LLMService:ApiUrl not configured");
-			_apiKey = configuration["LLMService:ApiKey"]
+			apiKey = configuration["LLMService:ApiKey"]
 				?? throw new InvalidOperationException("LLMService:ApiKey not configured");
 
 			// Use cheap model for admin validation, better model for user content
-			_validationModel = configuration["LLMService:ValidationModel"] ?? "gpt-4o-mini";
-			_educationalModel = configuration["LLMService:EducationalModel"] ?? "gpt-4o";
+			validationModel = configuration["LLMService:ValidationModel"] ?? "gpt-4o-mini";
+			educationalModel = configuration["LLMService:EducationalModel"] ?? "gpt-4o";
 
-			_logger = logger;
-
-			_httpClient.DefaultRequestHeaders.Authorization =
-				new AuthenticationHeaderValue("Bearer", _apiKey);
+			httpClient.DefaultRequestHeaders.Authorization =
+				new AuthenticationHeaderValue("Bearer", apiKey);
 		}
 
 		#region Admin Validation
@@ -65,7 +61,7 @@ namespace Cryptomind.Core.Services
 
 			var jsonResponse = await CallLLMWithJsonAsync(
 				prompt,
-				model: _validationModel,
+				model: validationModel,
 				maxTokens: 800,
 				temperature: 0.3f
 			);
@@ -82,10 +78,8 @@ namespace Cryptomind.Core.Services
 
 				return result;
 			}
-			catch (JsonException ex)
+			catch (JsonException)
 			{
-				_logger.LogError(ex, "Failed to parse LLM validation response: {Response}", jsonResponse);
-
 				return new CipherValidationResult
 				{
 					Issues = new List<string> { "LLM response parsing failed - manual review required" },
@@ -102,6 +96,10 @@ namespace Cryptomind.Core.Services
 		{
 			string encryptedText = cipher.EncryptedText;
 			string decryptedText = cipher.DecryptedText;
+
+			if (cipher.TypeOfCipher == null)
+				throw new InvalidOperationException("Cannot generate hint for cipher without a type");
+
 			string actualType = cipher.TypeOfCipher.ToString();
 
 			string result = string.Empty;
@@ -109,7 +107,7 @@ namespace Cryptomind.Core.Services
 			switch (hintType)
 			{
 				case HintType.Type:
-					result = await GetTypeHintAsync(encryptedText, actualType, decryptedText);
+					result = await GetTypeHintAsync(encryptedText, actualType);
 					break;
 				case HintType.Hint:
 					result = await GetHintAsync(encryptedText, actualType, decryptedText);
@@ -126,14 +124,13 @@ namespace Cryptomind.Core.Services
 		#region Private methods
 		private async Task<string> GetTypeHintAsync(
 			string encryptedText,
-			string actualType,
-			string decryptedText)
+			string actualType)
 		{
 			var prompt = BuildTypeHintPrompt(encryptedText, actualType);
 
 			return await CallLLMAsync(
 				prompt,
-				model: _educationalModel,
+				model: educationalModel,
 				maxTokens: 400,
 				temperature: 0.7f
 			);
@@ -147,9 +144,9 @@ namespace Cryptomind.Core.Services
 
 			return await CallLLMAsync(
 				prompt,
-				model: _educationalModel,
+				model: educationalModel,
 				maxTokens: 600,
-				temperature: 0.7f  // Higher temperature for more natural/creative hints
+				temperature: 0.7f
 			);
 		}
 		private async Task<string> GetFullSolutionAsync(
@@ -161,30 +158,11 @@ namespace Cryptomind.Core.Services
 
 			return await CallLLMAsync(
 				prompt,
-				model: _educationalModel,
+				model: educationalModel,
 				maxTokens: 1000,
 				temperature: 0.7f
 			);
 		}
-		#endregion
-
-		#region Health Check
-
-		public async Task<bool> IsServiceHealthyAsync()
-		{
-			try
-			{
-				var testPrompt = "Respond with 'OK' if you can read this.";
-				var response = await CallLLMAsync(testPrompt, model: _validationModel, maxTokens: 10);
-				return !string.IsNullOrWhiteSpace(response);
-			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "LLM service health check failed");
-				return false;
-			}
-		}
-
 		#endregion
 
 		#region Prompt Engineering/Validation
@@ -313,6 +291,11 @@ namespace Cryptomind.Core.Services
 			- SimpleSubstitution (26! combinations)
 			- Columnar/Route (needs column order or route pattern)
 
+			TASK 3 - TYPE VERIFICATION:
+			Does the ciphertext actually match the user-provided type ({userProvidedType})?
+			Analyze the statistical properties of the ciphertext and assess whether it is consistent with the claimed type.
+			Your confidence reflects how certain you are that the ciphertext matches the user-provided type.
+
 			This assessment is informational for the admin — they make the final decision on how to categorize it.
 
 			is_solvable MUST always be true or false. Never null.
@@ -324,11 +307,13 @@ namespace Cryptomind.Core.Services
 			================================================================================
 
 			{{
+			  ""predicted_type"": ""must be one of the 14 supported types listed above"",
+			  ""confidence"": ""high"" | ""medium"" | ""low"",
 			  ""is_appropriate"": true | false,
 			  ""is_solvable"": true | false,
 			  ""issues"": [""list any specific problems found""],
 			  ""recommendation"": ""approve"" | ""reject"",
-			  ""reasoning"": ""2-3 sentences. If rejecting, explain why. If approving, briefly note the solvability assessment.""
+			  ""reasoning"": ""2-3 sentences. If rejecting, explain why. If approving, briefly note the solvability assessment and type confidence.""
 			}}
 
 			Recommendation rules:
@@ -417,7 +402,7 @@ namespace Cryptomind.Core.Services
 
 		#region Prompt Engineering/Hint
 		private string BuildTypeHintPrompt(
-			string encryptedText, 
+			string encryptedText,
 			string actualType)
 		{
 			return $@"You are a cryptography assistant helping a student identify a cipher.
@@ -486,32 +471,24 @@ namespace Cryptomind.Core.Services
 			int maxTokens = 500,
 			float temperature = 0.7f)
 		{
-			try
+			var requestBody = new
 			{
-				var requestBody = new
+				model,
+				messages = new[]
 				{
-					model = model,
-					messages = new[]
+					new
 					{
-						new
-						{
-							role = "system",
-							content = "You are a cryptanalysis expert. Always respond with valid JSON only."
-						},
-						new { role = "user", content = prompt }
+						role = "system",
+						content = "You are a cryptanalysis expert. Always respond with valid JSON only."
 					},
-					max_tokens = maxTokens,
-					temperature = temperature,
-					response_format = new { type = "json_object" }  // FORCE JSON MODE
-				};
+					new { role = "user", content = prompt }
+				},
+				max_tokens = maxTokens,
+				temperature,
+				response_format = new { type = "json_object" }
+			};
 
-				return await ExecuteLLMRequestAsync(requestBody);
-			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error during JSON LLM call");
-				throw;
-			}
+			return await ExecuteLLMRequestAsync(requestBody);
 		}
 		private async Task<string> CallLLMAsync(
 			string prompt,
@@ -519,41 +496,31 @@ namespace Cryptomind.Core.Services
 			int maxTokens = 500,
 			float temperature = 0.7f)
 		{
-			try
+			var requestBody = new
 			{
-				var requestBody = new
+				model,
+				messages = new[]
 				{
-					model = model,
-					messages = new[]
-					{
 						new { role = "user", content = prompt }
-					},
-					max_tokens = maxTokens,
-					temperature = temperature
-				};
+				},
+				max_tokens = maxTokens,
+				temperature
+			};
 
-				return await ExecuteLLMRequestAsync(requestBody);
-			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error during standard LLM call");
-				throw;
-			}
+			return await ExecuteLLMRequestAsync(requestBody);
 		}
 		private async Task<string> ExecuteLLMRequestAsync(object requestBody)
 		{
 			var jsonRequest = JsonSerializer.Serialize(requestBody);
 			var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
 
-			var response = await _httpClient.PostAsync(
-				$"{_apiUrl}/chat/completions",
+			var response = await httpClient.PostAsync(
+				$"{apiUrl}/chat/completions",
 				content);
 
 			if (!response.IsSuccessStatusCode)
 			{
 				var errorContent = await response.Content.ReadAsStringAsync();
-				_logger.LogError("LLM API error: {StatusCode} - {Error}",
-					response.StatusCode, errorContent);
 
 				throw new InvalidOperationException(
 					$"LLM API returned error (Status {response.StatusCode}): {errorContent}");
@@ -565,9 +532,8 @@ namespace Cryptomind.Core.Services
 				new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
 			if (llmResponse?.Choices == null || llmResponse.Choices.Count == 0)
-			{
 				throw new InvalidOperationException("LLM API returned empty response");
-			}
+
 
 			return llmResponse.Choices[0].Message.Content;
 		}
@@ -575,55 +541,53 @@ namespace Cryptomind.Core.Services
 		#endregion
 
 		#region Data Models
-
-		// Models for OpenAI API communication (unchanged)
 		private class OpenAIResponse
-	{
-		[JsonPropertyName("choices")]
-		public List<Choice> Choices { get; set; }
+		{
+			[JsonPropertyName("choices")]
+			public List<Choice> Choices { get; set; }
+		}
+
+		private class Choice
+		{
+			[JsonPropertyName("message")]
+			public Message Message { get; set; }
+		}
+
+		private class Message
+		{
+			[JsonPropertyName("content")]
+			public string Content { get; set; }
+		}
+
+		#endregion
+
+		#region Public Models for LLM Responses
+		public class CipherValidationResult
+		{
+			[JsonPropertyName("predicted_type")]
+			public string? PredictedType { get; set; }
+
+			[JsonPropertyName("confidence")]
+			public string? Confidence { get; set; }
+
+			[JsonPropertyName("solution_correct")]
+			public bool? SolutionCorrect { get; set; }
+
+			[JsonPropertyName("is_appropriate")]
+			public bool IsAppropriate { get; set; }
+
+			[JsonPropertyName("is_solvable")]
+			public bool? IsSolvable { get; set; }
+
+			[JsonPropertyName("issues")]
+			public List<string> Issues { get; set; } = new();
+
+			[JsonPropertyName("recommendation")]
+			public string Recommendation { get; set; } = string.Empty;
+
+			[JsonPropertyName("reasoning")]
+			public string Reasoning { get; set; } = string.Empty;
+		}
+		#endregion
 	}
-
-	private class Choice
-	{
-		[JsonPropertyName("message")]
-		public Message Message { get; set; }
-	}
-
-	private class Message
-	{
-		[JsonPropertyName("content")]
-		public string Content { get; set; }
-	}
-
-	#endregion
-}
-
-#region Public Models for LLM Responses
-public class CipherValidationResult
-{
-	[JsonPropertyName("predicted_type")]
-	public string? PredictedType { get; set; }
-
-	[JsonPropertyName("confidence")]
-	public string? Confidence { get; set; }
-
-	[JsonPropertyName("solution_correct")]
-	public bool? SolutionCorrect { get; set; }
-
-	[JsonPropertyName("is_appropriate")]
-	public bool IsAppropriate { get; set; }
-
-	[JsonPropertyName("is_solvable")]
-	public bool? IsSolvable { get; set; }
-
-	[JsonPropertyName("issues")]
-	public List<string> Issues { get; set; } = new();
-
-	[JsonPropertyName("recommendation")]
-	public string Recommendation { get; set; } = string.Empty;
-
-	[JsonPropertyName("reasoning")]
-	public string Reasoning { get; set; } = string.Empty;
-}
-	#endregion
 }

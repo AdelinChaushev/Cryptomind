@@ -1,30 +1,63 @@
-﻿using Cryptomind.Common.ViewModels.AdminViewModels;
+﻿using Cryptomind.Common.DTOs;
+using Cryptomind.Common.ViewModels.AdminViewModels;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace Cryptomind.Core.Services
 {
 	public class AdminUserService (UserManager<ApplicationUser> userManager) : IAdminUserService
 	{
-		public async Task<List<UserViewModel>> GetAllUsers()
+		public async Task<List<UserViewModel>> GetAllUsers(UserFilter filter)
 		{
 			var userViewModels = new List<UserViewModel>();
 
-			if (userManager.Users.ToList().Count > 0)
-				throw new InvalidOperationException("There are no users.");
+			var users = await userManager
+				.Users
+				.Include(x => x.UploadedCiphers)
+				.ToListAsync();
 
-			foreach (var user in userManager.Users.ToList())
+			if (!users.Any())
+				return userViewModels;
+
+			var adminIds = (await userManager.GetUsersInRoleAsync("Admin"))
+				.Select(x => x.Id)
+				.ToHashSet();
+
+			switch (filter.IsBanned)
 			{
+				case true:
+					users = users.Where(x => x.IsBanned).ToList();
+					break;
+				case false:
+					users = users.Where(x => !x.IsBanned).ToList();
+					break;
+			}
+			switch (filter.IsDeactivated)
+			{
+				case true:
+					users = users.Where(x => x.IsDeactivated).ToList();
+					break;
+				case false:
+					users = users.Where(x => !x.IsDeactivated).ToList();
+					break;
+			}
+
+			foreach (var user in users)
+			{
+				var roles = await userManager.GetRolesAsync(user);
+
 				userViewModels.Add(new UserViewModel
 				{
 					Id = user.Id,
 					Username = user.UserName,
 					Email = user.Email,
-					IsAdmin = await userManager.IsInRoleAsync(user, "Admin"),
-					PendingCiphers = user.UploadedCiphers.Count(c => c.Status == ApprovalStatus.Pending)
+					IsAdmin = adminIds.Contains(user.Id),
+					PendingCiphers = user.UploadedCiphers.Count(c => c.Status == ApprovalStatus.Pending),
+					Role = roles.Contains("Admin") ? "Admin" : roles.FirstOrDefault() ?? "User",
 				});
 			}
 
@@ -94,12 +127,12 @@ namespace Cryptomind.Core.Services
 				BannedAt = user.BannedAt,
 				RegisteredAt = user.RegisteredAt,
 				TotalScore = user.Score,
-				CiphersSubmitted = user.UploadedCiphers.Count(),
+				CiphersSubmitted = user.UploadedCiphers.Count,
 				CiphersSolved = user.SolvedCount,
 				HintsRequested = user.HintsRequested.Count(),
 				SolveSuccessRate = user.SuccessRate,
-				ApprovedCiphers = user.UploadedCiphers.Where(x => x.Status == ApprovalStatus.Approved).Count(),
-				PendingCiphers = user.UploadedCiphers.Where(x => x.Status == ApprovalStatus.Pending).Count(),
+				ApprovedCiphers = user.UploadedCiphers.Count(x => x.Status == ApprovalStatus.Approved),
+				PendingCiphers = user.UploadedCiphers.Count(x => x.Status == ApprovalStatus.Pending),
 				SubmittedCiphers = submittedCiphers,
 				SolvedCiphers = solvedCiphers,
 			};
@@ -123,6 +156,9 @@ namespace Cryptomind.Core.Services
 
 			if (user.IsBanned)
 				throw new InvalidOperationException("This user is already banned");
+
+			if (await userManager.IsInRoleAsync(user, "Admin"))
+				throw new InvalidOperationException("Admins cannot be banned.");
 
 			await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
 			await userManager.SetLockoutEnabledAsync(user, true);

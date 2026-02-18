@@ -9,8 +9,8 @@ namespace Cryptomind.Core.Services
 {
 	public class CipherRecognizerService : ICipherRecognizerService
 	{
-		private readonly HttpClient _httpClient;
-		private readonly string _mlApiUrl;
+		private readonly HttpClient httpClient;
+		private readonly string mlApiUrl;
 
 		private const int ApiTimeoutSeconds = Common.Constants.CipherRecognitionConstants.ApiTimeoutSeconds;
 
@@ -18,10 +18,9 @@ namespace Cryptomind.Core.Services
 			IHttpClientFactory httpClientFactory,
 			IConfiguration configuration)
 		{
-			_httpClient = httpClientFactory.CreateClient();
-			_httpClient.Timeout = TimeSpan.FromSeconds(ApiTimeoutSeconds);
-
-			_mlApiUrl = configuration["MLService:ApiUrl"] ?? "http://localhost:5002";
+			httpClient = httpClientFactory.CreateClient();
+			httpClient.Timeout = TimeSpan.FromSeconds(ApiTimeoutSeconds);
+			mlApiUrl = configuration["MLService:ApiUrl"] ?? "http://localhost:5002";
 		}
 		public async Task<CipherRecognitionResultViewModel> ClassifyCipher(string inputText)
 		{
@@ -34,14 +33,14 @@ namespace Cryptomind.Core.Services
 			{
 				var requestPayload = new
 				{
-					text = inputText.ToUpper(),
+					text = inputText.ToUpper(), //Case-insensitive for the ML.
 					return_top_k = true
 				};
 
 				var jsonRequest = JsonSerializer.Serialize(requestPayload);
 				var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
 
-				var response = await _httpClient.PostAsync($"{_mlApiUrl}/api/predict", content);
+				var response = await httpClient.PostAsync($"{mlApiUrl}/api/predict", content);
 
 				if (!response.IsSuccessStatusCode)
 				{
@@ -84,7 +83,7 @@ namespace Cryptomind.Core.Services
 			catch (HttpRequestException ex)
 			{
 				throw new InvalidOperationException(
-					$"ML service is unavailable. Please ensure the Python ML API is running at {_mlApiUrl}",
+					$"ML service is unavailable. Please ensure the Python ML API is running at {mlApiUrl}",
 					ex
 				);
 			}
@@ -118,7 +117,7 @@ namespace Cryptomind.Core.Services
 		{
 			try
 			{
-				var response = await _httpClient.GetAsync($"{_mlApiUrl}/api/health");
+				var response = await httpClient.GetAsync($"{mlApiUrl}/api/health");
 				return response.IsSuccessStatusCode;
 			}
 			catch
@@ -144,12 +143,6 @@ namespace Cryptomind.Core.Services
 
 			[JsonPropertyName("all_predictions")]
 			public List<PythonPrediction> AllPredictions { get; set; }
-
-			[JsonPropertyName("letter_count")]
-			public int LetterCount { get; set; }
-
-			[JsonPropertyName("text_length")]
-			public int TextLength { get; set; }
 		}
 		private class PythonPrediction
 		{
@@ -161,12 +154,6 @@ namespace Cryptomind.Core.Services
 
 			[JsonPropertyName("confidence")]
 			public double Confidence { get; set; }
-
-			[JsonPropertyName("family_confidence")]
-			public double FamilyConfidence { get; set; }
-
-			[JsonPropertyName("type_confidence")]
-			public double TypeConfidence { get; set; }
 		}
 		#endregion
 	}

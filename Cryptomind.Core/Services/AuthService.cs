@@ -3,13 +3,9 @@ using Cryptomind.Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Cryptomind.Core.Services
 {
@@ -20,11 +16,13 @@ namespace Cryptomind.Core.Services
 		public async Task<ApplicationUser> Authenticate(string email, string password)
 		{
 			var user = await userManager.FindByEmailAsync(email);
+			bool passwordValid = user != null && await userManager.CheckPasswordAsync(user, password);
 
-			if (user != null && await userManager.CheckPasswordAsync(user, password))
-				return user;
-
-			return null;
+			if (!passwordValid)
+				throw new UnauthorizedAccessException("Invalid credentials");
+			if (user.IsDeactivated)
+				throw new InvalidOperationException("This account is deactivated.");
+			return user;
 		}
 		public async Task<string> GenerateJSONWebToken(ApplicationUser user)
 		{
@@ -49,7 +47,7 @@ namespace Cryptomind.Core.Services
 			var token = new JwtSecurityToken(
 				issuer: configuration["JWT:ValidIssuer"],
 				audience: configuration["JWT:ValidAudience"],
-				expires: DateTime.Now.AddHours(3),
+				expires: DateTime.UtcNow.AddHours(3),
 				claims: authClaims,
 				signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256));
 
@@ -58,19 +56,19 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<ApplicationUser> CreateUser(string userName, string email, string password)
 		{
-			ApplicationUser user = new ApplicationUser()
-			{
-				UserName = userName,
-				Email = email,
-				EmailConfirmed = true,
-				RegisteredAt = DateTime.Now,
-			};
-
 			var userExist = await userManager.FindByEmailAsync(email);
 			if (userExist != null)
 			{
 				throw new ArgumentException("User with this email already exists");
 			}
+
+			ApplicationUser user = new ApplicationUser()
+			{
+				UserName = userName,
+				Email = email,
+				EmailConfirmed = true,
+				RegisteredAt = DateTime.UtcNow,
+			};
 
 			var result = await userManager.CreateAsync(user, password);
 			if (!result.Succeeded)
@@ -87,7 +85,15 @@ namespace Cryptomind.Core.Services
 			if (user == null)
 				throw new InvalidOperationException("User not found.");
 
-			await userManager.DeleteAsync(user);
+			if (user.IsDeactivated)
+				throw new InvalidOperationException("User is already deactivated");
+
+			if (await userManager.IsInRoleAsync(user, "Admin"))
+				throw new InvalidOperationException("Admins cannot deactivate their own account");
+
+			user.IsDeactivated = true;
+			user.DeactivatedAt = DateTime.UtcNow;
+			await userManager.UpdateAsync(user);
 		}
 	}
 }

@@ -1,0 +1,210 @@
+﻿using Cryptomind.Core.Services;
+using Microsoft.Extensions.Configuration;
+using Moq;
+using Moq.Protected;
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using Xunit;
+
+namespace Cryptomind.Tests.Unit.Services
+{
+	public class EnglishValidationServiceTests
+	{
+		private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;
+		private readonly Mock<IConfiguration> _configurationMock;
+		private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock;
+		private readonly EnglishValidationService _service;
+
+		public EnglishValidationServiceTests()
+		{
+			_httpMessageHandlerMock = new Mock<HttpMessageHandler>();
+			var httpClient = new HttpClient(_httpMessageHandlerMock.Object);
+
+			_httpClientFactoryMock = new Mock<IHttpClientFactory>();
+			_httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>()))
+				.Returns(httpClient);
+
+			_configurationMock = new Mock<IConfiguration>();
+			_configurationMock.Setup(c => c["MLService:ApiUrl"])
+				.Returns("http://localhost:5002");
+
+			_service = new EnglishValidationService(
+				_httpClientFactoryMock.Object,
+				_configurationMock.Object);
+		}
+
+		private void SetupHttpResponse(HttpStatusCode statusCode, string content)
+		{
+			_httpMessageHandlerMock
+				.Protected()
+				.Setup<Task<HttpResponseMessage>>(
+					"SendAsync",
+					ItExpr.IsAny<HttpRequestMessage>(),
+					ItExpr.IsAny<CancellationToken>())
+				.ReturnsAsync(new HttpResponseMessage
+				{
+					StatusCode = statusCode,
+					Content = new StringContent(content)
+				});
+		}
+
+		private void SetupHttpException(Exception exception)
+		{
+			_httpMessageHandlerMock
+				.Protected()
+				.Setup<Task<HttpResponseMessage>>(
+					"SendAsync",
+					ItExpr.IsAny<HttpRequestMessage>(),
+					ItExpr.IsAny<CancellationToken>())
+				.ThrowsAsync(exception);
+		}
+
+		private static string CreateValidationResponse(bool isEnglish, double confidence)
+		{
+			return JsonSerializer.Serialize(new
+			{
+				is_english = isEnglish,
+				confidence
+			});
+		}
+
+		#region ValidatePlaintextAsync
+
+		[Fact]
+		public async Task ValidatePlaintextAsync_Throws_WhenPlaintextIsNull()
+		{
+			await Assert.ThrowsAsync<ArgumentException>(() => _service.ValidatePlaintextAsync(null));
+		}
+
+		[Fact]
+		public async Task ValidatePlaintextAsync_Throws_WhenPlaintextIsEmpty()
+		{
+			await Assert.ThrowsAsync<ArgumentException>(() => _service.ValidatePlaintextAsync(""));
+		}
+
+		[Fact]
+		public async Task ValidatePlaintextAsync_Throws_WhenPlaintextIsWhitespace()
+		{
+			await Assert.ThrowsAsync<ArgumentException>(() => _service.ValidatePlaintextAsync("   "));
+		}
+
+		[Fact]
+		public async Task ValidatePlaintextAsync_ReturnsResult_WhenResponseIsValid()
+		{
+			SetupHttpResponse(HttpStatusCode.OK, CreateValidationResponse(true, 0.95));
+
+			var result = await _service.ValidatePlaintextAsync("Hello world");
+
+			Assert.NotNull(result);
+			Assert.True(result.IsEnglish);
+			Assert.Equal(0.95, result.Confidence);
+		}
+
+		[Fact]
+		public async Task ValidatePlaintextAsync_ReturnsNonEnglish_WhenTextIsNotEnglish()
+		{
+			SetupHttpResponse(HttpStatusCode.OK, CreateValidationResponse(false, 0.15));
+
+			var result = await _service.ValidatePlaintextAsync("xqz jkl vwp");
+
+			Assert.False(result.IsEnglish);
+			Assert.Equal(0.15, result.Confidence);
+		}
+
+		[Fact]
+		public async Task ValidatePlaintextAsync_Throws_WhenApiReturnsNonSuccessStatusCode()
+		{
+			SetupHttpResponse(HttpStatusCode.InternalServerError, "Internal error");
+
+			await Assert.ThrowsAsync<InvalidOperationException>(
+				() => _service.ValidatePlaintextAsync("test"));
+		}
+
+		[Fact]
+		public async Task ValidatePlaintextAsync_Throws_WhenResponseIsInvalidJson()
+		{
+			SetupHttpResponse(HttpStatusCode.OK, "not json at all");
+
+			await Assert.ThrowsAsync<InvalidOperationException>(
+				() => _service.ValidatePlaintextAsync("test"));
+		}
+
+		[Fact]
+		public async Task ValidatePlaintextAsync_Throws_WhenHttpRequestFails()
+		{
+			SetupHttpException(new HttpRequestException("Connection refused"));
+
+			await Assert.ThrowsAsync<InvalidOperationException>(
+				() => _service.ValidatePlaintextAsync("test"));
+		}
+
+		[Fact]
+		public async Task ValidatePlaintextAsync_Throws_WhenRequestTimesOut()
+		{
+			SetupHttpException(new TaskCanceledException("Timeout"));
+
+			await Assert.ThrowsAsync<InvalidOperationException>(
+				() => _service.ValidatePlaintextAsync("test"));
+		}
+
+		#endregion
+
+		#region IsLikelyEnglishAsync
+
+		[Fact]
+		public async Task IsLikelyEnglishAsync_ReturnsTrue_WhenConfidenceAboveThreshold()
+		{
+			SetupHttpResponse(HttpStatusCode.OK, CreateValidationResponse(true, 0.75));
+
+			var result = await _service.IsLikelyEnglishAsync("Hello world", minConfidence: 0.5);
+
+			Assert.True(result);
+		}
+
+		[Fact]
+		public async Task IsLikelyEnglishAsync_ReturnsFalse_WhenConfidenceBelowThreshold()
+		{
+			SetupHttpResponse(HttpStatusCode.OK, CreateValidationResponse(true, 0.3));
+
+			var result = await _service.IsLikelyEnglishAsync("test", minConfidence: 0.5);
+
+			Assert.False(result);
+		}
+
+		[Fact]
+		public async Task IsLikelyEnglishAsync_ReturnsFalse_WhenIsEnglishIsFalse()
+		{
+			SetupHttpResponse(HttpStatusCode.OK, CreateValidationResponse(false, 0.9));
+
+			var result = await _service.IsLikelyEnglishAsync("test", minConfidence: 0.5);
+
+			Assert.False(result);
+		}
+
+		[Fact]
+		public async Task IsLikelyEnglishAsync_UsesDefaultMinConfidence_WhenNotProvided()
+		{
+			SetupHttpResponse(HttpStatusCode.OK, CreateValidationResponse(true, 0.6));
+
+			var result = await _service.IsLikelyEnglishAsync("Hello world");
+
+			Assert.True(result);
+		}
+
+		[Fact]
+		public async Task IsLikelyEnglishAsync_ReturnsTrue_WhenConfidenceEqualsThreshold()
+		{
+			SetupHttpResponse(HttpStatusCode.OK, CreateValidationResponse(true, 0.5));
+
+			var result = await _service.IsLikelyEnglishAsync("test", minConfidence: 0.5);
+
+			Assert.True(result);
+		}
+
+		#endregion
+	}
+}

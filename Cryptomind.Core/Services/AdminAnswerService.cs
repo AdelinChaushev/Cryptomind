@@ -4,6 +4,7 @@ using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cryptomind.Core.Services
 {
@@ -14,31 +15,43 @@ namespace Cryptomind.Core.Services
 		INotificationService notificationService,
 		UserManager<ApplicationUser> userManager) : IAdminAnswerService
 	{
+		public async Task<int> GetPendingAnswersCount()
+		{
+			return (await answerRepo.GetAllAsync())
+				.Count(x => x.Status == ApprovalStatus.Pending);
+		}
+		public async Task<int> GetApprovedAnswersCount()
+		{
+			return (await answerRepo.GetAllAsync())
+				.Count(x => x.Status == ApprovalStatus.Approved);
+		}
 		public async Task<List<AnswerSuggestionViewModel>> AllSubmittedAnswersAsync()
 		{
 			var answerSuggestions = (await answerRepo.GetAllAsync())
 				.Where(x => x.Status == ApprovalStatus.Pending)
-				.OrderBy(x => x.UplodaedTime);
+				.OrderBy(x => x.UplodaedTime)
+				.ToList();
+
+			var userIds = answerSuggestions.Select(x => x.UserId).Distinct().ToList();
+			var users = (await userManager.Users
+				.Where(x => userIds.Contains(x.Id))
+				.ToListAsync())
+				.ToDictionary(x => x.Id);
 
 			var models = new List<AnswerSuggestionViewModel>();
 
 			foreach (var answer in answerSuggestions)
 			{
-				var user = await userManager.FindByIdAsync(answer.UserId);
-				if (user == null)
+				if (!users.TryGetValue(answer.UserId, out var user))
 					throw new InvalidOperationException("User not found");
 
-				var userName = user.UserName;
-
-				var model = new AnswerSuggestionViewModel
+				models.Add(new AnswerSuggestionViewModel
 				{
 					Id = answer.Id,
 					Description = answer.Description,
 					CipherId = answer.CipherId,
-					Username = userName,
-				};
-
-				models.Add(model);
+					Username = user.UserName,
+				});
 			}
 
 			return models;
@@ -48,6 +61,9 @@ namespace Cryptomind.Core.Services
 			var answer = await answerRepo.GetByIdAsync(id);
 			if (answer == null)
 				throw new InvalidOperationException("Answer not found");
+
+			if (answer.Status != ApprovalStatus.Pending)
+				throw new InvalidOperationException("Answer is already resolved");
 
 			var user = await userManager.FindByIdAsync(answer.UserId);
 
@@ -73,9 +89,15 @@ namespace Cryptomind.Core.Services
 			if (selectedAnswer == null)
 				throw new InvalidOperationException("Answer not found");
 
+			if (selectedAnswer.Status != ApprovalStatus.Pending)
+				throw new InvalidOperationException("Answer is already resolved");
+
+			if (points <= 0)
+				throw new InvalidOperationException("Cannot approve answer without points");
+
 			var firstCorrectAnswerSuggestion = (await answerRepo.GetAllAsync())
 				.Where(x => x.CipherId == selectedAnswer.CipherId)
-				.Where(x => x.DecryptedText == selectedAnswer.DecryptedText)
+				.Where(x => x.DecryptedText.Trim().ToLower() == selectedAnswer.DecryptedText.Trim().ToLower())
 				.OrderBy(x => x.UplodaedTime)
 				.First();
 
@@ -87,24 +109,24 @@ namespace Cryptomind.Core.Services
 			if (cipher.ChallengeType == ChallengeType.Standard)
 				throw new InvalidOperationException("Answer suggestions can only be applied to experimental ciphers");
 
-			//The above statement already checks it
 			if (!string.IsNullOrWhiteSpace(cipher.DecryptedText)) 
 				throw new InvalidOperationException("Cipher already has an approved answer");
 
 			var user = await userManager.FindByIdAsync(firstCorrectAnswerSuggestion.UserId);
 
+			if (user == null)
+				throw new InvalidOperationException("User not found");
+
 			var otherCorrectAnswerSuggestions = (await answerRepo.GetAllAsync())
 				.Where(x => x.CipherId == selectedAnswer.CipherId)
-				.Where(x => x.DecryptedText == selectedAnswer.DecryptedText && x.Id != firstCorrectAnswerSuggestion.Id)
+				.Where(x => x.DecryptedText.Trim().ToLower() == selectedAnswer.DecryptedText.Trim().ToLower() && x.Id != firstCorrectAnswerSuggestion.Id)
 				.Where(x => x.Status == ApprovalStatus.Pending);
 
 			var wrongAnswerSuggestions = (await answerRepo.GetAllAsync())
 				.Where(x => x.CipherId == selectedAnswer.CipherId)
-				.Where(x => x.DecryptedText != selectedAnswer.DecryptedText)
+				.Where(x => x.DecryptedText.Trim().ToLower() != selectedAnswer.DecryptedText.Trim().ToLower())
 				.Where(x => x.Status == ApprovalStatus.Pending);
 
-			if (user == null)
-				throw new InvalidOperationException("User not found");
 
 			int pointsGranted = points + cipher.Points;
 
@@ -125,7 +147,8 @@ namespace Cryptomind.Core.Services
 			firstCorrectAnswerSuggestion.PointsEarned = pointsGranted;
 
 			user.Score += pointsGranted;
-			List<string> userIds = new List<string>();
+
+			var userIds = new List<string>();
 			userIds.Add(user.Id);
 
 			foreach (var correctAnswer in otherCorrectAnswerSuggestions)
@@ -161,7 +184,10 @@ namespace Cryptomind.Core.Services
 
 			foreach(var wrongAnswer in wrongAnswerSuggestions)
 			{
-				await RejectAnswerAsync(wrongAnswer.Id, "Another answer was approved for this cipher");
+				if (otherCorrectAnswerSuggestions.Any(x => x.UserId == wrongAnswer.UserId))
+					await RejectAnswer("Your other answer was approved", wrongAnswer);
+				else
+					await RejectAnswer("Another answer was approved for this cipher", wrongAnswer);
 			}
 
 			await solutionRepo.AddAsync(userSolution);
@@ -178,6 +204,11 @@ namespace Cryptomind.Core.Services
 		public async Task RejectAnswerAsync(int id, string reason)
 		{
 			AnswerSuggestion? answer = await answerRepo.GetByIdAsync(id);
+			await RejectAnswer(reason, answer);
+		}
+		#region Private methods
+		private async Task RejectAnswer(string reason, AnswerSuggestion? answer)
+		{
 			if (answer == null)
 				throw new InvalidOperationException("Answer not found");
 
@@ -187,8 +218,12 @@ namespace Cryptomind.Core.Services
 			answer.RejectionDate = DateTime.UtcNow;
 			answer.RejectionReason = reason;
 
+			if (userManager.FindByIdAsync(answer.UserId) == null)
+				throw new InvalidOperationException("User not found");
+
 			await answerRepo.UpdateAsync(answer);
-			await notificationService.CreateAndSendNotification(answer.UserId, NotificationType.AnswerRejected, reason, null, string.Empty);
+			await notificationService.CreateAndSendNotification(answer.UserId, NotificationType.AnswerRejected, reason, answer.Id, string.Empty);
 		}
+		#endregion
 	}
 }
