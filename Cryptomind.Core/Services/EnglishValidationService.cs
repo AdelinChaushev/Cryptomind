@@ -1,5 +1,6 @@
 ﻿using Cryptomind.Common.ViewModels.EnglishValidationModels;
 using Cryptomind.Core.Contracts;
+using Cryptomind.Common.Constants;
 using Microsoft.Extensions.Configuration;
 using System.Text;
 using System.Text.Json;
@@ -8,20 +9,16 @@ namespace Cryptomind.Core.Services
 {
 	public class EnglishValidationService : IEnglishValidationService
 	{
-		private readonly HttpClient _httpClient;
-		private readonly string _mlApiUrl;
-
-		private const int ApiTimeoutSeconds = 10;
-
+		private readonly HttpClient httpClient;
+		private readonly string mlApiUrl;
+		private const int ApiTimeoutSeconds = EnglishValidationConstants.ApiTimeoutSeconds;
 		public EnglishValidationService(
 			IHttpClientFactory httpClientFactory,
 			IConfiguration configuration)
 		{
-			_httpClient = httpClientFactory.CreateClient();
-			_httpClient.Timeout = TimeSpan.FromSeconds(ApiTimeoutSeconds);
-
-			// Uses the same ML API URL as your CipherRecognizerService
-			_mlApiUrl = configuration["MLService:ApiUrl"] ?? "http://localhost:5002";
+			httpClient = httpClientFactory.CreateClient();
+			httpClient.Timeout = TimeSpan.FromSeconds(ApiTimeoutSeconds);
+			mlApiUrl = configuration["MLService:ApiUrl"] ?? "http://localhost:5002";
 		}
 
 		public async Task<EnglishValidationResult> ValidatePlaintextAsync(string plaintext)
@@ -41,8 +38,8 @@ namespace Cryptomind.Core.Services
 				var jsonRequest = JsonSerializer.Serialize(requestPayload);
 				var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
 
-				var response = await _httpClient.PostAsync(
-					$"{_mlApiUrl}/api/validate-english",
+				var response = await httpClient.PostAsync(
+					$"{mlApiUrl}/api/validate-english",
 					content
 				);
 
@@ -74,7 +71,7 @@ namespace Cryptomind.Core.Services
 			catch (HttpRequestException ex)
 			{
 				throw new InvalidOperationException(
-					$"English validation service is unavailable. Please ensure the Python ML API is running at {_mlApiUrl}",
+					$"English validation service is unavailable. Please ensure the Python ML API is running at {mlApiUrl}",
 					ex
 				);
 			}

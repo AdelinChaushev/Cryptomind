@@ -47,16 +47,25 @@ namespace Cryptomind.Data
 				.HasOne(c => c.CreatedByUser)
 				.WithMany(u => u.UploadedCiphers)
 				.HasForeignKey(c => c.CreatedByUserId)
-				.OnDelete(DeleteBehavior.Restrict); // Prevent cascading deletes
+				.OnDelete(DeleteBehavior.Restrict);
 
 			builder.Entity<UserSolution>()
 				.HasOne(us => us.Cipher)
 				.WithMany(c => c.UserSolutions)
 				.HasForeignKey(us => us.CipherId)
-				.OnDelete(DeleteBehavior.Restrict); // Prevent multiple cascade paths
+				.OnDelete(DeleteBehavior.Restrict);
+
+			builder.Entity<UserSolution>()
+				.HasIndex(us => new { us.UserId, us.CipherId })
+				.HasFilter("[IsCorrect] = 1")  // Only applies to correct solutions
+				.IsUnique();
 
 			builder.Entity<Cipher>()
 				.OwnsOne(c => c.LLMData);
+
+			builder.Entity<UserBadge>()
+				.HasIndex(ub => new { ub.UserId, ub.BadgeId })
+				.IsUnique();
 
 			builder.Entity<Badge>().HasData(
 				new Badge
