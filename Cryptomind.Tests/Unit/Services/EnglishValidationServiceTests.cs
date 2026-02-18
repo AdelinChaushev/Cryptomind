@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Cryptomind.Tests.Services
+namespace Cryptomind.Tests.Unit.Services
 {
 	public class EnglishValidationServiceTests
 	{
@@ -68,7 +68,7 @@ namespace Cryptomind.Tests.Services
 			return JsonSerializer.Serialize(new
 			{
 				is_english = isEnglish,
-				confidence = confidence
+				confidence
 			});
 		}
 

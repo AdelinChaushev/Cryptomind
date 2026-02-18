@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 using Xunit;
 using static Cryptomind.Core.Services.LLMService;
 
-namespace Cryptomind.Tests.Services
+namespace Cryptomind.Tests.Unit.Services
 {
 	public class LLMServiceTests
 	{
@@ -101,11 +101,11 @@ namespace Cryptomind.Tests.Services
 			var result = new
 			{
 				predicted_type = predictedType,
-				confidence = confidence,
+				confidence,
 				solution_correct = solutionCorrect,
 				is_appropriate = isAppropriate,
 				issues = new string[] { },
-				recommendation = recommendation,
+				recommendation,
 				reasoning = "Test reasoning"
 			};
 			return JsonSerializer.Serialize(result);

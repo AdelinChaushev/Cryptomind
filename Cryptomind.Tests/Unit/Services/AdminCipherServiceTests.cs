@@ -18,7 +18,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Cryptomind.Tests.Services
+namespace Cryptomind.Tests.Unit.Services
 {
 	public class AdminCipherServiceTests
 	{

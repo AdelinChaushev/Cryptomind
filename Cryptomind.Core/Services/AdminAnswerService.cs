@@ -92,6 +92,9 @@ namespace Cryptomind.Core.Services
 			if (selectedAnswer.Status != ApprovalStatus.Pending)
 				throw new InvalidOperationException("Answer is already resolved");
 
+			if (points <= 0)
+				throw new InvalidOperationException("Cannot approve answer without points");
+
 			var firstCorrectAnswerSuggestion = (await answerRepo.GetAllAsync())
 				.Where(x => x.CipherId == selectedAnswer.CipherId)
 				.Where(x => x.DecryptedText.Trim().ToLower() == selectedAnswer.DecryptedText.Trim().ToLower())

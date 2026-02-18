@@ -13,7 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Cryptomind.Tests.Services
+namespace Cryptomind.Tests.Unit.Services
 {
 	public class OCRServiceTests
 	{
@@ -97,12 +97,12 @@ namespace Cryptomind.Tests.Services
 
 			return JsonSerializer.Serialize(new
 			{
-				success = success,
-				text = text,
-				confidence = confidence,
+				success,
+				text,
+				confidence,
 				char_count = charCount,
-				validation = validation,
-				error = error
+				validation,
+				error
 			});
 		}
 
@@ -182,7 +182,7 @@ namespace Cryptomind.Tests.Services
 			SetupHttpResponse(HttpStatusCode.OK, "not json");
 			var imageFile = CreateMockImageFile();
 
-			await Assert.ThrowsAsync<System.Text.Json.JsonException>(
+			await Assert.ThrowsAsync<JsonException>(
 				() => _service.ExtractTextFromImageAsync(imageFile.Object));
 		}
 
