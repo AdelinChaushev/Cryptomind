@@ -30,6 +30,8 @@ public abstract class Cipher
 	public bool AllowHint { get; set; }
 	public bool AllowSolution { get; set; }
 	public ApprovalStatus Status { get; set; }
+	public bool IsDeleted { get; set; }
+	public DateTime? DeletedAt { get; set; }
 	public DateTime? ApprovedAt { get; set; }
 	public DateTime? RejectedAt { get; set; }
 	public string? RejectionReason { get; set; }
@@ -52,6 +54,9 @@ public class CipherLLMData
 	public List<string>? Issues { get; set; }
 	public string? PredictedType { get; set; }
 	public string? Confidence { get; set; }
+	public bool? SolutionCorrect { get; set; }
+	public bool? IsAppropriate { get; set; }
+	public bool? IsSolvable { get; set; }
 	public string CachedHint { get; set; } = string.Empty;
 	public string CachedSolution { get; set; } = string.Empty;
 	public string CachedTypeHint { get; set; } = string.Empty;

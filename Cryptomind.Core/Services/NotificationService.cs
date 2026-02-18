@@ -6,22 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Cryptomind.Core.Services
 {
-	public class NotificationService (
-		IRepository<ApplicationUser, string> userRepo,
-		IRepository<Notification, int> notificationRepo,
-		IRepository<Cipher, int> cipherRepo,
-		IRepository<AnswerSuggestion, int> answerRepo,
-		IRepository<Badge, int> badgeRepo): INotificationService
+	public class NotificationService (IRepository<Notification, int> notificationRepo): INotificationService
 	{
+		private const int NotificationCount = 20;
 		public async Task CreateAndSendNotification(string userId, NotificationType type, string message, int? relatedEntityId, string link)
 		{
-			var user = await userRepo
-				.GetAllAttached()
-				.FirstOrDefaultAsync(x => x.Id == userId);
-
-			if (user == null)
-				throw new InvalidOperationException("User not found");
-
 			var notification = new Notification
 			{
 				UserId = userId,
@@ -30,41 +19,26 @@ namespace Cryptomind.Core.Services
 				RelatedEntityId = relatedEntityId,
 				Link = link
 			};
-			user.Notifications.Add(notification);
-			await userRepo.UpdateAsync(user);
+
+			await notificationRepo.AddAsync(notification);
 		}
 		public async Task<int> GetUnreadCount(string userId)
 		{
-			var user = await userRepo
-				.GetAllAttached()
-				.FirstOrDefaultAsync(x => x.Id == userId);
-
-			if (user == null)
-				throw new InvalidOperationException("User not found");
-
-			return user.Notifications.Count(x => !x.IsRead);
+			return await notificationRepo.GetAllAttached()
+				.CountAsync(x => x.UserId == userId && !x.IsRead);
 		}
-		public async Task<List<Notification>> GetUserNotifications(string userId, int limit = 20)
+		public async Task<List<Notification>> GetUserNotifications(string userId)
 		{
-			var user = await userRepo
-				.GetAllAttached()
-				.FirstOrDefaultAsync(x => x.Id == userId);
-
-			if (user == null)
-				throw new InvalidOperationException("User not found");
-
-			return user.Notifications.Take(20).ToList();
+			return await notificationRepo.GetAllAttached()
+				.Where(x => x.UserId == userId)
+				.OrderByDescending(x => x.CreatedAt)
+				.Take(NotificationCount)
+				.ToListAsync();
 		}
 		public async Task MarkAsRead(int notificationId, string userId)
 		{
-			var user = await userRepo
-				.GetAllAttached()
-				.FirstOrDefaultAsync(x => x.Id == userId);
-
-			if (user == null)
-				throw new InvalidOperationException("User not found");
-
-			var notification = user.Notifications.FirstOrDefault(x => x.Id == notificationId);
+			var notification = await notificationRepo.GetAllAttached()
+				.FirstOrDefaultAsync(x => x.Id == notificationId && x.UserId == userId);
 
 			if (notification == null)
 				throw new InvalidOperationException("Notification not found");

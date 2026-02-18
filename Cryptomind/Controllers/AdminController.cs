@@ -1,6 +1,8 @@
 ﻿using Cryptomind.Common.DTOs;
+using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.ViewModels.AdminViewModels;
 using Cryptomind.Core.Contracts;
+using Cryptomind.Core.Services;
 using Cryptomind.Data.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +18,35 @@ namespace Cryptomind.Controllers
 		IAdminUserService adminUserService,
 		IBadgeService badgeService) : ControllerBase
 	{
+		[HttpGet("dashboard")]
+		public async Task<IActionResult> GetDashboard()
+		{
+			return Ok(new DashboardViewModel
+			{
+				ApprovedCiphersCount = await adminCipherService.GetApprovedCiphersCount(),
+				PendingCiphersCount = await adminCipherService.GetPendingCiphersCount(),
+				DeletedCiphersCount = await adminCipherService.GetDeletedCiphersCount(),
+				PendingCipherTitles = await adminCipherService.GetRecentCipherSubmissionTitles(),
+				ApprovedAnswersCount = await adminAnswerService.GetApprovedAnswersCount(),
+				PendingAnswersCount = await adminAnswerService.GetPendingAnswersCount(),
+			});
+		}
+
 		#region Cipher-specific
+		[HttpGet("pending-ciphers")]
+		public async Task<IActionResult> GetPendingCiphers()
+		{
+			try
+			{
+				var result = await adminCipherService.AllPendingCiphers();
+				return Ok(result);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
+
 		[HttpGet("approved-ciphers")]
 		public async Task<IActionResult> GetApprovedCiphers([FromQuery] CipherFilter filter)
 		{
@@ -31,12 +61,12 @@ namespace Cryptomind.Controllers
 			}
 		}
 
-		[HttpGet("pending-ciphers")]
-		public async Task<IActionResult> GetSubmittedCiphers()
+		[HttpGet("deleted-ciphers")]
+		public async Task<IActionResult> GetDeletediphers([FromQuery] CipherFilter filter)
 		{
 			try
 			{
-				var result = await adminCipherService.AllSubmittedCiphers();
+				var result = await adminCipherService.AllDeletedCiphers(filter);
 				return Ok(result);
 			}
 			catch (Exception ex)
@@ -116,15 +146,32 @@ namespace Cryptomind.Controllers
 			}
 		}
 
-		[HttpDelete("cipher/{id}/delete")]
+		[HttpPut("cipher/{id}/delete")]
 		public async Task<IActionResult> DeleteCipher([FromRoute] int id)
 		{
 			try
 			{
-				await adminCipherService.DeleteApprovedCipher(id);
+				await adminCipherService.SoftDeleteCipher(id);
 				return Ok();
 			}
 			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
+		[HttpPut("cipher/{id}/restore")]
+		public async Task<IActionResult> Restore([FromRoute]int id, [FromQuery]string? newTitle = null)
+		{
+			try
+			{
+				await adminCipherService.Restore(id, newTitle);
+				return Ok();
+			}
+			catch (TitleConflictException ex)
+			{
+				return Conflict(ex.Message);
+			}
+			catch (InvalidOperationException ex)
 			{
 				return BadRequest(ex.Message);
 			}
@@ -196,11 +243,11 @@ namespace Cryptomind.Controllers
 
 		#region User-specific
 		[HttpGet("users")]
-		public async Task<IActionResult> GetAllUsers()
+		public async Task<IActionResult> GetAllUsers([FromQuery] UserFilter filter)
 		{
 			try
 			{
-				var result = await adminUserService.GetAllUsers();
+				var result = await adminUserService.GetAllUsers(filter);
 				return Ok(result);
 			}
 			catch (Exception ex)

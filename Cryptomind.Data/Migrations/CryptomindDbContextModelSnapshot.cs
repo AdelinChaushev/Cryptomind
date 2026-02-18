@@ -55,6 +55,9 @@ namespace Cryptomind.Data.Migrations
                     b.Property<string>("DecryptedText")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("EncryptedText")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -63,6 +66,9 @@ namespace Cryptomind.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(13)
                         .HasColumnType("nvarchar(13)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsLLMRecommended")
                         .HasColumnType("bit");
@@ -176,6 +182,9 @@ namespace Cryptomind.Data.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeactivatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -184,6 +193,9 @@ namespace Cryptomind.Data.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsBanned")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeactivated")
                         .HasColumnType("bit");
 
                     b.Property<int>("LeaderBoardPlace")
@@ -678,6 +690,12 @@ namespace Cryptomind.Data.Migrations
                             b1.Property<string>("Confidence")
                                 .HasColumnType("nvarchar(max)");
 
+                            b1.Property<bool?>("IsAppropriate")
+                                .HasColumnType("bit");
+
+                            b1.Property<bool?>("IsSolvable")
+                                .HasColumnType("bit");
+
                             b1.Property<string>("Issues")
                                 .HasColumnType("nvarchar(max)");
 
@@ -686,6 +704,9 @@ namespace Cryptomind.Data.Migrations
 
                             b1.Property<string>("Reasoning")
                                 .HasColumnType("nvarchar(max)");
+
+                            b1.Property<bool?>("SolutionCorrect")
+                                .HasColumnType("bit");
 
                             b1.HasKey("CipherId");
 

@@ -200,3 +200,4 @@ async Task SeedRolesAndUsersAsync(IServiceProvider serviceProvider)
 		}
 	}
 }
+public partial class Program { }

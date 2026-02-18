@@ -16,6 +16,7 @@ namespace Cryptomind.Core.Services
 		{
 			Cipher? cipher = await cipherRepo.GetAllAttached()
 				.Include(x => x.AnswerSuggestions)
+				.Where(x => x.Status == ApprovalStatus.Approved)
 				.FirstOrDefaultAsync(x => x.Id == cipherId);
 
 			if (cipher == null)
@@ -30,10 +31,14 @@ namespace Cryptomind.Core.Services
 			if (cipher.ChallengeType == ChallengeType.Standard)
 				throw new InvalidOperationException("Cannot suggest answer on standard cipher");
 
+			if (string.IsNullOrWhiteSpace(dto.DecryptedText))
+				throw new InvalidOperationException("You cannot suggest empty answer");
+
 			if (cipher.CreatedByUserId == userId)
 				throw new InvalidOperationException("You cannot suggest answers on ciphers created by you.");
 
-			if (cipher.AnswerSuggestions.FirstOrDefault(x => x.UserId == userId && x.DecryptedText == dto.DecryptedText) != null)
+			if (cipher.AnswerSuggestions.Any(x => x.UserId == userId && 
+				x.DecryptedText.Trim().ToLower() == dto.DecryptedText.Trim().ToLower()))
 				throw new InvalidOperationException("You cannot suggest the same answer twice.");
 
 			AnswerSuggestion answer = new AnswerSuggestion
@@ -52,7 +57,6 @@ namespace Cryptomind.Core.Services
 		{
 			var answers = await answerRepo.GetAllAttached()
 				.Include(x => x.Cipher)
-				.Include(x => x.ApplicationUser)
 				.Where(x => x.UserId == userId)
 				.ToListAsync();
 
@@ -76,6 +80,11 @@ namespace Cryptomind.Core.Services
 				{
 					model.RejectionReason = answer.RejectionReason;
 					model.RejectionDate = answer.RejectionDate;
+				}
+				if (answer.Cipher.IsDeleted)
+				{
+					model.Status = "CipherDeleted";
+					model.CipherDeletedAt = answer.Cipher.DeletedAt;
 				}
 
 				models.Add(model);
