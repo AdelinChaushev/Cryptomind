@@ -23,53 +23,53 @@ namespace Cryptomind.Core.Services
 
 		public async Task<List<CipherOutputViewModel>> GetApprovedAsync(CipherFilter filter, string userId)
 		{
-			List<Cipher> approved = await cipherRepo.GetAllAttached()
+			IQueryable<Cipher> query = cipherRepo.GetAllAttached()
 				.Include(x => x.UserSolutions)
-				.Where(c => c.Status == ApprovalStatus.Approved && !c.IsDeleted)
-				.ToListAsync();
+				.Where(c => c.Status == ApprovalStatus.Approved && !c.IsDeleted);
 
 			if (!string.IsNullOrEmpty(filter.SearchTerm))
-				approved = approved.Where(c => c.Title.Contains(filter.SearchTerm)).ToList();
+				query = query.Where(c => c.Title.Contains(filter.SearchTerm));
 
-			if (filter.Tags != null)
-				approved = approved.Where(c => c.CipherTags.Any(t => filter.Tags.Contains(t.Tag.Type))).ToList();
+			if (filter.Tags != null && filter.Tags.Any())
+				query = query.Where(c => c.CipherTags.Any(t => filter.Tags.Contains(t.Tag.Type)));
 
-			//Standard, experimental
+			// Apply challenge type filter
 			switch (filter.ChallengeType)
 			{
 				case ChallengeType.Standard:
-					approved = approved.Where(x => x.ChallengeType == ChallengeType.Standard).ToList();
+					query = query.Where(x => x.ChallengeType == ChallengeType.Standard);
 					break;
 				case ChallengeType.Experimental:
-					approved = approved.Where(x => x.ChallengeType == ChallengeType.Experimental).ToList();
+					query = query.Where(x => x.ChallengeType == ChallengeType.Experimental);
 					break;
 			}
 
-			//Text or image cipher
+			// Apply cipher definition filter
 			switch (filter.CipherDefinition)
 			{
 				case CipherDefinition.ImageCipher:
-					approved = approved.Where(x => x is ImageCipher).ToList();
+					query = query.OfType<ImageCipher>();
 					break;
-
 				case CipherDefinition.TextCipher:
-					approved = approved.Where(x => x is TextCipher).ToList();
+					query = query.OfType<TextCipher>();
 					break;
 			}
 
-			//Sorting
+			// Apply ordering
 			switch (filter.OrderTerm)
 			{
 				case CipherOrderTerm.Newest:
-					approved = approved.OrderByDescending(x => x.CreatedAt).ToList();
+					query = query.OrderByDescending(x => x.CreatedAt);
 					break;
 				case CipherOrderTerm.Oldest:
-					approved = approved.OrderBy(x => x.CreatedAt).ToList();
+					query = query.OrderBy(x => x.CreatedAt);
 					break;
 				case CipherOrderTerm.MostPopular:
-					approved = approved.OrderByDescending(x => x.UserSolutions.Count).ToList();
+					query = query.OrderByDescending(x => x.UserSolutions.Count);
 					break;
 			}
+
+			List<Cipher> approved = await query.ToListAsync();
 
 			List<CipherOutputViewModel> result = new List<CipherOutputViewModel>();
 			foreach (var cipher in approved)
@@ -84,6 +84,8 @@ namespace Cryptomind.Core.Services
 				.Include(x => x.UserSolutions)
 				.ThenInclude(x => x.User)
 				.Include(x => x.HintsRequested)
+				.Include(x => x.CipherTags)
+					.ThenInclude(x => x.Tag)
 				.Where(x => x.Status == ApprovalStatus.Approved && !x.IsDeleted)
 				.FirstOrDefaultAsync(x => x.Id == id);
 
@@ -154,6 +156,8 @@ namespace Cryptomind.Core.Services
 
 				user.Score += pointsEarned;
 				user.SolvedCount += 1;
+
+				await userManager.UpdateAsync(user);
 			}
 
 			await solutionRepo.AddAsync(userSolution);
@@ -274,7 +278,7 @@ namespace Cryptomind.Core.Services
 			if (usedFullSolution)
 				multiplier -= FullSolutionHintPenalty; //-40%
 
-			return (int)(basePoints * multiplier);
+			return (int)Math.Max(0, basePoints * multiplier);
 		}
 		private TimeSpan GetTimeSpan(DateTime solvedAt)
 		{
