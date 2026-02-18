@@ -25,10 +25,10 @@ namespace Cryptomind.Core.Services
 			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.Title == model.Title))
 				throw new InvalidOperationException("There is already a cipher with this title");
 
-			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.EncryptedText == model.EncryptedText && x.CreatedByUserId != userId))
+			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.EncryptedText == model.EncryptedText))
 				throw new InvalidOperationException("There is already a cipher like this");
 
-			if (string.IsNullOrEmpty(model.DecryptedText) && model.CipherType == null)
+			if (string.IsNullOrWhiteSpace(model.DecryptedText) && model.CipherType == null)
 				throw new InvalidOperationException("Cannot submit cipher with unknown decrypted text and cipher type");
 
 			Cipher? cipher = null;
@@ -57,7 +57,11 @@ namespace Cryptomind.Core.Services
 				try
 				{
 					var result = await ocrService.ExtractTextFromImageAsync(model.Image);
-					encryptedTextForAnalysis = result.ExtractedText; // Use OCR result for analysis
+
+					if (string.IsNullOrWhiteSpace(result.ExtractedText))
+						throw new InvalidOperationException("OCR failed to extract any text from the image");
+
+					encryptedTextForAnalysis = result.ExtractedText;
 
 					string imageFolderPath = Path.GetFullPath(Path.Combine(
 					AppContext.BaseDirectory, "..", "..", "..", "..", "Images"));

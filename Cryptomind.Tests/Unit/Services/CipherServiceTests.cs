@@ -13,7 +13,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Cryptomind.Tests.Services
+namespace Cryptomind.Tests.Unit.Services
 {
 	public class CipherServiceTests
 	{
@@ -37,6 +37,8 @@ namespace Cryptomind.Tests.Services
 
 			_solutionRepoMock.Setup(r => r.AddAsync(It.IsAny<UserSolution>()))
 				.Returns(Task.CompletedTask);
+			_userManagerMock.Setup(m => m.UpdateAsync(It.IsAny<ApplicationUser>()))
+				.ReturnsAsync(IdentityResult.Success);
 		}
 
 		private static ConcreteCipher MakeCipher(int id, ChallengeType challengeType,
@@ -318,6 +320,16 @@ namespace Cryptomind.Tests.Services
 		}
 
 		[Fact]
+		public async Task SolveCipherAsync_DoesNotUpdateUser_WhenAnswerIsIncorrect()
+		{
+			SetupAttachedCiphers(MakeCipher(1, ChallengeType.Standard, decryptedText: "HELLO"));
+
+			await _service.SolveCipherAsync("u1", "WRONG", 1);
+
+			_userManagerMock.Verify(m => m.UpdateAsync(It.IsAny<ApplicationUser>()), Times.Never);
+		}
+
+		[Fact]
 		public async Task SolveCipherAsync_ReturnsTrue_WhenAnswerIsCorrect()
 		{
 			SetupAttachedCiphers(MakeCipher(1, ChallengeType.Standard, decryptedText: "HELLO", points: 100));
@@ -438,6 +450,18 @@ namespace Cryptomind.Tests.Services
 			await _service.SolveCipherAsync("u1", "HELLO", 1);
 
 			Assert.Equal(6, user.SolvedCount);
+		}
+
+		[Fact]
+		public async Task SolveCipherAsync_UpdatesUser_WhenAnswerIsCorrect()
+		{
+			SetupAttachedCiphers(MakeCipher(1, ChallengeType.Standard, decryptedText: "HELLO", points: 100));
+			var user = MakeUser("u1");
+			_userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
+
+			await _service.SolveCipherAsync("u1", "HELLO", 1);
+
+			_userManagerMock.Verify(m => m.UpdateAsync(user), Times.Once);
 		}
 
 		[Fact]

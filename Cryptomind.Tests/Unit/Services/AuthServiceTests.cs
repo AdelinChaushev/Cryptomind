@@ -12,7 +12,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Cryptomind.Tests.Services
+namespace Cryptomind.Tests.Unit.Services
 {
 	public class AuthServiceTests
 	{
@@ -38,6 +38,8 @@ namespace Cryptomind.Tests.Services
 				.ReturnsAsync(IdentityResult.Success);
 			_userManagerMock.Setup(m => m.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
 				.ReturnsAsync(IdentityResult.Success);
+			_userManagerMock.Setup(m => m.IsInRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+				.ReturnsAsync(false);
 		}
 
 		private static ApplicationUser MakeUser(string id, string userName = "testuser",
@@ -239,6 +241,17 @@ namespace Cryptomind.Tests.Services
 		{
 			_userManagerMock.Setup(m => m.FindByIdAsync("u1"))
 				.ReturnsAsync(MakeUser("u1", isDeactivated: true));
+
+			await Assert.ThrowsAsync<InvalidOperationException>(
+				() => _service.DeactivateAccount("u1"));
+		}
+
+		[Fact]
+		public async Task DeactivateAccount_Throws_WhenUserIsAdmin()
+		{
+			var user = MakeUser("u1");
+			_userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
+			_userManagerMock.Setup(m => m.IsInRoleAsync(user, "Admin")).ReturnsAsync(true);
 
 			await Assert.ThrowsAsync<InvalidOperationException>(
 				() => _service.DeactivateAccount("u1"));
