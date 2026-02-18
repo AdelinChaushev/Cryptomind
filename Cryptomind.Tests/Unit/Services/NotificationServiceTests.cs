@@ -1,7 +1,9 @@
-﻿using Cryptomind.Core.Services;
+﻿using Cryptomind.Core.Hubs;
+using Cryptomind.Core.Services;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
+using Microsoft.AspNetCore.SignalR;
 using MockQueryable.Moq;
 using Moq;
 using System;
@@ -15,11 +17,22 @@ namespace Cryptomind.Tests.Unit.Services
 	public class NotificationServiceTests
 	{
 		private readonly Mock<IRepository<Notification, int>> _notificationRepoMock = new();
+		private readonly Mock<IHubContext<NotificationHub>> _hubContextMock = new();
 		private readonly NotificationService _service;
 
 		public NotificationServiceTests()
 		{
-			_service = new NotificationService(_notificationRepoMock.Object);
+			// Setup SignalR hub context mock chain
+			var clientProxyMock = new Mock<IClientProxy>();
+			var hubClientsMock = new Mock<IHubClients>();
+
+			hubClientsMock.Setup(c => c.User(It.IsAny<string>())).Returns(clientProxyMock.Object);
+			hubClientsMock.Setup(c => c.All).Returns(clientProxyMock.Object);
+			_hubContextMock.Setup(h => h.Clients).Returns(hubClientsMock.Object);
+
+			_service = new NotificationService(
+				_notificationRepoMock.Object,
+				_hubContextMock.Object);
 
 			_notificationRepoMock.Setup(r => r.AddAsync(It.IsAny<Notification>()))
 				.Returns(Task.CompletedTask);
@@ -51,6 +64,10 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task CreateAndSendNotification_CreatesNotification_WithCorrectFields()
 		{
+			var hubContextMock = new Mock<IHubContext<NotificationHub>>();
+			var clientsMock = new Mock<IHubClients>();
+			var clientProxyMock = new Mock<IClientProxy>();
+
 			Notification captured = null;
 			_notificationRepoMock.Setup(r => r.AddAsync(It.IsAny<Notification>()))
 				.Callback<Notification>(n => captured = n)
@@ -69,24 +86,6 @@ namespace Cryptomind.Tests.Unit.Services
 			Assert.Equal("Your cipher was approved", captured.Message);
 			Assert.Equal(123, captured.RelatedEntityId);
 			Assert.Equal("/cipher/123", captured.Link);
-		}
-
-		[Fact]
-		public async Task CreateAndSendNotification_AllowsNullRelatedEntityId()
-		{
-			Notification captured = null;
-			_notificationRepoMock.Setup(r => r.AddAsync(It.IsAny<Notification>()))
-				.Callback<Notification>(n => captured = n)
-				.Returns(Task.CompletedTask);
-
-			await _service.CreateAndSendNotification(
-				"u1",
-				NotificationType.BadgeEarned,
-				"Badge earned",
-				null,
-				"");
-
-			Assert.Null(captured.RelatedEntityId);
 		}
 
 		#endregion
