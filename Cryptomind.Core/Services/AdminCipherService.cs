@@ -7,10 +7,8 @@ using Cryptomind.Common.Enums;
 using System.Text.Json;
 using Cryptomind.Common.ViewModels.AdminViewModels;
 using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
-using static Cryptomind.Core.Services.LLMService;
-using Microsoft.AspNetCore.Identity;
-using Cryptomind.Common.Exceptions;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace Cryptomind.Core.Services
 {
@@ -65,10 +63,11 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<List<CipherReviewOutputViewModel>> AllPendingCiphers()
 		{
-			var result = (await cipherRepo.GetAllAsync())
-				.Where(c => c.Status == ApprovalStatus.Pending && !c.IsDeleted)
+			var result = await cipherRepo.GetAllAttached()
+				.Include(c => c.CreatedByUser)
+				.Where(c => c.Status == ApprovalStatus.Pending)
 				.OrderBy(x => x.CreatedAt)
-				.ToList();
+				.ToListAsync();
 
 			if (!result.Any())
 				return new List<CipherReviewOutputViewModel>();
@@ -435,31 +434,37 @@ namespace Cryptomind.Core.Services
 				{
 					Id = cipher.Id,
 					Title = cipher.Title,
-					DecryptedText = cipher.DecryptedText,
-					Status = cipher.Status.ToString(),
+					//DecryptedText = cipher.DecryptedText,
+					//Status = cipher.Status.ToString(),
+					SubmittedBy = cipher.CreatedByUser.UserName,
+					SubmittedAt = cipher.ApprovedAt,
 					IsImage = cipher is ImageCipher,
+					MlPrediction = mlData.Family,
+                    PercentageOfConfidence = (int)Math.Floor(mlData.Confidence * 100),
 					IsLLMRecommended = cipher.IsLLMRecommended,
-					ChallengeTypeDisplay = challengeType,
-				});
+                   
+                    //ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
+                });
 			}
 			return output;
 		}
 		private async Task<CipherDetailedReviewOutputViewModel> ToDetailedReviewOutputViewModel(Cipher cipher)
 		{
-			var model = new CipherDetailedReviewOutputViewModel()
+            
+            var model = new CipherDetailedReviewOutputViewModel()
 			{
 				Id = cipher.Id,
 				Title = cipher.Title,
-				DecryptedText = cipher.DecryptedText,
+			//	DecryptedText = cipher.DecryptedText,
 				Points = cipher.Points,
 				CipherText = cipher.EncryptedText,
 				CreatorUserName = cipher.CreatedByUser.UserName,
 				AllowType = cipher.AllowTypeHint,
 				AllowHint = cipher.AllowHint,
 				AllowFullSolution = cipher.AllowSolution,
-				Status = cipher.Status.ToString(),
+			//	Status = cipher.Status.ToString(),
 				IsLLMRecommended = cipher.IsLLMRecommended,
-				ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
+				//ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
 				IsImage = cipher is ImageCipher,
 			};
 
@@ -473,6 +478,21 @@ namespace Cryptomind.Core.Services
 
 			return model;
 		}
-		#endregion
-	}
+        #endregion
+        public class MlPredictionType
+        {
+            public string Family { get; set; }
+            public string Type { get; set; }
+            public double Confidence { get; set; }
+
+            public Prediction[] AllPredictions { get; set; }
+        }
+
+        public class Prediction
+        {
+            public string Family { get; set; }
+            public string Type { get; set; }
+            public double Confidence { get; set; }
+        }
+    }
 }
