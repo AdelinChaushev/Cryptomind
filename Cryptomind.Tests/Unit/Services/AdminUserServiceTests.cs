@@ -12,7 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Cryptomind.Tests.Services
+namespace Cryptomind.Tests.Unit.Services
 {
 	public class AdminUserServiceTests
 	{
