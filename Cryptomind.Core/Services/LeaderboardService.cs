@@ -12,6 +12,7 @@ namespace Cryptomind.Core.Services
 		public async Task<List<LeaderboardPlaceViewModel>> GetLeaderboard()
 		{
 			var users = await userRepo.GetAllAttached()
+				.Where(x => !x.IsBanned && !x.IsDeactivated)
 				.OrderByDescending(x => x.Score)
 				.ToListAsync();
 

@@ -96,6 +96,10 @@ namespace Cryptomind.Core.Services
 		{
 			string encryptedText = cipher.EncryptedText;
 			string decryptedText = cipher.DecryptedText;
+
+			if (cipher.TypeOfCipher == null)
+				throw new InvalidOperationException("Cannot generate hint for cipher without a type");
+
 			string actualType = cipher.TypeOfCipher.ToString();
 
 			string result = string.Empty;
