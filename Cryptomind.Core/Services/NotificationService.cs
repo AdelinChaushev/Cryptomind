@@ -13,14 +13,13 @@ namespace Cryptomind.Core.Services
 		IHubContext<NotificationHub> hubContext): INotificationService
 	{
 		private const int NotificationCount = 20;
-		public async Task CreateAndSendNotification(string userId, NotificationType type, string message, int? relatedEntityId, string link)
+		public async Task CreateAndSendNotification(string userId, NotificationType type, string message, string link)
 		{
 			var notification = new Notification
 			{
 				UserId = userId,
 				Type = type,
 				Message = message,
-				RelatedEntityId = relatedEntityId,
 				Link = link
 			};
 
@@ -30,7 +29,6 @@ namespace Cryptomind.Core.Services
 				notification.Id,
 				notification.Type,
 				notification.Message,
-				notification.RelatedEntityId,
 				notification.Link,
 				notification.CreatedAt
 			});
