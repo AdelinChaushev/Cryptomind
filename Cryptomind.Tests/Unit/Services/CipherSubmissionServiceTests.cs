@@ -18,7 +18,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Cryptomind.Tests.Services
+namespace Cryptomind.Tests.Unit.Services
 {
 	public class CipherSubmissionServiceTests
 	{
@@ -109,14 +109,13 @@ namespace Cryptomind.Tests.Services
 		}
 
 		[Fact]
-		public async Task SubmitCipherAsync_AllowsSameTitle_WhenSubmittedByOwner()
+		public async Task SubmitCipherAsync_Throws_WhenTitleAlreadyExists_EvenFromSameUser()
 		{
 			SetupAttachedCiphers(new TextCipher { Title = "My Title", CreatedByUserId = "u1" });
 			var model = MakeTextCipherModel(title: "My Title");
 
-			await _service.SubmitCipherAsync(model, "u1");
-
-			_cipherRepoMock.Verify(r => r.AddAsync(It.IsAny<Cipher>()), Times.Once);
+			await Assert.ThrowsAsync<InvalidOperationException>(
+				() => _service.SubmitCipherAsync(model, "u1"));
 		}
 
 		[Fact]
@@ -124,6 +123,24 @@ namespace Cryptomind.Tests.Services
 		{
 			SetupAttachedCiphers(new TextCipher { EncryptedText = "KHOOR", CreatedByUserId = "u2" });
 			var model = MakeTextCipherModel(encryptedText: "KHOOR");
+
+			await Assert.ThrowsAsync<InvalidOperationException>(
+				() => _service.SubmitCipherAsync(model, "u1"));
+		}
+
+		[Fact]
+		public async Task SubmitCipherAsync_Throws_WhenEncryptedTextAlreadyExists_EvenFromSameUser()
+		{
+			SetupAttachedCiphers(new TextCipher
+			{
+				Title = "Old Title",
+				EncryptedText = "KHOOR",
+				CreatedByUserId = "u1"
+			});
+
+			var model = MakeTextCipherModel(
+				title: "New Title",
+				encryptedText: "KHOOR");
 
 			await Assert.ThrowsAsync<InvalidOperationException>(
 				() => _service.SubmitCipherAsync(model, "u1"));

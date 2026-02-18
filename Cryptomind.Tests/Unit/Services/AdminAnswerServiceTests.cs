@@ -14,7 +14,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Cryptomind.Tests.Services
+namespace Cryptomind.Tests.Unit.Services
 {
 	public class ConcreteCipher : Cipher { }
 	public class AdminAnswerServiceTests
@@ -331,7 +331,7 @@ namespace Cryptomind.Tests.Services
 				.ReturnsAsync(cipher);
 			_userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(User("u1"));
 
-			await _service.ApproveAnswerAsync(1, 0);
+			await _service.ApproveAnswerAsync(1, 50);
 
 			Assert.Equal("the answer", cipher.DecryptedText);
 			Assert.Equal(ChallengeType.Standard, cipher.ChallengeType);

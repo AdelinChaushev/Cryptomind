@@ -16,7 +16,9 @@ namespace Cryptomind.Core.Services
 		public async Task<ApplicationUser> Authenticate(string email, string password)
 		{
 			var user = await userManager.FindByEmailAsync(email);
-			if (user == null || !await userManager.CheckPasswordAsync(user, password))
+			bool passwordValid = user != null && await userManager.CheckPasswordAsync(user, password);
+
+			if (!passwordValid)
 				throw new UnauthorizedAccessException("Invalid credentials");
 			if (user.IsDeactivated)
 				throw new InvalidOperationException("This account is deactivated.");
@@ -82,8 +84,12 @@ namespace Cryptomind.Core.Services
 
 			if (user == null)
 				throw new InvalidOperationException("User not found.");
+
 			if (user.IsDeactivated)
 				throw new InvalidOperationException("User is already deactivated");
+
+			if (await userManager.IsInRoleAsync(user, "Admin"))
+				throw new InvalidOperationException("Admins cannot deactivate their own account");
 
 			user.IsDeactivated = true;
 			user.DeactivatedAt = DateTime.UtcNow;

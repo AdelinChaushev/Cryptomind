@@ -37,9 +37,9 @@ namespace Cryptomind.Data.Entities
         public ICollection<Notification> Notifications { get; set; }
         private double CalculateSuccessRate()
         {
-            if (SolvedCount == 0 || AttemptedCiphers == 0) return 0;
+			if (AttemptedCiphers == 0) return 0;
 
-            return (double)(SolvedCount / AttemptedCiphers) * 100;
-        }
+			return ((double)SolvedCount / AttemptedCiphers) * 100;
+		}
 	}
 }
