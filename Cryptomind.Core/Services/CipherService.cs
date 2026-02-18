@@ -86,10 +86,15 @@ namespace Cryptomind.Core.Services
 				.Include(x => x.HintsRequested)
 				.Include(x => x.CipherTags)
 					.ThenInclude(x => x.Tag)
-				.Where(x => x.Status == ApprovalStatus.Approved && !x.IsDeleted)
 				.FirstOrDefaultAsync(x => x.Id == id);
 
 			if (cipher == null)
+				throw new InvalidOperationException("Cipher not found");
+
+			if (cipher.IsDeleted)
+				throw new InvalidOperationException("This cipher has been removed");
+
+			if (cipher.Status != ApprovalStatus.Approved)
 				throw new InvalidOperationException("Cipher not found");
 
 			return await ToDetailedOutputViewModel(cipher, userId);
