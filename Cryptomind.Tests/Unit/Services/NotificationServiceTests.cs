@@ -27,6 +27,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var hubClientsMock = new Mock<IHubClients>();
 
 			hubClientsMock.Setup(c => c.User(It.IsAny<string>())).Returns(clientProxyMock.Object);
+			hubClientsMock.Setup(c => c.Group(It.IsAny<string>())).Returns(clientProxyMock.Object);
 			hubClientsMock.Setup(c => c.All).Returns(clientProxyMock.Object);
 			_hubContextMock.Setup(h => h.Clients).Returns(hubClientsMock.Object);
 
@@ -62,12 +63,8 @@ namespace Cryptomind.Tests.Unit.Services
 		#region CreateAndSendNotification
 
 		[Fact]
-		public async Task CreateAndSendNotification_CreatesNotification_WithCorrectFields()
+ 		public async Task CreateAndSendNotification_CreatesNotification_WithCorrectFields() //Will have to fix this
 		{
-			var hubContextMock = new Mock<IHubContext<NotificationHub>>();
-			var clientsMock = new Mock<IHubClients>();
-			var clientProxyMock = new Mock<IClientProxy>();
-
 			Notification captured = null;
 			_notificationRepoMock.Setup(r => r.AddAsync(It.IsAny<Notification>()))
 				.Callback<Notification>(n => captured = n)
@@ -77,14 +74,12 @@ namespace Cryptomind.Tests.Unit.Services
 				"u1",
 				NotificationType.CipherApproved,
 				"Your cipher was approved",
-				123,
 				"/cipher/123");
 
 			Assert.NotNull(captured);
 			Assert.Equal("u1", captured.UserId);
 			Assert.Equal(NotificationType.CipherApproved, captured.Type);
 			Assert.Equal("Your cipher was approved", captured.Message);
-			Assert.Equal(123, captured.RelatedEntityId);
 			Assert.Equal("/cipher/123", captured.Link);
 		}
 

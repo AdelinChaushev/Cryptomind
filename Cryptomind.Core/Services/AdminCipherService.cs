@@ -274,7 +274,11 @@ namespace Cryptomind.Core.Services
                 await DefineTagsAsync(cipher, model.TagIds.ToList());
 
 			await cipherRepo.UpdateAsync(cipher);
-			await notificationService.CreateAndSendNotification(userId, NotificationType.CipherApproved, "Your cipher was successfully approved", cipher.Id, string.Empty);
+			await notificationService.CreateAndSendNotification(
+				userId, 
+				NotificationType.CipherApproved, 
+				"Your cipher was successfully approved", 
+				$"api/ciphers/cipher/{cipher.Id}");
 			return cipher.CreatedByUserId;
 		}
 		public async Task RejectCipherAsync(int id, string reason)
@@ -298,7 +302,11 @@ namespace Cryptomind.Core.Services
 			cipher.RejectionReason = reason;
 
 			await cipherRepo.UpdateAsync(cipher);
-			await notificationService.CreateAndSendNotification(userId, NotificationType.CipherRejected, reason, null, string.Empty);
+			await notificationService.CreateAndSendNotification(
+				userId, 
+				NotificationType.CipherRejected, 
+				reason,
+				"api/submissions");
 		}
 		public async Task UpdateApprovedCipher(int id, UpdateCipherViewModel model)
 		{
@@ -338,20 +346,26 @@ namespace Cryptomind.Core.Services
 			else if (cipher.Status == ApprovalStatus.Rejected)
 				throw new InvalidOperationException("There is no meaning to delete a rejected cipher.");
 
-			if (cipher.AnswerSuggestions.Any())
+			if (cipher.AnswerSuggestions.Any(x => x.Status == ApprovalStatus.Pending))
 			{
 				foreach (var answer in cipher.AnswerSuggestions)
 				{
-					await notificationService.CreateAndSendNotification(answer.UserId, NotificationType.AnswerCipherDeleted,
-						$"A cipher you submitted an answer for ('{cipher.Title}') has been removed by an admin.", answer.Id, string.Empty);
+					await notificationService.CreateAndSendNotification(
+						answer.UserId, 
+						NotificationType.AnswerCipherDeleted,
+						$"A cipher you submitted an answer for ('{cipher.Title}') has been removed by an admin.",
+						"api/submissions");
 				}
 			}
 
 			cipher.IsDeleted = true;
 			cipher.DeletedAt = DateTime.UtcNow;
 
-			await notificationService.CreateAndSendNotification(cipher.CreatedByUserId, NotificationType.CipherDeleted,
-				$"Your cipher '{cipher.Title}' has been removed by an admin.", cipher.Id, string.Empty);
+			await notificationService.CreateAndSendNotification(
+				cipher.CreatedByUserId, 
+				NotificationType.CipherDeleted,
+				$"Your cipher '{cipher.Title}' has been removed by an admin.",
+				"api/submissions");
 			await cipherRepo.UpdateAsync(cipher);
 		}
 		public async Task Restore (int id, string? newTitle = null)
@@ -385,19 +399,25 @@ namespace Cryptomind.Core.Services
 				cipher.Title = newTitle;
 			}
 
-			if (cipher.AnswerSuggestions.Any())
+			if (cipher.AnswerSuggestions.Any(x => x.Status == ApprovalStatus.Pending))
 			{
 				foreach (var answer in cipher.AnswerSuggestions)
 				{
-					await notificationService.CreateAndSendNotification(answer.UserId, NotificationType.AnswerCipherRestored,
-						$"A cipher you submitted an answer for ('{answer.Cipher.Title}') has been restored and is now active again.", answer.Id, string.Empty);
+					await notificationService.CreateAndSendNotification(
+						answer.UserId, 
+						NotificationType.AnswerCipherRestored,
+						$"A cipher you submitted an answer for ('{answer.Cipher.Title}') has been restored and is now active again.", 
+						$"api/ciphers/cipher/{cipher.Id}");
 				}
 			}
 
 			cipher.IsDeleted = false;
 			cipher.DeletedAt = null;
-			await notificationService.CreateAndSendNotification(cipher.CreatedByUserId, NotificationType.CipherRestored,
-				$"Your cipher '{cipher.Title}' has been restored and is now active again.", cipher.Id, string.Empty);
+			await notificationService.CreateAndSendNotification(
+				cipher.CreatedByUserId, 
+				NotificationType.CipherRestored,
+				$"Your cipher '{cipher.Title}' has been restored and is now active again.",
+				$"api/ciphers/cipher/{cipher.Id}");
 			await cipherRepo.UpdateAsync(cipher);
 		}
 

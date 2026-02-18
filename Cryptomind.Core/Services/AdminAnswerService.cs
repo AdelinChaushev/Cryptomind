@@ -177,9 +177,11 @@ namespace Cryptomind.Core.Services
 				await solutionRepo.AddAsync(otherUserSolution);
 				await userManager.UpdateAsync(currentUser);
 
-				await notificationService.CreateAndSendNotification(currentUser.Id, NotificationType.AnswerApproved,
-					$"Your answer suggestion was approved +{cipher.Points} points",
-					cipher.Id, string.Empty);
+				await notificationService.CreateAndSendNotification(
+					currentUser.Id, 
+					NotificationType.AnswerApproved,
+					$"Your answer suggestion was approved +{cipher.Points} points", 
+					$"api/ciphers/cipher/{cipher.Id}");
 			}
 
 			foreach(var wrongAnswer in wrongAnswerSuggestions)
@@ -195,9 +197,11 @@ namespace Cryptomind.Core.Services
 			await answerRepo.UpdateAsync(firstCorrectAnswerSuggestion);
 			await userManager.UpdateAsync(user);
 
-			await notificationService.CreateAndSendNotification(user.Id, NotificationType.AnswerApproved, 
+			await notificationService.CreateAndSendNotification(
+				user.Id, 
+				NotificationType.AnswerApproved, 
 				$"Your answer was approved +{pointsGranted} points", 
-				cipher.Id, string.Empty);
+				$"api/ciphers/cipher/{cipher.Id}");
 
 			return userIds;
 		}
@@ -222,7 +226,11 @@ namespace Cryptomind.Core.Services
 				throw new InvalidOperationException("User not found");
 
 			await answerRepo.UpdateAsync(answer);
-			await notificationService.CreateAndSendNotification(answer.UserId, NotificationType.AnswerRejected, reason, answer.Id, string.Empty);
+			await notificationService.CreateAndSendNotification(
+				answer.UserId, 
+				NotificationType.AnswerRejected, 
+				reason,
+				"api/submissions");
 		}
 		#endregion
 	}
