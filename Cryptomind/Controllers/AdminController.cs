@@ -180,11 +180,11 @@ namespace Cryptomind.Controllers
 
 		#region Answer-specific
 		[HttpGet("pending-answer-suggestions")]
-		public async Task<IActionResult> GetSubmittedAnswers()
+		public async Task<IActionResult> GetSubmittedAnswers([FromQuery] string? cipherName, [FromQuery] string? username)
 		{
 			try
 			{
-				var result = await adminAnswerService.AllSubmittedAnswersAsync();
+				var result = await adminAnswerService.AllSubmittedAnswersAsync(cipherName,username);
 				return Ok(result);
 			}
 			catch (Exception ex)
@@ -284,8 +284,8 @@ namespace Cryptomind.Controllers
 			}
 		}
 
-		[HttpPut("user/ban")]
-		public async Task<IActionResult> BanUser([FromQuery] string id, [FromForm] string reason)
+		[HttpPut("user/{id}/ban")]
+		public async Task<IActionResult> BanUser([FromRoute] string id, [FromForm] string reason)
 		{
 			try
 			{
@@ -298,8 +298,8 @@ namespace Cryptomind.Controllers
 			}
 		}
 
-		[HttpPut("user/unban")]
-		public async Task<IActionResult> UnBanUser([FromBody] string id)
+		[HttpPut("user/{id}/unban")]
+		public async Task<IActionResult> UnBanUser([FromRoute] string id)
 		{
 			try
 			{
