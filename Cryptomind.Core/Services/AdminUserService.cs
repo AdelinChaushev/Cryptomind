@@ -5,6 +5,7 @@ using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Data;
 
 namespace Cryptomind.Core.Services
@@ -22,8 +23,15 @@ namespace Cryptomind.Core.Services
 
 			if (!users.Any())
 				return userViewModels;
+			if(filter.Username != null)
+			{
+				users = users
+				.Where(x => x.UserName.Contains(filter.Username))
+                .ToList();
+            }
 
-			var adminIds = (await userManager.GetUsersInRoleAsync("Admin"))
+
+            var adminIds = (await userManager.GetUsersInRoleAsync("Admin"))
 				.Select(x => x.Id)
 				.ToHashSet();
 
