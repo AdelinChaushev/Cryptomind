@@ -1,17 +1,18 @@
 ﻿using Cryptomind.Common.DTOs;
-using Cryptomind.Core.Contracts;
-using Cryptomind.Data.Entities;
-using Cryptomind.Data.Repositories;
-using Cryptomind.Data.Enums;
 using Cryptomind.Common.Enums;
-using System.Text.Json;
+using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.ViewModels.AdminViewModels;
 using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
-using Microsoft.EntityFrameworkCore;
+using Cryptomind.Core.Contracts;
+using Cryptomind.Data.Entities;
+using Cryptomind.Data.Enums;
+using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
-using static Cryptomind.Core.Services.LLMService;
-using Cryptomind.Common.Exceptions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Text.Json;
+using static Cryptomind.Core.Services.AdminCipherService;
+using static Cryptomind.Core.Services.LLMService;
 
 
 namespace Cryptomind.Core.Services
@@ -138,7 +139,7 @@ namespace Cryptomind.Core.Services
 			if (!string.IsNullOrEmpty(filter.SearchTerm))
 				result = result.Where(c => c.Title.Contains(filter.SearchTerm)).ToList();
 
-			if (filter.Tags != null)
+			if (filter.Tags != null && !(filter.Tags.Count == 1 && filter.Tags[0] == TagType.None))
 				result = result.Where(c => c.CipherTags.Any(t => filter.Tags.Contains(t.Tag.Type))).ToList();
 
 			switch (filter.ChallengeType)
@@ -471,11 +472,17 @@ namespace Cryptomind.Core.Services
 		}
 		private async Task<CipherDetailedReviewOutputViewModel> ToDetailedReviewOutputViewModel(Cipher cipher)
         {
-            var options = new JsonSerializerOptions
+           
+            
+            MlPredictionType mlData = new MlPredictionType();
+            if (!cipher.MLPrediction.IsNullOrEmpty())
             {
-                PropertyNameCaseInsensitive = true
-            };
-            MlPredictionType mlData = JsonSerializer.Deserialize<MlPredictionType>(cipher.MLPrediction, options);
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                mlData = JsonSerializer.Deserialize<MlPredictionType>(cipher.MLPrediction, options);
+            }
 
             var model = new CipherDetailedReviewOutputViewModel()
 			{
