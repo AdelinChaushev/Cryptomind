@@ -8,6 +8,9 @@ using System.Text.Json;
 using Cryptomind.Common.ViewModels.AdminViewModels;
 using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using static Cryptomind.Core.Services.LLMService;
+using Cryptomind.Common.Exceptions;
 
 
 namespace Cryptomind.Core.Services
@@ -37,14 +40,19 @@ namespace Cryptomind.Core.Services
 			[CipherType.Route] = 375,
 			[CipherType.Autokey] = 500,
 		};
-		public async Task<List<string>> GetRecentCipherSubmissionTitles()
+		public async Task<List<PendingCipher>> GetRecentCipherSubmissionTitles()
 		{
-			return (await cipherRepo.GetAllAsync())
+			return await cipherRepo.GetAllAttached()
 				.Where(x => x.Status == ApprovalStatus.Pending)
 				.OrderByDescending(x => x.CreatedAt)
 				.Take(5)
-				.Select(x => x.Title)
-				.ToList();
+				.Select(x => new PendingCipher()
+				{
+					Id = x.Id,
+					CreatedBy = x.CreatedByUser.UserName,
+					Title = x.Title,
+				})
+				.ToListAsync();
 		}
 		public async Task<int> GetPendingCiphersCount()
 		{
@@ -430,6 +438,11 @@ namespace Cryptomind.Core.Services
 			foreach (var cipher in result)
 			{
 				string challengeType = !cipher.IsDeleted ? cipher.ChallengeType.ToString() : "CipherDeleted";
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                MlPredictionType mlData = JsonSerializer.Deserialize<MlPredictionType>(cipher.MLPrediction, options);
 				output.Add(new CipherReviewOutputViewModel
 				{
 					Id = cipher.Id,
@@ -449,24 +462,35 @@ namespace Cryptomind.Core.Services
 			return output;
 		}
 		private async Task<CipherDetailedReviewOutputViewModel> ToDetailedReviewOutputViewModel(Cipher cipher)
-		{
-            
+        {
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+            MlPredictionType mlData = JsonSerializer.Deserialize<MlPredictionType>(cipher.MLPrediction, options);
+
             var model = new CipherDetailedReviewOutputViewModel()
 			{
 				Id = cipher.Id,
 				Title = cipher.Title,
-			//	DecryptedText = cipher.DecryptedText,
+				DecryptedText = cipher.DecryptedText,
 				Points = cipher.Points,
 				CipherText = cipher.EncryptedText,
 				CreatorUserName = cipher.CreatedByUser.UserName,
 				AllowType = cipher.AllowTypeHint,
 				AllowHint = cipher.AllowHint,
 				AllowFullSolution = cipher.AllowSolution,
-			//	Status = cipher.Status.ToString(),
+				Status = cipher.Status.ToString(),
 				IsLLMRecommended = cipher.IsLLMRecommended,
-				//ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
+				ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
 				IsImage = cipher is ImageCipher,
-			};
+                SubmittedBy = cipher.CreatedByUser.UserName,
+                SubmittedAt = cipher.ApprovedAt,
+                MlPrediction = mlData.Family,
+                PercentageOfConfidence = (int)Math.Floor(mlData.Confidence * 100),
+              
+
+            };
 
 			if (cipher is ImageCipher)
 			{

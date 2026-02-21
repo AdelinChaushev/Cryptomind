@@ -14,7 +14,7 @@ namespace Cryptomind.Core.Contracts
 {
     public interface IAdminCipherService
     {
-		Task<List<string>> GetRecentCipherSubmissionTitles();
+		Task<List<PendingCipher>> GetRecentCipherSubmissionTitles();
 		Task<int> GetPendingCiphersCount();
 		Task<int> GetApprovedCiphersCount();
 		Task<int> GetDeletedCiphersCount();
