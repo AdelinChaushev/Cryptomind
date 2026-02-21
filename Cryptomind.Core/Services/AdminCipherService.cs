@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using static Cryptomind.Core.Services.LLMService;
 using Cryptomind.Common.Exceptions;
+using Microsoft.IdentityModel.Tokens;
 
 
 namespace Cryptomind.Core.Services
@@ -69,11 +70,11 @@ namespace Cryptomind.Core.Services
 			return (await cipherRepo.GetAllAsync())
 				.Count(x => x.IsDeleted);
 		}
-		public async Task<List<CipherReviewOutputViewModel>> AllPendingCiphers()
+		public async Task<List<CipherReviewOutputViewModel>> AllPendingCiphers(string? filter)
 		{
 			var result = await cipherRepo.GetAllAttached()
 				.Include(c => c.CreatedByUser)
-				.Where(c => c.Status == ApprovalStatus.Pending)
+				.Where(c => c.Status == ApprovalStatus.Pending && (filter == null || c.Title.Contains(filter)))
 				.OrderBy(x => x.CreatedAt)
 				.ToListAsync();
 
@@ -84,9 +85,10 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<List<CipherReviewOutputViewModel>> AllApprovedCiphers(CipherFilter filter)
 		{
-			var result = (await cipherRepo.GetAllAsync())
-				.Where(c => c.Status == ApprovalStatus.Approved && !c.IsDeleted)
-				.ToList();
+			var result = await cipherRepo.GetAllAttached()
+                .Include(c => c.CreatedByUser)
+                .Where(c => c.Status == ApprovalStatus.Approved && !c.IsDeleted)
+				.ToListAsync();
 
 			if (!result.Any())
 				return new List<CipherReviewOutputViewModel>();
@@ -95,8 +97,8 @@ namespace Cryptomind.Core.Services
 			if (!string.IsNullOrEmpty(filter.SearchTerm))
 				result = result.Where(c => c.Title.Contains(filter.SearchTerm)).ToList();
 
-			if (filter.Tags != null)
-				result = result.Where(c => c.CipherTags.Any(t => filter.Tags.Contains(t.Tag.Type))).ToList();
+			if (filter.Tags != null && filter.Tags[0] != TagType.None)
+				result = result.Where(c => c.CipherTags.Any(t =>  filter.Tags.Contains(t.Tag.Type))).ToList();
 
 			switch (filter.ChallengeType)
 			{
@@ -437,12 +439,19 @@ namespace Cryptomind.Core.Services
 			List<CipherReviewOutputViewModel> output = new List<CipherReviewOutputViewModel>();
 			foreach (var cipher in result)
 			{
-				string challengeType = !cipher.IsDeleted ? cipher.ChallengeType.ToString() : "CipherDeleted";
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                };
-                MlPredictionType mlData = JsonSerializer.Deserialize<MlPredictionType>(cipher.MLPrediction, options);
+				MlPredictionType mlData = new MlPredictionType();
+
+				if (!cipher.MLPrediction.IsNullOrEmpty())
+				{
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+                    mlData = JsonSerializer.Deserialize<MlPredictionType>(cipher.MLPrediction, options);
+                }
+
+                string challengeType = !cipher.IsDeleted ? cipher.ChallengeType.ToString() : "CipherDeleted";
+              
 				output.Add(new CipherReviewOutputViewModel
 				{
 					Id = cipher.Id,
@@ -450,13 +459,12 @@ namespace Cryptomind.Core.Services
 					//DecryptedText = cipher.DecryptedText,
 					//Status = cipher.Status.ToString(),
 					SubmittedBy = cipher.CreatedByUser.UserName,
-					SubmittedAt = cipher.ApprovedAt,
+					SubmittedAt = (int)cipher.Status == 1 ? cipher.ApprovedAt : (int)cipher.Status == 0 ? cipher.CreatedAt : cipher.RejectedAt,
 					IsImage = cipher is ImageCipher,
 					MlPrediction = mlData.Family,
                     PercentageOfConfidence = (int)Math.Floor(mlData.Confidence * 100),
-					IsLLMRecommended = cipher.IsLLMRecommended,
-                   
-                    //ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
+					IsLLMRecommended = cipher.IsLLMRecommended,                   
+                  //  ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
                 });
 			}
 			return output;

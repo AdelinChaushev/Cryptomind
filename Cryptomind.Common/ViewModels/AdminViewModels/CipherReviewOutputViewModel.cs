@@ -15,7 +15,7 @@ namespace Cryptomind.Common.ViewModels.AdminViewModels
         public string SubmittedBy { get; set; }
         public DateTime? SubmittedAt { get; set; }
         public int PercentageOfConfidence { get; set; }
-        public string MlPrediction { get; set; }
+        public string? MlPrediction { get; set; }
         public bool IsLLMRecommended { get; set; }
     }
 }

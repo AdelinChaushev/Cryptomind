@@ -34,11 +34,11 @@ namespace Cryptomind.Controllers
 
 		#region Cipher-specific
 		[HttpGet("pending-ciphers")]
-		public async Task<IActionResult> GetPendingCiphers()
+		public async Task<IActionResult> GetPendingCiphers([FromQuery] string? filter)
 		{
 			try
 			{
-				var result = await adminCipherService.AllPendingCiphers();
+				var result = await adminCipherService.AllPendingCiphers(filter);
 				return Ok(result);
 			}
 			catch (Exception ex)
