@@ -67,7 +67,10 @@ namespace Cryptomind.Core.Services
 				case CipherOrderTerm.MostPopular:
 					query = query.OrderByDescending(x => x.UserSolutions.Count);
 					break;
-			}
+                case CipherOrderTerm.LeastPopular:
+                    query = query.OrderBy(x => x.UserSolutions.Count);
+                    break;
+            }
 
 			List<Cipher> approved = await query.ToListAsync();
 
