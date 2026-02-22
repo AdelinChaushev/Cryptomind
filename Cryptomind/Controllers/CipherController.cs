@@ -48,11 +48,11 @@ namespace Cryptomind.Controllers
 			}
 			catch (InvalidOperationException ex) when (ex.Message == "This cipher has been removed")
 			{
-				return NotFound(new { message = ex.Message, isDeleted = true }); //404 not found.
+				return BadRequest(new { message = ex.Message, isDeleted = true }); //404 not found.
 			}
 			catch (InvalidOperationException ex)
 			{
-				return NotFound(new { message = ex.Message, isDeleted = false });
+				return BadRequest(new { message = ex.Message, isDeleted = false });
 			}
 		}
 
