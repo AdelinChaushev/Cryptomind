@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace Cryptomind.Core.Badges.Criteria
 {
-	public class SuggestedAnswerCountCriteria : IBadgeCriteria
+	public class ApprovedAnswerSuggestionCountCriteria : IBadgeCriteria
 	{
 		private readonly IBadgeStatisticsService _statsService;
 		private readonly int _requiredCount;
 		public BadgeCategory Category => BadgeCategory.OnSuggesting;
-		public SuggestedAnswerCountCriteria(IBadgeStatisticsService statsService, int requiredCount)
+		public ApprovedAnswerSuggestionCountCriteria(IBadgeStatisticsService statsService, int requiredCount)
 		{
 			_statsService = statsService;
 			_requiredCount = requiredCount;

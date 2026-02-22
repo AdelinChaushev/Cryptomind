@@ -12,7 +12,7 @@ namespace Cryptomind.Core.Contracts
 	{
 		Task CreateAndSendNotification(string userId, NotificationType type, string message, string link);
 		Task<List<Notification>> GetUserNotifications(string userId);
-		Task MarkAsRead(int notificationId, string userId);
+		Task MarkAsRead(List<int> notificationIds, string userId);
 		Task<int> GetUnreadCount(string userId);
 	}
 }
