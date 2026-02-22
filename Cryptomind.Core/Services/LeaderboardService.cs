@@ -23,7 +23,7 @@ namespace Cryptomind.Core.Services
 				Username = user.UserName,
 				Points = user.Score,
 				Place = index + 1,
-			}).ToList();
+			}).Take(20).ToList();
 		}
 	}
 }

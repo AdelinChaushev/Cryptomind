@@ -4,70 +4,31 @@ from PIL import Image
 
 
 class ImagePreprocessor:
-    """
-    Prepares images for OCR by cleaning and enhancing them.
-    
-    Main tasks:
-    - Convert to grayscale (removes color distractions)
-    - Increase contrast (makes text stand out)
-    - Remove noise (speckles, artifacts)
-    - Straighten tilted images (deskewing)
-    - Convert to pure black/white (binarization)
-    """
-    
     def __init__(self):
         self.debug_mode = False  # Set to True to see intermediate processing steps
     
     def preprocess(self, image_path):
-        """
-        Main preprocessing pipeline.
-        
-        Args:
-            image_path: Path to image file
-            
-        Returns:
-            Preprocessed PIL Image ready for OCR
-        """
         # Load image using OpenCV
         img = cv2.imread(image_path)
         
         if img is None:
             raise ValueError(f"Could not load image from {image_path}")
         
-        # Step 1: Convert to grayscale
-        # Why? Color doesn't help OCR and can confuse it
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         
-        # Step 2: Deskew (straighten tilted images)
-        # Why? OCR works best with straight horizontal text
         deskewed = self._deskew(gray)
         
-        # Step 3: Remove noise
-        # Why? Speckles and artifacts confuse OCR
         denoised = self._denoise(deskewed)
         
-        # Step 4: Increase contrast
-        # Why? Makes text stand out from background
         contrasted = self._enhance_contrast(denoised)
         
-        # Step 5: Binarization (pure black text on white background)
-        # Why? Simplifies image for OCR - just black text, white background
         binary = self._binarize(contrasted)
         
-        # Convert back to PIL Image (Tesseract expects PIL format)
         pil_image = Image.fromarray(binary)
         
         return pil_image
     
     def _deskew(self, image):
-        """
-        Straighten tilted images.
-        
-        How it works:
-        - Detects edges in image
-        - Finds angle of text lines
-        - Rotates image to make text horizontal
-        """
         # Detect edges (where text is)
         edges = cv2.Canny(image, 50, 150, apertureSize=3)
         
@@ -100,13 +61,6 @@ class ImagePreprocessor:
         return rotated
     
     def _denoise(self, image):
-        """
-        Remove noise (speckles, artifacts).
-        
-        Uses Non-Local Means Denoising:
-        - Looks at similar patches across image
-        - Averages them to reduce noise while preserving edges
-        """
         # h=10: Filter strength (higher = more denoising but can blur text)
         # templateWindowSize=7: Size of patch to compare
         # searchWindowSize=21: Area to search for similar patches
@@ -116,14 +70,6 @@ class ImagePreprocessor:
         return denoised
     
     def _enhance_contrast(self, image):
-        """
-        Make text stand out more from background.
-        
-        Uses CLAHE (Contrast Limited Adaptive Histogram Equalization):
-        - Divides image into tiles
-        - Enhances contrast in each tile separately
-        - Better than global contrast adjustment
-        """
         # clipLimit=2.0: Prevents over-enhancement
         # tileGridSize=(8,8): Size of tiles for local enhancement
         clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
@@ -131,14 +77,6 @@ class ImagePreprocessor:
         return enhanced
     
     def _binarize(self, image):
-        """
-        Convert to pure black text on white background.
-        
-        Uses Otsu's method:
-        - Automatically finds optimal threshold
-        - Pixels darker than threshold become black
-        - Pixels lighter than threshold become white
-        """
         # THRESH_BINARY: Black text on white background
         # THRESH_OTSU: Automatically calculate best threshold
         _, binary = cv2.threshold(image, 0, 255, 
@@ -147,13 +85,6 @@ class ImagePreprocessor:
         return binary
     
     def preprocess_with_multiple_methods(self, image_path):
-        """
-        Try different preprocessing approaches and return all of them.
-        Useful when one method doesn't work well.
-        
-        Returns:
-            List of preprocessed images using different strategies
-        """
         img = cv2.imread(image_path)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         

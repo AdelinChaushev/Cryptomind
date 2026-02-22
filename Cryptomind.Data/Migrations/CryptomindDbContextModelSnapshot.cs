@@ -302,6 +302,38 @@ namespace Cryptomind.Data.Migrations
                         new
                         {
                             Id = 3,
+                            Category = 0,
+                            Description = "Solve 50 ciphers",
+                            EarnedBy = 0,
+                            Title = "Seasoned Decoder"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Category = 0,
+                            Description = "Solve 100 ciphers",
+                            EarnedBy = 0,
+                            Title = "Master Cryptanalyst"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Category = 0,
+                            Description = "Solve ciphers from 5 different types",
+                            EarnedBy = 0,
+                            Title = "Diverse Solver"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Category = 0,
+                            Description = "Solve ciphers from 10 different types",
+                            EarnedBy = 0,
+                            Title = "Polyglot Decoder"
+                        },
+                        new
+                        {
+                            Id = 7,
                             Category = 2,
                             Description = "Have your first cipher approved",
                             EarnedBy = 0,
@@ -309,7 +341,7 @@ namespace Cryptomind.Data.Migrations
                         },
                         new
                         {
-                            Id = 4,
+                            Id = 8,
                             Category = 2,
                             Description = "Have 5 ciphers approved",
                             EarnedBy = 0,
@@ -317,19 +349,59 @@ namespace Cryptomind.Data.Migrations
                         },
                         new
                         {
-                            Id = 5,
-                            Category = 3,
-                            Description = "Solve at least one cipher from 5 different types",
+                            Id = 9,
+                            Category = 2,
+                            Description = "Have 15 ciphers approved",
                             EarnedBy = 0,
-                            Title = "Diverse Solver"
+                            Title = "Architect of Ciphers"
                         },
                         new
                         {
-                            Id = 6,
-                            Category = 1,
-                            Description = "Solve your first experimental cipher",
+                            Id = 10,
+                            Category = 0,
+                            Description = "First approved suggested answer",
                             EarnedBy = 0,
-                            Title = "Outstanding Cryptographer"
+                            Title = "Helpful Mind"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Category = 0,
+                            Description = "10 approved suggested answers",
+                            EarnedBy = 0,
+                            Title = "Trusted Contributor"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Category = 0,
+                            Description = "Solve 10 ciphers without using hints",
+                            EarnedBy = 0,
+                            Title = "No Mercy"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Category = 0,
+                            Description = "Solve 10 ciphers correctly on the first attempt",
+                            EarnedBy = 0,
+                            Title = "Flawless Solver"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Category = 0,
+                            Description = "Use hints on 25 different ciphers",
+                            EarnedBy = 0,
+                            Title = "Curious Mind"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Category = 0,
+                            Description = "Solve a cipher solved by fewer than 3 users",
+                            EarnedBy = 0,
+                            Title = "Against the Odds"
                         });
                 });
 
