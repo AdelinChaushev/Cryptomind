@@ -115,7 +115,6 @@ namespace Cryptomind.Controllers
 				Expires = DateTimeOffset.UtcNow.AddHours(3),
 			});
 		}
-
 		private string? GetUserId()
 			=> User.FindFirstValue(ClaimTypes.NameIdentifier);
 		#endregion
