@@ -19,5 +19,7 @@
         public string Title { get; set; }
 
 		public string CreatedBy { get; set; }
-	}
+
+        public DateTime? SubmittedAt { get; set; }
+    }
 }
