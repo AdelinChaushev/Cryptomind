@@ -75,9 +75,12 @@ namespace Cryptomind.Core.Services
 		{
 			var result = await cipherRepo.GetAllAttached()
 				.Include(c => c.CreatedByUser)
-				.Where(c => c.Status == ApprovalStatus.Pending && (filter == null || c.Title.Contains(filter)))
+				.Where(c => c.Status == ApprovalStatus.Pending && !c.IsDeleted)
 				.OrderBy(x => x.CreatedAt)
 				.ToListAsync();
+
+			if (filter != null)
+				result = result.Where(x => x.Title.Contains(filter)).ToList();
 
 			if (!result.Any())
 				return new List<CipherReviewOutputViewModel>();

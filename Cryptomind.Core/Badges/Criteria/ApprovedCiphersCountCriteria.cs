@@ -8,21 +8,20 @@ using System.Threading.Tasks;
 
 namespace Cryptomind.Core.Badges.Criteria
 {
-	public class DistinctSolvedCountCriteria : IBadgeCriteria
+	public class ApprovedCiphersCountCriteria : IBadgeCriteria
 	{
 		private readonly IBadgeStatisticsService statsService;
 		private readonly int requiredCount;
-		public BadgeCategory Category => BadgeCategory.OnSolve;
-		public DistinctSolvedCountCriteria(IBadgeStatisticsService statsService, int requiredCount)
+		public BadgeCategory Category => BadgeCategory.OnUpload;
+		public ApprovedCiphersCountCriteria(IBadgeStatisticsService statsService, int requiredCount)
 		{
 			this.statsService = statsService;
 			this.requiredCount = requiredCount;
 		}
-
 		public async Task<bool> IsSatisfied(string userId)
 		{
-			var distinctSolvedCount = await statsService.GetDistinctCipherTypesSolved(userId);
-			return distinctSolvedCount >= requiredCount;
+			var uploadedCount = await statsService.GetApprovedCount(userId);
+			return uploadedCount >= requiredCount;
 		}
 	}
 }
