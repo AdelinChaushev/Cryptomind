@@ -1,4 +1,5 @@
-﻿using Cryptomind.Common.ViewModels.AdminViewModels;
+﻿using Cryptomind.Common.Exceptions;
+using Cryptomind.Common.ViewModels.AdminViewModels;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
@@ -59,7 +60,7 @@ namespace Cryptomind.Core.Services
 			foreach (var answer in answerSuggestions)
 			{
 				if (!users.TryGetValue(answer.UserId, out var user))
-					throw new InvalidOperationException("User not found");
+					throw new Exception($"Data integrity error: user {answer.UserId} not found for answer {answer.Id}.");
 
 				models.Add(new AnswerSuggestionViewModel
 				{
@@ -77,16 +78,16 @@ namespace Cryptomind.Core.Services
 		{
 			var answer = await answerRepo.GetByIdAsync(id);
 			if (answer == null)
-				throw new InvalidOperationException("Answer not found");
+				throw new NotFoundException("Answer not found");
 
 			if (answer.Status != ApprovalStatus.Pending)
-				throw new InvalidOperationException("Answer is already resolved");
+				throw new ConflictException("Answer is already resolved");
 
 			var user = await userManager.FindByIdAsync(answer.UserId);
 
 			if (user == null)
-				throw new InvalidOperationException("User not found");
-			
+				throw new Exception($"Data integrity error: user {answer.UserId} not found for answer {answer.Id}.");
+
 			var userName = user.UserName;
 
 			var model = new AnswerSuggestionReviewViewModel
@@ -104,13 +105,13 @@ namespace Cryptomind.Core.Services
 			var selectedAnswer = await answerRepo.FirstOrDefaultAsync(x => x.Id == id);
 
 			if (selectedAnswer == null)
-				throw new InvalidOperationException("Answer not found");
+				throw new NotFoundException("Answer not found");
 
 			if (selectedAnswer.Status != ApprovalStatus.Pending)
-				throw new InvalidOperationException("Answer is already resolved");
+				throw new ConflictException("Answer is already resolved");
 
 			if (points <= 0)
-				throw new InvalidOperationException("Cannot approve answer without points");
+				throw new ValidationException("Cannot approve answer without points");
 
 			var firstCorrectAnswerSuggestion = (await answerRepo.GetAllAsync())
 				.Where(x => x.CipherId == selectedAnswer.CipherId)
@@ -121,18 +122,18 @@ namespace Cryptomind.Core.Services
 			var cipher = await cipherRepo.FirstOrDefaultAsync(x => x.Id == firstCorrectAnswerSuggestion.CipherId);
 
 			if (cipher == null)
-				throw new InvalidOperationException("Cipher not found");
+				throw new Exception($"Data integrity error: cipher {selectedAnswer.CipherId} not found for answer {selectedAnswer.Id}.");
 
 			if (cipher.ChallengeType == ChallengeType.Standard)
-				throw new InvalidOperationException("Answer suggestions can only be applied to experimental ciphers");
+				throw new ConflictException("Answer suggestions can only be applied to experimental ciphers");
 
 			if (!string.IsNullOrWhiteSpace(cipher.DecryptedText)) 
-				throw new InvalidOperationException("Cipher already has an approved answer");
+				throw new ConflictException("Cipher already has an approved answer");
 
 			var user = await userManager.FindByIdAsync(firstCorrectAnswerSuggestion.UserId);
 
 			if (user == null)
-				throw new InvalidOperationException("User not found");
+				throw new Exception($"Data integrity error: user {cipher.CreatedByUserId} not found for answer {selectedAnswer.Id}.");
 
 			var otherCorrectAnswerSuggestions = (await answerRepo.GetAllAsync())
 				.Where(x => x.CipherId == selectedAnswer.CipherId)
@@ -173,7 +174,7 @@ namespace Cryptomind.Core.Services
 				var currentUser = await userManager.FindByIdAsync(correctAnswer.UserId);
 
 				if (currentUser == null)
-					throw new InvalidOperationException("User not found.");
+					throw new Exception($"Data integrity error: user {cipher.CreatedByUserId} not found for answer {selectedAnswer.Id}.");
 
 				var otherUserSolution = new UserSolution
 				{
@@ -231,16 +232,16 @@ namespace Cryptomind.Core.Services
 		private async Task RejectAnswer(string reason, AnswerSuggestion? answer)
 		{
 			if (answer == null)
-				throw new InvalidOperationException("Answer not found");
+				throw new NotFoundException("Answer not found");
 
-			else if (answer.Status == ApprovalStatus.Approved) throw new InvalidOperationException("Answer already approved");
+			else if (answer.Status == ApprovalStatus.Approved) throw new ConflictException("Answer already approved");
 
 			answer.Status = ApprovalStatus.Rejected;
 			answer.RejectionDate = DateTime.UtcNow;
 			answer.RejectionReason = reason;
 
 			if (userManager.FindByIdAsync(answer.UserId) == null)
-				throw new InvalidOperationException("User not found");
+					throw new Exception($"Data integrity error: user {answer.UserId} not found for answer {answer.Id}.");
 
 			await answerRepo.UpdateAsync(answer);
 			await notificationService.CreateAndSendNotification(

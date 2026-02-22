@@ -1,4 +1,5 @@
-﻿using Cryptomind.Core.Contracts;
+﻿using Cryptomind.Common.Exceptions;
+using Cryptomind.Core.Contracts;
 using Cryptomind.Core.Hubs;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
@@ -62,7 +63,7 @@ namespace Cryptomind.Core.Services
 					.FirstOrDefaultAsync(x => x.Id == notificationId && x.UserId == userId);
 
 				if (notification == null)
-					throw new InvalidOperationException("Notification not found");
+					throw new NotFoundException("Notification not found");
 
 				notification.IsRead = true;
 				await notificationRepo.UpdateAsync(notification);

@@ -1,4 +1,5 @@
-﻿using Cryptomind.Core.Contracts;
+﻿using Cryptomind.Common.Exceptions;
+using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -19,9 +20,9 @@ namespace Cryptomind.Core.Services
 			bool passwordValid = user != null && await userManager.CheckPasswordAsync(user, password);
 
 			if (!passwordValid)
-				throw new UnauthorizedAccessException("Invalid credentials");
+				throw new UnauthorizedException("Invalid credentials");
 			if (user.IsDeactivated)
-				throw new InvalidOperationException("This account is deactivated.");
+				throw new ConflictException("This account is deactivated.");
 			return user;
 		}
 		public async Task<string> GenerateJSONWebToken(ApplicationUser user)
@@ -59,7 +60,7 @@ namespace Cryptomind.Core.Services
 			var userExist = await userManager.FindByEmailAsync(email);
 			if (userExist != null)
 			{
-				throw new ArgumentException("User with this email already exists");
+				throw new ConflictException("User with this email already exists");
 			}
 
 			ApplicationUser user = new ApplicationUser()
@@ -83,13 +84,13 @@ namespace Cryptomind.Core.Services
 			var user = await userManager.FindByIdAsync(userId);
 
 			if (user == null)
-				throw new InvalidOperationException("User not found.");
+				throw new NotFoundException("User not found");
 
 			if (user.IsDeactivated)
-				throw new InvalidOperationException("User is already deactivated");
+				throw new ConflictException("This account is already deactivated");
 
 			if (await userManager.IsInRoleAsync(user, "Admin"))
-				throw new InvalidOperationException("Admins cannot deactivate their own account");
+				throw new ConflictException("Admins cannot deactivate their own account");
 
 			user.IsDeactivated = true;
 			user.DeactivatedAt = DateTime.UtcNow;

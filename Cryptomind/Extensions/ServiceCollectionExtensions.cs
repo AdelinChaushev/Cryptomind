@@ -1,8 +1,15 @@
 ﻿using Cryptomind.Core.Contracts;
 using Cryptomind.Core.Services;
 using Cryptomind.Core.Services.OCR;
+using Cryptomind.Data;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using System.Text;
 
 namespace Cryptomind.Web.Extensions;
 
@@ -49,4 +56,85 @@ public static class ServiceCollectionExtensions
 
 		return services;
     }
+
+	public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
+	{
+		var connectionString = configuration.GetConnectionString("DefaultConnection");
+		services.AddDbContext<CryptomindDbContext>(options =>
+			options.UseSqlServer(connectionString));
+		return services;
+	}
+
+	public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
+	{
+		var key = Encoding.ASCII.GetBytes(configuration["JWT:Secret"]);
+
+		services.AddAuthentication(options =>
+		{
+			options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+			options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+			options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+		})
+		.AddCookie(c => c.Cookie.Name = "token")
+		.AddJwtBearer(options =>
+		{
+			options.SaveToken = true;
+			options.RequireHttpsMetadata = false;
+			options.TokenValidationParameters = new TokenValidationParameters
+			{
+				ValidateIssuer = false,
+				ValidateAudience = false,
+				ValidAudience = configuration["JWT:ValidAudience"],
+				ValidIssuer = configuration["JWT:ValidIssuer"],
+				IssuerSigningKey = new SymmetricSecurityKey(key),
+				RoleClaimType = ClaimTypes.Role
+			};
+			options.Events = new JwtBearerEvents
+			{
+				OnMessageReceived = context =>
+				{
+					context.Token = context.Request.Cookies["token"];
+					var accessToken = context.Request.Query["access_token"];
+					var path = context.HttpContext.Request.Path;
+					if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/notificationHub"))
+						context.Token = accessToken;
+					return Task.CompletedTask;
+				}
+			};
+		});
+
+		return services;
+	}
+
+	public static IServiceCollection AddIdentityConfiguration(this IServiceCollection services)
+	{
+		services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+		{
+			options.Password.RequiredLength = 6;
+			options.Password.RequireNonAlphanumeric = false;
+			options.Password.RequireDigit = false;
+			options.Password.RequireUppercase = false;
+			options.Password.RequireLowercase = false;
+			options.SignIn.RequireConfirmedAccount = false;
+			options.User.RequireUniqueEmail = true;
+		}).AddEntityFrameworkStores<CryptomindDbContext>();
+
+		return services;
+	}
+
+	public static IServiceCollection AddCorsConfiguration(this IServiceCollection services)
+	{
+		services.AddCors(c =>
+		{
+			c.AddPolicy("AllowAll", builder =>
+			{
+				builder.WithOrigins("http://localhost:5173")
+					   .AllowAnyHeader()
+					   .AllowAnyMethod()
+					   .AllowCredentials();
+			});
+		});
+
+		return services;
+	}
 }
