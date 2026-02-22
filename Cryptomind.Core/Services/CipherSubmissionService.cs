@@ -1,4 +1,5 @@
 ﻿using Cryptomind.Common.Enums;
+using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.ViewModels.CipherSubmissionViewModels;
 using Cryptomind.Common.ViewModels.CipherViewModels;
 using Cryptomind.Core.Contracts;
@@ -8,6 +9,7 @@ using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using ValidationException = Cryptomind.Common.Exceptions.ValidationException;
 
 namespace Cryptomind.Core.Services
 {
@@ -20,16 +22,16 @@ namespace Cryptomind.Core.Services
 		public async Task<Cipher> SubmitCipherAsync(SubmitCipherViewModel model, string userId)
 		{
 			if (string.IsNullOrEmpty(model.Title))
-				throw new InvalidOperationException("Title is required");
+				throw new ValidationException("Title is required");
 
 			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.Title == model.Title))
-				throw new InvalidOperationException("There is already a cipher with this title");
+				throw new ConflictException("There is already a cipher with this title");
 
 			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.EncryptedText == model.EncryptedText))
-				throw new InvalidOperationException("There is already a cipher like this");
+				throw new ConflictException("There is already a cipher like this");
 
 			if (string.IsNullOrWhiteSpace(model.DecryptedText) && model.CipherType == null)
-				throw new InvalidOperationException("Cannot submit cipher with unknown decrypted text and cipher type");
+				throw new ConflictException("Cannot submit cipher with unknown decrypted text and cipher type");
 
 			Cipher? cipher = null;
 			string encryptedTextForAnalysis = model.EncryptedText;
@@ -54,62 +56,55 @@ namespace Cryptomind.Core.Services
 			else if (model.CipherDefinition == CipherDefinition.ImageCipher)
 			{
 				ValidateImageFile(model.Image);
-				try
+				var result = await ocrService.ExtractTextFromImageAsync(model.Image);
+
+				if (string.IsNullOrWhiteSpace(result.ExtractedText))
+					throw new ValidationException("OCR failed to extract any text from the image");
+
+				encryptedTextForAnalysis = result.ExtractedText;
+
+				string imageFolderPath = Path.GetFullPath(Path.Combine(
+				AppContext.BaseDirectory, "..", "..", "..", "..", "Images"));
+				Directory.CreateDirectory(imageFolderPath);
+				string originalExtension = Path.GetExtension(model.Image.FileName).ToLowerInvariant();
+				string safeTitle = MakeSafeFilename(model.Title);
+				string imageFilePath = Path.Combine(imageFolderPath, safeTitle + originalExtension);
+
+				using (var fileStream = new FileStream(imageFilePath, FileMode.Create))
 				{
-					var result = await ocrService.ExtractTextFromImageAsync(model.Image);
-
-					if (string.IsNullOrWhiteSpace(result.ExtractedText))
-						throw new InvalidOperationException("OCR failed to extract any text from the image");
-
-					encryptedTextForAnalysis = result.ExtractedText;
-
-					string imageFolderPath = Path.GetFullPath(Path.Combine(
-					AppContext.BaseDirectory, "..", "..", "..", "..", "Images"));
-					Directory.CreateDirectory(imageFolderPath);
-					string originalExtension = Path.GetExtension(model.Image.FileName).ToLowerInvariant();
-					string safeTitle = MakeSafeFilename(model.Title);
-					string imageFilePath = Path.Combine(imageFolderPath, safeTitle + originalExtension);
-
-					using (var fileStream = new FileStream(imageFilePath, FileMode.Create))
+					using (var imageStream = model.Image.OpenReadStream())
 					{
-						using (var imageStream = model.Image.OpenReadStream())
-						{
-							await imageStream.CopyToAsync(fileStream);
-						}
+						await imageStream.CopyToAsync(fileStream);
 					}
-
-					string relativePath = Path.Combine("Images", safeTitle + originalExtension);
-
-					if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.EncryptedText == result.ExtractedText) != null)
-						throw new InvalidOperationException("There is already a cipher like this");
-
-					cipher = new ImageCipher()
-					{
-						Title = model.Title,
-						DecryptedText = model.DecryptedText,
-						ImagePath = relativePath,
-						AllowHint = false,
-						AllowSolution = false,
-						Status = ApprovalStatus.Pending,
-						CreatedByUserId = userId,
-						CipherTags = new List<CipherTag>(),
-						HintsRequested = new List<HintRequest>(),
-						EncryptedText = result.ExtractedText,
-						OCRConfidence = result.Confidence,
-						CreatedAt = DateTime.UtcNow
-					};
 				}
-				catch (Exception ex)
+
+				string relativePath = Path.Combine("Images", safeTitle + originalExtension);
+
+				if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.EncryptedText == result.ExtractedText) != null)
+					throw new ConflictException("There is already a cipher like this");
+
+				cipher = new ImageCipher()
 				{
-					throw new InvalidOperationException($"Failed to process image cipher: {ex.Message}", ex);
-				}
+					Title = model.Title,
+					DecryptedText = model.DecryptedText,
+					ImagePath = relativePath,
+					AllowHint = false,
+					AllowSolution = false,
+					Status = ApprovalStatus.Pending,
+					CreatedByUserId = userId,
+					CipherTags = new List<CipherTag>(),
+					HintsRequested = new List<HintRequest>(),
+					EncryptedText = result.ExtractedText,
+					OCRConfidence = result.Confidence,
+					CreatedAt = DateTime.UtcNow
+				};
 			}
 
 			var mlResult = await cipherRecognizerService.ClassifyCipher(encryptedTextForAnalysis);
 
 			if (mlResult.TopPrediction.Type.ToLower() == "plaintext")
 			{
-				throw new InvalidOperationException("Your text appears to already be in plaintext. Only encrypted text is allowed.");
+				throw new ValidationException("Your text appears to already be in plaintext. Only encrypted text is allowed.");
 			}
 
 			cipher.MLPrediction = JsonSerializer.Serialize(new
@@ -189,6 +184,7 @@ namespace Cryptomind.Core.Services
 
 			return models;
 		}
+
 		#region Private methods
 		private string MakeSafeFilename(string name)
 		{
@@ -201,20 +197,20 @@ namespace Cryptomind.Core.Services
 		private void ValidateImageFile(IFormFile imageFile)
 		{
 			if (imageFile == null)
-				throw new InvalidOperationException("Image file is required for image ciphers");
+				throw new ValidationException("Image file is required for image ciphers");
 
 			var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
 			var extension = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
 
 			if (!allowedExtensions.Contains(extension))
-				throw new InvalidOperationException($"Invalid file type. Allowed types: {string.Join(", ", allowedExtensions)}");
+				throw new ValidationException($"Invalid file type. Allowed types: {string.Join(", ", allowedExtensions)}");
 
 			const int maxSizeInBytes = 5 * 1024 * 1024;
 			if (imageFile.Length == 0)
-				throw new InvalidOperationException("File cannot be empty");
+				throw new ValidationException("File cannot be empty");
 
 			if (imageFile.Length > maxSizeInBytes)
-				throw new InvalidOperationException("File size cannot exceed 5MB");
+				throw new ValidationException("File size cannot exceed 5MB");
 
 		}
 		private bool DetermineLLMRecommendation(

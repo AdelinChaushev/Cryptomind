@@ -4,43 +4,13 @@ from .image_preprocessor import ImagePreprocessor
 
 
 class OCRService:
-    """
-    Main OCR engine that extracts text from images.
-    
-    Workflow:
-    1. Preprocess image (clean it up)
-    2. Run Tesseract OCR
-    3. Return extracted text with confidence score
-    """
-    
     def __init__(self, tesseract_path=None):
-        """
-        Initialize OCR service.
-        
-        Args:
-            tesseract_path: Path to Tesseract executable
-                           (only needed on Windows if not in PATH)
-        """
         if tesseract_path:
             pytesseract.pytesseract.tesseract_cmd = tesseract_path
         
         self.preprocessor = ImagePreprocessor()
     
     def extract_text(self, image_path, preprocess=True):
-        """
-        Extract text from an image.
-        
-        Args:
-            image_path: Path to image file
-            preprocess: Whether to preprocess image (recommended: True)
-            
-        Returns:
-            Dictionary with:
-            - text: Extracted text
-            - confidence: OCR confidence score (0-100)
-            - success: Whether extraction was successful
-            - error: Error message if failed
-        """
         try:
             # Load and preprocess image
             if preprocess:
@@ -81,17 +51,6 @@ class OCRService:
             }
     
     def extract_text_multiple_methods(self, image_path):
-        """
-        Try multiple preprocessing methods and return the best result.
-        
-        Useful when standard preprocessing doesn't work well.
-        
-        Args:
-            image_path: Path to image file
-            
-        Returns:
-            Best result dictionary
-        """
         preprocessed_images = self.preprocessor.preprocess_with_multiple_methods(image_path)
         
         best_result = None

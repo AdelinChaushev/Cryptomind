@@ -4,6 +4,7 @@ using Cryptomind.Common.Constants;
 using Microsoft.Extensions.Configuration;
 using System.Text;
 using System.Text.Json;
+using System.ComponentModel.DataAnnotations;
 
 namespace Cryptomind.Core.Services
 {
@@ -25,7 +26,7 @@ namespace Cryptomind.Core.Services
 		{
 			if (string.IsNullOrWhiteSpace(plaintext))
 			{
-				throw new ArgumentException("Plaintext cannot be empty", nameof(plaintext));
+				throw new ValidationException("Plaintext cannot be empty");
 			}
 
 			try
@@ -46,7 +47,7 @@ namespace Cryptomind.Core.Services
 				if (!response.IsSuccessStatusCode)
 				{
 					var errorContent = await response.Content.ReadAsStringAsync();
-					throw new InvalidOperationException(
+					throw new Exception(
 						$"English validation API returned error (Status {response.StatusCode}): {errorContent}"
 					);
 				}
@@ -63,28 +64,28 @@ namespace Cryptomind.Core.Services
 
 				if (result == null)
 				{
-					throw new InvalidOperationException("Failed to parse English validation response");
+					throw new Exception("Failed to parse English validation response");
 				}
 
 				return result;
 			}
 			catch (HttpRequestException ex)
 			{
-				throw new InvalidOperationException(
+				throw new Exception(
 					$"English validation service is unavailable. Please ensure the Python ML API is running at {mlApiUrl}",
 					ex
 				);
 			}
 			catch (TaskCanceledException ex)
 			{
-				throw new InvalidOperationException(
+				throw new Exception(
 					$"English validation request timed out after {ApiTimeoutSeconds} seconds",
 					ex
 				);
 			}
 			catch (JsonException ex)
 			{
-				throw new InvalidOperationException(
+				throw new Exception(
 					"Failed to parse response from English validation service",
 					ex
 				);

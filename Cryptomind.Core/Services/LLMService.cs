@@ -7,6 +7,7 @@ using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Enums;
 using Cryptomind.Common.Constants;
 using Microsoft.Extensions.Configuration;
+using Cryptomind.Common.Exceptions;
 
 namespace Cryptomind.Core.Services
 {
@@ -28,9 +29,9 @@ namespace Cryptomind.Core.Services
 			httpClient.Timeout = TimeSpan.FromSeconds(ApiTimeoutSeconds);
 
 			apiUrl = configuration["LLMService:ApiUrl"]
-				?? throw new InvalidOperationException("LLMService:ApiUrl not configured");
+				?? throw new Exception("LLMService:ApiUrl not configured");
 			apiKey = configuration["LLMService:ApiKey"]
-				?? throw new InvalidOperationException("LLMService:ApiKey not configured");
+				?? throw new Exception("LLMService:ApiKey not configured");
 
 			// Use cheap model for admin validation, better model for user content
 			validationModel = configuration["LLMService:ValidationModel"] ?? "gpt-4o-mini";
@@ -74,7 +75,7 @@ namespace Cryptomind.Core.Services
 				);
 
 				if (result == null)
-					throw new InvalidOperationException("Failed to deserialize validation result");
+					throw new Exception("Failed to deserialize validation result");
 
 				return result;
 			}
@@ -98,7 +99,7 @@ namespace Cryptomind.Core.Services
 			string decryptedText = cipher.DecryptedText;
 
 			if (cipher.TypeOfCipher == null)
-				throw new InvalidOperationException("Cannot generate hint for cipher without a type");
+				throw new ConflictException("Cannot generate hint for cipher without a type");
 
 			string actualType = cipher.TypeOfCipher.ToString();
 
@@ -522,8 +523,7 @@ namespace Cryptomind.Core.Services
 			{
 				var errorContent = await response.Content.ReadAsStringAsync();
 
-				throw new InvalidOperationException(
-					$"LLM API returned error (Status {response.StatusCode}): {errorContent}");
+				throw new Exception($"LLM API returned error (Status {response.StatusCode}): {errorContent}");
 			}
 
 			var responseJson = await response.Content.ReadAsStringAsync();
@@ -532,7 +532,7 @@ namespace Cryptomind.Core.Services
 				new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
 			if (llmResponse?.Choices == null || llmResponse.Choices.Count == 0)
-				throw new InvalidOperationException("LLM API returned empty response");
+				throw new Exception("LLM API returned empty response");
 
 
 			return llmResponse.Choices[0].Message.Content;

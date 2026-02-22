@@ -4,6 +4,7 @@ using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Cryptomind.Common.ViewModels.UserViewModels;
+using Cryptomind.Common.Exceptions;
 
 namespace Cryptomind.Core.Services
 {
@@ -16,7 +17,7 @@ namespace Cryptomind.Core.Services
 			var user = await userManager.FindByIdAsync(id);
 
 			if (user == null)
-				throw new NullReferenceException("User not found");
+				throw new NotFoundException("User not found");
 
 			return await userManager.GetRolesAsync(user);
 
@@ -29,7 +30,7 @@ namespace Cryptomind.Core.Services
 				.FirstOrDefaultAsync(x => x.Id == id);
 
 			if (user == null)
-				throw new NullReferenceException("User not found");
+				throw new NotFoundException("User not found");
 
 			ICollection<BadgeViewModel> badges = user.Badges.Select(x => new BadgeViewModel
 			{
