@@ -9,7 +9,7 @@ namespace Cryptomind.Controllers
 {
 	[Route("api/auth")]
 	[ApiController]
-	public class AuthenticationController(IAuthService authService) : ControllerBase
+	public class AuthenticationController(IAuthService authService , IUserService userService) : ControllerBase
 	{
 		[HttpPost("register")]
 		public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
@@ -32,11 +32,21 @@ namespace Cryptomind.Controllers
 		[HttpPost("login")]
 		public async Task<IActionResult> Login([FromBody] LoginViewModel model)
 		{
-			ApplicationUser user = await authService.Authenticate(model.Email, model.Password);
-			string token = await authService.GenerateJSONWebToken(user);
-
-			AddCookie(token);
-			return Ok(new { token });
+			try
+			{
+				ApplicationUser user = await authService.Authenticate(model.Email, model.Password);
+				string token = await authService.GenerateJSONWebToken(user);
+				AddCookie(token);
+				return Ok(new { token });
+			}
+			catch (UnauthorizedAccessException ex)
+			{
+				return Unauthorized(ex.Message);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
 		}
 
 		[HttpPost("logout")]
