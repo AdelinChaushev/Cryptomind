@@ -14,11 +14,11 @@ namespace Cryptomind.Core.Contracts
 {
     public interface IAdminCipherService
     {
-		Task<List<string>> GetRecentCipherSubmissionTitles();
+		Task<List<PendingCipher>> GetRecentCipherSubmissionTitles();
 		Task<int> GetPendingCiphersCount();
 		Task<int> GetApprovedCiphersCount();
 		Task<int> GetDeletedCiphersCount();
-		Task<List<CipherReviewOutputViewModel>> AllPendingCiphers();
+		Task<List<CipherReviewOutputViewModel>> AllPendingCiphers(string? filter);
 		Task<List<CipherReviewOutputViewModel>> AllApprovedCiphers(CipherFilter filter);
 		Task<List<CipherReviewOutputViewModel>> AllDeletedCiphers(CipherFilter filter);
 		Task<CipherDetailedReviewOutputViewModel> GetCipherById(int id);
