@@ -5,7 +5,6 @@ using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using System.Data;
 
 namespace Cryptomind.Core.Services
@@ -26,7 +25,7 @@ namespace Cryptomind.Core.Services
 			if(filter.Username != null)
 			{
 				users = users
-				.Where(x => x.UserName.Contains(filter.Username))
+				.Where(x => x.UserName.ToLower().Contains(filter.Username.ToLower()))
                 .ToList();
             }
 
@@ -44,7 +43,7 @@ namespace Cryptomind.Core.Services
 					users = users.Where(x => !x.IsBanned).ToList();
 					break;
 			}
-			switch (filter.IsDeactivated)
+			switch (filter.IsDeactivated) //If deactivated hide buttons for approving to admin and banning
 			{
 				case true:
 					users = users.Where(x => x.IsDeactivated).ToList();
@@ -123,12 +122,15 @@ namespace Cryptomind.Core.Services
 			}
 
 			bool isAdmin = await userManager.IsInRoleAsync(user, "Admin");
+			var roles = await userManager.GetRolesAsync(user);
+
 			return new UserDetailViewModel
 			{
 				Id = user.Id,
 				Email = user.Email,
 				IsAdmin = isAdmin,
 				Username = user.UserName,
+				Role = roles.Contains("Admin") ? "Admin" : roles.FirstOrDefault() ?? "User",
 				IsEmailConfirmed = user.EmailConfirmed,
 				IsBanned = user.IsBanned,
 				BanReason = user.BanReason,

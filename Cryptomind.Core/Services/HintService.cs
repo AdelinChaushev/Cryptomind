@@ -43,11 +43,8 @@ namespace Cryptomind.Core.Services
 			var existingHint = cipher.HintsRequested
 					.FirstOrDefault(hr => hr.UserId == userId && hr.HintType == hintType);
 
-			if (existingHint != null)
-			{
-				// User already requested this hint before - return the same content
+			if (existingHint != null) // User already requested this hint before - return the same content
 				return existingHint.HintContent;
-			}
 
 			string cachedHint = GetCachedHint(cipher, hintType);
 
