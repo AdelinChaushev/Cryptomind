@@ -40,7 +40,7 @@ namespace Cryptomind.Core.Middlewares
 					{
 						context.Response.StatusCode = 403;
 						context.Response.ContentType = "application/json";
-						var json = System.Text.Json.JsonSerializer.Serialize(new { message = user.BanReason });
+						var json = System.Text.Json.JsonSerializer.Serialize(new { message = "Your account is banned, reason: " + user.BanReason });
 						await context.Response.WriteAsync(json);
 						return;
 					}

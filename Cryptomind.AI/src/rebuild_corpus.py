@@ -1,17 +1,7 @@
-"""
-Generate synthetic English corpus with proper IC
-Uses weighted word sampling to match English letter frequencies
-"""
 from pathlib import Path
 import random
 
-def create_synthetic_corpus():
-    """Generate corpus with proper English statistics"""
-    
-    print("="*70)
-    print("CREATING SYNTHETIC CORPUS")
-    print("="*70)
-    
+def create_synthetic_corpus(): 
     # English words weighted by letter frequency
     # This will produce IC ≈ 0.065
     word_lists = {
@@ -54,9 +44,6 @@ def create_synthetic_corpus():
     for category, words in word_lists.items():
         word_pool.extend(words)
     
-    print(f"Word pool size: {len(word_pool)} weighted words")
-    print(f"Generating sentences...")
-    
     # Generate sentences
     sentences = []
     for i in range(10000):
@@ -80,9 +67,7 @@ def create_synthetic_corpus():
     
     corpus = ' '.join(sentences)
     
-    print(f"\n{'='*70}")
     print("VERIFYING IC")
-    print("="*70)
     
     # Test IC
     from src.feature_extraction import FeatureExtractor
@@ -106,13 +91,13 @@ def create_synthetic_corpus():
     print(f"Expected: 0.060-0.070")
     
     if avg_ic < 0.055:
-        print("❌ IC still too low - word distribution needs adjustment")
+        print("IC still too low - word distribution needs adjustment")
         return False
     elif avg_ic > 0.075:
-        print("⚠️ IC too high - word distribution needs adjustment")
+        print("IC too high - word distribution needs adjustment")
         return False
     else:
-        print("✅ IC IS CORRECT!")
+        print("IC IS CORRECT!")
     
     # Save
     output_dir = Path('data/corpus')
@@ -122,23 +107,15 @@ def create_synthetic_corpus():
     if old_corpus.exists():
         backup = output_dir / 'corpus_broken_backup.txt'
         old_corpus.rename(backup)
-        print(f"\n📦 Old corpus backed up")
+        print(f"\nOld corpus backed up")
     
     new_corpus = output_dir / 'corpus.txt'
     with open(new_corpus, 'w', encoding='utf-8') as f:
         f.write(corpus)
     
-    print(f"✅ Corpus saved: {len(corpus) / 1024 / 1024:.1f} MB")
+    print(f"Corpus saved: {len(corpus) / 1024 / 1024:.1f} MB")
     
     return True
 
 if __name__ == '__main__':
     success = create_synthetic_corpus()
-    
-    if success:
-        print("\n" + "="*70)
-        print("NEXT STEPS")
-        print("="*70)
-        print("1. python train_all.py")
-        print("2. python test_pipeline.py")
-        print("3. Expected: 90-95% accuracy")

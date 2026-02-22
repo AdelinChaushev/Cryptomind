@@ -1,310 +1,304 @@
 EXTERNAL VALIDATION TEST SENTENCES
-================================================================================
-
 Total sentences extracted: 1138
-Date: 2026-02-01 12:30:07
+[1] (203 chars)
+If any one of the three had had the hardihood to propose to another to walk on a little ahead into the mist and darkness, he would have put himself in a fair way of getting shot instantly as a highwayman
 
-================================================================================
+[2] (257 chars)
+There were times when he simply became too tired to continue listening, when his head would fall wearily against the door and he would pull it up again with a start, as even the slightest noise he caused would be heard next door and they would all go silent
 
-[1] (207 chars)
-Two men had entered separately, and had been about to order drink, when, catching sight of that novelty, they faltered, made a pretence of looking about as if for some friend who was not there, and went away
+[3] (247 chars)
+Then, that glorious vision of doing good, which is so often the sanguine mirage of so many good minds, arose before him, and he even saw himself in the illusion with some influence to guide this raging Revolution that was running so fearfully wild
 
-[2] (229 chars)
-And even if he did catch the train he would not avoid his boss’s anger as the office assistant would have been there to see the five o’clock train go, he would have put in his report about Gregor’s not being there a long time ago
+[4] (307 chars)
+The ghost of beauty, the ghost of stateliness, the ghost of elegance, the ghost of pride, the ghost of frivolity, the ghost of wit, the ghost of youth, the ghost of age, all waiting their dismissal from the desolate shore, all turning on him eyes that were changed by the death they had died in coming there
 
-[3] (200 chars)
-In the fair city of this vision, there were airy galleries from which the loves and graces looked upon him, gardens in which the fruits of life hung ripening, waters of Hope that sparkled in his sight
-
-[4] (253 chars)
-“I have lived with the darling--or the darling has lived with me, and paid me for it; which she certainly should never have done, you may take your affidavit, if I could have afforded to keep either myself or her for nothing--since she was ten years old
-
-[5] (261 chars)
-More than enough of bad roads, bad equipages, and bad horses, he would have encountered to delay him, though the fallen and unfortunate King of France had been upon his throne in all his glory; but, the changed times were fraught with other obstacles than these
-
-[6] (231 chars)
-The Substance of the Shadow “I, Alexandre Manette, unfortunate physician, native of Beauvais, and afterwards resident in Paris, write this melancholy paper in my doleful cell in the Bastille, during the last month of the year, 1767
-
-[7] (369 chars)
-He was not missed; for, nobody who crossed the threshold looked for him, nobody asked for him, nobody wondered to see only Madame Defarge in her seat, presiding over the distribution of wine, with a bowl of battered small coins before her, as much defaced and beaten out of their original impress as the small coinage of humanity from whose ragged pockets they had come
-
-[8] (319 chars)
-Their housekeeping was of a very frugal kind: not only because that was the safest way of life, involving the least offence to the people, but because they were not rich, and Charles, throughout his imprisonment, had had to pay heavily for his bad food, and for his guard, and towards the living of the poorer prisoners
-
-[9] (351 chars)
-“I know,” said Darnay, respectfully, “how can I fail to know, Doctor Manette, I who have seen you together from day to day, that between you and Miss Manette there is an affection so unusual, so touching, so belonging to the circumstances in which it has been nurtured, that it can have few parallels, even in the tenderness between a father and child
-
-[10] (201 chars)
-The two opposing kinds of pride confronting one another, I can see, even in this Bastille; the gentleman’s, all negligent indifference; the peasant’s, all trodden-down sentiment, and passionate revenge
-
-[11] (223 chars)
-Such masters were not at that time easily found; Princes that had been, and Kings that were to be, were not yet of the Teacher class, and no ruined nobility had dropped out of Tellson’s ledgers, to turn cooks and carpenters
-
-[12] (228 chars)
-Tu Yu quotes Wang Tzŭ as saying: "Without constant practice, the officers will be nervous and undecided when mustering for battle; without constant practice, the general will be wavering and irresolute when the crisis is at hand
-
-[13] (345 chars)
-“I replied to the Bank, sir, that as it was considered necessary, by those who know, and who are so kind as to advise me, that I should go to France, and that as I am an orphan and have no friend who could go with me, I should esteem it highly if I might be permitted to place myself, during the journey, under that worthy gentleman’s protection
-
-[14] (244 chars)
-Nothing should be removed; everything had to stay; he could not do without the good influence the furniture had on his condition; and if the furniture made it difficult for him to crawl about mindlessly that was not a loss but a great advantage
-
-[15] (261 chars)
-He says: "When encamped on ‘serious ground,’ there being no inducement as yet to advance further, and no possibility of retreat, one ought to take measures for a protracted resistance by bringing in provisions from all sides, and keep a close watch on the enemy
-
-[16] (226 chars)
-At the same moment a frightful din arose in the city itself, all those that remained behind making as much noise as possible by banging drums and hammering on bronze vessels, until heaven and earth were convulsed by the uproar
-
-[17] (203 chars)
-Quickly, but with hands as true to the purpose as his heart was, Carton dressed himself in the clothes the prisoner had laid aside, combed back his hair, and tied it with the ribbon the prisoner had worn
-
-[18] (280 chars)
-As was to be expected, the Duke wanted afterwards to repudiate the bargain, but his wise old counselor Kuan Chung pointed out to him the impolicy of breaking his word, and the upshot was that this bold stroke regained for Lu the whole of what she had lost in three pitched battles
-
-[19] (218 chars)
-When she had no success with that she tried to make a nuisance of herself and poked at him a little, and only when she found she could shove him across the floor with no resistance at all did she start to pay attention
-
-[20] (208 chars)
-If the enemy’s troops march up angrily and remain facing ours for a long time without either joining battle or taking themselves off again, the situation is one that demands great vigilance and circumspection
-
-[21] (252 chars)
-I smite this bosom with these two hands as I smite it now, and I tell him, ‘Defarge, I was brought up among the fishermen of the sea-shore, and that peasant family so injured by the two Evrémonde brothers, as that Bastille paper describes, is my family
-
-[22] (248 chars)
-He never looked at the figure before him, without first looking down on this side of himself, then on that, as if he had lost the habit of associating place with sound; he never spoke, without first wandering in this manner, and forgetting to speak
-
-[23] (260 chars)
-There was no drainage to carry off the wine, and not only did it all get taken up, but so much mud got taken up along with it, that there might have been a scavenger in the street, if anybody acquainted with it could have believed in such a miraculous presence
-
-[24] (356 chars)
-Then, quietly, almost whispering as if wanting Gregor (whose whereabouts she did not know) to hear not even the tone of her voice, as she was convinced that he did not understand her words, she added “and by taking the furniture away, won’t it seem like we’re showing that we’ve given up all hope of improvement and we’re abandoning him to cope for himself
-
-[25] (214 chars)
-The following are the principles to be observed by an invading force: The further you penetrate into a country, the greater will be the solidarity of your troops, and thus the defenders will not prevail against you
-
-[26] (211 chars)
-Was it because he had not got up, and had not let the chief clerk in, because he was in danger of losing his job and if that happened his boss would once more pursue their parents with the same demands as before
-
-[27] (228 chars)
-47: "When Pan Ch’ao arrived at Shan-shan, Kuang, the King of the country, received him at first with great politeness and respect; but shortly afterwards his behavior underwent a sudden change, and he became remiss and negligent
-
-[28] (219 chars)
-Tu Yu says: "Burn your baggage and impedimenta, throw away your stores and provisions, choke up the wells, destroy your cooking-stoves, and make it plain to your men that they cannot survive, but must fight to the death
-
-[29] (205 chars)
-Ho Shih has a characteristic tag: "The people being regarded as the essential part of the State, and food as the people’s heaven, is it not right that those in authority should value and be careful of both
-
-[30] (212 chars)
-Hence, when able to attack, we must seem unable; when using our forces, we must seem inactive; when we are near, we must make the enemy believe we are far away; when far away, we must make him believe we are near
-
-[31] (327 chars)
-But on other moonlight nights, when the sadness and the silence have touched me in a different way--have affected me with something as like a sorrowful sense of peace, as any emotion that had pain for its foundations could--I have imagined her as coming to me in my cell, and leading me out into the freedom beyond the fortress
-
-[32] (283 chars)
-Quickly one after another, his eyes watering with pleasure, he consumed the cheese, the vegetables and the sauce; the fresh foods, on the other hand, he didn’t like at all, and even dragged the things he did want to eat a little way away from them because he couldn’t stand the smell
-
-[33] (333 chars)
-” “But it is very strange--now, at least, is it not very strange”--said Defarge, rather pleading with his wife to induce her to admit it, “that, after all our sympathy for Monsieur her father, and herself, her husband’s name should be proscribed under your hand at this moment, by the side of that infernal dog’s who has just left us
-
-[34] (203 chars)
-Owing to the double meanings in the Chinese text, the latter part of the sentence is susceptible of quite a different meaning: "And thus, the weapon not being blunted by use, its keenness remains perfect
-
-[35] (306 chars)
-That, the lofty example of this immaculate and unimpeachable witness for the Crown, to refer to whom however unworthily was an honour, had communicated itself to the prisoner’s servant, and had engendered in him a holy determination to examine his master’s table-drawers and pockets, and secrete his papers
-
-[36] (311 chars)
-The disposition of everything in the rooms, from the largest object to the least; the arrangement of colours, the elegant variety and contrast obtained by thrift in trifles, by delicate hands, clear eyes, and good sense; were at once so pleasant in themselves, and so expressive of their originator, that, as Mr
-
-[37] (312 chars)
-This being so, to remain in ignorance of the enemy’s condition simply because one grudges the outlay of a hundred ounces of silver in honours and emoluments, "For spies" is of course the meaning, though it would spoil the effect of this curiously elaborate exordium if spies were actually mentioned at this point
-
-[38] (268 chars)
-” “Do you think:” the uncomplaining eyes in which there is so much endurance, fill with tears, and the lips part a little more and tremble: “that it will seem long to me, while I wait for her in the better land where I trust both you and I will be mercifully sheltered
-
-[39] (343 chars)
-" The connection of ideas is thus explained by Chang Yu: "One who seeks to conquer by sheer strength, clever though he may be at winning pitched battles, is also liable on occasion to be vanquished; whereas he who can look into the future and discern conditions that are not yet manifest, will never make a blunder and therefore invariably win
-
-[40] (255 chars)
-He sat by a newly-lighted wood fire (the blighted and unfruitful year was prematurely cold), and on his honest and courageous face there was a deeper shade than the pendent lamp could throw, or any object in the room distortedly reflect--a shade of horror
-
-[41] (247 chars)
-By Method and discipline are to be understood the marshalling of the army in its proper subdivisions, the gradations of rank among the officers, the maintenance of roads by which supplies may reach the army, and the control of military expenditure
-
-[42] (356 chars)
-”, and Gregor would think to himself that maybe it would be better if his mother came in, not every day of course, but one day a week, perhaps; she could understand everything much better than his sister who, for all her courage, was still just a child after all, and really might not have had an adult’s appreciation of the burdensome job she had taken on
-
-[43] (207 chars)
-Among these terrors, and the brood belonging to them, the Doctor walked with a steady head: confident in his power, cautiously persistent in his end, never doubting that he would save Lucie’s husband at last
-
-[44] (227 chars)
-It was in vain for Madame Defarge to struggle and to strike; Miss Pross, with the vigorous tenacity of love, always so much stronger than hate, clasped her tight, and even lifted her from the floor in the struggle that they had
-
-[45] (268 chars)
-Practical suggestions being much needed, this suggestion, too, was received with acclamation, and the coach was immediately filled with eight inside and a dozen out, while as many people got on the roof of the hearse as could by any exercise of ingenuity stick upon it
-
-[46] (316 chars)
-The garret, built to be a depository for firewood and the like, was dim and dark: for, the window of dormer shape, was in truth a door in the roof, with a little crane over it for the hoisting up of stores from the street: unglazed, and closing up the middle in two pieces, like any other door of French construction
-
-[47] (207 chars)
-I know perfectly well that if you had been restored to her from the world beyond this life, you could hardly be invested, in her sight, with a more sacred character than that in which you are always with her
-
-[48] (221 chars)
-The more business he got, the greater his power seemed to grow of getting at its pith and marrow; and however late at night he sat carousing with Sydney Carton, he always had his points at his fingers’ ends in the morning
-
-[49] (273 chars)
-That was something his parents did not understand very well; over the years, they had become convinced that this job would provide for Gregor for his entire life, and besides, they had so much to worry about at present that they had lost sight of any thought for the future
-
-[50] (218 chars)
-A great battle followed, lasting for some time; until at length Han Hsin and his colleague Chang Ni, leaving drums and banner on the field, fled to the division on the river bank, where another fierce battle was raging
-
-[51] (266 chars)
-He showed no surprise at seeing another figure, but the unsteady fingers of one of his hands strayed to his lips as he looked at it (his lips and his nails were of the same pale lead-colour), and then the hand dropped to his work, and he once more bent over the shoe
-
-[52] (272 chars)
-It was an ordinance of the Republic One and Indivisible of Liberty, Equality, Fraternity, or Death, that on the door or doorpost of every house, the name of every inmate must be legibly inscribed in letters of a certain size, at a certain convenient height from the ground
-
-[53] (300 chars)
-Even now, when I believe he is more hopeful of himself than he has ever been, and even speaks of himself with a kind of confidence, the idea that he might need that old employment, and not find it, gives him a sudden sense of terror, like that which one may fancy strikes to the heart of a lost child
-
-[54] (360 chars)
-” The question was addressed to the wood-sawyer, who hurriedly replied in the affirmative: seizing the occasion to add that he was the most ardent of Republicans, and that he would be in effect the most desolate of Republicans, if anything prevented him from enjoying the pleasure of smoking his afternoon pipe in the contemplation of the droll national barber
-
-[55] (272 chars)
-” The lady in question, whose rooted conviction that she was more than a match for any foreigner, was not to be shaken by distress and, danger, appeared with folded arms, and observed in English to The Vengeance, whom her eyes first encountered, “Well, I am sure, Boldface
-
-[56] (231 chars)
-The time will come, the time will not be long in coming, when new ties will be formed about you--ties that will bind you yet more tenderly and strongly to the home you so adorn--the dearest ties that will ever grace and gladden you
-
-[57] (283 chars)
-The jackal then invigorated himself with a bumper for his throttle, and a fresh application to his head, and applied himself to the collection of a second meal; this was administered to the lion in the same manner, and was not disposed of until the clocks struck three in the morning
-
-[58] (375 chars)
-He was standing up straight enough now; dressed in a smart blue uniform with gold buttons, the sort worn by the employees at the banking institute; above the high, stiff collar of the coat his strong double-chin emerged; under the bushy eyebrows, his piercing, dark eyes looked out fresh and alert; his normally unkempt white hair was combed down painfully close to his scalp
-
-[59] (266 chars)
-Gregor’s father staggered back to his seat, feeling his way with his hands, and fell into it; it looked as if he was stretching himself out for his usual evening nap but from the uncontrolled way his head kept nodding it could be seen that he was not sleeping at all
-
-[60] (348 chars)
-Soon after dinner, his father would go to sleep in his chair; his mother and sister would urge each other to be quiet; his mother, bent deeply under the lamp, would sew fancy underwear for a fashion shop; his sister, who had taken a sales job, learned shorthand and French in the evenings so that she might be able to get a better position later on
-
-[61] (210 chars)
-It was dense enough to shut out everything from the light of the coach-lamps but these its own workings, and a few yards of road; and the reek of the labouring horses steamed into it, as if they had made it all
-
-[62] (206 chars)
-It was nothing to her, that his wife was to be made a widow and his daughter an orphan; that was insufficient punishment, because they were her natural enemies and her prey, and as such had no right to live
-
-[63] (384 chars)
-Sighs of the winds that blew over a little garden-tomb were mingled with them also, and both were audible to Lucie, in a hushed murmur--like the breathing of a summer sea asleep upon a sandy shore--as the little Lucie, comically studious at the task of the morning, or dressing a doll at her mother’s footstool, chattered in the tongues of the Two Cities that were blended in her life
-
-[64] (355 chars)
-Thus, if you order your men to roll up their buff-coats, and make forced marches without halting day or night, covering double the usual distance at a stretch, The ordinary day’s march, according to Tu Mu, was 30 li; but on one occasion, when pursuing Liu Pei, Ts’ao Ts’ao is said to have covered the incredible distance of 300 li within twenty-four hours
-
-[65] (239 chars)
-” With those words the passenger opened the coach-door and got in; not at all assisted by his fellow-passengers, who had expeditiously secreted their watches and purses in their boots, and were now making a general pretence of being asleep
-
-[66] (379 chars)
-Conspicuous among these latter, like an animated bit of the spiked wall of Newgate, Jerry stood: aiming at the prisoner the beery breath of a whet he had taken as he came along, and discharging it to mingle with the waves of other beer, and gin, and tea, and coffee, and what not, that flowed at him, and already broke upon the great windows behind him in an impure mist and rain
-
-[67] (204 chars)
-I know that in loving you she sees and loves her mother at her own age, sees and loves you at my age, loves her mother broken-hearted, loves you through your dreadful trial and in your blessed restoration
-
-[68] (224 chars)
-Meanwhile, T’ien Tan got together a thousand oxen, decked them with pieces of red silk, painted their bodies, dragon-like, with colored stripes, and fastened sharp blades on their horns and well-greased rushes on their tails
-
-[69] (249 chars)
-Another person, who had not joined the group, or interchanged a word with any one of them, but who had been leaning against the wall where its shadow was darkest, had silently strolled out after the rest, and had looked on until the coach drove away
-
-[70] (252 chars)
-Here and there, the inmate has visitors to see the sight; then he points his finger, with something of the complacency of a curator or authorised exponent, to this cart and to this, and seems to tell who sat here yesterday, and who there the day before
-
-[71] (319 chars)
-Thus, Tellson’s, in its day, like greater places of business, its contemporaries, had taken so many lives, that, if the heads laid low before it had been ranged on Temple Bar instead of being privately disposed of, they would probably have excluded what little light the ground floor had, in a rather significant manner
-
-[72] (209 chars)
-71, given in abbreviated form by the P’ei Wen Yun Fu: "The rebel Wang Kuo of Liang was besieging the town of Ch’en- ts’ang, and Huang-fu Sung, who was in supreme command, and Tung Cho were sent out against him
-
-[73] (260 chars)
-The previous morning while the doors were locked everyone had wanted to get in there to him, but now, now that he had opened up one of the doors and the other had clearly been unlocked some time during the day, no-one came, and the keys were in the other sides
-
-[74] (295 chars)
-The Sea Still Rises Haggard Saint Antoine had had only one exultant week, in which to soften his modicum of hard and bitter bread to such extent as he could, with the relish of fraternal embraces and congratulations, when Madame Defarge sat at her counter, as usual, presiding over the customers
-
-[75] (294 chars)
-There was a special companionship in it, an observable inclination on the part of every one to join some other one, which led, especially among the luckier or lighter-hearted, to frolicsome embraces, drinking of healths, shaking of hands, and even joining of hands and dancing, a dozen together
-
-[76] (203 chars)
-But the loudest complaint was that although the flat was much too big for their present circumstances, they could not move out of it, there was no imaginable way of transferring Gregor to the new address
-
-[77] (246 chars)
-Such frizzling and powdering and sticking up of hair, such delicate complexions artificially preserved and mended, such gallant swords to look at, and such delicate honour to the sense of smell, would surely keep anything going, for ever and ever
-
-[78] (208 chars)
-I know, Doctor Manette--how can I fail to know--that, mingled with the affection and duty of a daughter who has become a woman, there is, in her heart, towards you, all the love and reliance of infancy itself
-
-[79] (348 chars)
+[5] (348 chars)
 While he trotted back with the message he was to deliver to the night watchman in his box at the door of Tellson’s Bank, by Temple Bar, who was to deliver it to greater authorities within, the shadows of the night took such shapes to him as arose out of the message, and took such shapes to the mare as arose out of her private topics of uneasiness
 
-[80] (210 chars)
-His hurried right hand parcelled out the herbs before him into imaginary beds of flowers in a garden; and his efforts to control and steady his breathing shook the lips from which the colour rushed to his heart
+[6] (278 chars)
+Good day, age about forty, height about five feet nine, black hair, generally rather handsome visage, complexion dark, eyes dark, thin, long and sallow face, aquiline nose but not straight, having a peculiar inclination towards the left cheek which imparts a sinister expression
 
-[81] (244 chars)
-” Notwithstanding Miss Pross’s denial of her own imagination, there was a perception of the pain of being monotonously haunted by one sad idea, in her repetition of the phrase, walking up and down, which testified to her possessing such a thing
+[7] (249 chars)
+At first he moved it because, with no other room free where he could crawl about, he was forced to, but later on he came to enjoy it although moving about in that way left him sad and tired to death, and he would remain immobile for hours afterwards
 
-[82] (254 chars)
-” Having said it, he passed behind the little counter, and stood with his hand on the back of his wife’s chair, looking over that barrier at the person to whom they were both opposed, and whom either of them would have shot with the greatest satisfaction
+[8] (214 chars)
+The name of the strong man of Old Scripture had descended to the chief functionary who worked it; but, so armed, he was stronger than his namesake, and blinder, and tore away the gates of God’s own Temple every day
 
-[83] (213 chars)
-False eyebrows and false moustaches were stuck upon them, and their hideous countenances were all bloody and sweaty, and all awry with howling, and all staring and glaring with beastly excitement and want of sleep
+[9] (257 chars)
+Unencumbered with luggage, they would soon overtake the coach, and, passing it and preceding it on the road, would order its horses in advance, and greatly facilitate its progress during the precious hours of the night, when delay was the most to be dreaded
 
-[84] (250 chars)
-” The wood-sawyer, who was a little man with a redundancy of gesture (he had once been a mender of roads), cast a glance at the prison, pointed at the prison, and putting his ten fingers before his face to represent bars, peeped through them jocosely
+[10] (260 chars)
+The remodelled procession started, with a chimney-sweep driving the hearse--advised by the regular driver, who was perched beside him, under close inspection, for the purpose--and with a pieman, also attended by his cabinet minister, driving the mourning coach
 
-[85] (299 chars)
-The equivalent to an army corps, according to Ssu-ma Fa, consisted nominally of 12500 men; according to Ts’ao Kung, the equivalent of a regiment contained 500 men, the equivalent to a detachment consists from any number between 100 and 500, and the equivalent of a company contains from 5 to 100 men
+[11] (218 chars)
+Much elated by the news, the latter set off at once at the head of 10,000 horsemen to bar Pan Ch’ao’s retreat in the west, while the King of Wen-su rode eastward with 8000 horse in order to intercept the King of Khotan
 
-[86] (256 chars)
-Saint Antoine wrote his crimes on flaring sheets of paper, seized him--would have torn him out of the breast of an army to bear Foulon company--set his head and heart on pikes, and carried the three spoils of the day, in Wolf-procession through the streets
+[12] (264 chars)
+He meant to be as careful and considerate as he could, but, unfortunately, it was his mother who came back first while Grete in the next room had her arms round the chest, pushing and pulling at it from side to side by herself without, of course, moving it an inch
 
-[87] (226 chars)
-Tu Mu says: "If we wish to wrest an advantage from the enemy, we must not fix our minds on that alone, but allow for the possibility of the enemy also doing some harm to us, and let this enter as a factor into our calculations
+[13] (305 chars)
+As they turned the corner on each floor they disappeared and would reappear a few moments later; the further down they went, the more that the Samsa family lost interest in them; when a butcher’s boy, proud of posture with his tray on his head, passed them on his way up and came nearer than they were, Mr
+
+[14] (253 chars)
+The Chinese of this last sentence is a little lacking in precision, but the mental picture we are required to draw is probably that of an army advancing towards a given rendezvous in separate columns, each of which has orders to be there on a fixed date
+
+[15] (264 chars)
+The raggedest nightcap, awry on the wretchedest head, had this crooked significance in it: “I know how hard it has grown for me, the wearer of this, to support life in myself; but do you know how easy it has grown for me, the wearer of this, to destroy life in you
+
+[16] (202 chars)
+There could have been no such Revolution, if all laws, forms, and ceremonies, had not first been so monstrously abused, that the suicidal vengeance of the Revolution was to scatter them all to the winds
+
+[17] (266 chars)
+Gregor’s father staggered back to his seat, feeling his way with his hands, and fell into it; it looked as if he was stretching himself out for his usual evening nap but from the uncontrolled way his head kept nodding it could be seen that he was not sleeping at all
+
+[18] (317 chars)
+” With such scraps tossing and rolling upward from the depths of his mind, the prisoner walked faster and faster, obstinately counting and counting; and the roar of the city changed to this extent--that it still rolled in like muffled drums, but with the wail of voices that he knew, in the swell that rose above them
+
+[19] (203 chars)
+Suspected and Denounced enemy of the Republic, Aristocrat, one of a family of tyrants, one of a race proscribed, for that they had used their abolished privileges to the infamous oppression of the people
+
+[20] (269 chars)
+The man slept on, indifferent to showers of hail and intervals of brightness, to sunshine on his face and shadow, to the paltering lumps of dull ice on his body and the diamonds into which the sun changed them, until the sun was low in the west, and the sky was glowing
+
+[21] (211 chars)
+Was it because he had not got up, and had not let the chief clerk in, because he was in danger of losing his job and if that happened his boss would once more pursue their parents with the same demands as before
+
+[22] (224 chars)
+Gregor went and waited immediately by the door, resolved either to bring the timorous visitor into the room in some way or at least to find out who it was; but the door was opened no more that night and Gregor waited in vain
+
+[23] (263 chars)
+Examined with attention, its capacity of helping such a look was to be found in the line of the mouth, and the lines of the orbits of the eyes, being much too horizontal and thin; still, in the effect of the face made, it was a handsome face, and a remarkable one
+
+[24] (261 chars)
+Either way, Sun Tzŭ lays himself open to the charge of inhumanity, though Tu Mu tries to defend him by saying that the man deserves to be put to death, for the spy would certainly not have told the secret unless the other had been at pains to worm it out of him
+
+[25] (219 chars)
+When night came on, bundles of twigs were fastened to the horns of some 2000 oxen and set on fire, the terrified animals being then quickly driven along the mountain side towards the passes which were beset by the enemy
+
+[26] (251 chars)
+This morning, your employer did suggest a possible reason for your failure to appear, it’s true—it had to do with the money that was recently entrusted to you—but I came near to giving him my word of honour that that could not be the right explanation
+
+[27] (231 chars)
+The rats had crept out of their holes to look on, and they remained looking on for hours; soldiers and police often passing between them and the spectacle, and making a barrier behind which they slunk, and through which they peeped
+
+[28] (224 chars)
+As she did so, Solomon turned to the followers of the Good Republican Brutus of Antiquity, and offered a few words of explanation in the French language, which caused them all to relapse into their former places and pursuits
+
+[29] (276 chars)
+With a wild rattle and clatter, and an inhuman abandonment of consideration not easy to be understood in these days, the carriage dashed through streets and swept round corners, with women screaming before it, and men clutching each other and clutching children out of its way
+
+[30] (368 chars)
+The spot where we intend to fight must not be made known; for then the enemy will have to prepare against a possible attack at several different points; Sheridan once explained the reason of General Grant’s victories by saying that "while his opponents were kept fully employed wondering what he was going to do, he was thinking most of what he was going to do himself
+
+[31] (245 chars)
+Southcott had recently attained her five-and-twentieth blessed birthday, of whom a prophetic private in the Life Guards had heralded the sublime appearance by announcing that arrangements were made for the swallowing up of London and Westminster
+
+[32] (203 chars)
+” So strange was the way in which he faded into silence, and so strange his fixed look when he had ceased to speak, that Darnay felt his own hand turn cold in the hand that slowly released and dropped it
+
+[33] (203 chars)
+Chang Yu tells us that in ancient times it was customary for a temple to be set apart for the use of a general who was about to take the field, in order that he might there elaborate his plan of campaign
+
+[34] (223 chars)
+Too frequent rewards signify that the enemy is at the end of his resources; Because, when an army is hard pressed, as Tu Mu says, there is always a fear of mutiny, and lavish rewards are given to keep the men in good temper
+
+[35] (250 chars)
+If I had not placed my troops in a position where they were obliged to fight for their lives, but had allowed each man to follow his own discretion, there would have been a general débandade, and it would have been impossible to do anything with them
+
+[36] (226 chars)
+In this respect the House was much on a par with the Country; which did very often disinherit its sons for suggesting improvements in laws and customs that had long been highly objectionable, but were only the more respectable
+
+[37] (308 chars)
+” “Possibly, but indeed I don’t know, although they stood whispering very near to me: because they stood at the top of the cabin steps to have the light of the lamp that was hanging there; it was a dull lamp, and they spoke very low, and I did not hear what they said, and saw only that they looked at papers
+
+[38] (396 chars)
+Miss Pross was a pleasant sight, albeit wild, and red, and grim, taking off her darling’s bonnet when she came up-stairs, and touching it up with the ends of her handkerchief, and blowing the dust off it, and folding her mantle ready for laying by, and smoothing her rich hair with as much pride as she could possibly have taken in her own hair if she had been the vainest and handsomest of women
+
+[39] (206 chars)
+It was nothing to her, that his wife was to be made a widow and his daughter an orphan; that was insufficient punishment, because they were her natural enemies and her prey, and as such had no right to live
+
+[40] (220 chars)
+He remembered that he had often felt a slight pain in bed, perhaps caused by lying awkwardly, but that had always turned out to be pure imagination and he wondered how his imaginings would slowly resolve themselves today
+
+[41] (241 chars)
+But, though the bank was almost always with him, and though the coach (in a confused way, like the presence of pain under an opiate) was always with him, there was another current of impression that never ceased to run, all through the night
+
+[42] (213 chars)
+Gregor made a run for him; he wanted to be sure of reaching him; the chief clerk must have expected something, as he leapt down several steps at once and disappeared; his shouts resounding all around the staircase
+
+[43] (271 chars)
+These had been oiled and oiled, until the two tall candles on the table in the middle of the room were gloomily reflected on every leaf; as if they were buried, in deep graves of black mahogany, and no light to speak of could be expected from them until they were dug out
+
+[44] (222 chars)
+And yet there is not in France, with its rich variety of soil and climate, a blade, a leaf, a root, a sprig, a peppercorn, which will grow to maturity under conditions more certain than those that have produced this horror
+
+[45] (204 chars)
+But the crowning unreality of his long unreal ride, was, their all at once rising to receive him, with every refinement of manner known to the time, and with all the engaging graces and courtesies of life
+
+[46] (364 chars)
+In a building at the back, attainable by a courtyard where a plane-tree rustled its green leaves, church-organs claimed to be made, and silver to be chased, and likewise gold to be beaten by some mysterious giant who had a golden arm starting out of the wall of the front hall--as if he had beaten himself precious, and menaced a similar conversion of all visitors
+
+[47] (210 chars)
+" Tu Mu says: "If our force happens to be superior to the enemy’s, weakness may be simulated in order to lure him on; but if inferior, he must be led to believe that we are strong, in order that he may keep off
+
+[48] (265 chars)
+” His son obeyed, and the crowd approached; they were bawling and hissing round a dingy hearse and dingy mourning coach, in which mourning coach there was only one mourner, dressed in the dingy trappings that were considered essential to the dignity of the position
+
+[49] (232 chars)
+I have departed slightly from the traditional interpretation of Ts’ao Kung, who says: "From the time of receiving the sovereign’s instructions until our encampment over against the enemy, the tactics to be pursued are most difficult
+
+[50] (204 chars)
+The quick noise and movement of the court’s emptying itself by many passages had not ceased, when Lucie stood stretching out her arms towards her husband, with nothing in her face but love and consolation
+
+[51] (227 chars)
+Stryver was a glib man, and an unscrupulous, and a ready, and a bold, he had not that faculty of extracting the essence from a heap of statements, which is among the most striking and necessary of the advocate’s accomplishments
+
+[52] (206 chars)
+The gentleman from Tellson’s had nothing left for it but to empty his glass with an air of stolid desperation, settle his odd little flaxen wig at the ears, and follow the waiter to Miss Manette’s apartment
+
+[53] (208 chars)
+They had got into the habit of putting things into this room that they had no room for anywhere else, and there were now many such things as one of the rooms in the flat had been rented out to three gentlemen
+
+[54] (242 chars)
+With this view, he urged his son to hold her in conversation also, and led the unfortunate woman a hard life by dwelling on any causes of complaint he could bring against her, rather than he would leave her for a moment to her own reflections
+
+[55] (210 chars)
+Your turnover has been very unsatisfactory of late; I grant you that it’s not the time of year to do especially good business, we recognise that; but there simply is no time of year to do no business at all, Mr
+
+[56] (287 chars)
+It took just as much effort to get back to where he had been earlier, but when he lay there sighing, and was once more watching his legs as they struggled against each other even harder than before, if that was possible, he could think of no way of bringing peace and order to this chaos
+
+[57] (209 chars)
+This wine-shop keeper was a bull-necked, martial-looking man of thirty, and he should have been of a hot temperament, for, although it was a bitter day, he wore no coat, but carried one slung over his shoulder
+
+[58] (220 chars)
+The corner has been mentioned as a wonderful corner for echoes; it had begun to echo so resoundingly to the tread of coming feet, that it seemed as though the very mention of that weary pacing to and fro had set it going
+
+[59] (251 chars)
+Stryver, I was about to say:--it might be painful to you to find yourself mistaken, it might be painful to Doctor Manette to have the task of being explicit with you, it might be very painful to Miss Manette to have the task of being explicit with you
+
+[60] (270 chars)
+” The mender of roads went home, with the dust going on before him according to the set of the wind, and was soon at the fountain, squeezing himself in among the lean kine brought there to drink, and appearing even to whisper to them in his whispering to all the village
+
+[61] (323 chars)
+From these decayed sons and daughters of Gaul, she had acquired such wonderful arts, that the woman and girl who formed the staff of domestics regarded her as quite a Sorceress, or Cinderella’s Godmother: who would send out for a fowl, a rabbit, a vegetable or two from the garden, and change them into anything she pleased
+
+[62] (204 chars)
+He took care that they should be well fed, sharing his own meals with them, provided facilities for bathing, and employed every method of judicious indulgence to weld them into a loyal and homogenous body
+
+[63] (246 chars)
+Such frizzling and powdering and sticking up of hair, such delicate complexions artificially preserved and mended, such gallant swords to look at, and such delicate honour to the sense of smell, would surely keep anything going, for ever and ever
+
+[64] (305 chars)
+Great rents and splits branched out in the solid walls, like crystallisation; stupefied birds wheeled about and dropped into the furnace; four fierce figures trudged away, East, West, North, and South, along the night-enshrouded roads, guided by the beacon they had lighted, towards their next destination
+
+[65] (282 chars)
+Henderson’s remarks on Stonewall Jackson’s Valley campaign: "The infinite pains," he says, "with which Jackson sought to conceal, even from his most trusted staff officers, his movements, his intentions, and his thoughts, a commander less thorough would have pronounced useless"—etc
+
+[66] (240 chars)
+He noticed that she once or twice whispered in his ear, and that she seemed to be his wife; but, what he most noticed in the two figures was, that although they were posted as close to himself as they could be, they never looked towards him
+
+[67] (242 chars)
+Lorry said, feelingly: “My dear Manette, I am anxious to have your opinion, in confidence, on a very curious case in which I am deeply interested; that is to say, it is very curious to me; perhaps, to your better information it may be less so
+
+[68] (209 chars)
+So much was closing in about the women who sat knitting, knitting, that they their very selves were closing in around a structure yet unbuilt, where they were to sit knitting, knitting, counting dropping heads
+
+[69] (236 chars)
+Reddening the snowy streets with the prevailing Republican colour, in winding and tramping through them, as they had reddened them below the snow with a deeper dye, they carried him thus into the courtyard of the building where he lived
+
+[70] (233 chars)
+Those venerable and feeble persons were always seen by the public in the act of bowing, and were popularly believed, when they had bowed a customer out, still to keep on bowing in the empty office until they bowed another customer in
+
+[71] (298 chars)
+That, hereupon he had ascertained, through the registers on the table, that his son-in-law was among the living prisoners, and had pleaded hard to the Tribunal--of whom some members were asleep and some awake, some dirty with murder and some clean, some sober and some not--for his life and liberty
+
+[72] (329 chars)
+Mei Yao-ch’en has rather an interesting note: "Knowledge of the spirit-world is to be obtained by divination; information in natural science may be sought by inductive reasoning; the laws of the universe can be verified by mathematical calculation: but the dispositions of an enemy are ascertainable through spies and spies alone
+
+[73] (326 chars)
+The natural result was that the fighting spirit of his soldiers was utterly quenched, and when the loyalists made an attack from windward with fireships, all striving with the utmost ardor to be first in the fray, Huan Hsuan’s forces were routed, had to burn all their baggage and fled for two days and nights without stopping
+
+[74] (200 chars)
+These little instruments of correction, these gentle aids to the power and honour of families, these slight favours that might so incommode you, are only to be obtained now by interest and importunity
+
+[75] (305 chars)
+” He had no opportunity of saying, or so much as thinking, anything else, until he was clear of the Old Bailey; for, the crowd came pouring out with a vehemence that nearly took him off his legs, and a loud buzz swept into the street as if the baffled blue-flies were dispersing in search of other carrion
+
+[76] (243 chars)
+The postilions, with a thousand gossamer gnats circling about them in lieu of the Furies, quietly mended the points to the lashes of their whips; the valet walked by the horses; the courier was audible, trotting on ahead into the dull distance
+
+[77] (267 chars)
+Here is a fellow, who, infected by the most pestilent and blasphemous code of devilry that ever was known, abandoned his property to the vilest scum of the earth that ever did murder by wholesale, and you ask me why I am sorry that a man who instructs youth knows him
+
+[78] (232 chars)
+So, as she was prevented from telling them all about it, she suddenly remembered what a hurry she was in and, clearly peeved, called out “Cheerio then, everyone”, turned round sharply and left, slamming the door terribly as she went
+
+[79] (311 chars)
+For scores of years gone by, Monseigneur had squeezed it and wrung it, and had seldom graced it with his presence except for the pleasures of the chase--now, found in hunting the people; now, found in hunting the beasts, for whose preservation Monseigneur made edifying spaces of barbarous and barren wilderness
+
+[80] (200 chars)
+She needed both advantages, for the marks of gripping fingers were deep in her face, and her hair was torn, and her dress (hastily composed with unsteady hands) was clutched and dragged a hundred ways
+
+[81] (265 chars)
+Either Saint Antoine had an instinctive sense that the objectionable decoration was gone, or Saint Antoine was on the watch for its disappearance; howbeit, the Saint took courage to lounge in, very shortly afterwards, and the wine-shop recovered its habitual aspect
+
+[82] (304 chars)
+" It is by acting on this principle, and harvesting the lands they invaded, that the Chinese have succeeded in carrying out some of their most memorable and triumphant expeditions, such as that of Pan Ch’ao who penetrated to the Caspian, and in more recent years, those of Fu-k’ang-an and Tso Tsung-t’ang
+
+[83] (225 chars)
+If we know that the enemy is open to attack, and also know that our men are in a condition to attack, but are unaware that the nature of the ground makes fighting impracticable, we have still gone only halfway towards victory
+
+[84] (284 chars)
+That honest tradesman’s manner of receiving the look, did not inspire confidence; he changed the leg on which he rested, as often as if he had fifty of those limbs, and were trying them all; he examined his finger-nails with a very questionable closeness of attention; and whenever Mr
+
+[85] (250 chars)
+But that Woodman and that Farmer, though they work unceasingly, work silently, and no one heard them as they went about with muffled tread: the rather, forasmuch as to entertain any suspicion that they were awake, was to be atheistical and traitorous
+
+[86] (291 chars)
+Defarge, that sister of the mortally wounded boy upon the ground was my sister, that husband was my sister’s husband, that unborn child was their child, that brother was my brother, that father was my father, those dead are my dead, and that summons to answer for those things descends to me
+
+[87] (202 chars)
+It pressed down on his back a little, and he was no longer able to lift his head, but he nonetheless felt immediately at ease and his only regret was that his body was too broad to get it all underneath
 
 [88] (201 chars)
-Now, when the journey of the travelling coach, at that very moment waiting for the completion of its load, had been planned out last night, the difficulty of taking Miss Pross in it had much engaged Mr
+And it’s a funny sort of business to be sitting up there at your desk, talking down at your subordinates from up there, especially when you have to go right up close because the boss is hard of hearing
 
-[89] (325 chars)
-The proper season is when the weather is very dry; the special days are those when the moon is in the constellations of the Sieve, the Wall, the Wing or the Cross-bar; These are, respectively, the 7th, 14th, 27th, and 28th of the Twenty-eight Stellar Mansions, corresponding roughly to Sagittarius, Pegasus, Crater and Corvus
+[89] (248 chars)
+He never looked at the figure before him, without first looking down on this side of himself, then on that, as if he had lost the habit of associating place with sound; he never spoke, without first wandering in this manner, and forgetting to speak
 
-[90] (236 chars)
-My friend is dead, my neighbour is dead, my love, the darling of my soul, is dead; it is the inexorable consolidation and perpetuation of the secret that was always in that individuality, and which I shall carry in mine to my life’s end
+[90] (233 chars)
+For should the enemy strengthen his van, he will weaken his rear; should he strengthen his rear, he will weaken his van; should he strengthen his left, he will weaken his right; should he strengthen his right, he will weaken his left
 
-[91] (218 chars)
-’" To put it perhaps a little more clearly: any attack or other operation is cheng, on which the enemy has had his attention fixed; whereas that is ch’i," which takes him by surprise or comes from an unexpected quarter
+[91] (376 chars)
+Still Knitting Madame Defarge and monsieur her husband returned amicably to the bosom of Saint Antoine, while a speck in a blue cap toiled through the darkness, and through the dust, and down the weary miles of avenue by the wayside, slowly tending towards that point of the compass where the chateau of Monsieur the Marquis, now in his grave, listened to the whispering trees
 
-[92] (208 chars)
-” “As to the great service,” said Carton, “I am bound to avow to you, when you speak of it in that way, that it was mere professional claptrap, I don’t know that I cared what became of you, when I rendered it
+[92] (204 chars)
+Let us hasten to occupy the defile at the mouth of the Kao-wu pass, thus cutting him off from supplies of water, and when his troops are prostrated with thirst, we can dictate our own terms without moving
 
-[93] (337 chars)
-What Sun Tzŭ evidently has in mind is that nice calculation of distances and that masterly employment of strategy which enable a general to divide his army for the purpose of a long and rapid march, and afterwards to effect a junction at precisely the right spot and the right hour in order to confront the enemy in overwhelming strength
+[93] (242 chars)
+Husbands, and brothers, and young men, Give us the blood of Foulon, Give us the head of Foulon, Give us the heart of Foulon, Give us the body and soul of Foulon, Rend Foulon to pieces, and dig him into the ground, that grass may grow from him
 
-[94] (201 chars)
-Country in which there are precipitous cliffs with torrents running between, deep natural hollows, The latter defined as "places enclosed on every side by steep banks, with pools of water at the bottom
+[94] (228 chars)
+He had never heard a sound so sweet and dear as the sound of her compassionate voice; he had never seen a face so tenderly beautiful, as hers when it was confronted with his own on the edge of the grave that had been dug for him
 
-[95] (282 chars)
-“If, when I tell you, dearest dear, that your agony is over, and that I have come here to take you from it, and that we go to England to be at peace and at rest, I cause you to think of your useful life laid waste, and of our native France so wicked to you, weep for it, weep for it
+[95] (214 chars)
+Now, from the days when it was always summer in Eden, to these days when it is mostly winter in fallen latitudes, the world of a man has invariably gone one way--Charles Darnay’s way--the way of the love of a woman
 
-[96] (288 chars)
-Lorry’s inquiries into Miss Pross’s personal history had established the fact that her brother Solomon was a heartless scoundrel who had stripped her of everything she possessed, as a stake to speculate with, and had abandoned her in her poverty for evermore, with no touch of compunction
+[96] (348 chars)
+From the Palace of the Tuileries, through Monseigneur and the whole Court, through the Chambers, the Tribunals of Justice, and all society (except the scarecrows), the Fancy Ball descended to the Common Executioner: who, in pursuance of the charm, was required to officiate “frizzled, powdered, in a gold-laced coat, pumps, and white silk stockings
 
-[97] (264 chars)
-” Out of the wine-shop into the street, out of the street into a courtyard, out of the courtyard up a steep staircase, out of the staircase into a garret--formerly the garret where a white-haired man sat on a low bench, stooping forward and very busy, making shoes
+[97] (270 chars)
+A bear-leader, a popular street character of the time, was impressed as an additional ornament, before the cavalcade had gone far down the Strand; and his bear, who was black and very mangy, gave quite an Undertaking air to that part of the procession in which he walked
 
-[98] (213 chars)
-The clearance was effected at last; the Stryver arrears were handsomely fetched up; everything was got rid of until November should come with its fogs atmospheric, and fogs legal, and bring grist to the mill again
+[98] (243 chars)
+As soon as it struck ten, Gregor’s mother would speak gently to his father to wake him and try to persuade him to go to bed, as he couldn’t sleep properly where he was and he really had to get his sleep if he was to be up at six to get to work
 
-[99] (296 chars)
-They were consigned to me, with him, at the--” He dropped his voice, there was a flutter among the military lanterns, and one of them being handed into the coach by an arm in uniform, the eyes connected with the arm looked, not an every day or an every night look, at monsieur with the white head
+[99] (232 chars)
+If I had had any but a unnat’ral wife, and this poor boy had had any but a unnat’ral mother, I might have made some money last week instead of being counter-prayed and countermined and religiously circumwented into the worst of luck
 
-[100] (203 chars)
-“On my way yonder,” said Madame Defarge, with a slight movement of her hand towards the fatal spot, “where they reserve my chair and my knitting for me, I am come to make my compliments to her in passing
+[100] (208 chars)
+“What a quiet life it is the family lead”, said Gregor to himself, and, gazing into the darkness, felt a great pride that he was able to provide a life like that in such a nice home for his sister and parents
 
 
 ... (truncated after 100 sentences to keep file manageable)
