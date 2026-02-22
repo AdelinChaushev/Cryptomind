@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 namespace Cryptomind.Core.Services
 {
 	public class BadgeStatisticsService(
-		IRepository<Cipher, int> cipherRepo, 
 		IRepository<ApplicationUser, string> userRepo,
-		IRepository<UserSolution, int> solutionRepo) : IBadgeStatisticsService
+		IRepository<UserSolution, int> solutionRepo,
+		IRepository<HintRequest, int> hintRepo) : IBadgeStatisticsService
 	{
 		public async Task<int> GetApprovedCount(string userId)
 		{
@@ -21,7 +21,7 @@ namespace Cryptomind.Core.Services
 		public async Task<int> GetDistinctCipherTypesSolved(string userId)
 		{
 			return await solutionRepo.GetAllAttached()
-				.Where(s => s.UserId == userId)
+				.Where(s => s.UserId == userId && s.Cipher.Status == ApprovalStatus.Approved)
 				.Select(s => s.Cipher.TypeOfCipher)
 				.Distinct()
 				.CountAsync();
@@ -35,10 +35,40 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<int> GetSolvedCount(string userId)
 		{
-			var user = await userRepo.GetByIdAsync(userId);
-			if (user == null)
-				throw new InvalidOperationException("User not found");
-			return user.SolvedCount;
+			return await solutionRepo.GetAllAttached()
+				.CountAsync(s => s.UserId == userId);
+		}
+		public async Task<int> GetSolvedWithoutHintCount(string userId)
+		{
+			return await solutionRepo.GetAllAttached()
+				.CountAsync(s => s.UserId == userId && (!s.UsedFullSolution && !s.UsedTypeHint && !s.UsedSolutionHint));
+		}
+		public async Task<int> GetSolvedOnFirstAttemptCount(string userId)
+		{
+			return await solutionRepo.GetAllAttached()
+				.Where(s => s.UserId == userId)
+				.GroupBy(s => s.CipherId)
+				.CountAsync(g =>
+					g.Count() == 1 &&
+					g.Any(s => s.IsCorrect)
+				);
+		}
+		public async Task<int> GetUsedHints(string userId)
+		{
+			return await hintRepo.GetAllAttached()
+				.Where(h => h.UserId == userId)
+				.Select(h => h.CipherId)
+				.Distinct()
+				.CountAsync();
+		}
+		public async Task<int> GetRareSolves(string userId)
+		{
+			return await solutionRepo.GetAllAttached()
+				.Where(s => s.UserId == userId && s.IsCorrect)
+				.GroupBy(s => s.CipherId)
+				.CountAsync(g =>
+					g.First().Cipher.UserSolutions
+						.Count(us => us.IsCorrect) <= 3);
 		}
 	}
 }

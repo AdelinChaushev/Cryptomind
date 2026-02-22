@@ -20,13 +20,24 @@ namespace Cryptomind.Core.Services
 		{
 			{ 1, new SolvedCountCriteria(statsService, 1) },
 			{ 2, new SolvedCountCriteria(statsService, 25) },
-			//new ScoreCriteria(statsService, 500)
-			//new ScoreCriteria(statsService, 2000)
-			{ 3, new UploadCountCriteria(statsService, 1) },
-			{ 4, new UploadCountCriteria(statsService, 5) },
-			//NoHintsCriteria(statsService, 10)
+			{ 3, new SolvedCountCriteria(statsService, 50) },
+			{ 4, new SolvedCountCriteria(statsService, 100) },
+
 			{ 5, new DistinctSolvedCountCriteria(statsService, 5) },
-			{ 6, new SuggestedAnswerCountCriteria(statsService, 1) },
+			{ 6, new DistinctSolvedCountCriteria(statsService, 10) },
+
+			{ 7, new ApprovedCiphersCountCriteria(statsService, 1)},
+			{ 8, new ApprovedCiphersCountCriteria(statsService, 5) },
+			{ 9, new ApprovedCiphersCountCriteria(statsService, 15) },
+
+			{ 10, new ApprovedAnswerSuggestionCountCriteria(statsService, 1)},
+			{ 11, new ApprovedAnswerSuggestionCountCriteria(statsService, 10)},
+
+			{ 12, new NoHintsSolvedCriteria(statsService, 10)},
+
+			{ 13, new PerfectSolveCountCriteria(statsService, 10) },
+			{ 14, new HintUsageCountCriteria(statsService, 25)},
+			{ 15, new RareSolveCriteria(statsService, 25)},
 		};
 
 		public async Task CheckBadgesByCategory(string userId, BadgeCategory category)
@@ -58,6 +69,9 @@ namespace Cryptomind.Core.Services
 
 			if (user == null)
 				throw new InvalidOperationException("User not found");
+
+			if (user.Badges.Any(x => x.BadgeId == badgeId))
+				throw new InvalidOperationException("You already have this badge");
 
 			var badge = await badgeRepo.GetAllAttached()
 				.Include(x => x.UserBadges)

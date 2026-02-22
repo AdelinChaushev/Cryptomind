@@ -34,20 +34,20 @@ namespace Cryptomind.Core.Services
 				.OrderBy(x => x.UplodaedTime)
 				.ToListAsync();
 
-			if(cipherName != null)
+			if (cipherName != null)
 			{
                 answerSuggestions = answerSuggestions.Where(x => x.Cipher.Title.Contains(cipherName)).ToList();
 
             }
             if (username != null)
             {
-                answerSuggestions = answerSuggestions.Where(x => x.Cipher.Title.Contains(username)).ToList();
-
+                answerSuggestions = answerSuggestions.Where(x => x.ApplicationUser.UserName.Contains(username)).ToList();
             }
-			if(answerSuggestions.Count == 0)
+			if (answerSuggestions.Count == 0)
 			{
 				return new List<AnswerSuggestionViewModel>();
 			}
+
             var userIds = answerSuggestions.Select(x => x.UserId).Distinct().ToList();
 			var users = (await userManager.Users
 				.Where(x => userIds.Contains(x.Id))

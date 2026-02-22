@@ -85,30 +85,93 @@ namespace Cryptomind.Data
 				new Badge
 				{
 					Id = 3,
+					Title = "Seasoned Decoder",
+					Description = "Solve 50 ciphers",
+					Category = BadgeCategory.OnSolve
+				},
+				new Badge
+				{
+					Id = 4,
+					Title = "Master Cryptanalyst",
+					Description = "Solve 100 ciphers",
+					Category = BadgeCategory.OnSolve
+				},
+				new Badge
+				{
+					Id = 5,
+					Title = "Diverse Solver",
+					Description = "Solve ciphers from 5 different types",
+					Category = BadgeCategory.OnSolve
+				},
+				new Badge
+				{
+					Id = 6,
+					Title = "Polyglot Decoder",
+					Description = "Solve ciphers from 10 different types",
+					Category = BadgeCategory.OnSolve
+				},
+				new Badge
+				{
+					Id = 7,
 					Title = "Cipher Creator",
 					Description = "Have your first cipher approved",
 					Category = BadgeCategory.OnUpload
 				},
 				new Badge
 				{
-					Id = 4,
+					Id = 8,
 					Title = "Community Contributor",
 					Description = "Have 5 ciphers approved",
 					Category = BadgeCategory.OnUpload
 				},
 				new Badge
 				{
-					Id = 5,
-					Title = "Diverse Solver",
-					Description = "Solve at least one cipher from 5 different types",
-					Category = BadgeCategory.Periodic
+					Id = 9,
+					Title = "Architect of Ciphers",
+					Description = "Have 15 ciphers approved",
+					Category = BadgeCategory.OnUpload
 				},
 				new Badge
 				{
-					Id = 6,
-					Title = "Outstanding Cryptographer",
-					Description = "Solve your first experimental cipher",
-					Category = BadgeCategory.OnSuggesting
+					Id = 10,
+					Title = "Helpful Mind",
+					Description = "First approved suggested answer",
+					Category = BadgeCategory.OnSolve
+				},
+				new Badge
+				{
+					Id = 11,
+					Title = "Trusted Contributor",
+					Description = "10 approved suggested answers",
+					Category = BadgeCategory.OnSolve
+				},
+				new Badge
+				{
+					Id = 12,
+					Title = "No Mercy",
+					Description = "Solve 10 ciphers without using hints",
+					Category = BadgeCategory.OnSolve
+				},
+				new Badge
+				{
+					Id = 13,
+					Title = "Flawless Solver",
+					Description = "Solve 10 ciphers correctly on the first attempt",
+					Category = BadgeCategory.OnSolve
+				},
+				new Badge
+				{
+					Id = 14,
+					Title = "Curious Mind",
+					Description = "Use hints on 25 different ciphers",
+					Category = BadgeCategory.OnSolve
+				},
+				new Badge
+				{
+					Id = 15,
+					Title = "Against the Odds",
+					Description = "Solve a cipher solved by fewer than 3 users",
+					Category = BadgeCategory.OnSolve
 				});
 
 			base.OnModelCreating(builder);
