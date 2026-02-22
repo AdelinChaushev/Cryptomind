@@ -184,7 +184,10 @@ namespace Cryptomind.Core.Services
 				.FirstOrDefaultAsync(x => x.Id == id);
 
 			if (cipher == null)
-				throw new InvalidOperationException("Cipher not found");
+				throw new NotFoundException("Cipher not found");
+
+			if (cipher.CreatedByUser == null)
+				throw new Exception($"Data integrity error: user {cipher.CreatedByUserId} not found for cipher {cipher.Id}.");
 
 			return await ToDetailedReviewOutputViewModel(cipher);
 		}
@@ -193,10 +196,10 @@ namespace Cryptomind.Core.Services
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
 
 			if (cipher == null)
-				throw new InvalidOperationException("Ciper not found");
+				throw new NotFoundException("Ciper not found");
 
 			if (cipher.IsDeleted)
-				throw new InvalidOperationException("This cipher is deleted.");
+				throw new ConflictException("This cipher is deleted.");
 
 			if (cipher.LLMData.Reasoning != null)
 				return new CipherValidationResult
@@ -248,33 +251,33 @@ namespace Cryptomind.Core.Services
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
 
 			if (cipher == null)
-				throw new InvalidOperationException("Cipher not found");
+				throw new NotFoundException("Cipher not found");
 			else if (cipher.IsDeleted)
-				throw new InvalidOperationException("Cipher is deleted");
+				throw new ConflictException("Cipher is deleted");
 			else if (cipher.Status == ApprovalStatus.Approved)
-				throw new InvalidOperationException("Cipher is already approved");
+				throw new ConflictException("Cipher is already approved");
 
 			string userId = cipher.CreatedByUserId;
 
 			if ((await userManager.FindByIdAsync(userId)) == null)
-				throw new InvalidOperationException("User not found.");
+				throw new NotFoundException("User not found.");
 
 			if (string.IsNullOrEmpty(model.Title))
-				throw new InvalidOperationException("Title is required.");
+				throw new ValidationException("Title is required.");
 
 			if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.Title == model.Title && x.Id != id && !x.IsDeleted) != null)
-					throw new InvalidOperationException("There is already a cipher with this title");
+				throw new ConflictException("There is already a cipher with this title");
 
 			//When type is not given we cannot approve it
 			if (model.TypeOfCipher == null)
-				throw new InvalidOperationException("Cipher with unknown type cannot be approved because the points for each cipher as based on it's type.");
+				throw new ConflictException("Cipher with unknown type cannot be approved because the points for each cipher as based on it's type.");
 
 			cipher.ChallengeType = string.IsNullOrWhiteSpace(cipher.DecryptedText)
 				? ChallengeType.Experimental
 				: ChallengeType.Standard;
 
 			if (cipher.ChallengeType == ChallengeType.Experimental && (model.AllowHint || model.AllowSolution || model.AllowTypeHint))
-				throw new InvalidOperationException("Hints cannot be used for experimental ciphers");
+				throw new ConflictException("Hints cannot be used for experimental ciphers");
 
 			cipher.Title = model.Title;
 			cipher.AllowHint = model.AllowHint;
@@ -305,16 +308,18 @@ namespace Cryptomind.Core.Services
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
 
 			if (cipher == null)
-				throw new InvalidOperationException("Cipher not found");
+				throw new NotFoundException("Cipher not found");
 			else if (cipher.IsDeleted)
-				throw new InvalidOperationException("Cipher is deleted");
+				throw new ConflictException ("Cipher is deleted");
 			else if (cipher.Status == ApprovalStatus.Approved)
-				throw new InvalidOperationException("Cipher already approved");
+				throw new ConflictException ("Cipher is already approved");
+			else if (cipher.Status == ApprovalStatus.Rejected)
+				throw new ConflictException ("Cipher is already rejected");
 
 			string userId = cipher.CreatedByUserId;
 
 			if ((await userManager.FindByIdAsync(userId)) == null)
-				throw new InvalidOperationException("User not found.");
+				throw new NotFoundException("User not found.");
 
 			cipher.Status = ApprovalStatus.Rejected;
 			cipher.RejectedAt = DateTime.UtcNow;
@@ -332,19 +337,19 @@ namespace Cryptomind.Core.Services
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
 
 			if (cipher == null) 
-				throw new InvalidOperationException("Cipher not found");
+				throw new NotFoundException("Cipher not found");
 			else if (cipher.IsDeleted)
-				throw new InvalidOperationException("Cipher is deleted");
+				throw new ConflictException("Cipher is deleted");
 			else if (cipher.Status != ApprovalStatus.Approved)
-				throw new InvalidOperationException("Cipher is not approved");
+				throw new ConflictException("Cipher is not approved");
 
 			if (string.IsNullOrEmpty(model.Title))
-				throw new InvalidOperationException("Title is required.");
+				throw new ValidationException("Title is required.");
 			if (cipherRepo.GetAll().FirstOrDefault(x => x.Title == model.Title && x.Id != id && !x.IsDeleted) != null)
-				throw new InvalidOperationException("There is already a cipher with this title");
+				throw new ConflictException("There is already a cipher with this title");
 
 			if (cipher.ChallengeType == ChallengeType.Experimental && (model.AllowHint || model.AllowSolution || model.AllowTypeHint))
-				throw new InvalidOperationException("Hints cannot be used for experimental ciphers");
+				throw new ConflictException("Hints cannot be used for experimental ciphers");
 
 			cipher.Title = model.Title;
 			cipher.AllowHint = model.AllowHint;
@@ -362,11 +367,11 @@ namespace Cryptomind.Core.Services
 				.FirstOrDefaultAsync(x => x.Id == id);
 
 			if (cipher == null)
-				throw new InvalidOperationException("Cipher not found");
+				throw new NotFoundException("Cipher not found");
 			else if (cipher.IsDeleted)
-				throw new InvalidOperationException("Cipher is already deleted");
+				throw new ConflictException("Cipher is already deleted");
 			else if (cipher.Status == ApprovalStatus.Rejected)
-				throw new InvalidOperationException("There is no meaning to delete a rejected cipher.");
+				throw new ConflictException("There is no meaning to delete a rejected cipher.");
 
 			if (cipher.AnswerSuggestions.Any(x => x.Status == ApprovalStatus.Pending))
 			{
@@ -390,33 +395,33 @@ namespace Cryptomind.Core.Services
 				"api/submissions");
 			await cipherRepo.UpdateAsync(cipher);
 		}
-		public async Task Restore (int id, string? newTitle = null)
+		public async Task RestoreCipher (int id, string? newTitle = null)
 		{
 			Cipher? cipher = await cipherRepo.GetAllAttached()
 				.Include(x => x.AnswerSuggestions)
 				.FirstOrDefaultAsync(x => x.Id == id);
 
 			if (cipher == null)
-				throw new InvalidOperationException("Cipher not found");
+				throw new NotFoundException("Cipher not found");
 			else if (!cipher.IsDeleted)
-				throw new InvalidOperationException("Cipher is not deleted");
+				throw new ConflictException("Cipher is not deleted");
 			
 			bool titleConflict = (await cipherRepo.GetAllAsync())
 				.Any(x => x.Title == cipher.Title && x.Id != cipher.Id && !x.IsDeleted);
 
 			if (titleConflict && newTitle == null)
-				throw new TitleConflictException("A cipher with this title already exists");
+				throw new ConflictException("A cipher with this title already exists");
 
 			if (newTitle != null)
 			{
 				if (string.IsNullOrEmpty(newTitle))
-					throw new InvalidOperationException("Title is required");
+					throw new ValidationException("Title is required");
 
 				titleConflict = (await cipherRepo.GetAllAsync())
 					.Any(x => x.Title == newTitle && x.Id != cipher.Id && !x.IsDeleted);
 
 				if (titleConflict)
-					throw new TitleConflictException("A cipher with this title already exists");
+					throw new ConflictException("A cipher with this title already exists");
 
 				cipher.Title = newTitle;
 			}
@@ -450,9 +455,9 @@ namespace Cryptomind.Core.Services
 				.Where(x => tagIds.Contains(x.Id))
 				.ToList();
 
-			//ADD THIS IN PRODUCTION!!!
-			//if (assignedExistingTags.Count != tagIds.Count)
-			//	throw new InvalidOperationException("One or more tag IDs is not valid");
+			//ADD THIS IN PRODUCTION!!! - Check it first.
+			if (assignedExistingTags.Count != tagIds.Count)
+				throw new ConflictException("One or more tag IDs is not valid");
 
 			//This is the creation of the cipher
 			if (cipher.CipherTags.Count > 0)
@@ -484,7 +489,10 @@ namespace Cryptomind.Core.Services
                 }
 
                 string challengeType = !cipher.IsDeleted ? cipher.ChallengeType.ToString() : "CipherDeleted";
-              
+
+				if (cipher.CreatedByUser == null)
+					throw new Exception($"Data integrity error: user {cipher.CreatedByUserId} not found for cipher {cipher.Id}.");
+
 				output.Add(new CipherReviewOutputViewModel
 				{
 					Id = cipher.Id,
@@ -501,8 +509,6 @@ namespace Cryptomind.Core.Services
 		}
 		private async Task<CipherDetailedReviewOutputViewModel> ToDetailedReviewOutputViewModel(Cipher cipher)
         {
-           
-            
             MlPredictionType mlData = new MlPredictionType();
             if (!cipher.MLPrediction.IsNullOrEmpty())
             {

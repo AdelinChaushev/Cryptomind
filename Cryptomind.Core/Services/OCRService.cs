@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Cryptomind.Common.Constants;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.ComponentModel.DataAnnotations;
 
 namespace Cryptomind.Core.Services.OCR
 {
@@ -26,15 +27,14 @@ namespace Cryptomind.Core.Services.OCR
 		public async Task<OCRResultDTO> ExtractTextFromImageAsync(IFormFile imageFile)
 		{
 			if (imageFile == null || imageFile.Length == 0)
-				throw new ArgumentException("Image file cannot be empty", nameof(imageFile));
+				throw new ValidationException("Image file cannot be empty");
 
 			return await SendOCRRequestAsync(imageFile, "ocr/extract");
 		}
-
 		public async Task<OCRResultDTO> ExtractTextWithMultipleMethodsAsync(IFormFile imageFile)
 		{
 			if (imageFile == null || imageFile.Length == 0)
-				throw new ArgumentException("Image file cannot be empty", nameof(imageFile));
+				throw new ValidationException("Image file cannot be empty");
 
 			return await SendOCRRequestAsync(imageFile, "ocr/extract-multiple");
 		}
@@ -97,17 +97,17 @@ namespace Cryptomind.Core.Services.OCR
 			if (!response.IsSuccessStatusCode)
 			{
 				var errorContent = await response.Content.ReadAsStringAsync();
-				throw new InvalidOperationException($"OCR API returned error (Status {response.StatusCode}): {errorContent}");
+				throw new Exception($"OCR API returned error (Status {response.StatusCode}): {errorContent}");
 			}
 
 			var responseJson = await response.Content.ReadAsStringAsync();
 			var pythonResponse = JsonSerializer.Deserialize<PythonOCRResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
 			if (pythonResponse == null)
-				throw new InvalidOperationException("Failed to parse OCR API response");
+				throw new Exception("Failed to parse OCR API response");
 
 			if (!pythonResponse.Success)
-				throw new InvalidOperationException($"OCR extraction failed: {pythonResponse.Error ?? "Unknown error"}");
+				throw new Exception($"OCR extraction failed: {pythonResponse.Error ?? "Unknown error"}");
 
 			return ConvertToDTO(pythonResponse);
 		}

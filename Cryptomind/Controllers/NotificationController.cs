@@ -15,6 +15,7 @@ namespace Cryptomind.Controllers
 		public async Task<IActionResult> GetAllNotifications()
 		{
 			string userId = GetUserId();
+
 			var notifications = (await notificationService.GetUserNotifications(userId));
 			var unreadCount = await notificationService.GetUnreadCount(userId);
 
@@ -25,15 +26,10 @@ namespace Cryptomind.Controllers
 		[Route("mark-as-read")]
 		public async Task<IActionResult> MarkAsRead([FromBody] int[] notificationIds)
 		{
-			try
-			{
-				await notificationService.MarkAsRead(notificationIds.ToList(), GetUserId());
-				return Ok();
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			string userId = GetUserId();
+
+			await notificationService.MarkAsRead(notificationIds.ToList(), userId);
+			return Ok();
 		}
 
 		private string GetUserId()
