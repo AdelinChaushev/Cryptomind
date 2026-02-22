@@ -1,4 +1,5 @@
-﻿namespace Cryptomind.Common.ViewModels.CipherRecognitionViewModels
+﻿using Cryptomind.Common.Constants;
+namespace Cryptomind.Common.ViewModels.CipherRecognitionViewModels
 {
 	public class PredictionViewModel
 	{
