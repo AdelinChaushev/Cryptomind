@@ -17,20 +17,17 @@ ocr_service = OCRService(tesseract_path=app.config['TESSERACT_PATH'])
 
 
 def allowed_file(filename):
-    """Check if file extension is allowed."""
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 
 def ensure_upload_folder():
-    """Create upload folder if it doesn't exist."""
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
 
 
 @app.route('/health', methods=['GET'])
 def health_check():
-    """Health check endpoint to verify service is running."""
     return jsonify({
         'status': 'healthy',
         'service': 'Cryptomind OCR Service',
@@ -40,15 +37,6 @@ def health_check():
 
 @app.route('/ocr/extract', methods=['POST'])
 def extract_text():
-    """
-    Extract text from uploaded image.
-    
-    Expects:
-    - Multipart form data with 'image' file
-    
-    Returns:
-    - JSON with extracted text, confidence, and metadata
-    """
     # Validate request has file
     if 'image' not in request.files:
         return jsonify({
@@ -130,11 +118,6 @@ def extract_text():
 
 @app.route('/ocr/extract-multiple', methods=['POST'])
 def extract_text_multiple_methods():
-    """
-    Try multiple preprocessing methods for difficult images.
-    
-    Use as fallback when standard extraction has low confidence.
-    """
     if 'image' not in request.files:
         return jsonify({
             'success': False,
@@ -207,7 +190,6 @@ def extract_text_multiple_methods():
 
 @app.errorhandler(413)
 def file_too_large(e):
-    """Handle file size limit exceeded."""
     return jsonify({
         'success': False,
         'error': f'File too large. Maximum size: {app.config["MAX_CONTENT_LENGTH"] / (1024*1024)}MB'
@@ -216,7 +198,6 @@ def file_too_large(e):
 
 @app.errorhandler(500)
 def internal_error(e):
-    """Handle internal server errors."""
     app.logger.error(f"Internal server error: {str(e)}")
     return jsonify({
         'success': False,

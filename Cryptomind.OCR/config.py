@@ -1,9 +1,7 @@
 import os
 
-
 class Config:
-    """Configuration for OCR service."""
-    
+
     # Server Configuration
     HOST = '127.0.0.1'  # localhost - only accessible from same machine
     PORT = 5001  # Different from your C# API port (usually 5000 or 7000)
@@ -40,18 +38,15 @@ class Config:
 
 
 class ProductionConfig(Config):
-    """Production-specific configuration."""
     DEBUG = False
     HOST = '0.0.0.0'  # Accept connections from any IP in production
     # Update TESSERACT_PATH for production server
 
 
 class DevelopmentConfig(Config):
-    """Development-specific configuration."""
     DEBUG = True
 
 
 class TestingConfig(Config):
-    """Testing-specific configuration."""
     TESTING = True
     UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'test_uploads')
