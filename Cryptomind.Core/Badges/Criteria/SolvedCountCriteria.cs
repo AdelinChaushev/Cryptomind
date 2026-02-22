@@ -1,10 +1,5 @@
 ﻿using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Cryptomind.Core.Badges.Criteria
 {
@@ -18,7 +13,6 @@ namespace Cryptomind.Core.Badges.Criteria
 			this.statsService = statsService;
 			this.requiredCount = requiredCount;
 		}
-
 		public async Task<bool> IsSatisfied(string userId)
 		{
 			var solvedCount = await statsService.GetSolvedCount(userId);
