@@ -158,7 +158,8 @@ namespace Cryptomind.Core.Services
 			{
 				var model = new CipherSubmissionViewModel()
 				{
-					Title = cipher.Title,
+                    Id = cipher.Id,
+                    Title = cipher.Title,
 					CipherText = cipher.EncryptedText,
 					SubmittedTime = cipher.CreatedAt,
 					Status = cipher.Status.ToString(),
@@ -175,7 +176,7 @@ namespace Cryptomind.Core.Services
 					model.ApprovedAs = cipher.ChallengeType.ToString();
 					model.AssignedTags = cipher.CipherTags.Select(x => x.Tag).ToList();
 					model.SolvedByCount = cipher.UserSolutions.Count(x => x.IsCorrect);
-					model.Id = cipher.Id;
+					
 				}
 				else if (cipher.Status == ApprovalStatus.Rejected)
 				{
