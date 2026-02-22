@@ -53,6 +53,7 @@ namespace Cryptomind.Core.Services
 					Id = x.Id,
 					CreatedBy = x.CreatedByUser.UserName,
 					Title = x.Title,
+					SubmittedAt = x.CreatedAt,
 				})
 				.ToListAsync();
 		}
