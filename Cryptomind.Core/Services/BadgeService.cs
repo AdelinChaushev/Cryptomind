@@ -1,9 +1,11 @@
-﻿using Cryptomind.Core.Badges;
+﻿using Cryptomind.Common.Exceptions;
+using Cryptomind.Core.Badges;
 using Cryptomind.Core.Badges.Criteria;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cryptomind.Core.Services
@@ -68,17 +70,17 @@ namespace Cryptomind.Core.Services
 				.FirstOrDefaultAsync(x => x.Id == userId);
 
 			if (user == null)
-				throw new InvalidOperationException("User not found");
+				throw new Exception($"Data integrity error: user not found for answer awarding badge {badgeId}.");
 
 			if (user.Badges.Any(x => x.BadgeId == badgeId)) //Second time checking
-				throw new InvalidOperationException("You already have this badge");
+				throw new ConflictException("You already have this badge");
 
 			var badge = await badgeRepo.GetAllAttached()
 				.Include(x => x.UserBadges)
 				.FirstOrDefaultAsync(x => x.Id == badgeId);
 
 			if (badge == null)
-				throw new InvalidOperationException("Badge not found");
+				throw new NotFoundException("Badge not found");
 
 			var userBadge = new UserBadge
 			{

@@ -23,10 +23,6 @@ namespace Cryptomind.Controllers
 		public async Task<IActionResult> GetAllCiphers([FromQuery] CipherFilter filter)
 		{
 			string? userId = GetUserId();
-			if (string.IsNullOrEmpty(userId))
-			{
-				return BadRequest("User ID not found in token");
-			}
 
 			var result = await cipherService.GetApprovedAsync(filter, userId);
 			return Ok(result);
@@ -35,46 +31,20 @@ namespace Cryptomind.Controllers
 		[HttpGet("cipher/{id}")]
 		public async Task<IActionResult> GetCipherById([FromRoute] int id)
 		{
-			try
-			{
-				string? userId = GetUserId();
-				if (string.IsNullOrEmpty(userId))
-				{
-					return BadRequest("User ID not found in token");
-				}
+			string? userId = GetUserId();
 
-				var result = await cipherService.GetCipherAsync(id, userId);
-				return Ok(result);
-			}
-			catch (InvalidOperationException ex) when (ex.Message == "This cipher has been removed")
-			{
-				return BadRequest(new { message = ex.Message, isDeleted = true }); //404 not found.
-			}
-			catch (InvalidOperationException ex)
-			{
-				return BadRequest(new { message = ex.Message, isDeleted = false });
-			}
+			var result = await cipherService.GetCipherAsync(id, userId);
+			return Ok(result);
 		}
 
 		[HttpPost("cipher/{id}/solve")]
 		public async Task<IActionResult> SolveCipher([FromRoute] int id, [FromBody] SolveCipherDTO dto)
 		{
-			try
-			{
-				string? userId = GetUserId();
-				if (string.IsNullOrEmpty(userId))
-				{
-					return BadRequest("User ID not found in token");
-				}
+			string? userId = GetUserId();
 
-				bool result = await cipherService.SolveCipherAsync(userId, dto.UserSolution, id);
-				await badgeService.CheckBadgesByCategory(userId, BadgeCategory.OnSolve);
-				return Ok(result);
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			bool result = await cipherService.SolveCipherAsync(userId, dto.UserSolution, id);
+			await badgeService.CheckBadgesByCategory(userId, BadgeCategory.OnSolve);
+			return Ok(result);
 		}
 
 		[HttpPost("submit")]
@@ -82,79 +52,40 @@ namespace Cryptomind.Controllers
 		public async Task<IActionResult> SubmitCipher([FromForm] SubmitCipherViewModel model)
 		{
 			string? userId = GetUserId();
-			if (string.IsNullOrEmpty(userId))
-			{
-				return BadRequest("User ID not found in token");
-			}
 
-			try
-			{
-				var cipher = await cipherSubmissionService.SubmitCipherAsync(model, userId);
-				return Ok("Your cipher was received and will be reviewed by admin");
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			var cipher = await cipherSubmissionService.SubmitCipherAsync(model, userId);
+			return Ok("Your cipher was received and will be reviewed by admin");
 		}
 
 		[HttpPost("cipher/{id}/suggest-answer")]
 		public async Task<IActionResult> SuggestAnswer([FromRoute] int id, [FromBody] SuggestAnswerDTO dto)
 		{
-			try
-			{
-				string? userId = GetUserId();
-				if (string.IsNullOrEmpty(userId))
-				{
-					return BadRequest("User ID not found in token");
-				}
+			string? userId = GetUserId();
 
-				await answerService.SuggestAnswerAsync(dto, userId, id);
-				return Ok("Your suggestion was received and will be reviewed by admin.");
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			await answerService.SuggestAnswerAsync(dto, userId, id);
+			return Ok("Your suggestion was received and will be reviewed by admin.");
 		}
 
 		[HttpPost("cipher/{id}/hint")]
 		public async Task<IActionResult> RequestHint([FromRoute] int id, [FromBody] HintRequestDTO request)
 		{
-			try
-			{
-				string? userId = GetUserId();
-				if (string.IsNullOrEmpty(userId))
-				{
-					return BadRequest("User ID not found in token");
-				}
+			string? userId = GetUserId();
 
-				string hintContent = await hintService.RequestHintAsync(userId, id, request.HintType);
-				return Ok(new { hintContent });
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			string hintContent = await hintService.RequestHintAsync(userId, id, request.HintType);
+			return Ok(new { hintContent });
 		}
 
-		[HttpGet("ml-health")]
-		public async Task<IActionResult> CheckMLHealth()
-		{
-			try
-			{
-				var isHealthy = await recognizerService.IsServiceHealthyAsync();
-				return Ok(new { isHealthy });
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
-		}
+		//[HttpGet("ml-health")]
+		//public async Task<IActionResult> CheckMLHealth()
+		//{
+		//	var isHealthy = await recognizerService.IsServiceHealthyAsync();
+		//	return Ok(new { isHealthy });
+		//}
 
 		#region Private methods
 		private string? GetUserId()
 			=> User.FindFirstValue(ClaimTypes.NameIdentifier);
+
 		#endregion
 	}
 }

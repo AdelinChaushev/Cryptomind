@@ -5,6 +5,7 @@ using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
 using Cryptomind.Common.ViewModels.AnswerSubmissionViewModels;
 using Microsoft.EntityFrameworkCore;
+using Cryptomind.Common.Exceptions;
 
 namespace Cryptomind.Core.Services
 {
@@ -20,26 +21,26 @@ namespace Cryptomind.Core.Services
 				.FirstOrDefaultAsync(x => x.Id == cipherId);
 
 			if (cipher == null)
-				throw new InvalidOperationException("Cipher not found");
+				throw new NotFoundException("Cipher not found");
 
 			if (cipher.Status != ApprovalStatus.Approved)
-				throw new InvalidOperationException("Can suggest answers only on approved ciphers");
+				throw new ConflictException("Can suggest answers only on approved ciphers");
 
 			if (!string.IsNullOrWhiteSpace(cipher.DecryptedText))
-				throw new InvalidOperationException("Cipher already has an answer");
+				throw new ConflictException("Cipher already has an answer");
 
 			if (cipher.ChallengeType == ChallengeType.Standard)
-				throw new InvalidOperationException("Cannot suggest answer on standard cipher");
+				throw new ConflictException("Cannot suggest answer on standard cipher");
 
 			if (string.IsNullOrWhiteSpace(dto.DecryptedText))
-				throw new InvalidOperationException("You cannot suggest empty answer");
+				throw new ConflictException("You cannot suggest empty answer");
 
 			if (cipher.CreatedByUserId == userId)
-				throw new InvalidOperationException("You cannot suggest answers on ciphers created by you.");
+				throw new ConflictException("You cannot suggest answers on ciphers created by you.");
 
 			if (cipher.AnswerSuggestions.Any(x => x.UserId == userId && 
 				x.DecryptedText.Trim().ToLower() == dto.DecryptedText.Trim().ToLower()))
-				throw new InvalidOperationException("You cannot suggest the same answer twice.");
+				throw new ConflictException("You cannot suggest the same answer twice.");
 
 			AnswerSuggestion answer = new AnswerSuggestion
 			{
