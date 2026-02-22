@@ -200,7 +200,7 @@ namespace Cryptomind.Tests.Integration
 				new KeyValuePair<string, string>("reason", "Test ban reason")
 			});
 
-			var response = await adminClient.PutAsync("/api/admin/user/ban?id=nonexistent-user-id", content);
+			var response = await adminClient.PutAsync("/api/admin/user/nonexistent-user-id/ban", content);
 
 			response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 		}
@@ -210,7 +210,7 @@ namespace Cryptomind.Tests.Integration
 		{
 			var adminClient = await GetAuthenticatedAdminClientAsync();
 
-			var response = await adminClient.PutAsJsonAsync("/api/admin/user/unban", "nonexistent-user-id");
+			var response = await adminClient.PutAsync("/api/admin/user/nonexistent-user-id/unban", null);
 
 			response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 		}
