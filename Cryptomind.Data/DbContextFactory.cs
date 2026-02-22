@@ -10,7 +10,7 @@ namespace Cryptomind.Data
 			var optionsBuilder = new DbContextOptionsBuilder<CryptomindDbContext>();
 
 			//DON'T FORGET TO USE CONNECTION STRING HERE TOO.
-			optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=CryptomindDb;Trusted_Connection=True;TrustServerCertificate=True;");
+			optionsBuilder.UseSqlServer("Server=.;Database=CryptomindDb;Trusted_Connection=True;TrustServerCertificate=True;");
 
 			return new CryptomindDbContext(optionsBuilder.Options);
 		}
