@@ -83,8 +83,7 @@ namespace Cryptomind.Core.Services
 					userId,
 					NotificationType.BadgeEarned,
 					$"You earned {badge.Title} badge!",
-					badgeId,
-					string.Empty);
+					"api/user/get-account-info"); //There might be a different page with badges.
 			}
 			catch (DbUpdateException)
 			{
