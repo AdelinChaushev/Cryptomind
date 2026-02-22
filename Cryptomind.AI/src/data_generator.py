@@ -6,18 +6,13 @@ from src.cipher_generator import CipherGenerator
 from src.feature_extraction import FeatureExtractor
 import random
 
-class DataGenerator:
-    """Generate training data for both layers"""
-    
+class DataGenerator:   
     def __init__(self):
         self.cipher_gen = CipherGenerator()
         self.feature_extractor = FeatureExtractor()
         self.corpus_texts = []
         
-    def load_corpus(self):
-        """Load English text corpus"""
-        print("Loading corpus...")
-        
+    def load_corpus(self):      
         # Try to load from file if exists
         corpus_file = os.path.join(Config.CORPUS_DIR, 'corpus.txt')
         
@@ -35,7 +30,6 @@ class DataGenerator:
         print(f"Loaded {len(self.corpus_texts)} text samples")
     
     def _generate_sample_corpus(self):
-        """Generate sample English texts"""
         sample_texts = [
             "The quick brown fox jumps over the lazy dog near the river bank.",
             "Machine learning algorithms can identify patterns in encrypted messages.",
@@ -59,7 +53,6 @@ class DataGenerator:
         return expanded
     
     def get_random_text(self, min_length, max_length):
-        """Get random text segment of specified length"""
         if not self.corpus_texts:
             self.load_corpus()
         
@@ -76,8 +69,7 @@ class DataGenerator:
                 return text
     
     def generate_layer1_data(self):
-        """Generate training data for Layer 1 (family classification)"""
-        print("\n=== Generating Layer 1 Training Data ===")
+        print("\n Generating Layer 1 Training Data")
 
         os.makedirs(Config.LAYER1_TRAINING_DIR, exist_ok=True)
 
@@ -134,7 +126,6 @@ class DataGenerator:
                 print(f" Done! ({successful} valid samples)")
 
         # Convert to numpy arrays
-        print("\nConverting to numpy arrays...")
         X = np.array(all_data, dtype=np.float32)
         y = np.array(all_labels, dtype=np.int32)
 
@@ -154,12 +145,11 @@ class DataGenerator:
         with open(os.path.join(Config.LAYER1_TRAINING_DIR, 'label_map.json'), 'w') as f:
             json.dump(label_map, f, indent=2)
 
-        print(f"\n✓ Layer 1 data generated: {len(X)} samples, {Config.NUM_FEATURES} features")
+        print(f"\n Layer 1 data generated: {len(X)} samples, {Config.NUM_FEATURES} features")
         print(f"  Saved to: {Config.LAYER1_TRAINING_DIR}")
 
     def generate_layer2_data(self):
-        """Generate training data for Layer 2 (type classification per family)"""
-        print("\n=== Generating Layer 2 Training Data ===")
+        print("Generating Layer 2 Training Data")
         
         for family, types in Config.FAMILIES.items():
             if len(types) == 1:
@@ -233,6 +223,6 @@ class DataGenerator:
             with open(os.path.join(family_dir, 'label_map.json'), 'w') as f:
                 json.dump(label_map, f, indent=2)
             
-            print(f"  ✓ {family} data: {len(X)} samples")
+            print(f"{family} data: {len(X)} samples")
         
-        print(f"\n✓ All Layer 2 data generated")
+        print(f"\n All Layer 2 data generated")

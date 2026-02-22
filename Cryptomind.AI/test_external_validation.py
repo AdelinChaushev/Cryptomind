@@ -1,7 +1,3 @@
-"""
-Test system accuracy on EXTERNAL data (not used in training)
-IMPROVED: Better filtering, more samples, saves test data for reproducibility
-"""
 import urllib.request
 import re
 import random
@@ -11,15 +7,9 @@ import os
 from src.cipher_generator import CipherGenerator
 from src.predictor import CipherPredictor
 
-print("="*80)
-print("     CRYPTOMIND - EXTERNAL DATA VALIDATION TEST")
-print("="*80)
-print("\n⚠️  This tests on data the model has NEVER seen during training")
-print("📏 All samples: 200-400 characters (optimal range)\n")
-
-# Download external sources
-print("📥 Downloading external test data...")
-print("-"*80)
+print("CRYPTOMIND - EXTERNAL DATA VALIDATION TEST")
+print("\nThis tests on data the model has NEVER seen during training")
+print("All samples: 200-400 characters (optimal range)\n")
 
 external_sources = []
 
@@ -35,9 +25,9 @@ try:
     if start > 0 and end > 0:
         text = text[start:end]
     external_sources.append(("Art of War", text))
-    print(f"✅ ({len(text) // 1024} KB)")
+    print(f"({len(text) // 1024} KB)")
 except Exception as e:
-    print(f"❌ {e}")
+    print(f"{e}")
 
 # Source 2: Metamorphosis
 try:
@@ -50,9 +40,9 @@ try:
     if start > 0 and end > 0:
         text = text[start:end]
     external_sources.append(("Metamorphosis", text))
-    print(f"✅ ({len(text) // 1024} KB)")
+    print(f"({len(text) // 1024} KB)")
 except Exception as e:
-    print(f"❌ {e}")
+    print(f"{e}")
 
 # Source 3: A Tale of Two Cities
 try:
@@ -65,20 +55,20 @@ try:
     if start > 0 and end > 0:
         text = text[start:end]
     external_sources.append(("Tale of Two Cities", text))
-    print(f"✅ ({len(text) // 1024} KB)")
+    print(f"({len(text) // 1024} KB)")
 except Exception as e:
-    print(f"❌ {e}")
+    print(f"{e}")
 
 # Fallback if downloads fail
 if not external_sources:
-    print("\n⚠️  Could not download. Using fallback text...")
+    print("\nCould not download. Using fallback text...")
     fallback = """Modern cryptographic systems employ sophisticated mathematical algorithms to ensure secure communications in the digital age. These systems utilize complex number theory, including prime factorization and discrete logarithms, to create encryption schemes that are computationally infeasible to break without the proper decryption key. The development of quantum computing poses new challenges to traditional cryptographic methods, leading researchers to explore quantum-resistant algorithms that can withstand attacks from both classical and quantum computers. Understanding classical cipher systems provides essential foundation for comprehending these contemporary security mechanisms."""
     external_sources.append(("Fallback", fallback * 20))
 
-print(f"\n✅ Loaded {len(external_sources)} text sources")
+print(f"\nLoaded {len(external_sources)} text sources")
 
 # Extract sentences with STRICT filtering
-print("\n📝 Extracting sentences (200-400 chars only)...")
+print("\nExtracting sentences (200-400 chars only)...")
 test_sentences = []
 
 for source_name, text in external_sources:
@@ -103,18 +93,18 @@ for source_name, text in external_sources:
 # Shuffle all sentences
 random.shuffle(test_sentences)
 
-print(f"\n✅ Total valid sentences: {len(test_sentences)}")
+print(f"\nTotal valid sentences: {len(test_sentences)}")
 print(f"   (Each sentence: 200-400 characters)")
 
 if len(test_sentences) < 110:
-    print(f"\n⚠️  Warning: Only {len(test_sentences)} sentences available")
+    print(f"\nWarning: Only {len(test_sentences)} sentences available")
     print("   Some cipher types may get fewer samples")
 
 # Initialize
 print("\n🔧 Loading models...")
 cipher_gen = CipherGenerator()
 predictor = CipherPredictor()
-print("✅ Models loaded\n")
+print("Models loaded\n")
 
 # Test configuration
 cipher_types = [
@@ -128,10 +118,10 @@ cipher_types = [
 SAMPLES_PER_TYPE = min(20, len(test_sentences) // len(cipher_types))
 
 if SAMPLES_PER_TYPE < 10:
-    print(f"⚠️  Limited to {SAMPLES_PER_TYPE} samples per type")
+    print(f" Limited to {SAMPLES_PER_TYPE} samples per type")
     print("   (Minimum 10 recommended for statistical significance)")
 
-print(f"\n🧪 Testing Configuration:")
+print(f"\n Testing Configuration:")
 print(f"   Samples per cipher: {SAMPLES_PER_TYPE}")
 print(f"   Total tests: {SAMPLES_PER_TYPE * len(cipher_types)}")
 print(f"   Text length: 200-400 characters")
@@ -151,7 +141,7 @@ for cipher_type in cipher_types:
     
     for i in range(SAMPLES_PER_TYPE):
         if sentence_index >= len(test_sentences):
-            print("\n⚠️  Ran out of test sentences!")
+            print("\n Ran out of test sentences!")
             break
             
         plaintext = test_sentences[sentence_index]
@@ -188,10 +178,10 @@ for cipher_type in cipher_types:
                     'predicted': predicted_type,
                     'confidence': confidence
                 })
-                print("✗", end="", flush=True)
+                print("X", end="", flush=True)
                 
         except Exception as e:
-            print(f"\n  ⚠️  Error: {e}")
+            print(f"\n Error: {e}")
             continue
     
     # Print result for this cipher
@@ -205,21 +195,19 @@ for cipher_type in cipher_types:
         print(f"  {correct}/{total} ({accuracy:.0f}%)")
 
 # Calculate overall stats
-print("\n" + "="*80)
 print("DETAILED RESULTS")
-print("="*80)
 
 total_correct = sum(r['correct'] for r in results.values())
 total_tests = sum(r['total'] for r in results.values())
 
 if total_tests == 0:
-    print("\n❌ ERROR: No valid test samples generated!")
+    print("\n ERROR: No valid test samples generated!")
     print("   Check internet connection or text sources")
     exit(1)
 
 overall_accuracy = (total_correct / total_tests * 100)
 
-print(f"\n🎯 OVERALL ACCURACY: {total_correct}/{total_tests} ({overall_accuracy:.2f}%)")
+print(f"\n OVERALL ACCURACY: {total_correct}/{total_tests} ({overall_accuracy:.2f}%)")
 print(f"   Tested on {len(external_sources)} external sources")
 print(f"   Text length: 200-400 characters per sample")
 
@@ -231,9 +219,7 @@ families = {
     'Plaintext': ['Plaintext']
 }
 
-print("\n" + "-"*80)
 print("RESULTS BY CIPHER FAMILY:")
-print("-"*80)
 
 for family, types in families.items():
     family_correct = sum(results[c]['correct'] for c in types if c in results)
@@ -250,37 +236,31 @@ for family, types in families.items():
         if cipher in results and results[cipher]['total'] > 0:
             r = results[cipher]
             accuracy = (r['correct'] / r['total'] * 100)
-            status = "✅" if accuracy == 100 else "⚠️ " if accuracy >= 80 else "❌"
+            status = "Good" if accuracy == 100 else "Warning" if accuracy >= 80 else "Bad"
             print(f"  {status} {cipher:20s} {r['correct']:2d}/{r['total']:2d} ({accuracy:5.1f}%)")
             
             # Show first 2 failures
             if r['failures']:
                 for failure in r['failures'][:2]:
-                    print(f"       → Sample {failure['sample']}: {failure['predicted']} ({failure['confidence']:.1f}%)")
+                    print(f" - Sample {failure['sample']}: {failure['predicted']} ({failure['confidence']:.1f}%)")
 
 # Interpretation
-print("\n" + "="*80)
 print("INTERPRETATION")
-print("="*80)
 
-print(f"\n📊 Training corpus: ~96.4% (on same data)")
-print(f"📊 External validation: {overall_accuracy:.1f}% (completely new data)")
-print(f"📊 Overfitting: {abs(96.4 - overall_accuracy):.1f}%")
+print(f"\n Training corpus: ~96.4% (on same data)")
+print(f" External validation: {overall_accuracy:.1f}% (completely new data)")
+print(f" Overfitting: {abs(96.4 - overall_accuracy):.1f}%")
 
 if overall_accuracy >= 93:
-    print("\n✅ EXCELLENT! Minimal overfitting (<3%). Model generalizes very well.")
+    print("\n EXCELLENT! Minimal overfitting (<3%). Model generalizes very well.")
 elif overall_accuracy >= 88:
-    print("\n✅ GOOD! Low overfitting (<8%). Acceptable generalization.")
+    print("\n GOOD! Low overfitting (<8%). Acceptable generalization.")
 elif overall_accuracy >= 80:
-    print("\n⚠️  MODERATE! Some overfitting (>10%). Still usable but could improve.")
+    print("\n  MODERATE! Some overfitting (>10%). Still usable but could improve.")
 else:
-    print("\n❌ POOR! High overfitting (>15%). Model may be memorizing patterns.")
+    print("\n POOR! High overfitting (>15%). Model may be memorizing patterns.")
 
 # Error analysis
-print("\n" + "="*80)
-print("ERROR ANALYSIS")
-print("="*80)
-
 misclassifications = {}
 for cipher, data in results.items():
     for failure in data['failures']:
@@ -292,10 +272,9 @@ if misclassifications:
     for pair, count in sorted(misclassifications.items(), key=lambda x: x[1], reverse=True)[:5]:
         print(f"  {pair}: {count} times")
 else:
-    print("\n🎉 Perfect! No misclassifications detected!")
+    print("\nPerfect! No misclassifications detected!")
 
 # Save detailed test data
-print("\n" + "="*80)
 print("Saving detailed test data...")
 
 os.makedirs('testing', exist_ok=True)
@@ -370,15 +349,12 @@ for cipher_type in cipher_types:
 with open('testing/external_validation_data.json', 'w', encoding='utf-8') as f:
     json.dump(test_data, f, indent=2, ensure_ascii=False)
 
-print("✅ Test data saved to testing/external_validation_data.json")
+print("Test data saved to testing/external_validation_data.json")
 
 # Save full sentences separately (for analysis)
 with open('testing/external_validation_sentences.txt', 'w', encoding='utf-8') as f:
     f.write("EXTERNAL VALIDATION TEST SENTENCES\n")
-    f.write("="*80 + "\n\n")
     f.write(f"Total sentences extracted: {len(test_sentences)}\n")
-    f.write(f"Date: {timestamp}\n\n")
-    f.write("="*80 + "\n\n")
     
     for idx, sentence in enumerate(test_sentences, 1):
         f.write(f"[{idx}] ({len(sentence)} chars)\n")
@@ -388,7 +364,7 @@ with open('testing/external_validation_sentences.txt', 'w', encoding='utf-8') as
             f.write(f"Total sentences available: {len(test_sentences)}\n")
             break
 
-print("✅ Sentences saved to testing/external_validation_sentences.txt")
+print("Sentences saved to testing/external_validation_sentences.txt")
 
 # Save summary results
 with open('testing/results/external_validation_results.txt', 'w', encoding='utf-8') as f:
@@ -406,11 +382,4 @@ with open('testing/results/external_validation_results.txt', 'w', encoding='utf-
             acc = (data['correct'] / data['total'] * 100)
             f.write(f"{cipher:20s} {data['correct']:2d}/{data['total']:2d} ({acc:5.1f}%)\n")
 
-print("✅ Results saved to testing/results/external_validation_results.txt")
-print("="*80)
-
-print("\n📁 OUTPUT FILES:")
-print("   1. testing/external_validation_results.txt (summary)")
-print("   2. testing/external_validation_data.json (detailed test data)")
-print("   3. testing/external_validation_sentences.txt (test sentences)")
-print("\n✅ Validation complete!")
+print("Results saved to testing/results/external_validation_results.txt")

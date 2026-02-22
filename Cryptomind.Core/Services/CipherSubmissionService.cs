@@ -209,7 +209,6 @@ namespace Cryptomind.Core.Services
 			if (!allowedExtensions.Contains(extension))
 				throw new InvalidOperationException($"Invalid file type. Allowed types: {string.Join(", ", allowedExtensions)}");
 
-			// File size validation (e.g., max 5MB)
 			const int maxSizeInBytes = 5 * 1024 * 1024;
 			if (imageFile.Length == 0)
 				throw new InvalidOperationException("File cannot be empty");

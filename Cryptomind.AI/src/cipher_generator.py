@@ -3,13 +3,10 @@ import string
 import base64
 
 class CipherGenerator:
-    """Generate encrypted texts for all cipher types"""
-    
     def __init__(self):
         self.alphabet = string.ascii_uppercase
     
     def caesar(self, plaintext, shift=None):
-        """Caesar cipher with given or random shift"""
         if shift is None:
             shift = random.randint(1, 25)
         
@@ -24,11 +21,9 @@ class CipherGenerator:
         return ''.join(result)
     
     def rot13(self, plaintext):
-        """ROT13 cipher (Caesar with shift 13)"""
         return self.caesar(plaintext, 13)
     
     def atbash(self, plaintext):
-        """Atbash cipher (reversed alphabet)"""
         result = []
         for char in plaintext.upper():
             if char in self.alphabet:
@@ -40,7 +35,6 @@ class CipherGenerator:
         return ''.join(result)
     
     def simple_substitution(self, plaintext, key=None):
-        """Simple substitution with random or given key"""
         if key is None:
             key = list(self.alphabet)
             random.shuffle(key)
@@ -57,7 +51,6 @@ class CipherGenerator:
         return ''.join(result)
     
     def vigenere(self, plaintext, key=None):
-        """Vigenère cipher with random or given key"""
         if key is None:
             key_length = random.randint(3, 12)
             key = ''.join(random.choices(self.alphabet, k=key_length))
@@ -78,7 +71,6 @@ class CipherGenerator:
         return ''.join(result)
     
     def autokey(self, plaintext, key=None):
-        """Autokey cipher"""
         if key is None:
             key = random.choice(self.alphabet)
         
@@ -102,7 +94,6 @@ class CipherGenerator:
         return ''.join(result)
     
     def beaufort(self, plaintext, key=None):
-        """Beaufort cipher"""
         if key is None:
             key_length = random.randint(3, 12)
             key = ''.join(random.choices(self.alphabet, k=key_length))
@@ -123,7 +114,6 @@ class CipherGenerator:
         return ''.join(result)
     
     def trithemius(self, plaintext):
-        """Trithemius cipher (progressive Caesar)"""
         result = []
         shift = 0
         
@@ -138,7 +128,6 @@ class CipherGenerator:
         return ''.join(result)
     
     def rail_fence(self, plaintext, rails=None):
-        """Rail Fence cipher"""
         if rails is None:
             rails = random.randint(2, 6)
         
@@ -162,7 +151,6 @@ class CipherGenerator:
         return ''.join(''.join(row) for row in fence)
     
     def columnar_transposition(self, plaintext, key=None):
-        """Columnar transposition"""
         if key is None:
             key_length = random.randint(3, 8)
             key = ''.join(random.sample(self.alphabet, key_length))
@@ -192,7 +180,6 @@ class CipherGenerator:
         return ''.join(result)
     
     def route_cipher(self, plaintext):
-        """Route cipher (spiral read)"""
         # Remove spaces
         text = ''.join(plaintext.split())
         
@@ -229,11 +216,9 @@ class CipherGenerator:
         return ''.join(result)
     
     def base64_encode(self, plaintext):
-        """Base64 encoding"""
         return base64.b64encode(plaintext.encode()).decode()
     
     def morse_code(self, plaintext):
-        """Morse code"""
         morse_dict = {
             'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.',
             'F': '..-.', 'G': '--.', 'H': '....', 'I': '..', 'J': '.---',
@@ -251,19 +236,15 @@ class CipherGenerator:
         return ' '.join(result)
     
     def binary_encode(self, plaintext):
-        """Binary encoding"""
         return ' '.join(format(ord(char), '08b') for char in plaintext)
     
     def hex_encode(self, plaintext):
-        """Hexadecimal encoding"""
         return plaintext.encode().hex()
     
     def plaintext(self, text):
-        """Return plaintext as-is"""
         return text
     
     def generate(self, cipher_type, plaintext):
-        """Generate cipher of specified type"""
         method_map = {
             'Caesar': self.caesar,
             'ROT13': self.rot13,

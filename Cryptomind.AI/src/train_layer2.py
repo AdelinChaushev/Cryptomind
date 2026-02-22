@@ -2,15 +2,12 @@ import numpy as np
 import os
 import json
 import tensorflow as tf
-from tensorflow import keras
+keras = tf.keras
 from sklearn.model_selection import train_test_split
 from config.config import Config
 
 class Layer2Trainer:
-    """Train type classifiers for each family (Layer 2)"""
-    
     def build_model(self, num_classes):
-        """Build neural network for type classification"""
         model = keras.Sequential([
             keras.layers.Input(shape=(Config.NUM_FEATURES,)),
             keras.layers.Dense(128, activation='relu'),
@@ -36,8 +33,7 @@ class Layer2Trainer:
         return model
     
     def train_family_model(self, family):
-        """Train model for specific family"""
-        print(f"\n=== Training {family} Type Classifier ===")
+        print(f"Training {family} Type Classifier")
         
         family_dir = os.path.join(Config.LAYER2_TRAINING_DIR, family.lower())
         
@@ -108,13 +104,12 @@ class Layer2Trainer:
         model_path = os.path.join(model_dir, f'{family.lower()}_classifier.h5')
         model.save(model_path)
         
-        print(f"✓ Model saved to: {model_path}")
+        print(f"Model saved to: {model_path}")
         
         return history
     
     def train_all(self):
-        """Train all Layer 2 models"""
-        print("\n=== Training Layer 2: Type Classifiers ===")
+        print("\nTraining Layer 2: Type Classifiers")
         
         for family in Config.FAMILIES.keys():
             if len(Config.FAMILIES[family]) == 1:
@@ -123,10 +118,9 @@ class Layer2Trainer:
             
             self.train_family_model(family)
         
-        print("\n✓ All Layer 2 models trained!")
+        print("\nAll Layer 2 models trained!")
 
 def train_layer2():
-    """Main training function for Layer 2"""
     trainer = Layer2Trainer()
     trainer.train_all()
 
