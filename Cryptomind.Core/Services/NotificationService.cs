@@ -33,11 +33,6 @@ namespace Cryptomind.Core.Services
 				notification.CreatedAt
 			});
 		}
-		public async Task<int> GetUnreadCount(string userId)
-		{
-			return await notificationRepo.GetAllAttached()
-				.CountAsync(x => x.UserId == userId && !x.IsRead);
-		}
 		public async Task<List<Notification>> GetUserNotifications(string userId)
 		{
 			return await notificationRepo.GetAllAttached()
@@ -46,16 +41,24 @@ namespace Cryptomind.Core.Services
 				.Take(NotificationCount)
 				.ToListAsync();
 		}
-		public async Task MarkAsRead(int notificationId, string userId)
+		public async Task<int> GetUnreadCount(string userId)
 		{
-			var notification = await notificationRepo.GetAllAttached()
+			return await notificationRepo.GetAllAttached()
+				.CountAsync(x => x.UserId == userId && !x.IsRead);
+		}
+		public async Task MarkAsRead(List<int> notificationIds, string userId)
+		{
+			foreach (var notificationId in notificationIds)
+			{
+				var notification = await notificationRepo.GetAllAttached()
 				.FirstOrDefaultAsync(x => x.Id == notificationId && x.UserId == userId);
 
-			if (notification == null)
-				throw new InvalidOperationException("Notification not found");
+				if (notification == null)
+					throw new InvalidOperationException("Notification not found");
 
-			notification.IsRead = true;
-			await notificationRepo.UpdateAsync(notification);
+				notification.IsRead = true;
+				await notificationRepo.UpdateAsync(notification);
+			}		
 		}
 	}
 }
