@@ -37,7 +37,7 @@ namespace Cryptomind.Controllers
 				ApplicationUser user = await authService.Authenticate(model.Email, model.Password);
 				string token = await authService.GenerateJSONWebToken(user);
 				AddCookie(token);
-				return Ok(new { token });
+				return Ok(await userService.GetRolesUsers(user.Id));
 			}
 			catch (UnauthorizedAccessException ex)
 			{
