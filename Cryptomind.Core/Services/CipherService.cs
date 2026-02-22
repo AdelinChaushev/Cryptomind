@@ -256,6 +256,7 @@ namespace Cryptomind.Core.Services
 					Content = x.HintContent,
 					RequestedAt = x.RequestedAt
 				}).OrderBy(x => x.Type).ToList(),
+				
 			};
 			if (cipher is ImageCipher)
 			{

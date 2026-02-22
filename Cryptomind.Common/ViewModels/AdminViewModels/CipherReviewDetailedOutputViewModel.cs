@@ -1,9 +1,4 @@
-﻿using Cryptomind.Common.ViewModels.CipherViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace Cryptomind.Common.ViewModels.AdminViewModels
 {
@@ -11,10 +6,15 @@ namespace Cryptomind.Common.ViewModels.AdminViewModels
 	{
 		public int Points { get; set; }
 		public string CreatorUserName { get; set; }
-		public string CipherText { get; set; }
+
+        public string DecryptedText { get; set; }
+        public string CipherText { get; set; }
 		public bool AllowFullSolution { get; set; }
 		public bool AllowType { get; set; }
 		public bool AllowHint { get; set; }
-		public string ImageBase64 { get; set; }
+        public string Status { get; set; }
+
+        public string ChallengeTypeDisplay { get; set; }
+        public string ImageBase64 { get; set; }
 	}
 }

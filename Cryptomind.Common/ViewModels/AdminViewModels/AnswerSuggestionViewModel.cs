@@ -11,6 +11,7 @@ namespace Cryptomind.Common.ViewModels.AdminViewModels
 		public int Id { get; set; }
 		public string Username { get; set; }
 		public string Description { get; set; }
-		public int CipherId { get; set; }
+        public string CipherName { get; set; }
+        public int CipherId { get; set; }
 	}
 }

@@ -25,14 +25,30 @@ namespace Cryptomind.Core.Services
 			return (await answerRepo.GetAllAsync())
 				.Count(x => x.Status == ApprovalStatus.Approved);
 		}
-		public async Task<List<AnswerSuggestionViewModel>> AllSubmittedAnswersAsync()
+		public async Task<List<AnswerSuggestionViewModel>> AllSubmittedAnswersAsync(string? cipherName, string? username)
 		{
-			var answerSuggestions = (await answerRepo.GetAllAsync())
+			var answerSuggestions = await answerRepo.GetAllAttached()
+				.Include(x => x.ApplicationUser)
+				.Include(x => x.Cipher)
 				.Where(x => x.Status == ApprovalStatus.Pending)
 				.OrderBy(x => x.UplodaedTime)
-				.ToList();
+				.ToListAsync();
 
-			var userIds = answerSuggestions.Select(x => x.UserId).Distinct().ToList();
+			if(cipherName != null)
+			{
+                answerSuggestions = answerSuggestions.Where(x => x.Cipher.Title.Contains(cipherName)).ToList();
+
+            }
+            if (username != null)
+            {
+                answerSuggestions = answerSuggestions.Where(x => x.Cipher.Title.Contains(username)).ToList();
+
+            }
+			if(answerSuggestions.Count == 0)
+			{
+				return new List<AnswerSuggestionViewModel>();
+			}
+            var userIds = answerSuggestions.Select(x => x.UserId).Distinct().ToList();
 			var users = (await userManager.Users
 				.Where(x => userIds.Contains(x.Id))
 				.ToListAsync())
@@ -50,6 +66,7 @@ namespace Cryptomind.Core.Services
 					Id = answer.Id,
 					Description = answer.Description,
 					CipherId = answer.CipherId,
+					CipherName = answer.Cipher.Title,
 					Username = user.UserName,
 				});
 			}

@@ -1,16 +1,19 @@
 ﻿using Cryptomind.Common.DTOs;
-using Cryptomind.Core.Contracts;
-using Cryptomind.Data.Entities;
-using Cryptomind.Data.Repositories;
-using Cryptomind.Data.Enums;
 using Cryptomind.Common.Enums;
-using System.Text.Json;
+using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.ViewModels.AdminViewModels;
 using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
-using static Cryptomind.Core.Services.LLMService;
+using Cryptomind.Core.Contracts;
+using Cryptomind.Data.Entities;
+using Cryptomind.Data.Enums;
+using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
-using Cryptomind.Common.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text.Json;
+using static Cryptomind.Core.Services.AdminCipherService;
+using static Cryptomind.Core.Services.LLMService;
+
 
 namespace Cryptomind.Core.Services
 {
@@ -39,14 +42,19 @@ namespace Cryptomind.Core.Services
 			[CipherType.Route] = 375,
 			[CipherType.Autokey] = 500,
 		};
-		public async Task<List<string>> GetRecentCipherSubmissionTitles()
+		public async Task<List<PendingCipher>> GetRecentCipherSubmissionTitles()
 		{
-			return (await cipherRepo.GetAllAsync())
+			return await cipherRepo.GetAllAttached()
 				.Where(x => x.Status == ApprovalStatus.Pending)
 				.OrderByDescending(x => x.CreatedAt)
 				.Take(5)
-				.Select(x => x.Title)
-				.ToList();
+				.Select(x => new PendingCipher()
+				{
+					Id = x.Id,
+					CreatedBy = x.CreatedByUser.UserName,
+					Title = x.Title,
+				})
+				.ToListAsync();
 		}
 		public async Task<int> GetPendingCiphersCount()
 		{
@@ -63,12 +71,13 @@ namespace Cryptomind.Core.Services
 			return (await cipherRepo.GetAllAsync())
 				.Count(x => x.IsDeleted);
 		}
-		public async Task<List<CipherReviewOutputViewModel>> AllPendingCiphers()
+		public async Task<List<CipherReviewOutputViewModel>> AllPendingCiphers(string? filter)
 		{
-			var result = (await cipherRepo.GetAllAsync())
-				.Where(c => c.Status == ApprovalStatus.Pending && !c.IsDeleted)
+			var result = await cipherRepo.GetAllAttached()
+				.Include(c => c.CreatedByUser)
+				.Where(c => c.Status == ApprovalStatus.Pending && (filter == null || c.Title.Contains(filter)))
 				.OrderBy(x => x.CreatedAt)
-				.ToList();
+				.ToListAsync();
 
 			if (!result.Any())
 				return new List<CipherReviewOutputViewModel>();
@@ -77,9 +86,10 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<List<CipherReviewOutputViewModel>> AllApprovedCiphers(CipherFilter filter)
 		{
-			var result = (await cipherRepo.GetAllAsync())
-				.Where(c => c.Status == ApprovalStatus.Approved && !c.IsDeleted)
-				.ToList();
+			var result = await cipherRepo.GetAllAttached()
+                .Include(c => c.CreatedByUser)
+                .Where(c => c.Status == ApprovalStatus.Approved && !c.IsDeleted)
+				.ToListAsync();
 
 			if (!result.Any())
 				return new List<CipherReviewOutputViewModel>();
@@ -88,8 +98,8 @@ namespace Cryptomind.Core.Services
 			if (!string.IsNullOrEmpty(filter.SearchTerm))
 				result = result.Where(c => c.Title.Contains(filter.SearchTerm)).ToList();
 
-			if (filter.Tags != null)
-				result = result.Where(c => c.CipherTags.Any(t => filter.Tags.Contains(t.Tag.Type))).ToList();
+			if (filter.Tags != null && filter.Tags[0] != TagType.None)
+				result = result.Where(c => c.CipherTags.Any(t =>  filter.Tags.Contains(t.Tag.Type))).ToList();
 
 			switch (filter.ChallengeType)
 			{
@@ -129,7 +139,7 @@ namespace Cryptomind.Core.Services
 			if (!string.IsNullOrEmpty(filter.SearchTerm))
 				result = result.Where(c => c.Title.Contains(filter.SearchTerm)).ToList();
 
-			if (filter.Tags != null)
+			if (filter.Tags != null && !(filter.Tags.Count == 1 && filter.Tags[0] == TagType.None))
 				result = result.Where(c => c.CipherTags.Any(t => filter.Tags.Contains(t.Tag.Type))).ToList();
 
 			switch (filter.ChallengeType)
@@ -450,23 +460,51 @@ namespace Cryptomind.Core.Services
 			List<CipherReviewOutputViewModel> output = new List<CipherReviewOutputViewModel>();
 			foreach (var cipher in result)
 			{
-				string challengeType = !cipher.IsDeleted ? cipher.ChallengeType.ToString() : "CipherDeleted";
+				MlPredictionType mlData = new MlPredictionType();
+
+				if (!cipher.MLPrediction.IsNullOrEmpty())
+				{
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+                    mlData = JsonSerializer.Deserialize<MlPredictionType>(cipher.MLPrediction, options);
+                }
+
+                string challengeType = !cipher.IsDeleted ? cipher.ChallengeType.ToString() : "CipherDeleted";
+              
 				output.Add(new CipherReviewOutputViewModel
 				{
 					Id = cipher.Id,
 					Title = cipher.Title,
-					DecryptedText = cipher.DecryptedText,
-					Status = cipher.Status.ToString(),
+					//DecryptedText = cipher.DecryptedText,
+					//Status = cipher.Status.ToString(),
+					SubmittedBy = cipher.CreatedByUser.UserName,
+					SubmittedAt = (int)cipher.Status == 1 ? cipher.ApprovedAt : (int)cipher.Status == 0 ? cipher.CreatedAt : cipher.RejectedAt,
 					IsImage = cipher is ImageCipher,
-					IsLLMRecommended = cipher.IsLLMRecommended,
-					ChallengeTypeDisplay = challengeType,
-				});
+					MlPrediction = mlData.Family,
+                    PercentageOfConfidence = (int)Math.Floor(mlData.Confidence * 100),
+					IsLLMRecommended = cipher.IsLLMRecommended,                   
+                  //  ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
+                });
 			}
 			return output;
 		}
 		private async Task<CipherDetailedReviewOutputViewModel> ToDetailedReviewOutputViewModel(Cipher cipher)
-		{
-			var model = new CipherDetailedReviewOutputViewModel()
+        {
+           
+            
+            MlPredictionType mlData = new MlPredictionType();
+            if (!cipher.MLPrediction.IsNullOrEmpty())
+            {
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                mlData = JsonSerializer.Deserialize<MlPredictionType>(cipher.MLPrediction, options);
+            }
+
+            var model = new CipherDetailedReviewOutputViewModel()
 			{
 				Id = cipher.Id,
 				Title = cipher.Title,
@@ -481,7 +519,13 @@ namespace Cryptomind.Core.Services
 				IsLLMRecommended = cipher.IsLLMRecommended,
 				ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
 				IsImage = cipher is ImageCipher,
-			};
+                SubmittedBy = cipher.CreatedByUser.UserName,
+                SubmittedAt = cipher.ApprovedAt,
+                MlPrediction = mlData.Family,
+                PercentageOfConfidence = (int)Math.Floor(mlData.Confidence * 100),
+              
+
+            };
 
 			if (cipher is ImageCipher)
 			{
@@ -493,6 +537,21 @@ namespace Cryptomind.Core.Services
 
 			return model;
 		}
-		#endregion
-	}
+        #endregion
+        public class MlPredictionType
+        {
+            public string Family { get; set; }
+            public string Type { get; set; }
+            public double Confidence { get; set; }
+
+            public Prediction[] AllPredictions { get; set; }
+        }
+
+        public class Prediction
+        {
+            public string Family { get; set; }
+            public string Type { get; set; }
+            public double Confidence { get; set; }
+        }
+    }
 }
