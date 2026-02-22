@@ -300,7 +300,7 @@ namespace Cryptomind.Tests.Unit.Services
 
 			var result = await _service.SolveCipherAsync("u1", "WRONG", 1);
 
-			Assert.False(result);
+			Assert.Equal("Wrong!" ,result);
 		}
 
 		[Fact]
@@ -337,7 +337,7 @@ namespace Cryptomind.Tests.Unit.Services
 
 			var result = await _service.SolveCipherAsync("u1", "HELLO", 1);
 
-			Assert.True(result);
+			Assert.Equal("Correct!", result);
 		}
 
 		[Fact]
@@ -348,7 +348,7 @@ namespace Cryptomind.Tests.Unit.Services
 
 			var result = await _service.SolveCipherAsync("u1", "hello", 1);
 
-			Assert.True(result);
+			Assert.Equal("Correct!", result);
 		}
 
 		[Fact]
@@ -359,7 +359,7 @@ namespace Cryptomind.Tests.Unit.Services
 
 			var result = await _service.SolveCipherAsync("u1", "  HELLO  ", 1);
 
-			Assert.True(result);
+			Assert.Equal("Correct!", result);
 		}
 
 		[Fact]
