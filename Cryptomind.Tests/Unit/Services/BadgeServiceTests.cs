@@ -35,7 +35,7 @@ namespace Cryptomind.Tests.Unit.Services
 				.Returns(Task.CompletedTask);
 			_notificationMock.Setup(n => n.CreateAndSendNotification(
 				It.IsAny<string>(), It.IsAny<NotificationType>(),
-				It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string>()))
+				It.IsAny<string>(), It.IsAny<string>()))
 				.Returns(Task.CompletedTask);
 		}
 
@@ -168,7 +168,6 @@ namespace Cryptomind.Tests.Unit.Services
 				"u1",
 				NotificationType.BadgeEarned,
 				It.IsAny<string>(),
-				1,
 				It.IsAny<string>()), Times.Once);
 		}
 

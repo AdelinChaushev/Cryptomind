@@ -20,7 +20,6 @@ namespace Cryptomind.Data.Entities
 		public NotificationType Type { get; set; }
 		[MaxLength(500)]
 		public string Message { get; set; }
-		public int? RelatedEntityId { get; set; } //Can be nullable for rejected ciphers
 		[MaxLength(200)]
 		public string Link { get; set; } // URL to navigate to
 		public bool IsRead { get; set; } = false;
