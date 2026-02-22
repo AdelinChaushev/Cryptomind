@@ -1,10 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Cryptomind.Data
 {
@@ -14,8 +9,8 @@ namespace Cryptomind.Data
 		{
 			var optionsBuilder = new DbContextOptionsBuilder<CryptomindDbContext>();
 
-			// Use your actual connection string here
-			optionsBuilder.UseSqlServer("Server=.;Database=CryptomindDb;Trusted_Connection=True;TrustServerCertificate=True;");
+			//DON'T FORGET TO USE CONNECTION STRING HERE TOO.
+			optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=CryptomindDb;Trusted_Connection=True;TrustServerCertificate=True;");
 
 			return new CryptomindDbContext(optionsBuilder.Options);
 		}
