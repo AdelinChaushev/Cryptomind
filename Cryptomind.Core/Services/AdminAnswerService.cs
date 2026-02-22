@@ -37,12 +37,12 @@ namespace Cryptomind.Core.Services
 
 			if (cipherName != null)
 			{
-                answerSuggestions = answerSuggestions.Where(x => x.Cipher.Title.Contains(cipherName)).ToList();
+                answerSuggestions = answerSuggestions.Where(x => x.Cipher.Title.ToLower().Contains(cipherName.ToLower())).ToList();
 
             }
             if (username != null)
             {
-                answerSuggestions = answerSuggestions.Where(x => x.ApplicationUser.UserName.Contains(username)).ToList();
+                answerSuggestions = answerSuggestions.Where(x => x.ApplicationUser.UserName.ToLower().Contains(username.ToLower())).ToList();
             }
 			if (answerSuggestions.Count == 0)
 			{
@@ -226,6 +226,7 @@ namespace Cryptomind.Core.Services
 		public async Task RejectAnswerAsync(int id, string reason)
 		{
 			AnswerSuggestion? answer = await answerRepo.GetByIdAsync(id);
+
 			await RejectAnswer(reason, answer);
 		}
 		#region Private methods
@@ -234,13 +235,13 @@ namespace Cryptomind.Core.Services
 			if (answer == null)
 				throw new NotFoundException("Answer not found");
 
-			else if (answer.Status == ApprovalStatus.Approved) throw new ConflictException("Answer already approved");
+			else if (answer.Status != ApprovalStatus.Pending) throw new ConflictException("Answer is already resolved");
 
 			answer.Status = ApprovalStatus.Rejected;
 			answer.RejectionDate = DateTime.UtcNow;
 			answer.RejectionReason = reason;
 
-			if (userManager.FindByIdAsync(answer.UserId) == null)
+			if (await userManager.FindByIdAsync(answer.UserId) == null)
 					throw new Exception($"Data integrity error: user {answer.UserId} not found for answer {answer.Id}.");
 
 			await answerRepo.UpdateAsync(answer);
