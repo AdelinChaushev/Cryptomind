@@ -99,7 +99,7 @@ namespace Cryptomind.Core.Services
 				return new List<CipherReviewOutputViewModel>();
 
 			if (!string.IsNullOrEmpty(filter.SearchTerm))
-				result = result.Where(c => c.Title.Contains(filter.SearchTerm)).ToList();
+				result = result.Where(c => c.Title.ToLower().Contains(filter.SearchTerm.ToLower())).ToList();
 
 			if (filter.Tags != null && filter.Tags[0] != TagType.None)
 				result = result.Where(c => c.CipherTags.Any(t =>  filter.Tags.Contains(t.Tag.Type))).ToList();
@@ -145,7 +145,7 @@ namespace Cryptomind.Core.Services
 				return new List<CipherReviewOutputViewModel>();
 
 			if (!string.IsNullOrEmpty(filter.SearchTerm))
-				result = result.Where(c => c.Title.Contains(filter.SearchTerm)).ToList();
+				result = result.Where(c => c.Title.ToLower().Contains(filter.SearchTerm.ToLower())).ToList();
 
 			if (filter.Tags != null && !(filter.Tags.Count == 1 && filter.Tags[0] == TagType.None))
 				result = result.Where(c => c.CipherTags.Any(t => filter.Tags.Contains(t.Tag.Type))).ToList();
@@ -329,8 +329,8 @@ namespace Cryptomind.Core.Services
 			await cipherRepo.UpdateAsync(cipher);
 			await notificationService.CreateAndSendNotification(
 				userId, 
-				NotificationType.CipherRejected, 
-				reason,
+				NotificationType.CipherRejected,
+				$"Your cipher {cipher.Title} was rejected. Reason: " + reason,
 				"api/submissions");
 		}
 		public async Task UpdateApprovedCipher(int id, UpdateCipherViewModel model)
@@ -457,8 +457,8 @@ namespace Cryptomind.Core.Services
 				.ToList();
 
 			//ADD THIS IN PRODUCTION!!! - Check it first.
-			if (assignedExistingTags.Count != tagIds.Count)
-				throw new ConflictException("One or more tag IDs is not valid");
+			//if (assignedExistingTags.Count != tagIds.Count)
+			//	throw new ConflictException("One or more tag IDs is not valid");
 
 			//This is the creation of the cipher
 			if (cipher.CipherTags.Count > 0)
@@ -501,7 +501,7 @@ namespace Cryptomind.Core.Services
 					IsImage = cipher is ImageCipher,
 					SubmittedBy = cipher.CreatedByUser.UserName,
 					SubmittedAt = (int)cipher.Status == 1 ? cipher.ApprovedAt : (int)cipher.Status == 0 ? cipher.CreatedAt : cipher.RejectedAt,
-					MlPrediction = mlData.Family,
+					MlPrediction = mlData.Type,
                     PercentageOfConfidence = (int)Math.Floor(mlData.Confidence * 100),
 					IsLLMRecommended = cipher.IsLLMRecommended,                   
                 });

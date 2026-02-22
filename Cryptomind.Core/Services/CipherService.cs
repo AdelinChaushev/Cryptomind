@@ -15,7 +15,6 @@ namespace Cryptomind.Core.Services
 	public class CipherService(
 		IRepository<Cipher, int> cipherRepo,
 		IRepository<UserSolution, int> solutionRepo,
-		IRepository<AnswerSuggestion, int> answerRepo,
 		UserManager<ApplicationUser> userManager) : ICipherService
 	{
 		private const double TypeHintPenalty = 0.20;
@@ -29,7 +28,7 @@ namespace Cryptomind.Core.Services
 				.Where(c => c.Status == ApprovalStatus.Approved && !c.IsDeleted);
 
 			if (!string.IsNullOrEmpty(filter.SearchTerm))
-				query = query.Where(c => c.Title.Contains(filter.SearchTerm));
+				query = query.Where(c => c.Title.ToLower().Contains(filter.SearchTerm.ToLower()));
 
 			if (filter.Tags != null && filter.Tags.Any())
 				query = query.Where(c => c.CipherTags.Any(t => filter.Tags.Contains(t.Tag.Type)));

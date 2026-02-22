@@ -69,7 +69,7 @@ namespace Cryptomind.Core.Services
 				await notificationRepo.UpdateAsync(notification);
 			}		
 		}
-		private TimeSpan GetTimeSpan(DateTime createdAt)
+		private static TimeSpan GetTimeSpan(DateTime createdAt)
 		{
 			return DateTime.UtcNow - createdAt;
 		}
