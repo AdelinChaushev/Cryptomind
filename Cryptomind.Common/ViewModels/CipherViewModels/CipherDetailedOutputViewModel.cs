@@ -1,12 +1,6 @@
-﻿using Cryptomind.Common.ViewModels.AdminViewModels;
-using Cryptomind.Common.ViewModels.UserViewModels;
+﻿using Cryptomind.Common.ViewModels.UserViewModels;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Cryptomind.Common.ViewModels.CipherViewModels
 {

@@ -1,11 +1,4 @@
 ﻿using Cryptomind.Data.Entities;
-using Cryptomind.Data.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Cryptomind.Common.ViewModels.CipherSubmissionViewModels
 {
 	public class CipherSubmissionViewModel
@@ -18,10 +11,11 @@ namespace Cryptomind.Common.ViewModels.CipherSubmissionViewModels
 		//Deleted state
 		public DateTime? DeletedTime { get; set; }
 		//Approved state
+		public int? Id { get; set; }
 		public DateTime? ApprovedTime { get; set; }
 		public string? ApprovedAs { get; set; }
 		public List<Tag>? AssignedTags { get; set; }
-		public int SolvedByCount { get; set; }
+		public int? SolvedByCount { get; set; }
 		//Rejected state
 		public DateTime? RejectionTime { get; set; }
 		public string? RejectionReason { get; set; }

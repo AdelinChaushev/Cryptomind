@@ -91,14 +91,11 @@ namespace Cryptomind.Core.Services
 					.ThenInclude(x => x.Tag)
 				.FirstOrDefaultAsync(x => x.Id == id);
 
-			if (cipher == null)
+			if (cipher == null || cipher.Status != ApprovalStatus.Approved)
 				throw new InvalidOperationException("Cipher not found");
 
 			if (cipher.IsDeleted)
 				throw new InvalidOperationException("This cipher has been removed");
-
-			if (cipher.Status != ApprovalStatus.Approved)
-				throw new InvalidOperationException("Cipher not found");
 
 			return await ToDetailedOutputViewModel(cipher, userId);
 		}
