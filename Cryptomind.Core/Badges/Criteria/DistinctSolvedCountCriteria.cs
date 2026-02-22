@@ -1,5 +1,6 @@
 ﻿using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Enums;
+
 namespace Cryptomind.Core.Badges.Criteria
 {
 	public class DistinctSolvedCountCriteria : IBadgeCriteria

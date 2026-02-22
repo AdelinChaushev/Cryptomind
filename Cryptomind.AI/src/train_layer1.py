@@ -2,19 +2,16 @@ import numpy as np
 import os
 import json
 import tensorflow as tf
-from tensorflow import keras
+keras = tf.keras
 from sklearn.model_selection import train_test_split
 from config.config import Config
 
-class Layer1Trainer:
-    """Train family classifier (Layer 1)"""
-    
+class Layer1Trainer: 
     def __init__(self):
         self.model = None
         self.label_map = None
     
     def build_model(self, num_classes):
-        """Build neural network for family classification"""
         model = keras.Sequential([
             keras.layers.Input(shape=(Config.NUM_FEATURES,)),
             keras.layers.Dense(256, activation='relu'),
@@ -40,10 +37,7 @@ class Layer1Trainer:
         
         return model
     
-    def train(self):
-        """Train Layer 1 model"""
-        print("\n=== Training Layer 1: Family Classifier ===")
-        
+    def train(self):   
         # Load data
         print("Loading training data...")
         X = np.load(os.path.join(Config.LAYER1_TRAINING_DIR, 'X.npy'))
@@ -102,7 +96,7 @@ class Layer1Trainer:
         )
         
         # Evaluate
-        print("\n=== Evaluation ===")
+        print("\nEvaluation")
         train_loss, train_acc = self.model.evaluate(X_train, y_train, verbose=0)
         val_loss, val_acc = self.model.evaluate(X_val, y_val, verbose=0)
         test_loss, test_acc = self.model.evaluate(X_test, y_test, verbose=0)
@@ -114,12 +108,11 @@ class Layer1Trainer:
         # Save model
         os.makedirs(os.path.dirname(Config.LAYER1_MODEL_PATH), exist_ok=True)
         self.model.save(Config.LAYER1_MODEL_PATH)
-        print(f"\n✓ Model saved to: {Config.LAYER1_MODEL_PATH}")
+        print(f"\nModel saved to: {Config.LAYER1_MODEL_PATH}")
         
         return history
 
 def train_layer1():
-    """Main training function for Layer 1"""
     trainer = Layer1Trainer()
     trainer.train()
 

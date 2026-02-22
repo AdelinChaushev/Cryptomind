@@ -4,10 +4,11 @@
 	{
 		public DashboardViewModel()
 		{
-			PendingCipherTitles = new List<PendingCipher>();
+			PendingCipherTitles = new List<PendingCipherTitleViewModels>();
 		}
 		public int PendingCiphersCount { get; set; }
 		public int ApprovedCiphersCount { get; set; }
+		public int DeletedCiphersCount { get; set; }
 		public int PendingAnswersCount { get; set; }
 		public int ApprovedAnswersCount { get; set; }
 		public int DeletedCiphersCount { get; set; }

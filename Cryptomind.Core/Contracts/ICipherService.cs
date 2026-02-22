@@ -1,13 +1,5 @@
 ﻿using Cryptomind.Common.DTOs;
 using Cryptomind.Common.ViewModels.CipherViewModels;
-using Cryptomind.Data.Entities;
-using Cryptomind.Data.Enums;
-using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Cryptomind.Core.Contracts
 {

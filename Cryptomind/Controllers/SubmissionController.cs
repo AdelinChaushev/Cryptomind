@@ -6,13 +6,13 @@ using System.Security.Claims;
 namespace Cryptomind.Controllers
 {
 	[Route("api/submissions")]
+	[Authorize(AuthenticationSchemes = "Bearer")]
 	[ApiController]
 	public class SubmissionController(
 		ICipherSubmissionService cipherSubmissionService,
 		IAnswerSubmissionService answerSubmissionService) : ControllerBase
 	{
 		[HttpGet("")]
-		[Authorize(AuthenticationSchemes = "Bearer")]
 		public async Task<IActionResult> GetAllSubmissions()
 		{
 			string userId = GetUserId();
@@ -26,6 +26,7 @@ namespace Cryptomind.Controllers
 		#region Private methods
 		private string GetUserId()
 		   => User.FindFirstValue(ClaimTypes.NameIdentifier);
+
 		#endregion
 	}
 }

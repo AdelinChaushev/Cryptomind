@@ -1,4 +1,5 @@
-﻿using Cryptomind.Core.Contracts;
+﻿using Cryptomind.Common.Exceptions;
+using Cryptomind.Core.Contracts;
 using Cryptomind.Core.Hubs;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
@@ -33,13 +34,21 @@ namespace Cryptomind.Core.Services
 				notification.CreatedAt
 			});
 		}
-		public async Task<List<Notification>> GetUserNotifications(string userId)
+		public async Task<List<NotificationDTO>> GetUserNotifications(string userId)
 		{
 			return await notificationRepo.GetAllAttached()
 				.Where(x => x.UserId == userId)
 				.OrderByDescending(x => x.CreatedAt)
 				.Take(NotificationCount)
-				.ToListAsync();
+				.Select(n => new NotificationDTO
+				{
+					Id = n.Id,
+					Type = n.Type,
+					Message = n.Message,
+					Link = n.Link,
+					IsRead = n.IsRead,
+					CreatedSince = GetTimeSpan(n.CreatedAt)
+				}).ToListAsync();
 		}
 		public async Task<int> GetUnreadCount(string userId)
 		{
@@ -51,14 +60,18 @@ namespace Cryptomind.Core.Services
 			foreach (var notificationId in notificationIds)
 			{
 				var notification = await notificationRepo.GetAllAttached()
-				.FirstOrDefaultAsync(x => x.Id == notificationId && x.UserId == userId);
+					.FirstOrDefaultAsync(x => x.Id == notificationId && x.UserId == userId);
 
 				if (notification == null)
-					throw new InvalidOperationException("Notification not found");
+					throw new NotFoundException("Notification not found");
 
 				notification.IsRead = true;
 				await notificationRepo.UpdateAsync(notification);
 			}		
+		}
+		private TimeSpan GetTimeSpan(DateTime createdAt)
+		{
+			return DateTime.UtcNow - createdAt;
 		}
 	}
 }

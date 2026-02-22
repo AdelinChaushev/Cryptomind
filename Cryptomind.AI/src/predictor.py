@@ -1,14 +1,12 @@
 import numpy as np
 import tensorflow as tf
-from tensorflow import keras
+keras = tf.keras
 import os
 import json
 from config.config import Config
 from src.feature_extraction import FeatureExtractor
 
-class CipherPredictor:
-    """Two-layer cipher type prediction"""
-    
+class CipherPredictor:  
     def __init__(self):
         self.feature_extractor = FeatureExtractor()
         self.layer1_model = None
@@ -18,10 +16,7 @@ class CipherPredictor:
         
         self.load_models()
     
-    def load_models(self):
-        """Load all trained models"""
-        print("Loading models...")
-        
+    def load_models(self):     
         # Load Layer 1 model
         if os.path.exists(Config.LAYER1_MODEL_PATH):
             self.layer1_model = keras.models.load_model(Config.LAYER1_MODEL_PATH)
@@ -31,9 +26,9 @@ class CipherPredictor:
                 label_map = json.load(f)
                 self.layer1_labels = {int(k): v for k, v in label_map.items()}
             
-            print(f"✓ Layer 1 model loaded")
+            print(f"Layer 1 model loaded")
         else:
-            print("⚠ Layer 1 model not found!")
+            print("Layer 1 model not found!")
         
         # Load Layer 2 models
         for family in Config.FAMILIES.keys():
@@ -52,12 +47,11 @@ class CipherPredictor:
                     label_map = json.load(f)
                     self.layer2_labels[family] = {int(k): v for k, v in label_map.items()}
                 
-                print(f"✓ {family} model loaded")
+                print(f"{family} model loaded")
         
         print("All models loaded!\n")
 
     def detect_encoding(self, text):
-        """Rule-based detection for encoding types"""
 
         # Remove whitespace for analysis
         text_no_space = text.replace(' ', '').replace('\n', '')
@@ -83,7 +77,6 @@ class CipherPredictor:
         return None
     
     def predict(self, ciphertext, return_top_k=True):
-        """Predict cipher type with two-layer approach"""
             # Check for encoding types first (rule-based)
         encoding_type = self.detect_encoding(ciphertext)
         if encoding_type:

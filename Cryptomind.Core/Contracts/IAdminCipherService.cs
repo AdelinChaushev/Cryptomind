@@ -1,20 +1,12 @@
 ﻿using Cryptomind.Common.DTOs;
 using Cryptomind.Common.ViewModels.AdminViewModels;
-using Cryptomind.Core.Services;
-using Cryptomind.Data.Entities;
-using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static Cryptomind.Core.Services.LLMService;
 
 namespace Cryptomind.Core.Contracts
 {
     public interface IAdminCipherService
     {
-		Task<List<PendingCipher>> GetRecentCipherSubmissionTitles();
+		Task<List<PendingCipherTitleViewModels>> GetRecentCipherSubmissionTitles();
 		Task<int> GetPendingCiphersCount();
 		Task<int> GetApprovedCiphersCount();
 		Task<int> GetDeletedCiphersCount();
@@ -27,6 +19,6 @@ namespace Cryptomind.Core.Contracts
 		Task UpdateApprovedCipher(int id, UpdateCipherViewModel model);
 		Task<CipherValidationResult> AnalyzeWithLLM(int id);
         Task SoftDeleteCipher(int id);
-		Task Restore(int id, string? newTitle = null);
+		Task RestoreCipher(int id, string? newTitle = null);
 	}
 }
