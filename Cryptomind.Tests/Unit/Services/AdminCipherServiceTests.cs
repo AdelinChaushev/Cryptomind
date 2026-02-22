@@ -47,7 +47,7 @@ namespace Cryptomind.Tests.Unit.Services
 			_cipherRepoMock.Setup(r => r.UpdateAsync(It.IsAny<Cipher>())).ReturnsAsync(true);
 			_notificationMock.Setup(n => n.CreateAndSendNotification(
 				It.IsAny<string>(), It.IsAny<NotificationType>(),
-				It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string>()))
+				It.IsAny<string>(), It.IsAny<string>()))
 				.Returns(Task.CompletedTask);
 		}
 
@@ -668,7 +668,6 @@ namespace Cryptomind.Tests.Unit.Services
 				"creator1",
 				NotificationType.CipherApproved,
 				It.IsAny<string>(),
-				cipher.Id,
 				It.IsAny<string>()), Times.Once);
 		}
 
@@ -752,7 +751,6 @@ namespace Cryptomind.Tests.Unit.Services
 				"creator1",
 				NotificationType.CipherRejected,
 				"not appropriate",
-				null,
 				It.IsAny<string>()), Times.Once);
 		}
 
@@ -884,7 +882,6 @@ namespace Cryptomind.Tests.Unit.Services
 				"creator1",
 				NotificationType.CipherDeleted,
 				It.IsAny<string>(),
-				cipher.Id,
 				It.IsAny<string>()), Times.Once);
 		}
 
@@ -903,10 +900,10 @@ namespace Cryptomind.Tests.Unit.Services
 
 			_notificationMock.Verify(n => n.CreateAndSendNotification(
 				"user1", NotificationType.AnswerCipherDeleted,
-				It.IsAny<string>(), 10, It.IsAny<string>()), Times.Once);
+				It.IsAny<string>(), It.IsAny<string>()), Times.Once);
 			_notificationMock.Verify(n => n.CreateAndSendNotification(
 				"user2", NotificationType.AnswerCipherDeleted,
-				It.IsAny<string>(), 11, It.IsAny<string>()), Times.Once);
+				It.IsAny<string>(), It.IsAny<string>()), Times.Once);
 		}
 
 		// -----------------------------------------------------------------------
@@ -1008,7 +1005,6 @@ namespace Cryptomind.Tests.Unit.Services
 				"creator1",
 				NotificationType.CipherRestored,
 				It.IsAny<string>(),
-				cipher.Id,
 				It.IsAny<string>()), Times.Once);
 		}
 
@@ -1028,10 +1024,10 @@ namespace Cryptomind.Tests.Unit.Services
 
 			_notificationMock.Verify(n => n.CreateAndSendNotification(
 				"user1", NotificationType.AnswerCipherRestored,
-				It.IsAny<string>(), 10, It.IsAny<string>()), Times.Once);
+				It.IsAny<string>(), It.IsAny<string>()), Times.Once);
 			_notificationMock.Verify(n => n.CreateAndSendNotification(
 				"user2", NotificationType.AnswerCipherRestored,
-				It.IsAny<string>(), 11, It.IsAny<string>()), Times.Once);
+				It.IsAny<string>(), It.IsAny<string>()), Times.Once);
 		}
 	}
 }
