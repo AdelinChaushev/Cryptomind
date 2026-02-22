@@ -6,10 +6,11 @@ using System.Security.Claims;
 namespace Cryptomind.Controllers
 {
 	[Route("api/user")]
+	[Authorize(AuthenticationSchemes = "Bearer")]
 	[ApiController]
 	public class UserController(IUserService userService) : ControllerBase
     {
-		[Authorize(AuthenticationSchemes = "Bearer")]
+		
         [HttpGet("get-roles")]
         public async Task<IActionResult> GetUserRoles()
         {
@@ -24,7 +25,6 @@ namespace Cryptomind.Controllers
             }
         }
 
-        [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpGet("get-account-info")]
         public async Task<IActionResult> GetAccountInfo()
         {

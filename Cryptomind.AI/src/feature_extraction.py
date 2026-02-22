@@ -22,15 +22,6 @@ class FeatureExtractor:
         'V': 0.010, 'K': 0.008, 'J': 0.001, 'X': 0.001, 'Q': 0.001, 'Z': 0.001
     }
     def _discriminative_features(self, text, letters_only):
-        """
-        4 discriminative features to distinguish statistically similar ciphers
-
-        These help with:
-        - Caesar vs SimpleSubstitution
-        - Substitution vs Polyalphabetic (Vigenere/Autokey)
-        - Trithemius vs Vigenere
-        - Columnar vs RailFence
-        """
         if len(letters_only) == 0:
             return [0.0, 0.0, 0.0, 0.0]
 
@@ -38,19 +29,12 @@ class FeatureExtractor:
         freqs = [count / len(letters_only) for count in counter.values()]
 
         # Feature 1: Frequency variance
-        # HIGH for substitution (preserves English spiky distribution)
-        # LOW for polyalphabetic (flattens distribution)
         freq_variance = np.var(freqs) if len(freqs) > 1 else 0.0
 
         # Feature 2: Max frequency ratio
-        # HIGH for substitution (~0.13 for 'E')
-        # LOW for polyalphabetic (~0.04 uniform)
         max_freq = max(freqs) if freqs else 0.0
 
         # Feature 3: Distance from uniform distribution
-        # Measures how "flat" the distribution is
-        # LOW for substitution (far from uniform)
-        # HIGH for polyalphabetic (close to uniform)
         uniform_freq = 1.0 / 26.0
         chi_sq_uniform = sum(
             ((counter.get(letter, 0) / len(letters_only) - uniform_freq) ** 2) / uniform_freq
@@ -60,10 +44,6 @@ class FeatureExtractor:
         flatness_score = 1.0 - min(chi_sq_uniform / 10.0, 1.0)
 
         # Feature 4: Digraph repetition pattern
-        # Helps distinguish transposition from other types
-        # HIGH for transposition (preserves digraphs)
-        # MEDIUM for substitution (changes but maintains patterns)
-        # LOW for polyalphabetic (destroys patterns)
         if len(letters_only) >= 2:
             digraphs = [letters_only[i:i+2] for i in range(len(letters_only) - 1)]
             digraph_counter = Counter(digraphs)
@@ -75,7 +55,6 @@ class FeatureExtractor:
         return [freq_variance, max_freq, flatness_score, repetition_score]
     
     def extract(self, text):
-        """Extract all 89 features from text"""
         text = text.upper()
         letters_only = re.sub(r'[^A-Z]', '', text)
         
@@ -123,7 +102,6 @@ class FeatureExtractor:
         return np.array(features, dtype=np.float32)
     
     def _letter_frequencies(self, text):
-        """Calculate frequency of each letter A-Z"""
         if len(text) == 0:
             return [0.0] * 26
         
@@ -132,7 +110,6 @@ class FeatureExtractor:
         return [counter.get(letter, 0) / total for letter in self.alphabet]
     
     def _bigram_frequencies(self, text):
-        """Calculate frequency of top 20 English bigrams"""
         if len(text) < 2:
             return [0.0] * 20
         
@@ -143,7 +120,6 @@ class FeatureExtractor:
         return [counter.get(bg, 0) / total for bg in self.top_bigrams]
     
     def _index_of_coincidence(self, text):
-        """Calculate Index of Coincidence"""
         if len(text) < 2:
             return 0.0
         
@@ -156,7 +132,6 @@ class FeatureExtractor:
         return ic
     
     def _chi_squared(self, text):
-        """Chi-squared test against English frequency"""
         if len(text) == 0:
             return 0.0
         
@@ -174,7 +149,6 @@ class FeatureExtractor:
         return min(chi_sq / 10.0, 1.0)
     
     def _text_entropy(self, text):
-        """Calculate Shannon entropy"""
         if len(text) == 0:
             return 0.0
         
@@ -184,7 +158,6 @@ class FeatureExtractor:
         return entropy(probs, base=2) / 4.7  # Normalize (max ~4.7 for uniform)
     
     def _frequency_stats(self, text):
-        """Statistical measures of frequency distribution"""
         if len(text) == 0:
             return [0.0] * 5
         
@@ -206,7 +179,6 @@ class FeatureExtractor:
         ]
     
     def _positional_entropy(self, text):
-        """Calculate entropy for 10 text segments"""
         if len(text) < 10:
             return [0.0] * 10
         
@@ -229,7 +201,6 @@ class FeatureExtractor:
         return entropies
     
     def _bigram_disruption(self, text):
-        """Measure how much common bigrams are disrupted"""
         if len(text) < 2:
             return [0.0] * 10
         
@@ -245,7 +216,6 @@ class FeatureExtractor:
         return scores
     
     def _polyalphabetic_features(self, text):
-        """Features specific to polyalphabetic ciphers"""
         if len(text) < 10:
             return [0.0] * 8
         
@@ -286,7 +256,6 @@ class FeatureExtractor:
         return features
     
     def _autocorrelation(self, text, offset):
-        """Calculate autocorrelation at given offset"""
         if len(text) <= offset:
             return 0.0
         
@@ -294,7 +263,6 @@ class FeatureExtractor:
         return matches / (len(text) - offset)
     
     def _pattern_features(self, original_text, letters_only):
-        """Pattern-based features from original text"""
         features = []
         
         # Special characters ratio
@@ -342,7 +310,6 @@ class FeatureExtractor:
         return features
     
     def _normalized_length(self, text):
-        """Normalize text length to 0-1 range"""
         # Normalize with sigmoid-like function
         # 100 chars = ~0.5, 500 chars = ~0.9
         length = len(text)
