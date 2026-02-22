@@ -190,29 +190,30 @@ namespace Cryptomind.Tests.Unit.Services
 
 	public class BadgeStatisticsServiceTests
 	{
-		private readonly Mock<IRepository<Cipher, int>> _cipherRepoMock = new();
-		private readonly Mock<IRepository<ApplicationUser, string>> _userRepoMock = new();
-		private readonly Mock<IRepository<UserSolution, int>> _solutionRepoMock = new();
-		private readonly BadgeStatisticsService _service;
+		private readonly Mock<IRepository<Cipher, int>> cipherRepoMock = new();
+		private readonly Mock<IRepository<ApplicationUser, string>> userRepoMock = new();
+		private readonly Mock<IRepository<UserSolution, int>> solutionRepoMock = new();
+		private readonly Mock<IRepository<HintRequest, int>> hintRepoMock = new();
+		private readonly BadgeStatisticsService service;
 
 		public BadgeStatisticsServiceTests()
 		{
-			_service = new BadgeStatisticsService(
-				_cipherRepoMock.Object,
-				_userRepoMock.Object,
-				_solutionRepoMock.Object);
+			service = new BadgeStatisticsService(
+				userRepoMock.Object,
+				solutionRepoMock.Object,
+				hintRepoMock.Object);
 		}
 
 		private void SetupAttachedUsers(params ApplicationUser[] users)
 		{
 			var mock = new List<ApplicationUser>(users).AsQueryable().BuildMock();
-			_userRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
+			userRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
 		}
 
 		private void SetupAttachedSolutions(params UserSolution[] solutions)
 		{
 			var mock = new List<UserSolution>(solutions).AsQueryable().BuildMock();
-			_solutionRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
+			solutionRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
 		}
 
 		#region GetApprovedCount
@@ -232,7 +233,7 @@ namespace Cryptomind.Tests.Unit.Services
 			};
 			SetupAttachedUsers(user);
 
-			var result = await _service.GetApprovedCount("u1");
+			var result = await service.GetApprovedCount("u1");
 
 			Assert.Equal(2, result);
 		}
@@ -243,7 +244,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var user = new ApplicationUser { Id = "u1", UploadedCiphers = new List<Cipher>() };
 			SetupAttachedUsers(user);
 
-			var result = await _service.GetApprovedCount("u1");
+			var result = await service.GetApprovedCount("u1");
 
 			Assert.Equal(0, result);
 		}
@@ -263,7 +264,7 @@ namespace Cryptomind.Tests.Unit.Services
 			};
 			SetupAttachedSolutions(solutions);
 
-			var result = await _service.GetDistinctCipherTypesSolved("u1");
+			var result = await service.GetDistinctCipherTypesSolved("u1");
 
 			Assert.Equal(2, result);
 		}
@@ -273,7 +274,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedSolutions();
 
-			var result = await _service.GetDistinctCipherTypesSolved("u1");
+			var result = await service.GetDistinctCipherTypesSolved("u1");
 
 			Assert.Equal(0, result);
 		}
@@ -288,7 +289,7 @@ namespace Cryptomind.Tests.Unit.Services
 			};
 			SetupAttachedSolutions(solutions);
 
-			var result = await _service.GetDistinctCipherTypesSolved("u1");
+			var result = await service.GetDistinctCipherTypesSolved("u1");
 
 			Assert.Equal(1, result);
 		}
@@ -313,7 +314,7 @@ namespace Cryptomind.Tests.Unit.Services
 			};
 			SetupAttachedUsers(user);
 
-			var result = await _service.GetApprovedAnswersCount("u1");
+			var result = await service.GetApprovedAnswersCount("u1");
 
 			Assert.Equal(2, result);
 		}
@@ -324,7 +325,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var user = new ApplicationUser { Id = "u1", SuggestedAnswers = new List<AnswerSuggestion>() };
 			SetupAttachedUsers(user);
 
-			var result = await _service.GetApprovedAnswersCount("u1");
+			var result = await service.GetApprovedAnswersCount("u1");
 
 			Assert.Equal(0, result);
 		}
@@ -336,18 +337,18 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task GetSolvedCount_Throws_WhenUserNotFound()
 		{
-			_userRepoMock.Setup(r => r.GetByIdAsync("ghost")).ReturnsAsync((ApplicationUser?)null);
+			userRepoMock.Setup(r => r.GetByIdAsync("ghost")).ReturnsAsync((ApplicationUser?)null);
 
-			await Assert.ThrowsAsync<InvalidOperationException>(() => _service.GetSolvedCount("ghost"));
+			await Assert.ThrowsAsync<InvalidOperationException>(() => service.GetSolvedCount("ghost"));
 		}
 
 		[Fact]
 		public async Task GetSolvedCount_ReturnsUserSolvedCount()
 		{
 			var user = new ApplicationUser { Id = "u1", SolvedCount = 7 };
-			_userRepoMock.Setup(r => r.GetByIdAsync("u1")).ReturnsAsync(user);
+			userRepoMock.Setup(r => r.GetByIdAsync("u1")).ReturnsAsync(user);
 
-			var result = await _service.GetSolvedCount("u1");
+			var result = await service.GetSolvedCount("u1");
 
 			Assert.Equal(7, result);
 		}

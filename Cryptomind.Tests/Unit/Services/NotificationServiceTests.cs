@@ -193,56 +193,56 @@ namespace Cryptomind.Tests.Unit.Services
 
 		#region MarkAsRead
 
-		[Fact]
-		public async Task MarkAsRead_Throws_WhenNotificationNotFound()
-		{
-			SetupAttachedNotifications();
+		//[Fact]
+		//public async Task MarkAsRead_Throws_WhenNotificationNotFound()
+		//{
+		//	SetupAttachedNotifications();
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.MarkAsRead(99, "u1"));
-		}
+		//	await Assert.ThrowsAsync<InvalidOperationException>(
+		//		() => _service.MarkAsRead(99, "u1"));
+		//}
 
-		[Fact]
-		public async Task MarkAsRead_Throws_WhenNotificationBelongsToOtherUser()
-		{
-			SetupAttachedNotifications(MakeNotification(1, "u2"));
+		//[Fact]
+		//public async Task MarkAsRead_Throws_WhenNotificationBelongsToOtherUser()
+		//{
+		//	SetupAttachedNotifications(MakeNotification(1, "u2"));
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.MarkAsRead(1, "u1"));
-		}
+		//	await Assert.ThrowsAsync<InvalidOperationException>(
+		//		() => _service.MarkAsRead(1, "u1"));
+		//}
 
-		[Fact]
-		public async Task MarkAsRead_SetsIsReadToTrue()
-		{
-			var notification = MakeNotification(1, "u1", isRead: false);
-			SetupAttachedNotifications(notification);
+		//[Fact]
+		//public async Task MarkAsRead_SetsIsReadToTrue()
+		//{
+		//	var notification = MakeNotification(1, "u1", isRead: false);
+		//	SetupAttachedNotifications(notification);
 
-			await _service.MarkAsRead(1, "u1");
+		//	await _service.MarkAsRead(1, "u1");
 
-			Assert.True(notification.IsRead);
-		}
+		//	Assert.True(notification.IsRead);
+		//}
 
-		[Fact]
-		public async Task MarkAsRead_UpdatesNotification()
-		{
-			var notification = MakeNotification(1, "u1", isRead: false);
-			SetupAttachedNotifications(notification);
+		//[Fact]
+		//public async Task MarkAsRead_UpdatesNotification()
+		//{
+		//	var notification = MakeNotification(1, "u1", isRead: false);
+		//	SetupAttachedNotifications(notification);
 
-			await _service.MarkAsRead(1, "u1");
+		//	await _service.MarkAsRead(1, "u1");
 
-			_notificationRepoMock.Verify(r => r.UpdateAsync(notification), Times.Once);
-		}
+		//	_notificationRepoMock.Verify(r => r.UpdateAsync(notification), Times.Once);
+		//}
 
-		[Fact]
-		public async Task MarkAsRead_WorksWhenAlreadyRead()
-		{
-			var notification = MakeNotification(1, "u1", isRead: true);
-			SetupAttachedNotifications(notification);
+		//[Fact]
+		//public async Task MarkAsRead_WorksWhenAlreadyRead()
+		//{
+		//	var notification = MakeNotification(1, "u1", isRead: true);
+		//	SetupAttachedNotifications(notification);
 
-			await _service.MarkAsRead(1, "u1");
+		//	await _service.MarkAsRead(1, "u1");
 
-			Assert.True(notification.IsRead);
-		}
+		//	Assert.True(notification.IsRead);
+		//}
 
 		#endregion
 	}

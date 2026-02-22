@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace Cryptomind.Core.Badges.Criteria
 {
-	public class DistinctSolvedCountCriteria : IBadgeCriteria
+	public class NoHintsSolvedCriteria : IBadgeCriteria
 	{
 		private readonly IBadgeStatisticsService statsService;
 		private readonly int requiredCount;
 		public BadgeCategory Category => BadgeCategory.OnSolve;
-		public DistinctSolvedCountCriteria(IBadgeStatisticsService statsService, int requiredCount)
+		public NoHintsSolvedCriteria(IBadgeStatisticsService statsService, int requiredCount)
 		{
 			this.statsService = statsService;
 			this.requiredCount = requiredCount;
@@ -21,8 +21,8 @@ namespace Cryptomind.Core.Badges.Criteria
 
 		public async Task<bool> IsSatisfied(string userId)
 		{
-			var distinctSolvedCount = await statsService.GetDistinctCipherTypesSolved(userId);
-			return distinctSolvedCount >= requiredCount;
+			var solvedCount = await statsService.GetSolvedWithoutHintCount(userId);
+			return solvedCount >= requiredCount;
 		}
 	}
 }
