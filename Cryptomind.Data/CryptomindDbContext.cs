@@ -130,14 +130,14 @@ namespace Cryptomind.Data
 					Id = 10,
 					Title = "Helpful Mind",
 					Description = "First approved suggested answer",
-					Category = BadgeCategory.OnSolve
+					Category = BadgeCategory.OnSuggesting
 				},
 				new Badge
 				{
 					Id = 11,
 					Title = "Trusted Contributor",
 					Description = "10 approved suggested answers",
-					Category = BadgeCategory.OnSolve
+					Category = BadgeCategory.OnSuggesting
 				},
 				new Badge
 				{
