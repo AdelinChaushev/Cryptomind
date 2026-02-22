@@ -10,19 +10,19 @@ namespace Cryptomind.Core.Badges.Criteria
 {
 	public class ApprovedAnswerSuggestionCountCriteria : IBadgeCriteria
 	{
-		private readonly IBadgeStatisticsService _statsService;
-		private readonly int _requiredCount;
+		private readonly IBadgeStatisticsService statsService;
+		private readonly int requiredCount;
 		public BadgeCategory Category => BadgeCategory.OnSuggesting;
 		public ApprovedAnswerSuggestionCountCriteria(IBadgeStatisticsService statsService, int requiredCount)
 		{
-			_statsService = statsService;
-			_requiredCount = requiredCount;
+			this.statsService = statsService;
+			this.requiredCount = requiredCount;
 		}
 
 		public async Task<bool> IsSatisfied(string userId)
 		{
-			var approvedAnswersCount = await _statsService.GetApprovedAnswersCount(userId);
-			return _requiredCount >= approvedAnswersCount;
+			var approvedAnswersCount = await statsService.GetApprovedAnswersCount(userId);
+			return requiredCount >= approvedAnswersCount;
 		}
 	}
 }
