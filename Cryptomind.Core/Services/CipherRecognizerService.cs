@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
@@ -26,7 +27,7 @@ namespace Cryptomind.Core.Services
 		{
 			if (string.IsNullOrWhiteSpace(inputText))
 			{
-				throw new ArgumentException("Input text cannot be empty", nameof(inputText));
+				throw new ValidationException("Input text cannot be empty");
 			}
 
 			try
@@ -45,9 +46,7 @@ namespace Cryptomind.Core.Services
 				if (!response.IsSuccessStatusCode)
 				{
 					var errorContent = await response.Content.ReadAsStringAsync();
-					throw new InvalidOperationException(
-						$"ML API returned error (Status {response.StatusCode}): {errorContent}"
-					);
+					throw new Exception($"ML API returned error (Status {response.StatusCode}): {errorContent}");
 				}
 
 				var responseJson = await response.Content.ReadAsStringAsync();
@@ -62,12 +61,12 @@ namespace Cryptomind.Core.Services
 
 				if (pythonResponse == null)
 				{
-					throw new InvalidOperationException("Failed to parse ML API response");
+					throw new Exception("Failed to parse ML API response");
 				}
 
 				if (pythonResponse.TopPrediction == null)
 				{
-					throw new InvalidOperationException("Invalid response from ML API - missing top prediction");
+					throw new Exception("Invalid response from ML API - missing top prediction");
 				}
 
 				var result = new CipherRecognitionResultViewModel
@@ -82,33 +81,22 @@ namespace Cryptomind.Core.Services
 			}
 			catch (HttpRequestException ex)
 			{
-				throw new InvalidOperationException(
+				throw new Exception(
 					$"ML service is unavailable. Please ensure the Python ML API is running at {mlApiUrl}",
 					ex
 				);
 			}
 			catch (TaskCanceledException ex)
 			{
-				throw new InvalidOperationException(
+				throw new Exception(
 					$"ML service request timed out after {ApiTimeoutSeconds} seconds",
 					ex
 				);
 			}
 			catch (JsonException ex)
 			{
-				throw new InvalidOperationException(
+				throw new Exception(
 					"Failed to parse response from ML service. The service may be returning invalid data.",
-					ex
-				);
-			}
-			catch (InvalidOperationException ex)
-			{
-				throw new InvalidOperationException ("Invalid Operation Exception", ex);
-			}
-			catch (Exception ex)
-			{
-				throw new InvalidOperationException(
-					$"An unexpected error occurred during classification: {ex.Message}",
 					ex
 				);
 			}

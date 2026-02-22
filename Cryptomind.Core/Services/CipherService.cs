@@ -1,5 +1,6 @@
 ﻿using Cryptomind.Common.DTOs;
 using Cryptomind.Common.Enums;
+using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.ViewModels.CipherViewModels;
 using Cryptomind.Common.ViewModels.UserViewModels;
 using Cryptomind.Core.Contracts;
@@ -89,10 +90,10 @@ namespace Cryptomind.Core.Services
 				.FirstOrDefaultAsync(x => x.Id == id);
 
 			if (cipher == null || cipher.Status != ApprovalStatus.Approved)
-				throw new InvalidOperationException("Cipher not found");
+				throw new NotFoundException("Cipher not found");
 
 			if (cipher.IsDeleted)
-				throw new InvalidOperationException("This cipher has been removed");
+				throw new ConflictException("This cipher has been removed");
 
 			return await ToDetailedOutputViewModel(cipher, userId);
 		}
@@ -105,16 +106,16 @@ namespace Cryptomind.Core.Services
 				.FirstOrDefaultAsync(x => x.Id == cipherId);
 
 			if (cipher == null)
-				throw new InvalidOperationException("Cipher not found");
+				throw new NotFoundException("Cipher not found");
 
 			if (cipher.CreatedByUserId == userId)
-				throw new InvalidOperationException("A cipher cannot be solved by it's user");
+				throw new ConflictException("A cipher cannot be solved by it's user");
 
 			if (cipher.ChallengeType == ChallengeType.Experimental)
-				throw new InvalidOperationException("Experimental ciphers cannot be solved");
+				throw new ConflictException("Experimental ciphers cannot be solved");
 
 			if (cipher.UserSolutions.FirstOrDefault(x => x.UserId == userId && x.IsCorrect) != null)
-				throw new InvalidOperationException("Cannot solve the same cipher 2 times");
+				throw new ConflictException("Cannot solve the same cipher 2 times");
 
 			string correctAnswer = cipher.DecryptedText;
 
@@ -151,7 +152,7 @@ namespace Cryptomind.Core.Services
 				ApplicationUser user = await userManager.FindByIdAsync(userId);
 
 				if (user == null)
-					throw new InvalidOperationException("User not found");
+					throw new Exception($"Data integrity error: user {cipher.CreatedByUserId} not found for cipher {cipher.Id}.");
 
 				userSolution.PointsEarned = pointsEarned;
 				userSolution.IsCorrect = true;

@@ -1,4 +1,5 @@
 ﻿using Cryptomind.Common.DTOs;
+using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.ViewModels.AdminViewModels;
 using Cryptomind.Core.Services;
 using Cryptomind.Data.Entities;
@@ -35,6 +36,10 @@ namespace Cryptomind.Tests.Unit.Services
 				.ReturnsAsync(IdentityResult.Success);
 			_userManagerMock.Setup(m => m.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
 				.ReturnsAsync(IdentityResult.Success);
+			_userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
+				.ReturnsAsync(new List<string>());
+			_userManagerMock.Setup(m => m.IsInRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+				.ReturnsAsync(false);
 		}
 
 		private static ApplicationUser MakeUser(string id, string userName = "testuser",
@@ -200,7 +205,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupUsers();
 
-			await Assert.ThrowsAsync<ArgumentException>(() => _service.GetUser("ghost"));
+			await Assert.ThrowsAsync<NotFoundException>(() => _service.GetUser("ghost"));
 		}
 
 		[Fact]
@@ -211,7 +216,8 @@ namespace Cryptomind.Tests.Unit.Services
 			user.Score = 500;
 			user.SolvedCount = 3;
 			SetupUsers(user);
-			_userManagerMock.Setup(m => m.IsInRoleAsync(user, "Admin")).ReturnsAsync(false);
+			_userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
+						.ReturnsAsync(new List<string>());
 
 			var result = await _service.GetUser("u1");
 
@@ -246,7 +252,8 @@ namespace Cryptomind.Tests.Unit.Services
 			};
 			var user = MakeUser("u1", uploadedCiphers: ciphers);
 			SetupUsers(user);
-			_userManagerMock.Setup(m => m.IsInRoleAsync(user, "Admin")).ReturnsAsync(false);
+			_userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
+						.ReturnsAsync(new List<string>());
 
 			var result = await _service.GetUser("u1");
 
@@ -265,7 +272,8 @@ namespace Cryptomind.Tests.Unit.Services
 			};
 			var user = MakeUser("u1", cipherAnswers: solutions);
 			SetupUsers(user);
-			_userManagerMock.Setup(m => m.IsInRoleAsync(user, "Admin")).ReturnsAsync(false);
+			_userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
+						.ReturnsAsync(new List<string>());
 
 			var result = await _service.GetUser("u1");
 
@@ -281,7 +289,8 @@ namespace Cryptomind.Tests.Unit.Services
 			user.BanReason = "cheating";
 			user.BannedAt = bannedAt;
 			SetupUsers(user);
-			_userManagerMock.Setup(m => m.IsInRoleAsync(user, "Admin")).ReturnsAsync(false);
+			_userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
+						.ReturnsAsync(new List<string>());
 
 			var result = await _service.GetUser("u1");
 
@@ -300,7 +309,7 @@ namespace Cryptomind.Tests.Unit.Services
 			_userManagerMock.Setup(m => m.FindByIdAsync("ghost"))
 				.ReturnsAsync((ApplicationUser?)null);
 
-			await Assert.ThrowsAsync<ArgumentException>(() => _service.MakeAdmin("ghost"));
+			await Assert.ThrowsAsync<NotFoundException>(() => _service.MakeAdmin("ghost"));
 		}
 
 		[Fact]
@@ -310,7 +319,7 @@ namespace Cryptomind.Tests.Unit.Services
 			_userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
 			_userManagerMock.Setup(m => m.IsInRoleAsync(user, "Admin")).ReturnsAsync(true);
 
-			await Assert.ThrowsAsync<ArgumentException>(() => _service.MakeAdmin("u1"));
+			await Assert.ThrowsAsync<ConflictException>(() => _service.MakeAdmin("u1"));
 		}
 
 		[Fact]
@@ -335,7 +344,16 @@ namespace Cryptomind.Tests.Unit.Services
 			_userManagerMock.Setup(m => m.FindByIdAsync("ghost"))
 				.ReturnsAsync((ApplicationUser?)null);
 
-			await Assert.ThrowsAsync<ArgumentException>(() => _service.BanUserAsync("ghost", "reason"));
+			await Assert.ThrowsAsync<NotFoundException>(() => _service.BanUserAsync("ghost", "reason"));
+		}
+
+		[Fact]
+		public async Task BanUserAsync_Throws_WhenUserIsDeactivated()
+		{
+			var user = MakeUser("u1", isDeactivated: true);
+			_userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
+
+			await Assert.ThrowsAsync<ConflictException>(() => _service.BanUserAsync("u1", "reason"));
 		}
 
 		[Fact]
@@ -344,7 +362,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var user = MakeUser("u1", isBanned: true);
 			_userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
 
-			await Assert.ThrowsAsync<InvalidOperationException>(() => _service.BanUserAsync("u1", "reason"));
+			await Assert.ThrowsAsync<ConflictException>(() => _service.BanUserAsync("u1", "reason"));
 		}
 
 		[Fact]
@@ -354,7 +372,7 @@ namespace Cryptomind.Tests.Unit.Services
 			_userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
 			_userManagerMock.Setup(m => m.IsInRoleAsync(user, "Admin")).ReturnsAsync(true);
 
-			await Assert.ThrowsAsync<InvalidOperationException>(() => _service.BanUserAsync("u1", "reason"));
+			await Assert.ThrowsAsync<ConflictException>(() => _service.BanUserAsync("u1", "reason"));
 		}
 
 		[Fact]
@@ -394,7 +412,7 @@ namespace Cryptomind.Tests.Unit.Services
 			_userManagerMock.Setup(m => m.FindByIdAsync("ghost"))
 				.ReturnsAsync((ApplicationUser?)null);
 
-			await Assert.ThrowsAsync<ArgumentException>(() => _service.UnbanUserAsync("ghost"));
+			await Assert.ThrowsAsync<NotFoundException>(() => _service.UnbanUserAsync("ghost"));
 		}
 
 		[Fact]
@@ -403,7 +421,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var user = MakeUser("u1", isBanned: false);
 			_userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
 
-			await Assert.ThrowsAsync<InvalidOperationException>(() => _service.UnbanUserAsync("u1"));
+			await Assert.ThrowsAsync<ConflictException>(() => _service.UnbanUserAsync("u1"));
 		}
 
 		[Fact]

@@ -14,46 +14,29 @@ namespace Cryptomind.Controllers
 		[HttpPost("register")]
 		public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
 		{
-			try
-			{
-				ApplicationUser? user = await authService.CreateUser(
-					model.Username,
-					model.Email,
-					model.Password);
+			ApplicationUser? user = await authService.CreateUser(
+				model.Username,
+				model.Email,
+				model.Password);
 
-				if (user == null)
-				{
-					return BadRequest("User creation failed");
-				}
-
-				string token = await authService.GenerateJSONWebToken(user);
-				AddCookie(token);
-				return Ok(new { token });
-			}
-			catch (Exception ex)
+			if (user == null)
 			{
-				return BadRequest(ex.Message);
+				return BadRequest("User creation failed");
 			}
+
+			string token = await authService.GenerateJSONWebToken(user);
+			AddCookie(token);
+			return Ok(new { token });
 		}
 
 		[HttpPost("login")]
 		public async Task<IActionResult> Login([FromBody] LoginViewModel model)
 		{
-			try
-			{
-				ApplicationUser user = await authService.Authenticate(model.Email, model.Password);
-				string token = await authService.GenerateJSONWebToken(user);
-				AddCookie(token);
-				return Ok(new { token });
-			}
-			catch (UnauthorizedAccessException ex)
-			{
-				return Unauthorized(ex.Message);
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			ApplicationUser user = await authService.Authenticate(model.Email, model.Password);
+			string token = await authService.GenerateJSONWebToken(user);
+
+			AddCookie(token);
+			return Ok(new { token });
 		}
 
 		[HttpPost("logout")]
@@ -76,31 +59,20 @@ namespace Cryptomind.Controllers
 		[Authorize(AuthenticationSchemes = "Bearer")]
 		public async Task<IActionResult> DeactivateAccount()
 		{
-			try
+			string? userId = GetUserId();
+
+			await authService.DeactivateAccount(userId);
+
+			Response.Cookies.Delete("token", new CookieOptions
 			{
-				string? userId = GetUserId();
-				if (string.IsNullOrEmpty(userId))
-				{
-					return BadRequest("User ID not found in token");
-				}
+				HttpOnly = true,
+				IsEssential = true,
+				SameSite = SameSiteMode.None,
+				Secure = true,
+				Expires = DateTimeOffset.UtcNow.AddDays(-1)
+			});
 
-				await authService.DeactivateAccount(userId);
-
-				Response.Cookies.Delete("token", new CookieOptions
-				{
-					HttpOnly = true,
-					IsEssential = true,
-					SameSite = SameSiteMode.None,
-					Secure = true,
-					Expires = DateTimeOffset.UtcNow.AddDays(-1)
-				});
-
-				return Ok("Account deactivated");
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			return Ok("Account deactivated");
 		}
 
 		#region Private methods
