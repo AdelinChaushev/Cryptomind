@@ -21,7 +21,7 @@ namespace Cryptomind.Core.Services
 		public async Task<int> GetDistinctCipherTypesSolved(string userId)
 		{
 			return await solutionRepo.GetAllAttached()
-				.Where(s => s.UserId == userId)
+				.Where(s => s.UserId == userId && s.Cipher.Status == ApprovalStatus.Approved)
 				.Select(s => s.Cipher.TypeOfCipher)
 				.Distinct()
 				.CountAsync();
@@ -35,10 +35,8 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<int> GetSolvedCount(string userId)
 		{
-			var user = await userRepo.GetByIdAsync(userId);
-			if (user == null)
-				throw new InvalidOperationException("User not found");
-			return user.SolvedCount;
+			return await solutionRepo.GetAllAttached()
+				.CountAsync(s => s.UserId == userId);
 		}
 	}
 }

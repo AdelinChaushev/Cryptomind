@@ -26,7 +26,7 @@ namespace Cryptomind.Core.Services
 			{ 4, new UploadCountCriteria(statsService, 5) },
 			//NoHintsCriteria(statsService, 10)
 			{ 5, new DistinctSolvedCountCriteria(statsService, 5) },
-			{ 6, new SuggestedAnswerCountCriteria(statsService, 1) },
+			{ 6, new ApprovedAnswerSuggestionCountCriteria(statsService, 1) },
 		};
 
 		public async Task CheckBadgesByCategory(string userId, BadgeCategory category)
@@ -58,6 +58,9 @@ namespace Cryptomind.Core.Services
 
 			if (user == null)
 				throw new InvalidOperationException("User not found");
+
+			if (user.Badges.Any(x => x.BadgeId == badgeId))
+				throw new InvalidOperationException("You already have this badge");
 
 			var badge = await badgeRepo.GetAllAttached()
 				.Include(x => x.UserBadges)
