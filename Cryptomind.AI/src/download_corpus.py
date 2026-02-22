@@ -1,13 +1,8 @@
-"""
-Download and properly clean Gutenberg texts to maintain IC
-"""
 import requests
 from pathlib import Path
 import re
 
 def download_and_clean_book(book_id, title):
-    """Download a Gutenberg book and clean it MINIMALLY"""
-    
     url = f"https://www.gutenberg.org/files/{book_id}/{book_id}-0.txt"
     
     print(f"Downloading: {title}...")
@@ -49,7 +44,6 @@ def download_and_clean_book(book_id, title):
     
     text = text[start_idx:end_idx]
     
-    # MINIMAL cleaning - preserve as much text as possible
     # Only remove obvious non-content
     lines = text.split('\n')
     cleaned_lines = []
@@ -74,17 +68,14 @@ def download_and_clean_book(book_id, title):
     
     cleaned_text = ' '.join(cleaned_lines)
     
-    # MINIMAL normalization
     # Just collapse multiple spaces
     cleaned_text = re.sub(r'\s+', ' ', cleaned_text)
     
-    print(f"  ✅ Downloaded {len(cleaned_text):,} characters")
+    print(f"  Downloaded {len(cleaned_text):,} characters")
     
     return cleaned_text
 
-def create_proper_corpus():
-    """Create corpus from multiple Gutenberg books"""
-    
+def create_proper_corpus():  
     books = [
         (1342, "Pride and Prejudice"),
         (1661, "Sherlock Holmes"),
@@ -98,9 +89,7 @@ def create_proper_corpus():
         (174, "The Picture of Dorian Gray")
     ]
     
-    print("="*70)
     print("DOWNLOADING GUTENBERG CORPUS")
-    print("="*70)
     
     all_text = []
     
@@ -112,9 +101,7 @@ def create_proper_corpus():
     # Combine
     corpus = ' '.join(all_text)
     
-    print(f"\n{'='*70}")
     print(f"CORPUS STATISTICS")
-    print(f"{'='*70}")
     print(f"Total characters: {len(corpus):,}")
     print(f"Books included: {len(all_text)}")
     
@@ -122,7 +109,7 @@ def create_proper_corpus():
     from src.feature_extraction import FeatureExtractor
     extractor = FeatureExtractor()
     
-    print(f"\nTesting IC on 10 random samples...")
+    print(f"\n Testing IC on 10 random samples...")
     ics = []
     import random
     for i in range(10):
@@ -137,11 +124,11 @@ def create_proper_corpus():
     print(f"Expected IC: 0.065-0.068")
     
     if avg_ic < 0.055:
-        print(f"⚠️  WARNING: IC still too low! Corpus may have issues.")
+        print(f"WARNING: IC still too low! Corpus may have issues.")
     elif avg_ic > 0.075:
-        print(f"⚠️  WARNING: IC too high!")
+        print(f"WARNING: IC too high!")
     else:
-        print(f"✅ IC is in acceptable range!")
+        print(f"IC is in acceptable range!")
     
     # Save
     output_dir = Path('data/corpus')
@@ -151,7 +138,7 @@ def create_proper_corpus():
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(corpus)
     
-    print(f"\n✅ Corpus saved to {output_file}")
+    print(f"\nCorpus saved to {output_file}")
     print(f"Size: {len(corpus) / 1024 / 1024:.1f} MB")
 
 if __name__ == '__main__':
