@@ -1,12 +1,4 @@
-﻿using Cryptomind.Common.Constants;
-using Cryptomind.Common.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Cryptomind.Common.ViewModels.CipherRecognitionViewModels
+﻿namespace Cryptomind.Common.ViewModels.CipherRecognitionViewModels
 {
 	public class PredictionViewModel
 	{

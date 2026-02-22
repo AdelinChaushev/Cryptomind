@@ -1,10 +1,4 @@
-﻿using Cryptomind.Data.Entities;
-using Cryptomind.Data.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Cryptomind.Data.Enums;
 
 namespace Cryptomind.Common.ViewModels.AdminViewModels
 {
