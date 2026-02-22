@@ -88,6 +88,7 @@ namespace Cryptomind.Core.Services
 		{
 			var result = await cipherRepo.GetAllAttached()
                 .Include(c => c.CreatedByUser)
+				.Include(c => c.UserSolutions)
                 .Where(c => c.Status == ApprovalStatus.Approved && !c.IsDeleted)
 				.ToListAsync();
 
@@ -120,17 +121,23 @@ namespace Cryptomind.Core.Services
 					result = result.OrderBy(x => x.CreatedAt).ToList();
 					break;
 				case CipherOrderTerm.MostPopular:
-					result = result.OrderByDescending(x => x.UserSolutions).ToList();
+					result = result.OrderByDescending(x => x.UserSolutions.Count).ToList();
 					break;
-			}
+                case CipherOrderTerm.LeastPopular:
+                    result = result.OrderBy(x => x.UserSolutions.Count).ToList();
+                    break;
+
+
+            }
 
 			return ToReviewOutputViewModelMany(result);
         }
 		public async Task<List<CipherReviewOutputViewModel>> AllDeletedCiphers(CipherFilter filter)
 		{
-			var result = (await cipherRepo.GetAllAsync())
-				.Where(c => c.IsDeleted)
-				.ToList();
+			var result = await cipherRepo.GetAllAttached()
+                .Include(c => c.UserSolutions)
+                .Where(c => c.IsDeleted)
+				.ToListAsync();
 
 			if (!result.Any())
 				return new List<CipherReviewOutputViewModel>();
@@ -161,9 +168,12 @@ namespace Cryptomind.Core.Services
 					result = result.OrderBy(x => x.CreatedAt).ToList();
 					break;
 				case CipherOrderTerm.MostPopular:
-					result = result.OrderByDescending(x => x.UserSolutions).ToList();
+					result = result.OrderByDescending(x => x.UserSolutions.Count).ToList();
 					break;
-			}
+                case CipherOrderTerm.LeastPopular:
+                    result = result.OrderBy(x => x.UserSolutions.Count).ToList();
+                    break;
+            }
 
 			return ToReviewOutputViewModelMany(result);
 		}
@@ -500,7 +510,7 @@ namespace Cryptomind.Core.Services
 				ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
 				IsImage = cipher is ImageCipher,
                 SubmittedBy = cipher.CreatedByUser.UserName,
-                SubmittedAt = cipher.ApprovedAt,
+                SubmittedAt = (int)cipher.Status == 1 ? cipher.ApprovedAt : (int)cipher.Status == 0 ? cipher.CreatedAt : cipher.RejectedAt,
                 MlPrediction = mlData.Family,
                 PercentageOfConfidence = (int)Math.Floor(mlData.Confidence * 100),
               
