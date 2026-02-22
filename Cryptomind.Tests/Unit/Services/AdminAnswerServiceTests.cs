@@ -45,7 +45,7 @@ namespace Cryptomind.Tests.Unit.Services
 			_userManagerMock.Setup(m => m.UpdateAsync(It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
 			_notificationMock.Setup(n => n.CreateAndSendNotification(
 				It.IsAny<string>(), It.IsAny<NotificationType>(),
-				It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()))
+				It.IsAny<string>(), It.IsAny<string>()))
 				.Returns(Task.CompletedTask);
 		}
 		private static AnswerSuggestion Answer(int id, string userId, int cipherId,
@@ -408,7 +408,6 @@ namespace Cryptomind.Tests.Unit.Services
 				"u1",
 				NotificationType.AnswerApproved,
 				It.IsAny<string>(),
-				cipher.Id,
 				It.IsAny<string>()), Times.Once);
 		}
 
@@ -478,7 +477,6 @@ namespace Cryptomind.Tests.Unit.Services
 				"u1",
 				NotificationType.AnswerRejected,
 				"not good enough",
-				It.IsAny<int>(),
 				It.IsAny<string>()), Times.Once);
 		}
 	}
