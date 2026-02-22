@@ -58,6 +58,8 @@ namespace Cryptomind.Tests.Unit.Services
 				Status = status,
 				DecryptedText = text,
 				UplodaedTime = uploadedAt ?? DateTime.UtcNow,
+				Cipher = new ConcreteCipher { Id = cipherId, Title = "Test Cipher" },
+				ApplicationUser = new ApplicationUser { Id = userId }
 			};
 
 		private static ConcreteCipher Cipher(int id, ChallengeType type,
@@ -126,14 +128,16 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task AllSubmittedAnswersAsync_ReturnsPendingAnswersOnly_WithCorrectUsername()
 		{
-			_answerRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<AnswerSuggestion>
+			var answers = new List<AnswerSuggestion>
 			{
 				Answer(1, "u1", 1, ApprovalStatus.Pending),
 				Answer(2, "u2", 1, ApprovalStatus.Approved),  // should be excluded
-            });
+			};
+
+			_answerRepoMock.Setup(r => r.GetAllAttached()).Returns(answers.AsQueryable().BuildMock());
 			SetupUsers(User("u1", "alice"));
 
-			var result = await _service.AllSubmittedAnswersAsync();
+			var result = await _service.AllSubmittedAnswersAsync(null, null);
 
 			Assert.Single(result);
 			Assert.Equal("alice", result[0].Username);
@@ -149,7 +153,7 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupUsers(); // empty — no users in the system
 
 			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.AllSubmittedAnswersAsync());
+				() => _service.AllSubmittedAnswersAsync(null, null));
 		}
 
 		[Fact]

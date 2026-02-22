@@ -119,6 +119,7 @@ namespace Cryptomind.Tests.Integration
 			response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 		}
 
+		//HAVE TO TURN ON THE ML SERVER TO RUN THIS SERVICE.
 		[Fact]
 		public async Task SubmitCipher_WithTypeAndSolution_Returns200()
 		{
