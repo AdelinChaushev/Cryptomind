@@ -1,11 +1,6 @@
 ﻿using Cryptomind.Common.Enums;
 using Cryptomind.Data.Enums;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Cryptomind.Common.ViewModels.CipherViewModels
 {

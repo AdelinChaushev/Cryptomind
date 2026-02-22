@@ -75,6 +75,7 @@ namespace Cryptomind.Core.Services
 				{
 					model.PointsEarned = answer.PointsEarned;
 					model.ApprovedDate = answer.ApprovalDate;
+					model.CipherId = answer.CipherId;
 				}
 				else if (answer.Status == ApprovalStatus.Rejected)
 				{

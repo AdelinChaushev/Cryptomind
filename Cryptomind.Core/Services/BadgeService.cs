@@ -52,7 +52,7 @@ namespace Cryptomind.Core.Services
 				int badgeId = kvp.Key;
 				IBadgeCriteria criteria = kvp.Value;
 
-				if (userBadgeIds.Contains(badgeId))
+				if (userBadgeIds.Contains(badgeId)) //First time checking
 					continue;
 
 				if (await criteria.IsSatisfied(userId))
@@ -70,7 +70,7 @@ namespace Cryptomind.Core.Services
 			if (user == null)
 				throw new InvalidOperationException("User not found");
 
-			if (user.Badges.Any(x => x.BadgeId == badgeId))
+			if (user.Badges.Any(x => x.BadgeId == badgeId)) //Second time checking
 				throw new InvalidOperationException("You already have this badge");
 
 			var badge = await badgeRepo.GetAllAttached()
@@ -99,7 +99,7 @@ namespace Cryptomind.Core.Services
 					$"You earned {badge.Title} badge!",
 					"api/user/get-account-info"); //There might be a different page with badges.
 			}
-			catch (DbUpdateException)
+			catch (DbUpdateException) //Third time checking
 			{
 				// Badge already awarded by concurrent request
 				return;

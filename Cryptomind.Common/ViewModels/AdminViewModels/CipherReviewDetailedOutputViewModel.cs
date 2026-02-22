@@ -1,6 +1,4 @@
-﻿
-
-namespace Cryptomind.Common.ViewModels.AdminViewModels
+﻿namespace Cryptomind.Common.ViewModels.AdminViewModels
 {
 	public class CipherDetailedReviewOutputViewModel : CipherReviewOutputViewModel
 	{
