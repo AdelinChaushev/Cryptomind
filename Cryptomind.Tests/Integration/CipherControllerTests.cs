@@ -61,7 +61,7 @@ namespace Cryptomind.Tests.Integration
 
 			var response = await userClient.GetAsync("/api/ciphers/cipher/99999");
 
-			response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+			response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 		}
 
 		#endregion
