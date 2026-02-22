@@ -36,145 +36,71 @@ namespace Cryptomind.Controllers
 		[HttpGet("pending-ciphers")]
 		public async Task<IActionResult> GetPendingCiphers([FromQuery] string? filter)
 		{
-			try
-			{
-				var result = await adminCipherService.AllPendingCiphers(filter);
-				return Ok(result);
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			var result = await adminCipherService.AllPendingCiphers(filter);
+			return Ok(result);
 		}
 
 		[HttpGet("approved-ciphers")]
 		public async Task<IActionResult> GetApprovedCiphers([FromQuery] CipherFilter filter)
 		{
-			try
-			{
-				var result = await adminCipherService.AllApprovedCiphers(filter);
-				return Ok(result);
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			var result = await adminCipherService.AllApprovedCiphers(filter);
+			return Ok(result);
 		}
 
 		[HttpGet("deleted-ciphers")]
 		public async Task<IActionResult> GetDeletediphers([FromQuery] CipherFilter filter)
 		{
-			try
-			{
-				var result = await adminCipherService.AllDeletedCiphers(filter);
-				return Ok(result);
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			var result = await adminCipherService.AllDeletedCiphers(filter);
+			return Ok(result);
 		}
 
 		[HttpGet("cipher/{id}")]
 		public async Task<IActionResult> GetCipher([FromRoute] int id)
 		{
-			try
-			{
-				var cipher = await adminCipherService.GetCipherById(id);
-				return Ok(cipher);
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			var cipher = await adminCipherService.GetCipherById(id);
+			return Ok(cipher);
 		}
 
 		[HttpGet("cipher/{id}/analyze")]
 		public async Task<IActionResult> AnalyzeCipher([FromRoute] int id)
 		{
-			try
-			{
-				var result = await adminCipherService.AnalyzeWithLLM(id);
-				return Ok(result);
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			var result = await adminCipherService.AnalyzeWithLLM(id);
+			return Ok(result);
 		}
 
 		[HttpPut("cipher/{id}/approve")]
 		public async Task<IActionResult> ApproveCipher([FromRoute] int id, [FromBody] ApproveCipherViewModel model)
 		{
-			try
-			{
-				string userId = await adminCipherService.ApproveCipherAsync(id, model);
-				await badgeService.CheckBadgesByCategory(userId, BadgeCategory.OnUpload);
-				return Ok();
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			string userId = await adminCipherService.ApproveCipherAsync(id, model);
+			await badgeService.CheckBadgesByCategory(userId, BadgeCategory.OnUpload);
+			return Ok();
 		}
 
 		[HttpPut("cipher/{id}/reject")]
 		public async Task<IActionResult> RejectCipher([FromRoute] int id, [FromBody] string reason)
 		{
-			try
-			{
-				await adminCipherService.RejectCipherAsync(id, reason);
-				return Ok();
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			await adminCipherService.RejectCipherAsync(id, reason);
+			return Ok();
 		}
 
 		[HttpPut("cipher/{id}/update")]
 		public async Task<IActionResult> UpdateCipher([FromRoute] int id, [FromBody] UpdateCipherViewModel model)
 		{
-			try
-			{
-				await adminCipherService.UpdateApprovedCipher(id, model);
-				return Ok();
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			await adminCipherService.UpdateApprovedCipher(id, model);
+			return Ok();
 		}
 
 		[HttpPut("cipher/{id}/delete")]
 		public async Task<IActionResult> DeleteCipher([FromRoute] int id)
 		{
-			try
-			{
-				await adminCipherService.SoftDeleteCipher(id);
-				return Ok();
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			await adminCipherService.SoftDeleteCipher(id);
+			return Ok();
 		}
 		[HttpPut("cipher/{id}/restore")]
-		public async Task<IActionResult> Restore([FromRoute]int id, [FromQuery]string? newTitle = null)
+		public async Task<IActionResult> RestoreCipher([FromRoute] int id, [FromQuery] string? newTitle = null)
 		{
-			try
-			{
-				await adminCipherService.Restore(id, newTitle);
-				return Ok();
-			}
-			catch (TitleConflictException ex)
-			{
-				return Conflict(ex.Message);
-			}
-			catch (InvalidOperationException ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			await adminCipherService.RestoreCipher(id, newTitle);
+			return Ok();
 		}
 		#endregion
 
@@ -182,62 +108,38 @@ namespace Cryptomind.Controllers
 		[HttpGet("pending-answer-suggestions")]
 		public async Task<IActionResult> GetSubmittedAnswers([FromQuery] string? cipherName, [FromQuery] string? username)
 		{
-			try
-			{
-				var result = await adminAnswerService.AllSubmittedAnswersAsync(cipherName,username);
-				return Ok(result);
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			var result = await adminAnswerService.AllSubmittedAnswersAsync(cipherName, username);
+			return Ok(result);
+
 		}
 
 		[HttpGet("answer/{id}")]
 		public async Task<IActionResult> GetAnswer([FromRoute] int id)
 		{
-			try
-			{
-				var result = await adminAnswerService.GetAnswerById(id);
-				return Ok(result);
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			var result = await adminAnswerService.GetAnswerById(id);
+			return Ok(result);
+
 		}
 
 		[HttpPut("answer/{id}/approve")]
 		public async Task<IActionResult> ApproveAnswer([FromRoute] int id, [FromForm] int points)
 		{
-			try
-			{
-				List<string> userIds = await adminAnswerService.ApproveAnswerAsync(id, points);
+			List<string> userIds = await adminAnswerService.ApproveAnswerAsync(id, points);
 
-				foreach (var userId in userIds)
-				{
-					await badgeService.CheckBadgesByCategory(userId, BadgeCategory.OnSuggesting);	
-				}
-				return Ok();
-			}
-			catch (Exception ex)
+			foreach (var userId in userIds)
 			{
-				return BadRequest(ex.Message);
+				await badgeService.CheckBadgesByCategory(userId, BadgeCategory.OnSuggesting);
 			}
+			return Ok();
+
 		}
 
 		[HttpPut("answer/{id}/reject")]
 		public async Task<IActionResult> RejectAnswer([FromRoute] int id, [FromBody] string reason)
 		{
-			try
-			{
-				await adminAnswerService.RejectAnswerAsync(id, reason);
-				return Ok();
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			await adminAnswerService.RejectAnswerAsync(id, reason);
+			return Ok();
+
 		}
 		#endregion
 
@@ -245,71 +147,39 @@ namespace Cryptomind.Controllers
 		[HttpGet("users")]
 		public async Task<IActionResult> GetAllUsers([FromQuery] UserFilter filter)
 		{
-			try
-			{
-				var result = await adminUserService.GetAllUsers(filter);
-				return Ok(result);
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			var result = await adminUserService.GetAllUsers(filter);
+			return Ok(result);
+
 		}
 
 		[HttpGet("user/{id}")]
 		public async Task<IActionResult> GetUser([FromRoute] string id)
 		{
-			try
-			{
-				var result = await adminUserService.GetUser(id);
-				return Ok(result);
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			var result = await adminUserService.GetUser(id);
+			return Ok(result);
+
 		}
 
 		[HttpPut("user/{id}/admin")]
 		public async Task<IActionResult> MakeUserAdmin([FromRoute] string id)
 		{
-			try
-			{
-				await adminUserService.MakeAdmin(id);
-				return Ok();
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			await adminUserService.MakeAdmin(id);
+			return Ok();
 		}
 
 		[HttpPut("user/{id}/ban")]
 		public async Task<IActionResult> BanUser([FromRoute] string id, [FromForm] string reason)
 		{
-			try
-			{
-				await adminUserService.BanUserAsync(id, reason);
-				return Ok();
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			await adminUserService.BanUserAsync(id, reason);
+			return Ok();
 		}
 
 		[HttpPut("user/{id}/unban")]
-		public async Task<IActionResult> UnBanUser([FromRoute] string id)
+		public async Task<IActionResult> UnbanUser([FromRoute] string id)
 		{
-			try
-			{
-				await adminUserService.UnbanUserAsync(id);
-				return Ok();
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			await adminUserService.UnbanUserAsync(id);
+			return Ok();
+
 		}
 		#endregion
 	}

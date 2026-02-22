@@ -1,4 +1,5 @@
-﻿using Cryptomind.Core.Contracts;
+﻿using Cryptomind.Common.Exceptions;
+using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
@@ -21,13 +22,13 @@ namespace Cryptomind.Core.Services
 				.FirstOrDefaultAsync(x => x.Id == cipherId);
 
 			if (cipher == null)
-				throw new InvalidOperationException("Cipher not found");
+				throw new NotFoundException("Cipher not found");
 
 			if (cipher.CreatedByUserId == userId)
-				throw new InvalidOperationException("You cannot request hints for your own cipher");
+				throw new ConflictException("You cannot request hints for your own cipher");
 
 			if (cipher.UserSolutions.Any(x => x.UserId == userId && x.IsCorrect))
-				throw new InvalidOperationException("You have already solved this cipher");
+				throw new ConflictException("You have already solved this cipher");
 
 			bool isAllowed = hintType switch
 			{
@@ -38,16 +39,13 @@ namespace Cryptomind.Core.Services
 			};
 
 			if (!isAllowed)
-				throw new InvalidOperationException("This hint type is not available for this cipher");
+				throw new ConflictException("This hint type is not available for this cipher");
 
 			var existingHint = cipher.HintsRequested
 					.FirstOrDefault(hr => hr.UserId == userId && hr.HintType == hintType);
 
-			if (existingHint != null)
-			{
-				// User already requested this hint before - return the same content
+			if (existingHint != null) // User already requested this hint before - return the same content
 				return existingHint.HintContent;
-			}
 
 			string cachedHint = GetCachedHint(cipher, hintType);
 

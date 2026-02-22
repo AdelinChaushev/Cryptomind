@@ -1,26 +1,9 @@
-"""
-English Text Scoring System for Cryptomind
-==========================================
-Module for validating whether plaintext is legitimate English text.
-Used in cipher submission validation workflow.
-"""
-
 import re
 from collections import Counter
 from typing import Dict
 
 
-class EnglishScorer:
-    """
-    Analyzes text to determine if it's valid English using statistical methods.
-    
-    Core Metrics:
-    1. Letter Frequency - Compares to expected English letter distribution
-    2. Bigram/Trigram Analysis - Checks for common English letter patterns
-    3. Word Dictionary - Validates presence of real English words
-    4. Index of Coincidence - Measures text randomness (English ≈ 0.065)
-    """
-    
+class EnglishScorer:  
     # Expected English letter frequencies (percentage)
     ENGLISH_FREQ = {
         'A': 8.167, 'B': 1.492, 'C': 2.782, 'D': 4.253, 'E': 12.702,
@@ -76,32 +59,6 @@ class EnglishScorer:
     }
     
     def score_text(self, text: str) -> Dict:
-        """
-        Main scoring function - analyzes text and returns validation results.
-        
-        Args:
-            text: The plaintext to validate
-            
-        Returns:
-            Dictionary with structure:
-            {
-                'is_english': bool,
-                'confidence': float (0.0-1.0),
-                'metrics': {
-                    'frequency': float,
-                    'bigrams': float,
-                    'trigrams': float,
-                    'words': float,
-                    'ic': float
-                },
-                'details': {
-                    'text_length': int,
-                    'letter_count': int,
-                    'word_count': int,
-                    'ic_value': float
-                }
-            }
-        """
         # Validation - text too short
         if not text or len(text.strip()) < 10:
             return self._error_result('Text too short for analysis (minimum 10 characters)')
@@ -160,7 +117,6 @@ class EnglishScorer:
         }
     
     def _error_result(self, error_message: str) -> Dict:
-        """Return error result structure"""
         return {
             'is_english': False,
             'confidence': 0.0,
@@ -181,14 +137,9 @@ class EnglishScorer:
         }
     
     def _clean_text(self, text: str) -> str:
-        """Remove non-letter characters and convert to uppercase"""
         return re.sub(r'[^A-Za-z]', '', text).upper()
     
     def _calculate_frequency_score(self, text: str) -> float:
-        """
-        Calculate letter frequency score using chi-squared test.
-        Compares observed frequencies to expected English frequencies.
-        """
         if len(text) == 0:
             return 0.0
         
@@ -209,9 +160,6 @@ class EnglishScorer:
         return min(1.0, score)
     
     def _calculate_bigram_score(self, text: str) -> float:
-        """
-        Calculate bigram score based on common English two-letter patterns.
-        """
         if len(text) < 2:
             return 0.0
         
@@ -223,9 +171,6 @@ class EnglishScorer:
         return min(1.0, score)
     
     def _calculate_trigram_score(self, text: str) -> float:
-        """
-        Calculate trigram score based on common English three-letter patterns.
-        """
         if len(text) < 3:
             return 0.0
         
@@ -237,10 +182,6 @@ class EnglishScorer:
         return min(1.0, score)
     
     def _calculate_word_score(self, text: str) -> float:
-        """
-        Calculate word recognition score.
-        Most reliable metric - checks what percentage of text is real English words.
-        """
         words = re.findall(r'\b[A-Za-z]+\b', text)
         
         if not words:
@@ -258,10 +199,6 @@ class EnglishScorer:
         return min(1.0, score)
     
     def _calculate_ic_score(self, text: str) -> float:
-        """
-        Calculate Index of Coincidence score.
-        English IC ≈ 0.065, Random IC ≈ 0.038
-        """
         ic = self._calculate_index_of_coincidence(text)
         
         # Score based on proximity to English IC
@@ -275,12 +212,6 @@ class EnglishScorer:
             return 0.3  # Too far from English
     
     def _calculate_index_of_coincidence(self, text: str) -> float:
-        """
-        Calculate Index of Coincidence (IC).
-        
-        Formula: IC = Σ(ni * (ni-1)) / (N * (N-1))
-        where ni = count of letter i, N = total letters
-        """
         if len(text) < 2:
             return 0.0
         
