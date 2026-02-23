@@ -1,0 +1,53 @@
+/* ─── EXPERIMENTAL NOTICE ─── */
+.experimental-notice {
+    padding: 14px 16px;
+    background: var(--violet-dim);
+    border: 1px solid rgba(167, 139, 250, 0.3);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.experimental-notice__icon {
+    color: var(--violet-400);
+    flex-shrink: 0;
+}
+
+.experimental-notice__text {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    line-height: 1.6;
+    font-family: var(--font-mono);
+}
+
+.experimental-notice__highlight {
+    color: var(--violet-400);
+}
+
+/* ─── FIELDS ─── */
+.experimental-field {
+    margin-bottom: 14px;
+}
+
+.experimental-field__label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+/* ─── SUCCESS MESSAGE ─── */
+.experimental-success {
+    color: #10b981;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 14px;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 8px;
+    background: rgba(16, 185, 129, 0.08);
+    margin-bottom: 16px;
+}

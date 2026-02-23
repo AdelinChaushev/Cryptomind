@@ -56,10 +56,10 @@ const LlmAssistantSection = ({
             {result && (
                 <div className="llm-result">
                     {/* Recommendation Banner */}
-                    <div className={`llm-recommendation-banner recommendation-${result.recommendation?.toLowerCase()}`}>
+                    <div className={`llm-recommendation-banner recommendation-${result.solutionCorrect && result.true && result.isSolvable ? "approve" : "reject"}`}>
                         <div className="recommendation-icon">
-                            {result.recommendation?.toLowerCase() === 'approve' ? '✓' : 
-                             result.recommendation?.toLowerCase() === 'reject' ? '✕' : '⚠'}
+                            {result.solutionCorrect && result.true && result.isSolvable ? '✓' : 
+                              '✕'}
                         </div>
                         <div>
                             <div className="recommendation-title">
