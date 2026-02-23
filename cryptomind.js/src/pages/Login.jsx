@@ -32,6 +32,7 @@ export default function Login() {
         setState({isLoggedIn: false, roles: [], isBanned: true})
         
         }
+        console.log("Login error:", e.response?.data || e.message);
          setState({isLoggedIn: false, roles: []})
          setError(e.response?.data?.title || 'Login failed. Please check your credentials and try again.');
          }

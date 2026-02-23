@@ -30,7 +30,9 @@ export default function Register() {
           {console.log(e.data)
           navigate('/');
           setState({roles: ["User"], isLoggedIn: true})
-         }).catch(e => {setError(e.response?.data?.title)})        // Reload the page to reflect the new registration
+         }).catch(e => {
+            setError(e.response?.data?.title ||e.response?.data?.error || 'Registration failed. Please check your input and try again.');
+        })        // Reload the page to reflect the new registration
     }
     return (
         <>
