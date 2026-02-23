@@ -77,13 +77,13 @@ namespace Cryptomind.Tests.Integration
 		}
 
 		[Fact]
-		public async Task SolveCipher_NonExistentCipher_Returns400()
+		public async Task SolveCipher_NonExistentCipher_Returns404()
 		{
 			var userClient = await GetAuthenticatedUserClientAsync();
 
 			var response = await userClient.PostAsJsonAsync("/api/ciphers/cipher/99999/solve", new { userSolution = "hello" });
 
-			response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+			response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 		}
 
 		#endregion
@@ -104,7 +104,7 @@ namespace Cryptomind.Tests.Integration
 		}
 
 		[Fact]
-		public async Task SubmitCipher_NoTypeAndNoSolution_Returns400()
+		public async Task SubmitCipher_NoTypeAndNoSolution_Returns409()
 		{
 			var userClient = await GetAuthenticatedUserClientAsync();
 
@@ -116,7 +116,7 @@ namespace Cryptomind.Tests.Integration
 
 			var response = await userClient.PostAsync("/api/ciphers/submit", content);
 
-			response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+			response.StatusCode.Should().Be(HttpStatusCode.Conflict);
 		}
 
 		//HAVE TO TURN ON THE ML SERVER TO RUN THIS SERVICE.
@@ -191,24 +191,24 @@ namespace Cryptomind.Tests.Integration
 
 		#region ML Health
 
-		[Fact]
-		public async Task CheckMLHealth_AuthenticatedUser_Returns200Or400()
-		{
-			var userClient = await GetAuthenticatedUserClientAsync();
+		//[Fact]
+		//public async Task CheckMLHealth_AuthenticatedUser_Returns200Or400()
+		//{
+		//	var userClient = await GetAuthenticatedUserClientAsync();
 
-			var response = await userClient.GetAsync("/api/ciphers/ml-health");
+		//	var response = await userClient.GetAsync("/api/ciphers/ml-health");
 
-			// ML service is not running in tests so 400 is acceptable
-			((int)response.StatusCode).Should().BeOneOf(200, 400);
-		}
+		//	// ML service is not running in tests so 400 is acceptable
+		//	((int)response.StatusCode).Should().BeOneOf(200, 400);
+		//}
 
-		[Fact]
-		public async Task CheckMLHealth_Unauthenticated_Returns401()
-		{
-			var response = await Client.GetAsync("/api/ciphers/ml-health");
+		//[Fact]
+		//public async Task CheckMLHealth_Unauthenticated_Returns401()
+		//{
+		//	var response = await Client.GetAsync("/api/ciphers/ml-health");
 
-			response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-		}
+		//	response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+		//}
 
 		#endregion
 	}

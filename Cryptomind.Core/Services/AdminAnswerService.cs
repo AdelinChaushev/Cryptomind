@@ -111,7 +111,7 @@ namespace Cryptomind.Core.Services
 				throw new ConflictException("Answer is already resolved");
 
 			if (points <= 0)
-				throw new ValidationException("Cannot approve answer without points");
+				throw new CustomValidationException("Cannot approve answer without points");
 
 			var firstCorrectAnswerSuggestion = (await answerRepo.GetAllAsync())
 				.Where(x => x.CipherId == selectedAnswer.CipherId)

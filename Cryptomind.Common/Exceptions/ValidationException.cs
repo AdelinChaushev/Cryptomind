@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Cryptomind.Common.Exceptions
 {
-	public class ValidationException : Exception
+	public class CustomValidationException : Exception
 	{
-		public ValidationException(string message) : base(message) { }
+		public CustomValidationException(string message) : base(message) { }
 	}
 }
