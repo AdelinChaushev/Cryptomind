@@ -125,8 +125,8 @@ const LlmAssistantSection = ({
                             </div>
                         </div>
                     )}
-
-                    {/* Re-run button */}
+{/* 
+                    {/* Re-run button 
                     <button
                         onClick={onRunAnalysis}
                         className="btn btn-ghost btn-sm"
@@ -134,7 +134,7 @@ const LlmAssistantSection = ({
                         disabled={isLoading}
                     >
                         {isLoading ? 'Re-analyzing...' : 'Re-run Analysis'}
-                    </button>
+                    </button> */}
                 </div>
             )}
         </div>

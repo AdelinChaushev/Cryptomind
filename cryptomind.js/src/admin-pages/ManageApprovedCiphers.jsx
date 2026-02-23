@@ -59,7 +59,7 @@ const ManageApprovedCiphers = () => {
             };
             const { data } = await axios.get(`${API_BASE}/approved-ciphers`, { params });
             setError(null);
-            console.log('Approved ciphers:', data);
+           // console.log('Approved ciphers:', data);
             setCiphers(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error('Failed to fetch approved ciphers:', err);
@@ -114,7 +114,7 @@ const ManageApprovedCiphers = () => {
                 allowSolution: editAllowSolution,
                 tagIds: editSelectedTags
             });
-            alert('Cipher updated successfully');
+        //    alert('Cipher updated successfully');
             closeEditModal();
             fetchCiphers();
         } catch (err) {
@@ -139,7 +139,7 @@ const ManageApprovedCiphers = () => {
 
         try {
             await axios.put(`${API_BASE}/cipher/${deleteModal.id}/delete`);
-            alert('Cipher deleted successfully');
+         //   alert('Cipher deleted successfully');
             closeDeleteModal();
             fetchCiphers();
         } catch (err) {
