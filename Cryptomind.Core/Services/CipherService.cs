@@ -135,7 +135,7 @@ namespace Cryptomind.Core.Services
 			{
 				CipherId = cipherId,
 				UserId = userId,
-				TimeSolved = DateTime.UtcNow,
+				TimeSubmitted = DateTime.UtcNow,
 				UsedTypeHint = usedTypeHint,
 				UsedSolutionHint = usedSolutionHint,
 				UsedFullSolution = usedFullSolution,
@@ -214,7 +214,7 @@ namespace Cryptomind.Core.Services
 
 			foreach (var userSolution in cipher.UserSolutions.Where(x => x.IsCorrect))
 			{
-				var solvedAt = userSolution.TimeSolved;
+				var solvedAt = userSolution.TimeSubmitted;
 				var userName = userSolution.User.IsDeactivated ? "Anonymous" : userSolution.User.UserName;
 
 				var cipherSolver = new CipherSolverViewModel

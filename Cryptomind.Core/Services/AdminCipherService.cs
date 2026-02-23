@@ -299,7 +299,7 @@ namespace Cryptomind.Core.Services
 			await notificationService.CreateAndSendNotification(
 				userId, 
 				NotificationType.CipherApproved, 
-				"Your cipher was successfully approved", 
+				$"Your cipher was successfully approved {cipher.Title}", 
 				$"api/ciphers/cipher/{cipher.Id}");
 			return cipher.CreatedByUserId;
 		}
@@ -359,6 +359,12 @@ namespace Cryptomind.Core.Services
 				await DefineTagsAsync(cipher, model.TagIds.ToList());
 
 			await cipherRepo.UpdateAsync(cipher);
+
+			await notificationService.CreateAndSendNotification(
+				cipher.CreatedByUserId,
+				NotificationType.CipherUpdated,
+				$"Your cipher was updated {cipher.Title}",
+				$"api/ciphers/cipher/{cipher.Id}");
 		}
 		public async Task SoftDeleteCipher(int id)
 		{

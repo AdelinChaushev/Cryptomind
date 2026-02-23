@@ -169,7 +169,6 @@ namespace Cryptomind.Data
 				});
 
 			base.OnModelCreating(builder);
-
 		}
 	}
 }
