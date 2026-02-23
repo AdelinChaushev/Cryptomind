@@ -100,7 +100,7 @@ namespace Cryptomind.Core.Services
 
 			return model;
 		}
-		public async Task<List<string>> ApproveAnswerAsync(int id, int points)
+		public async Task<List<string>> ApproveAnswerAsync(int id)
 		{
 			var selectedAnswer = await answerRepo.FirstOrDefaultAsync(x => x.Id == id);
 
@@ -109,9 +109,6 @@ namespace Cryptomind.Core.Services
 
 			if (selectedAnswer.Status != ApprovalStatus.Pending)
 				throw new ConflictException("Answer is already resolved");
-
-			if (points <= 0)
-				throw new CustomValidationException("Cannot approve answer without points");
 
 			var firstCorrectAnswerSuggestion = (await answerRepo.GetAllAsync())
 				.Where(x => x.CipherId == selectedAnswer.CipherId)
@@ -146,7 +143,7 @@ namespace Cryptomind.Core.Services
 				.Where(x => x.Status == ApprovalStatus.Pending);
 
 
-			int pointsGranted = points + cipher.Points;
+			int pointsGranted = cipher.Points * 2;
 
 			var userSolution = new UserSolution
 			{
@@ -176,20 +173,22 @@ namespace Cryptomind.Core.Services
 				if (currentUser == null)
 					throw new Exception($"Data integrity error: user {cipher.CreatedByUserId} not found for answer {selectedAnswer.Id}.");
 
+				int pointsGrantedForOtherCorrectSolutions = (int)Math.Round(pointsGranted * 0.75, MidpointRounding.AwayFromZero);
+
 				var otherUserSolution = new UserSolution
 				{
 					CipherId = correctAnswer.CipherId,
 					UserId = correctAnswer.UserId,
-					PointsEarned = cipher.Points,
+					PointsEarned = pointsGrantedForOtherCorrectSolutions,
 					TimeSolved = DateTime.UtcNow,
 					IsCorrect = true,
 				};
-				currentUser.Score += cipher.Points;
+				currentUser.Score += pointsGrantedForOtherCorrectSolutions;
 				userIds.Add(currentUser.Id);
 
 				correctAnswer.Status = ApprovalStatus.Approved;
 				correctAnswer.ApprovalDate = DateTime.UtcNow;
-				correctAnswer.PointsEarned = cipher.Points;
+				correctAnswer.PointsEarned = pointsGrantedForOtherCorrectSolutions;
 
 				await answerRepo.UpdateAsync(correctAnswer);
 				await solutionRepo.AddAsync(otherUserSolution);
@@ -198,7 +197,7 @@ namespace Cryptomind.Core.Services
 				await notificationService.CreateAndSendNotification(
 					currentUser.Id, 
 					NotificationType.AnswerApproved,
-					$"Your answer suggestion was approved +{cipher.Points} points", 
+					$"Your answer suggestion was approved +{pointsGrantedForOtherCorrectSolutions} points", 
 					$"cipher/{cipher.Id}");
 			}
 
