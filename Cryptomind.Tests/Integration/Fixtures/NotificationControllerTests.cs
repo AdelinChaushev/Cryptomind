@@ -106,39 +106,40 @@ namespace Cryptomind.Tests.Integration
 		}
 
 		[Fact]
-		public async Task MarkAsRead_WithNonExistentId_Returns404()
+		public async Task MarkAsRead_WithNoNotifications_Returns200()
 		{
 			var userClient = await GetAuthenticatedUserClientAsync();
-
-			var response = await userClient.PutAsJsonAsync("/api/notifications/mark-as-read", new[] { 999999 });
-
-			response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+			var response = await userClient.PutAsync("/api/notifications/mark-as-read", null);
+			response.StatusCode.Should().Be(HttpStatusCode.OK);
 		}
 
 		[Fact]
-		public async Task MarkAsRead_WithNoBody_Returns400()
+		public async Task MarkAsRead_MarksAllNotifications_Returns200()
 		{
 			var userClient = await GetAuthenticatedUserClientAsync();
-			var body = new StringContent("", Encoding.UTF8, "application/json");
+			var response = await userClient.PutAsync("/api/notifications/mark-as-read", null);
+			response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-			var response = await userClient.PutAsync("/api/notifications/mark-as-read", body);
-
-			response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+			var getResponse = await userClient.GetAsync("/api/notifications");
+			var json = JsonDocument.Parse(await getResponse.Content.ReadAsStringAsync()).RootElement;
+			var notifications = json.GetProperty("notifications").EnumerateArray();
+			foreach (var n in notifications)
+				n.GetProperty("isRead").GetBoolean().Should().BeTrue();
 		}
 
 		[Fact]
-		public async Task MarkAsRead_NotificationBelongingToOtherUser_Returns404()
+		public async Task MarkAsRead_DoesNotAffect_OtherUsersNotifications()
 		{
 			var adminClient = await GetAuthenticatedAdminClientAsync();
 			var userClient = await GetAuthenticatedUserClientAsync();
 
+			await userClient.PutAsync("/api/notifications/mark-as-read", null);
+
 			var adminResponse = await adminClient.GetAsync("/api/notifications");
 			var adminJson = JsonDocument.Parse(await adminResponse.Content.ReadAsStringAsync()).RootElement;
-			adminJson.GetProperty("notifications").GetArrayLength().Should().Be(0);
-
-			var response = await userClient.PutAsJsonAsync("/api/notifications/mark-as-read", new[] { 999999 });
-
-			response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+			var adminNotifications = adminJson.GetProperty("notifications").EnumerateArray();
+			foreach (var n in adminNotifications)
+				n.GetProperty("isRead").GetBoolean().Should().BeFalse();
 		}
 
 		#endregion

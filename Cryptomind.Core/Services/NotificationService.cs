@@ -23,9 +23,6 @@ namespace Cryptomind.Core.Services
 				Message = message,
 				Link = link
 			};
-            // Clients.Group($"user_{userId}")
-            Console.WriteLine($"[Hub] OnConnectedAsync userId={userId}");
-            Console.WriteLine($"[SignalR] Targeting group: user_{userId}");
             await notificationRepo.AddAsync(notification);
 			await hubContext.Clients.Group($"user_{userId}").SendAsync("ReceiveNotification", new
 			{
@@ -64,8 +61,6 @@ namespace Cryptomind.Core.Services
 				.ToListAsync();
 			foreach (var notification in userNotifications)
 			{
-				
-
 				if (notification == null)
 					throw new NotFoundException("Notification not found");
 
