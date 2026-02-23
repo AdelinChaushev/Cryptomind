@@ -24,11 +24,10 @@ namespace Cryptomind.Data
 		protected override void OnModelCreating(ModelBuilder builder)
 		{
 			builder.Entity<CipherTag>()
-				.HasKey(c => new { c.CipherId, c.TagId });
+	.HasKey(c => new { c.CipherId, c.TagId });
 
 			builder.Entity<HintRequest>().HasOne(c => c.Cipher)
 			   .WithMany(c => c.HintsRequested).OnDelete(DeleteBehavior.NoAction);
-
 			builder.Entity<HintRequest>().HasOne(c => c.ApplicationUser)
 			   .WithMany(c => c.HintsRequested).OnDelete(DeleteBehavior.NoAction);
 
@@ -43,6 +42,14 @@ namespace Cryptomind.Data
 				.HasForeignKey(c => c.CreatedByUserId)
 				.OnDelete(DeleteBehavior.Restrict);
 
+			builder.Entity<Cipher>()
+				.HasIndex(c => c.Title)
+				.IsUnique();
+
+			builder.Entity<Cipher>()
+				.HasIndex(c => c.EncryptedText)
+				.IsUnique();
+
 			builder.Entity<UserSolution>()
 				.HasOne(us => us.Cipher)
 				.WithMany(c => c.UserSolutions)
@@ -51,7 +58,7 @@ namespace Cryptomind.Data
 
 			builder.Entity<UserSolution>()
 				.HasIndex(us => new { us.UserId, us.CipherId })
-				.HasFilter("[IsCorrect] = 1")  // Only applies to correct solutions
+				.HasFilter("[IsCorrect] = 1")
 				.IsUnique();
 
 			builder.Entity<Cipher>()
@@ -59,6 +66,10 @@ namespace Cryptomind.Data
 
 			builder.Entity<UserBadge>()
 				.HasIndex(ub => new { ub.UserId, ub.BadgeId })
+				.IsUnique();
+
+			builder.Entity<AnswerSuggestion>()
+				.HasIndex(a => new { a.UserId, a.CipherId, a.DecryptedText })
 				.IsUnique();
 
 			builder.Entity<Badge>().HasData(

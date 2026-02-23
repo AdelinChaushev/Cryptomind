@@ -25,10 +25,6 @@ public class ExceptionHandlingMiddleware
 		{
 			await WriteResponse(context, StatusCodes.Status409Conflict, ex.Message);
 		}
-		catch (ForbiddenException ex)
-		{
-			await WriteResponse(context, StatusCodes.Status403Forbidden, ex.Message);
-		}
 		catch (UnauthorizedException ex)
 		{
 			await WriteResponse(context, StatusCodes.Status401Unauthorized, ex.Message);
