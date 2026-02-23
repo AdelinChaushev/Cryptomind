@@ -2,9 +2,7 @@ import React, { useState, useEffect, useCallback, use, } from 'react';
 import axios from 'axios';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
-import MlAnalysisSection from './MlAnalysisSection';
 import LlmAssistantSection from './LlmAssistantSection';
-import AdminActions from './AdminActions';
 import '../styles/cipher-review.css';
 const API_BASE = 'http://localhost:5115/api/admin';
 import { useParams } from "react-router-dom";
@@ -80,6 +78,7 @@ const CipherReview = () => {
                     setAllowHint(res.data.allowTypeHint ?? false);
                     setAllowSolutionHint(res.data.allowHint ?? false);
                     setAllowSolution(res.data.allowSolution ?? false);
+                    console.log('Fetched cipher:', res.data);
                 }).catch(err => {
                     const status = err.response?.status;
                     const serverMessage = err?.data?.title;
@@ -95,7 +94,7 @@ const CipherReview = () => {
                             break;    
                     };
                 console.error('Failed to fetch cipher:', err);
-                setlocalError(err.response?.data?.message || err.message)}
+                setLocalError(err.response?.data?.message || err.message)}
                 )
                 .finally(() => setLoading(false));
               
@@ -162,7 +161,7 @@ const CipherReview = () => {
     // Reject
     const handleReject = useCallback(async () => {
         if (!rejectReason.trim()) {
-            alert('Please provide a reason for rejecting this cipher.');
+            setError('Please provide a reason for rejecting this cipher.');
             return;
         }
 
@@ -174,7 +173,7 @@ const CipherReview = () => {
            navigate('/admin/pending-ciphers');
         } catch (err) {
 
-            alert(`Rejection failed: ${err.response?.data?.message || err.message}`);
+            setError(`Rejection failed: ${err.response?.data?.message || err.message}`);
         }
     }, [cipherId, rejectReason]);
 

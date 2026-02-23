@@ -128,11 +128,11 @@ const SubmissionCard = ({
                                 View Cipher
                             </button>
                         )}
-                        {(status === 'pending' || status === 'rejected') && (
+                        {/* {(status === 'pending' || status === 'rejected') && (
                             <button className="btn-card-action" onClick={onViewDetails}>
                                 View Details
                             </button>
-                        )}
+                        )} */}
                     </div>
                 </div>
             )}

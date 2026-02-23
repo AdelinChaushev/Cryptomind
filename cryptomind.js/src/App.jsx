@@ -84,7 +84,7 @@ function App() {
         <Route path="submit" element={<RequireAuth><SubmitCipherPage /></RequireAuth>} />  
         <Route path="cipher/:id" element={<RequireAuth><CipherSolvePage /></RequireAuth>} />
         <Route path="my_submissions" element={<RequireAuth><MySubmissionsPage /></RequireAuth>} />
-        <Route path="admin" element={<RequireAuth><AdminDashboard /></RequireAuth>} />
+        <Route path="admin" element={<RequireAuth allowedRoles={["Admin"]}><AdminDashboard /></RequireAuth>} />
         <Route path="admin/pending-ciphers" element={<RequireAuth allowedRoles={["Admin"]}><PendingCiphers /></RequireAuth>} />
         <Route path="admin/cipher-review/:id" element={<RequireAuth allowedRoles={["Admin"]} ><CipherReview /></RequireAuth>} />
         <Route path="admin/manage-ciphers" element={<RequireAuth allowedRoles={["Admin"]} ><ManageApprovedCiphers /></RequireAuth>} />
