@@ -66,7 +66,7 @@ body {
 }
 
 /* ─── NAVBAR ─── */
-.navbar {
+/* .navbar {
     position: sticky;
     top: 0;
     z-index: 100;
@@ -121,7 +121,7 @@ body {
     border-radius: 6px;
     cursor: pointer;
     transition: all var(--transition);
-}
+} */
 .btn-outline:hover { border-color: var(--yellow-500); color: var(--yellow-500); }
 .btn-nav-primary {
     font-family: var(--font-mono);

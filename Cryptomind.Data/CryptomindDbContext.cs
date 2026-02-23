@@ -23,7 +23,8 @@ namespace Cryptomind.Data
 
 		protected override void OnModelCreating(ModelBuilder builder)
 		{
-			builder.Entity<CipherTag>()
+            base.OnModelCreating(builder);
+            builder.Entity<CipherTag>()
 				.HasKey(c => new { c.CipherId, c.TagId });
 
 			builder.Entity<HintRequest>().HasOne(c => c.Cipher)
@@ -183,7 +184,7 @@ namespace Cryptomind.Data
 					ImagePath = "../Images/Badges/Badge_15.png"
 				});
 
-			base.OnModelCreating(builder);
+			
 		}
 	}
 }
