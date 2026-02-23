@@ -153,7 +153,7 @@ namespace Cryptomind.Core.Services
 				CipherId = firstCorrectAnswerSuggestion.CipherId,
 				UserId = firstCorrectAnswerSuggestion.UserId,
 				PointsEarned = pointsGranted,
-				TimeSolved = DateTime.UtcNow,
+				TimeSubmitted = DateTime.UtcNow,
 				IsCorrect = true,
 			};
 
@@ -181,7 +181,7 @@ namespace Cryptomind.Core.Services
 					CipherId = correctAnswer.CipherId,
 					UserId = correctAnswer.UserId,
 					PointsEarned = cipher.Points,
-					TimeSolved = DateTime.UtcNow,
+					TimeSubmitted = DateTime.UtcNow,
 					IsCorrect = true,
 				};
 				currentUser.Score += cipher.Points;

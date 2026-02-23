@@ -16,7 +16,7 @@ namespace Cryptomind.Core.Badges.Criteria
 		public async Task<bool> IsSatisfied(string userId)
 		{
 			var approvedAnswersCount = await statsService.GetApprovedAnswersCount(userId);
-			return requiredCount >= approvedAnswersCount;
+			return approvedAnswersCount >= requiredCount;
 		}
 	}
 }
