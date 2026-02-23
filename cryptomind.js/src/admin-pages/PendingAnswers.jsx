@@ -1,0 +1,209 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
+import AdminSidebar from './AdminSidebar';
+import AdminTopbar from './AdminTopbar';
+import '../styles/pending-answers.css';
+import { Link } from 'react-router-dom';
+const API_BASE = 'http://localhost:5115/api/admin';
+
+axios.defaults.withCredentials = true;
+
+const PendingAnswers = () => {
+    const [answers, setAnswers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [cipherNameFilter, setCipherNameFilter] = useState('');
+    const [usernameFilter, setUsernameFilter] = useState('');
+    const [debouncedCipherName, setDebouncedCipherName] = useState('');
+    const [debouncedUsername, setDebouncedUsername] = useState('');
+
+    // Debounce cipher name filter
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedCipherName(cipherNameFilter);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [cipherNameFilter]);
+
+    // Debounce username filter
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedUsername(usernameFilter);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [usernameFilter]);
+
+    // Fetch pending answers
+    const fetchAnswers = useCallback(async () => {
+        try {
+            setLoading(true);
+            const params = {};
+            if (debouncedCipherName) params.cipherName = debouncedCipherName;
+            if (debouncedUsername) params.username = debouncedUsername;
+
+            const { data } = await axios.get(`${API_BASE}/pending-answer-suggestions`, { params });
+            console.log('Pending answer suggestions:', data);
+            setAnswers(Array.isArray(data) ? data : []);
+            setError(null);
+        } catch (err) {
+            console.error('Failed to fetch pending answers:', err);
+            setError(err.response?.data?.message || err.message);
+        } finally {
+            setLoading(false);
+        }
+    }, [debouncedCipherName, debouncedUsername]);
+
+    useEffect(() => {
+        fetchAnswers();
+    }, [fetchAnswers]);
+
+    // Refresh button handler
+    useEffect(() => {
+        const refreshBtn = document.getElementById('btn-refresh-answers');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', fetchAnswers);
+        }
+        return () => {
+            if (refreshBtn) refreshBtn.removeEventListener('click', fetchAnswers);
+        };
+    }, [fetchAnswers]);
+
+    return (
+        <div className="admin-shell">
+            <AdminSidebar activePage="pending-answers" />
+
+            <main className="admin-main">
+                <AdminTopbar breadcrumbs={[{ label: 'Pending Answers' }]}>
+                    <button className="btn btn-ghost btn-sm" id="btn-refresh-answers">
+                        Refresh
+                    </button>
+                </AdminTopbar>
+
+                <div className="admin-content">
+                    <div className="page-header">
+                        <h1 className="page-title">Pending Answer Suggestions</h1>
+                        <p className="page-subtitle">
+                            {answers.length} suggestion{answers.length !== 1 ? 's' : ''} awaiting review
+                        </p>
+                    </div>
+
+                    {/* Filters */}
+                    <div className="table-toolbar">
+                        <div className="toolbar-left">
+                            <div className="search-input-wrap">
+                                <svg className="search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                    <circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/>
+                                </svg>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="Filter by cipher name..."
+                                    value={cipherNameFilter}
+                                    onChange={(e) => setCipherNameFilter(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="search-input-wrap">
+                                <svg className="search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                    <circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M15 8h-2M3 8H1"/>
+                                </svg>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="Filter by username..."
+                                    value={usernameFilter}
+                                    onChange={(e) => setUsernameFilter(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <div className="toolbar-right">
+                            {loading && <span style={{ fontSize: '11px', color: 'var(--text-dim)' }}>Loading...</span>}
+                        </div>
+                    </div>
+
+                    {/* Table */}
+                    {error ? (
+                        <div className="data-table-wrapper">
+                            <div className="empty-state">
+                                <div className="empty-state-title">Error loading suggestions</div>
+                                <div className="empty-state-text">{error}</div>
+                            </div>
+                        </div>
+                    ) : answers.length === 0 && !loading ? (
+                        <div className="data-table-wrapper">
+                            <div className="empty-state">
+                                <svg className="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                </svg>
+                                <div className="empty-state-title">No pending suggestions</div>
+                                <div className="empty-state-text">
+                                    {cipherNameFilter || usernameFilter 
+                                        ? 'No results match your filters' 
+                                        : 'All community suggestions have been reviewed'}
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="data-table-wrapper">
+                            <table className="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Cipher Name</th>
+                                        <th>Description</th>
+                                        <th>Submitted By</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {answers.map((answer) => (
+                                        <tr key={answer.id}>
+                                            <td className="mono" style={{ color: 'var(--text-dim)', fontSize: '11px' }}>
+                                                #{answer.id}
+                                            </td>
+
+                                            <td>
+                                                <a
+                                                    href={`/cipher/${answer.cipherId}`}
+                                                    className="cipher-ref"
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                >
+                                                    {answer.cipherName || `Cipher #${answer.cipherId}`}
+                                                </a>
+                                                {/* <div style={{ marginTop: '2px' }}>
+                                                    <span className="badge badge-experimental">Experimental</span>
+                                                </div> */}
+                                            </td>
+
+                                            <td>
+                                                <div className="answer-preview">
+                                                    {answer.description || '—'}
+                                                </div>
+                                            </td>
+
+                                            <td className="mono" style={{ fontSize: '12px' }}>
+                                                {answer.username}
+                                            </td>
+
+                                            <td>
+                                                <Link
+                                                    to={`/admin/answer-review/${answer.id}`}
+                                                    className="btn btn-primary btn-sm"
+                                                >
+                                                    Review →
+                                                </Link>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+            </main>
+        </div>
+    );
+};
+
+export default PendingAnswers;

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Browse Ciphers — CryptoMind</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="cipher-browse.css" />
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="logo">CRYPTOMIND</div>
+            <ul class="nav-links">
+                <li><a href="/home">Home</a></li>
+                <li><a href="/browse">Browse</a></li>
+                <li><a href="/leaderboard">Leaderboard</a></li>
+                <li><a href="/about">About</a></li>
+            </ul>
+            <div class="nav-buttons">
+                <a href="/login" class="btn btn-secondary">Login</a>
+                <a href="/register" class="btn btn-primary">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- PAGE HEADER -->
+    <section class="page-header">
+        <div class="page-header-inner">
+            <div class="page-header-label">
+                <span class="label-dot"></span>
+                CIPHER VAULT
+            </div>
+            <h1 class="page-title">Browse <span class="title-accent">Challenges</span></h1>
+            <p class="page-subtitle">Decrypt, identify, and conquer classical cipher challenges submitted by the community.</p>
+        </div>
+        <div class="page-header-stats">
+            <div class="stat-pill">
+                <span class="stat-num" id="totalCiphers">0</span>
+                <span class="stat-label">Total Challenges</span>
+            </div>
+            <div class="stat-pill">
+                <span class="stat-num" id="activeSolvers">0</span>
+                <span class="stat-label">Active Solvers</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAIN LAYOUT -->
+    <main class="browse-layout">
+
+        <!-- SIDEBAR FILTERS -->
+        <aside class="filter-sidebar" id="filterSidebar">
+
+            <div class="sidebar-header">
+                <h2 class="sidebar-title">
+                    <span class="sidebar-icon">⚙</span>
+                    Filters
+                </h2>
+                <button class="clear-all-btn" id="clearAllFilters">Clear all</button>
+            </div>
+
+            <form id="filterForm" novalidate>
+
+                <!-- SEARCH -->
+                <div class="filter-section">
+                    <label class="filter-label" for="searchInput">Search</label>
+                    <div class="search-wrapper">
+                        <span class="search-icon">⌕</span>
+                        <input
+                            type="text"
+                            id="searchInput"
+                            name="searchTerm"
+                            class="search-input"
+                            placeholder="Search by title..."
+                            autocomplete="off"
+                        />
+                    </div>
+                </div>
+
+                <!-- CHALLENGE TYPE -->
+                <div class="filter-section">
+                    <label class="filter-label">Challenge Type</label>
+                    <div class="challenge-type-group">
+                        <label class="type-radio-label">
+                            <input type="radio" name="challengeType" value="0" class="type-radio" checked />
+                            <span class="type-radio-custom">All</span>
+                        </label>
+                        <label class="type-radio-label">
+                            <input type="radio" name="challengeType" value="1" class="type-radio" />
+                            <span class="type-radio-custom">Standard</span>
+                        </label>
+                        <label class="type-radio-label">
+                            <input type="radio" name="challengeType" value="2" class="type-radio" />
+                            <span class="type-radio-custom">Experimental</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- TAGS -->
+                <div class="filter-section">
+                    <label class="filter-label">Tags</label>
+                    <div class="tags-group">
+                        <label class="tag-check-label">
+                            <input type="checkbox" name="tags" value="0" class="tag-check" />
+                            <span class="tag-check-custom">Image</span>
+                        </label>
+                        <label class="tag-check-label">
+                            <input type="checkbox" name="tags" value="1" class="tag-check" />
+                            <span class="tag-check-custom">Puzzle</span>
+                        </label>
+                        <label class="tag-check-label">
+                            <input type="checkbox" name="tags" value="2" class="tag-check" />
+                            <span class="tag-check-custom">Historical</span>
+                        </label>
+                        <label class="tag-check-label">
+                            <input type="checkbox" name="tags" value="3" class="tag-check" />
+                            <span class="tag-check-custom">Short</span>
+                        </label>
+                        <label class="tag-check-label">
+                            <input type="checkbox" name="tags" value="4" class="tag-check" />
+                            <span class="tag-check-custom">Long</span>
+                        </label>
+                        <label class="tag-check-label">
+                            <input type="checkbox" name="tags" value="5" class="tag-check" />
+                            <span class="tag-check-custom">Beginner Friendly</span>
+                        </label>
+                        <label class="tag-check-label">
+                            <input type="checkbox" name="tags" value="6" class="tag-check" />
+                            <span class="tag-check-custom">Tricky</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- APPLY BUTTON -->
+                <button type="submit" class="btn btn-primary btn-apply" id="applyFilters">
+                    Apply Filters
+                </button>
+
+            </form>
+        </aside>
+
+        <!-- CIPHER GRID AREA -->
+        <section class="cipher-content">
+
+            <!-- TOP BAR -->
+            <div class="content-topbar">
+                <div class="results-info">
+                    Showing <span class="results-count" id="resultsCount">0</span> challenges
+                    <span class="active-filters-row" id="activeFiltersRow">
+                        <!-- Active filter pills injected by JS -->
+                    </span>
+                </div>
+                <div class="sort-wrapper">
+                    <label class="sort-label" for="sortSelect">Sort by</label>
+                    <select class="sort-select" id="sortSelect" name="sortBy">
+                        <option value="newest">Newest</option>
+                        <option value="oldest">Oldest</option>
+                        <option value="popular">Most Popular</option>
+                        <option value="difficulty_asc">Difficulty ↑</option>
+                        <option value="difficulty_desc">Difficulty ↓</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- MOBILE FILTER TOGGLE -->
+            <button class="mobile-filter-btn" id="mobileFilterToggle">
+                <span>⚙ Filters</span>
+                <span class="mobile-filter-badge" id="mobileFilterBadge"></span>
+            </button>
+
+            <!-- CIPHER CARDS GRID -->
+            <div class="cipher-grid" id="cipherGrid">
+
+                <!-- Skeleton loaders shown while loading -->
+                <div class="cipher-card skeleton"></div>
+                <div class="cipher-card skeleton"></div>
+                <div class="cipher-card skeleton"></div>
+                <div class="cipher-card skeleton"></div>
+                <div class="cipher-card skeleton"></div>
+                <div class="cipher-card skeleton"></div>
+
+                <!--
+                    Example of a real cipher card — JS generates these from API data.
+
+                <article class="cipher-card" data-id="1">
+                    <div class="card-header">
+                        <div class="card-badges">
+                            <span class="badge badge-standard">Standard</span>
+                        </div>
+                    </div>
+                    <h3 class="card-title">The Forgotten Letter</h3>
+                    <div class="card-cipher-preview">
+                        <code class="cipher-text-preview">WKHER FDVHV DUHQR WIRUV WDQGD UGXVH...</code>
+                    </div>
+                    <div class="card-tags">
+                        <span class="tag">Historical</span>
+                    </div>
+                    <div class="card-footer">
+                        <div class="card-meta">
+                            <span class="meta-item">
+                                <span class="meta-icon">✓</span> 42 solvers
+                            </span>
+                            <span class="meta-item">
+                                <span class="meta-icon">◷</span> 3d ago
+                            </span>
+                        </div>
+                        <a href="/cipher/1" class="btn btn-card">Solve →</a>
+                    </div>
+                </article>
+                -->
+
+            </div>
+
+            <!-- EMPTY STATE -->
+            <div class="empty-state hidden" id="emptyState">
+                <div class="empty-icon">⊘</div>
+                <h3 class="empty-title">No ciphers found</h3>
+                <p class="empty-message">Try adjusting your filters or search term.</p>
+                <button class="btn btn-ghost" id="resetFromEmpty">Clear filters</button>
+            </div>
+
+            <!-- PAGINATION -->
+            <div class="pagination" id="pagination">
+                <button class="page-btn" id="prevPage" disabled>← Prev</button>
+                <div class="page-numbers" id="pageNumbers">
+                    <!-- Page number buttons generated by JS -->
+                </div>
+                <button class="page-btn" id="nextPage">Next →</button>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <h3>CRYPTOMIND</h3>
+                <p>An educational cryptography platform combining machine learning with classical cryptanalysis. Identify ciphers, solve challenges, and learn the art of cryptanalysis.</p>
+            </div>
+            <div class="footer-column">
+                <h4>Platform</h4>
+                <ul class="footer-links">
+                    <li><a href="/browse">Browse Ciphers</a></li>
+                    <li><a href="/leaderboard">Leaderboard</a></li>
+                    <li><a href="/tools">Tools</a></li>
+                    <li><a href="/submit">Submit Cipher</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Learn</h4>
+                <ul class="footer-links">
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/how-it-works">How It Works</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Legal</h4>
+                <ul class="footer-links">
+                    <li><a href="/terms">Terms</a></li>
+                    <li><a href="/privacy">Privacy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2025 CryptoMind. Educational use only.
+        </div>
+    </footer>
+
+</body>
+</html>
