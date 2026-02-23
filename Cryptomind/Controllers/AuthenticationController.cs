@@ -35,7 +35,7 @@ namespace Cryptomind.Controllers
 			ApplicationUser user = await authService.Authenticate(model.Email, model.Password);
 			string token = await authService.GenerateJSONWebToken(user);
 			AddCookie(token);
-			return Ok(new { token });
+			return Ok(await userService.GetRolesUsers(user.Id));
 		}
 
 		[HttpPost("logout")]
@@ -86,7 +86,6 @@ namespace Cryptomind.Controllers
 				Expires = DateTimeOffset.UtcNow.AddHours(3),
 			});
 		}
-
 		private string? GetUserId()
 			=> User.FindFirstValue(ClaimTypes.NameIdentifier);
 		#endregion
