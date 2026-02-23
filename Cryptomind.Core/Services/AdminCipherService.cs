@@ -138,6 +138,7 @@ namespace Cryptomind.Core.Services
 		{
 			var result = await cipherRepo.GetAllAttached()
                 .Include(c => c.UserSolutions)
+				.Include(c => c.CreatedByUser)
                 .Where(c => c.IsDeleted)
 				.ToListAsync();
 
@@ -331,7 +332,7 @@ namespace Cryptomind.Core.Services
 				userId, 
 				NotificationType.CipherRejected,
 				$"Your cipher {cipher.Title} was rejected. Reason: " + reason,
-				"api/submissions");
+                "my_submissions");
 		}
 		public async Task UpdateApprovedCipher(int id, UpdateCipherViewModel model)
 		{
