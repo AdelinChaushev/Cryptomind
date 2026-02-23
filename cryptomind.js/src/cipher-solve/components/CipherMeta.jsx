@@ -5,12 +5,10 @@ function CipherMeta({ cipher , timeAgo }) {
                 <p className="meta-header-title">Инфо за шифъра</p>
             </div>
 
-            <div className="meta-body">
-                <div className="points-display">
+            
+             <div className="meta-body">
+              {cipher.challengeTypeDisplay === "Standard" &&  <div className="points-display">
                     <div className="points-value">{cipher.points ?? 100}</div>
-                    <div className="points-label">Налични точки</div>
-                </div>
-
                 <div className="meta-stats">
                     <div className="meta-stat">
                         <span className="meta-stat-label">
