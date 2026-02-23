@@ -64,7 +64,7 @@ namespace Cryptomind.Core.Services
 				encryptedTextForAnalysis = result.ExtractedText;
 
 				string imageFolderPath = Path.GetFullPath(Path.Combine(
-				AppContext.BaseDirectory, "..", "..", "..", "..", "Images"));
+				AppContext.BaseDirectory, "..", "..", "..", "..", "Images/Ciphers"));
 				Directory.CreateDirectory(imageFolderPath);
 				string originalExtension = Path.GetExtension(model.Image.FileName).ToLowerInvariant();
 				string safeTitle = MakeSafeFilename(model.Title);
@@ -78,7 +78,7 @@ namespace Cryptomind.Core.Services
 					}
 				}
 
-				string relativePath = Path.Combine("Images", safeTitle + originalExtension);
+				string relativePath = Path.Combine("Images/Ciphers", safeTitle + originalExtension);
 
 				if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.EncryptedText == result.ExtractedText) != null)
 					throw new ConflictException("There is already a cipher like this");
