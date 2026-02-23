@@ -24,14 +24,7 @@ const Footer = () => {
                         <li><a href="/about">About</a></li>
                         <li><a href="/how-it-works">How It Works</a></li>
                     </ul>
-                </div>
-                <div className="footer-column">
-                    <h4>Legal</h4>
-                    <ul className="footer-links">
-                        <li><a href="/terms">Terms</a></li>
-                        <li><a href="/privacy">Privacy</a></li>
-                    </ul>
-                </div>
+                </div>               
             </div>
             <div className="footer-bottom">
                 &copy; 2025 CryptoMind. Educational use only.

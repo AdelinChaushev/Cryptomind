@@ -1,33 +1,50 @@
-// Props for CipherCard:
-//   cipher — object with the shape below (map from your API response):
-//   {
-//     id:               number
-//     title:            string
-//     cipherPreview:    string   — short snippet of the encrypted text
-//     challengeType:    number   — 1 = Standard, 2 = Experimental
-//     tags:             string[] — display names of the cipher type tags
-//     solverCount:      number
-//     createdAt:        string   — e.g. "3d ago", format on the backend or here
-//   }
+const ImageIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+        style={{ width: '11px', height: '11px' }}>
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+        <circle cx="8.5" cy="8.5" r="1.5" />
+        <polyline points="21 15 16 10 5 21" />
+    </svg>
+);
 
-import { Link } from "react-router-dom";
+const CheckIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+        style={{ width: '11px', height: '11px' }}>
+        <polyline points="20 6 9 17 4 12" />
+    </svg>
+);
 
+// challengeTypeDisplay is now a plain string from the backend e.g. "Standard" / "Experimental"
 const CHALLENGE_TYPE_BADGE = {
-    1: { label: 'Standard',     className: 'badge-standard' },
-    2: { label: 'Experimental', className: 'badge-experimental' },
+    Standard:     'badge-standard',
+    Experimental: 'badge-experimental',
 };
 
 const CipherCard = ({ cipher }) => {
     if (!cipher) return null;
-    const typeBadge = CHALLENGE_TYPE_BADGE[cipher.challengeType];
-
+    const typeBadgeClass = CHALLENGE_TYPE_BADGE[cipher.challengeTypeDisplay ?? ''] || null;
+    
     return (
-        <article className="cipher-card" data-id={cipher.id}>
+        <article className={`cipher-card ${cipher.alreadySolved ? 'cipher-card--solved' : ''}`} data-id={cipher.id}>
             <div className="card-header">
                 <div className="card-badges">
-                    {typeBadge && (
-                        <span className={`badge ${typeBadge.className}`}>
-                            {typeBadge.label}
+                    {typeBadgeClass && (
+                        <span className={`badge ${typeBadgeClass}`}>
+                            {cipher.challengeTypeDisplay?? 'Unknown Type'}
+                        </span>
+                    )}
+
+                    {cipher.isImage && (
+                        <span className="badge badge-image">
+                            <ImageIcon /> Image
+                        </span>
+                    )}
+
+                    {cipher.alreadySolved && (
+                        <span className="badge badge-solved">
+                            <CheckIcon /> Solved
                         </span>
                     )}
                 </div>
@@ -35,40 +52,15 @@ const CipherCard = ({ cipher }) => {
 
             <h3 className="card-title">{cipher.title}</h3>
 
-            {cipher.cipherPreview && (
-                <div className="card-cipher-preview">
-                    <code className="cipher-text-preview">{cipher.cipherPreview}</code>
-                </div>
-            )}
-
-            {cipher.tags && cipher.tags.length > 0 && (
-                <div className="card-tags">
-                    {cipher.tags.map((tag, index) => (
-                        <span className="tag" key={index}>{tag}</span>
-                    ))}
-                </div>
-            )}
-
             <div className="card-footer">
-                <div className="card-meta">
-                    <span className="meta-item">
-                        <span className="meta-icon">✓</span>
-                        {cipher.solverCount} solvers
-                    </span>
-                    <span className="meta-item">
-                        <span className="meta-icon">◷</span>
-                        {cipher.createdAt}
-                    </span>
-                </div>
-                <Link to={`/cipher/${cipher.id}`} className="btn btn-card">
-                    Solve →
-                </Link>
+                <a href={`/cipher/${cipher.id}`} className="btn btn-card">
+                    {cipher.alreadySolved ? 'View →' : 'Solve →'}
+                </a>
             </div>
         </article>
     );
 };
 
-// Skeleton loader — shown while ciphers are being fetched
 export const CipherCardSkeleton = () => (
     <div className="cipher-card skeleton" />
 );

@@ -26,29 +26,36 @@ const HUB_URL  = 'http://localhost:5115/notificationHub';
  *   "1.03:43:27.4695859"  →  1 day ago
  */
 export function parseCreatedSince(createdSince) {
-    if (!createdSince) return '';   
-    let totalSeconds = 0;
-    const withDays = createdSince.match(/^(\d+)\.(\d{2}):(\d{2}):(\d{2})/);
-    const timeOnly = createdSince.match(/^(\d{2}):(\d{2}):(\d{2})/);
+    if (!createdSince) return '';
 
-    if (withDays) {
-        const [, d, h, m, s] = withDays.map(Number);
-        totalSeconds = d * 86400 + h * 3600 + m * 60 + s;
-    } else if (timeOnly) {
-        const [, h, m, s] = timeOnly.map(Number);
-        totalSeconds = h * 3600 + m * 60 + s;
-    } else {
-        return createdSince;
-    }
+    // Regex to capture: [days].hours:minutes:seconds
+    // Supports formats: "5.12:30:00" or "12:30:00"
+    const match = createdSince.match(/(?:(\d+)\.)?(\d{1,2}):(\d{2}):(\d{2})/);
 
-    if (totalSeconds < 60)  return 'just now';
+    if (!match) return createdSince;
+
+    // Extract parts: group 1 is days (optional), 2 is hours, 3 is minutes, 4 is seconds
+    const daysPart = parseInt(match[1] || 0, 10);
+    const hoursPart = parseInt(match[2], 10);
+    const minutesPart = parseInt(match[3], 10);
+    const secondsPart = parseInt(match[4], 10);
+
+    const totalSeconds = (daysPart * 86400) + (hoursPart * 3600) + (minutesPart * 60) + secondsPart;
+
+    // Determine the largest unit for human-readable output
+    if (totalSeconds < 60) return 'just now';
+
     const mins = Math.floor(totalSeconds / 60);
-    if (mins < 60)          return `${mins}m ago`;
+    if (mins < 60) return `${mins}m ago`;
+
     const hrs = Math.floor(mins / 60);
-    if (hrs < 24)           return `${hrs}h ago`;
+    if (hrs < 24) return `${hrs}h ago`;
+
     const days = Math.floor(hrs / 24);
-    if (days < 30)          return `${days}d ago`;
-    return                  `${Math.floor(days / 30)}mo ago`;
+    if (days < 30) return `${days}d ago`;
+
+    const months = Math.floor(days / 30);
+    return `${months}mo ago`;
 }
 
 function resolveLink(notification) {
@@ -192,10 +199,10 @@ export function useNotifications() {
 
         try {
             const res = await fetch(`${API_BASE}/mark-as-read`, {
-                method: 'POST',
+                method: 'PUT',
                 headers: authHeaders(),
                 credentials: 'include',
-                body: JSON.stringify([notificationId]),
+               
             });
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
         } catch (err) {
@@ -218,10 +225,9 @@ export function useNotifications() {
 
         try {
             const res = await fetch(`${API_BASE}/mark-as-read`, {
-                method: 'POST',
+                method: 'PUT',
                 headers: authHeaders(),
                 credentials: 'include',
-                body: JSON.stringify(unreadIds),
             });
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
         } catch (err) {
@@ -250,5 +256,6 @@ export function useNotifications() {
         handleNotificationClick,
         toasts,
         dismissToast,
+        refetch: fetchNotifications,
     };
 }
