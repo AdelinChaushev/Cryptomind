@@ -5,20 +5,22 @@ import '../styles/register.css'
 import { useNavigate } from "react-router-dom"
 import { useContext } from "react";
 import { AuthorizationContext } from "../App.jsx";
-
+import { useError } from '../ErrorContext.jsx';
 export default function Register() {
      const navigate = useNavigate();
     const [data,setData] = useState({username: '',email:'',password:'',confirmPassword:''})
     const {state, setState} = useContext(AuthorizationContext);
+    const { setError } = useError();
     const handleChange= (e) => {
       setData({...data,[e.target.name]:e.target.value})
     }
     const handleSubmit = (e) =>{
+        e.preventDefault();
          if(data.password != data.confirmPassword){
-          alert("Password and confirm password must be the same")
-          return
+          setError("Password and confirm password must be the same")
+          return;
          }
-         e.preventDefault()
+         
          axios.post('http://localhost:5115/api/auth/register',{
           username: data.username,
           email : data.email,
@@ -28,7 +30,7 @@ export default function Register() {
           {console.log(e.data)
           navigate('/');
           setState({roles: ["User"], isLoggedIn: true})
-         }).catch(e => console.log(e))        // Reload the page to reflect the new registration
+         }).catch(e => {setError(e.response?.message || 'Registration failed')})        // Reload the page to reflect the new registration
     }
     return (
         <>

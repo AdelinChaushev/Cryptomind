@@ -35,7 +35,7 @@ const AnswerSuggestionsList = ({ answers = [], onViewCipher, onViewDetails }) =>
                 <AnswerCard
                     key={answer.id}
                     cipherTitle={answer.cipherTitle}
-                    status={answer.status}
+                    status={answer.status.toLowerCase()}
                     suggestedAt={answer.submittedAt}
                     description={answer.suggestedAnswer}
                     pointsEarned={answer.pointsEarned}

@@ -14,9 +14,6 @@ const Hero = () => {
                 <a href="/register" className="btn btn-primary btn-hero">
                     Start Solving Now
                 </a>
-                <a href="#browse" className="btn btn-secondary btn-hero">
-                    Browse Ciphers
-                </a>
             </div>
         </section>
     );

@@ -30,6 +30,7 @@ import RequireNotBanned from './RequiresNotBanned.jsx';
 import NotificationsPage from './notifications/NotificationsPage.jsx';
 import { useNotifications } from './notifications/UseNotifications';
 import ToastContainer from './notifications/ToastContainer';
+import { ErrorProvider } from "./ErrorContext";
 export const AuthorizationContext = createContext({roles : [], isLoggedIn: false});
 export const NotificationContext = createContext(null);
 export const useNotificationContext = () => useContext(NotificationContext);
@@ -66,6 +67,7 @@ function App() {
     return (    
     <>
     <AuthorizationContext.Provider value={{ state, setState }}>
+    <ErrorProvider>
     <NotificationContext.Provider value={notifications}>
     <Routes >
       <Route path="/banned" element={<RequireNotBanned><BannedPage/></RequireNotBanned>} />
@@ -90,7 +92,7 @@ function App() {
         <Route path="admin/answer-review/:id" element={<RequireAuth allowedRoles={["Admin"]} ><PendingAnswerApproval /></RequireAuth>} />
         <Route path="admin/users" element={<RequireAuth allowedRoles="Admin" ><UsersManagement /></RequireAuth>} />
         <Route path="admin/deleted-ciphers" element={<RequireAuth allowedRoles="Admin" ><DeletedCiphers /></RequireAuth>} />
-        {state.isLoggedIn ? (<Route index element={<RequireAuth ><CipherBrowsePage/></RequireAuth>}  />) : (<Route index element={<Home/>} />)}  
+        {!state.isLoggedIn ?(<Route index element={<Home/>} />) : (<Route index element={<RequireAuth ><CipherBrowsePage/></RequireAuth>}  />)}  
         <Route path="*" element={<NotFoundPage />} />
         
       </Route>
@@ -101,6 +103,7 @@ function App() {
             onNotificationClick={notifications.handleNotificationClick}
         />
     </NotificationContext.Provider>
+    </ErrorProvider>  
     </AuthorizationContext.Provider>
     </>
   
