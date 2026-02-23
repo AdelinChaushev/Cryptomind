@@ -95,7 +95,7 @@ const CipherReview = () => {
                             break;    
                     };
                 console.error('Failed to fetch cipher:', err);
-                setlocalError(err.response?.data?.message || err.message)}
+                setLocalError(err.response?.data?.message || err.message)}
                 )
                 .finally(() => setLoading(false));
               
@@ -162,7 +162,7 @@ const CipherReview = () => {
     // Reject
     const handleReject = useCallback(async () => {
         if (!rejectReason.trim()) {
-            alert('Please provide a reason for rejecting this cipher.');
+            setError('Please provide a reason for rejecting this cipher.');
             return;
         }
 
@@ -174,7 +174,7 @@ const CipherReview = () => {
            navigate('/admin/pending-ciphers');
         } catch (err) {
 
-            alert(`Rejection failed: ${err.response?.data?.message || err.message}`);
+            setError(`Rejection failed: ${err.response?.data?.message || err.message}`);
         }
     }, [cipherId, rejectReason]);
 
