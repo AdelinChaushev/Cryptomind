@@ -16,10 +16,10 @@ const CIPHER_TYPES = [
     { value: '11', label: 'Morse',               group: 'Encoding' },
     { value: '12', label: 'Binary',              group: 'Encoding' },
     { value: '13', label: 'Hex',                 group: 'Encoding' },
-    { value: '14', label: 'Plaintext',           group: 'Special' },
+    
 ];
 
-const GROUPS = ['Substitution', 'Polyalphabetic', 'Transposition', 'Encoding', 'Special'];
+const GROUPS = ['Substitution', 'Polyalphabetic', 'Transposition', 'Encoding'];
 
 const SubmitForm = ({ fields, useImage, onToggle, onFieldChange }) => {
     const { title, decryptedText, encryptedText, image, cipherType } = fields;

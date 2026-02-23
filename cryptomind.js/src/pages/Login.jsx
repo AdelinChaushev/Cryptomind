@@ -6,11 +6,13 @@ import '../styles/login.css';
 import { AuthorizationContext } from '../App.jsx'; 
 import { useContext } from 'react';
 
+import { useError } from '../ErrorContext.jsx';
+
 export default function Login() {
     const navigate = useNavigate();
     const [data,setData] = useState({email: '', password:''})
     const {state, setState} = useContext(AuthorizationContext);
-
+    const { setError } = useError();
    const  onChangeState = (e) =>  {
        setData({...data,[e.target.name]:e.target.value})
    }
@@ -25,9 +27,14 @@ export default function Login() {
      setTimeout(() => {
             navigate('/');
           }, 0); 
-    } ).catch(e =>{ e.response.status == 403 ? 
-        setState({isLoggedIn: false, roles: [], isBanned: true}) : setState({isLoggedIn: false, roles: []})
-        navigate('/banned')  }
+    } ).catch(e =>{ 
+        if(e.response.status == 403) {
+        setState({isLoggedIn: false, roles: [], isBanned: true})
+        
+        }
+         setState({isLoggedIn: false, roles: []})
+         setError(e.response?.data?.message || 'Login failed. Please check your credentials and try again.');
+         }
     );   
     
    }
