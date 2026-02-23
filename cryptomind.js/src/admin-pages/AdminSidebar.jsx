@@ -1,33 +1,32 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 
 const AdminSidebar = ({ activePage }) => {
     const navItems = [
         {
-            section: 'Overview',
+            section: 'Общ преглед',
             links: [
-                { id: 'dashboard', label: 'Dashboard', href: '/admin', icon: <GridIcon /> }
+                { id: 'dashboard', label: 'Табло', href: '/admin', icon: <GridIcon /> }
             ]
         },
         {
-            section: 'Ciphers',
+            section: 'Шифри',
             links: [
-                { id: 'pending-ciphers', label: 'Pending Submissions', href: '/admin/pending-ciphers', icon: <ClockIcon />, badge: true },
-                { id: 'approved-ciphers', label: 'Manage Ciphers', href: '/admin/manage-ciphers', icon: <LockIcon /> },
-                { id: 'deleted-ciphers', label: 'Deleted Ciphers', href: '/admin/deleted-ciphers', icon: <TrashIcon /> }
+                { id: 'pending-ciphers', label: 'Изчакващи предложения', href: '/admin/pending-ciphers', icon: <ClockIcon />, badge: true },
+                { id: 'approved-ciphers', label: 'Управление на шифри', href: '/admin/manage-ciphers', icon: <LockIcon /> },
+                { id: 'deleted-ciphers', label: 'Изтрити шифри', href: '/admin/deleted-ciphers', icon: <TrashIcon /> }
             ]
         },
         {
-            section: 'Answers',
+            section: 'Отговори',
             links: [
-                { id: 'pending-answers', label: 'Pending Answers', href: '/admin/pending-answers', icon: <ChatIcon />, badge: true },
+                { id: 'pending-answers', label: 'Изчакващи отговори', href: '/admin/pending-answers', icon: <ChatIcon />, badge: true },
             ]
         },
         {
-            section: 'Users',
+            section: 'Потребители',
             links: [
-                { id: 'users', label: 'User Management', href: '/admin/users', icon: <UsersIcon /> }
+                { id: 'users', label: 'Управление на потребители', href: '/admin/users', icon: <UsersIcon /> }
             ]
         }
     ];
@@ -38,7 +37,7 @@ const AdminSidebar = ({ activePage }) => {
                 <div className="sidebar-logo-text">
                     <span>[</span>CRYPTOMIND<span>]</span>
                 </div>
-                <div className="sidebar-logo-badge">ADMIN PANEL</div>
+                <div className="sidebar-logo-badge">АДМИН ПАНЕЛ</div>
             </div>
 
             {navItems.map((group) => (
@@ -46,9 +45,9 @@ const AdminSidebar = ({ activePage }) => {
                     <div className="sidebar-section-label">{group.section}</div>
                     <nav className="sidebar-nav">
                         {group.links.map((link) => (
-                            <a
+                            <Link
                                 key={link.id}
-                                href={link.href}
+                                to={link.href}
                                 className={`sidebar-link${activePage === link.id ? ' active' : ''}`}
                             >
                                 <span className="link-icon">{link.icon}</span>
@@ -56,36 +55,36 @@ const AdminSidebar = ({ activePage }) => {
                                 {link.badge && (
                                     <span className="sidebar-badge" id={`badge-${link.id}`}></span>
                                 )}
-                            </a>
+                            </Link>
                         ))}
                     </nav>
                 </div>
             ))}
 
-            {/* <div className="sidebar-footer">
+            <div className="sidebar-footer">
                 <div className="sidebar-user">
-                    <div className="sidebar-avatar">AD</div>
+                    <div className="sidebar-avatar">АД</div>
                     <div className="sidebar-user-info">
-                        <span className="sidebar-user-name">Admin</span>
-                        <span className="sidebar-user-role">ADMIN</span>
+                        <span className="sidebar-user-name">Администратор</span>
+                        <span className="sidebar-user-role">АДМИН</span>
                     </div>
                 </div>
                 <nav className="sidebar-nav" style={{ marginTop: '4px' }}>
                     <a href="/" className="sidebar-link">
                         <span className="link-icon"><HomeIcon /></span>
-                        Back to Site
+                        Към сайта
                     </a>
-                    <Link href="/logout" className="sidebar-link">
+                    <Link to="/logout" className="sidebar-link">
                         <span className="link-icon"><LogoutIcon /></span>
-                        Logout
+                        Изход
                     </Link>
                 </nav>
-            </div> */}
+            </div>
         </aside>
     );
 };
 
-/* ─── Inline SVG Icons (no library needed) ─── */
+/* ─── Икони (SVG) ─── */
 const GridIcon = () => (
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
         <rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/>

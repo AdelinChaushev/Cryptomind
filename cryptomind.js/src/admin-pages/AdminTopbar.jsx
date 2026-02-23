@@ -5,7 +5,7 @@ const AdminTopbar = ({ breadcrumbs = [], children }) => {
         <header className="admin-topbar">
             <div className="topbar-breadcrumb">
                 <a href="/admin" className="sidebar-link" style={{ padding: 0, color: 'var(--text-dim)' }}>
-                    Admin
+                    Админ
                 </a>
                 {breadcrumbs.map((crumb, i) => (
                     <React.Fragment key={i}>
