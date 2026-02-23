@@ -33,8 +33,9 @@ const Navbar = () => {
     return (
         <nav className="navbar">
             <div className="navbar-container">
-                <div className="logo">CRYPTOMIND</div>
+                <div className="logo"><img src="../../public/logo.png" alt="" /></div>
                 <ul className="nav-links">
+                   
                    { !state.isLoggedIn ? (<li><Link to="/">Home</Link></li>) :
                     (<><li><Link to="/">Browse</Link></li>
                     <li><Link to="/submit">Submit</Link></li>
