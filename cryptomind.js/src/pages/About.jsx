@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import "../styles/about.css";
-
+import { useContext } from "react";
+import { AuthorizationContext } from "../App.jsx";
+import { Link } from "react-router-dom";
 // ─── Cipher Reveal Hook ───────────────────────────────────────────────────────
 function useCipherReveal(text) {
     const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%";
     const [displayed, setDisplayed] = useState("");
-
+    const { state ,setState} = useContext(AuthorizationContext);
     useEffect(() => {
         let frame = 0;
         const totalFrames = text.length * 4;
@@ -355,6 +357,7 @@ function Roles() {
 
 // ─── CTA ──────────────────────────────────────────────────────────────────────
 function CTA() {
+     const { state ,setState} = useContext(AuthorizationContext);
     return (
         <section className="about-cta">
             <div className="about-cta__glow" />
@@ -363,8 +366,8 @@ function CTA() {
                 <h2 className="about-cta__title">РАЗГАДАЙ ПЪРВИЯ СИ ШИФЪР</h2>
                 <p className="about-cta__sub">Историята на тайните съобщения чака да бъде открита.</p>
                 <div className="about-cta__buttons">
-                    <a href="/register" className="about-cta__btn-primary">Регистрирай се</a>
-                    <a href="/ciphers"  className="about-cta__btn-secondary">Разгледай шифрите</a>
+                    {!state.isLoggedIn ? <Link to="/register" className="about-cta__btn-primary">Регистрирай се</Link>
+                   : <Link to="/ciphers"  className="about-cta__btn-secondary">Разгледай шифрите</Link>}
                 </div>
             </div>
         </section>

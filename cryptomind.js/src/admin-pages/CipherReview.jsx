@@ -24,7 +24,23 @@ const AVAILABLE_TAGS = [
     { id: 6, label: 'Beginner Friendly' },
     { id: 7, label: 'Tricky' }
 ];
-
+const CIPHER_TYPES = [
+    { value: '0',  label: 'Caesar',              group: 'Substitution' },
+    { value: '1',  label: 'Atbash',              group: 'Substitution' },
+    { value: '2',  label: 'Simple Substitution', group: 'Substitution' },
+    { value: '3',  label: 'ROT13',               group: 'Substitution' },
+    { value: '4',  label: 'Vigenere',            group: 'Polyalphabetic' },
+    { value: '5',  label: 'Autokey',             group: 'Polyalphabetic' },
+    { value: '6',  label: 'Trithemius',          group: 'Polyalphabetic' },
+    { value: '7',  label: 'Rail Fence',          group: 'Transposition' },
+    { value: '8',  label: 'Columnar',            group: 'Transposition' },
+    { value: '9',  label: 'Route',               group: 'Transposition' },
+    { value: '10', label: 'Base64',              group: 'Encoding' },
+    { value: '11', label: 'Morse',               group: 'Encoding' },
+    { value: '12', label: 'Binary',              group: 'Encoding' },
+    { value: '13', label: 'Hex',                 group: 'Encoding' },
+];
+const GROUPS = ['Substitution', 'Polyalphabetic', 'Transposition', 'Encoding'];
 
 
 const CipherReview = () => {
@@ -41,6 +57,7 @@ const CipherReview = () => {
     const [selectedTags, setSelectedTags] = useState([]);
     const [allowHint, setAllowHint] = useState(true);
     const [allowSolution, setAllowSolution] = useState(false);
+    const [cipherType, setCipherType] = useState(0);
     const [showRejectForm, setShowRejectForm] = useState(false);
     const [rejectReason, setRejectReason] = useState('');
 
@@ -91,7 +108,8 @@ const CipherReview = () => {
             console.log('LLM result:', data);
             setLlmResult(data);
         } catch (err) {
-           
+            console.error('LLM analysis failed:', err);
+            alert(`LLM analysis failed: ${err.response?.data?.message || err.message}`);
         } finally {
             setIsLlmLoading(false);
         }
@@ -410,6 +428,31 @@ const CipherReview = () => {
                                     <span className="admin-card-title">Challenge Type</span>
                                 </div>
 
+                                <div>
+                               <select
+                    className="field-select"
+                    value={cipherType}
+                    onChange={e => setCipherType( e.target.value)}
+                >
+                    <option value="">Unknown — let the ML decide</option>
+                    {GROUPS.map(group => (
+                        <optgroup key={group} label={group}>
+                            {CIPHER_TYPES
+                                .filter(t => t.group === group)
+                                .map(t => (
+                                    <option key={t.value} value={t.value}>{t.label}</option>
+                                ))
+                            }
+                        </optgroup>
+                    ))}
+                </select>
+                                </div>
+                            </div>
+                             <div className="admin-card">
+                                <div className="admin-card-header">
+                                    <span className="admin-card-title">Challenge Type</span>
+                                </div>
+
                                 <div className="type-toggle">
                                 {cipher.decryptedText ? (
                                     <button className="type-toggle-btn active-standard">
@@ -425,7 +468,6 @@ const CipherReview = () => {
                                     </button> )}
                                 </div>
                             </div>
-
                             {/* Actions */}
                             <div className="admin-card">
                                 <div className="admin-card-header">
@@ -434,7 +476,7 @@ const CipherReview = () => {
 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                     <button
-                                        onClick={handleApprove()}
+                                        onClick={handleApprove}
                                         className="btn btn-success"
                                         style={{ justifyContent: 'center' }}>
                                         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
