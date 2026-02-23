@@ -55,7 +55,7 @@ body {
     background: rgba(30, 41, 59, 0.8);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border-default);
-    padding: 20px 0;
+    padding: 12px 0; 
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -69,20 +69,22 @@ body {
     justify-content: space-between;
     align-items: center;
 }
-
 .logo {
-    font-size: 24px;
-    font-weight: 800;
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.logo img {
+    height: 64px;
+    width: auto;
+    object-fit: contain;
+    display: block;
 }
 
 .nav-links {
     display: flex;
-    gap: 40px;
+    gap: 50px;
     list-style: none;
 }
 
