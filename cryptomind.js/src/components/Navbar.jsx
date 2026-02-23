@@ -6,6 +6,7 @@ import axios from 'axios';
 import { AuthorizationContext } from '../App.jsx'; 
 import NotificationBell from '../notifications/NotificationBell.jsx';
 
+
 const Navbar = () => {
     
    const navigate = useNavigate();
@@ -33,7 +34,7 @@ const Navbar = () => {
     return (
         <nav className="navbar">
             <div className="navbar-container">
-                <div className="logo"><img src="../../public/logo.png" alt="" /></div>
+                <div className="logo"><img src="/logo.png" alt="" /></div>
                 <ul className="nav-links">
                    
                    { !state.isLoggedIn ? (<li><Link to="/">Home</Link></li>) :
