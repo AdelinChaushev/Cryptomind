@@ -271,7 +271,7 @@ namespace Cryptomind.Core.Services
 
 			//When type is not given we cannot approve it
 			if (model.TypeOfCipher == null)
-				throw new ConflictException("Cipher with unknown type cannot be approved because the points for each cipher as based on it's type.");
+				throw new ConflictException("Cipher with unknown type cannot be approved because the points for each cipher are based on it's type.");
 
 			cipher.ChallengeType = string.IsNullOrWhiteSpace(cipher.DecryptedText)
 				? ChallengeType.Experimental

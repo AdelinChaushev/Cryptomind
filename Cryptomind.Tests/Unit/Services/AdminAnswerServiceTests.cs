@@ -244,7 +244,7 @@ namespace Cryptomind.Tests.Unit.Services
 				.ReturnsAsync((AnswerSuggestion?)null);
 
 			await Assert.ThrowsAsync<NotFoundException>(
-				() => service.ApproveAnswerAsync(1, 50));
+				() => service.ApproveAnswerAsync(1));
 		}
 
 		[Fact]
@@ -254,17 +254,7 @@ namespace Cryptomind.Tests.Unit.Services
 				.ReturnsAsync(Answer(1, "u1", 1, ApprovalStatus.Approved));
 
 			await Assert.ThrowsAsync<ConflictException>(
-				() => service.ApproveAnswerAsync(1, 50));
-		}
-
-		[Fact]
-		public async Task ApproveAnswerAsync_Throws_WhenPointsAreZeroOrNegative()
-		{
-			answerRepoMock.Setup(r => r.FirstOrDefaultAsync(It.IsAny<Expression<Func<AnswerSuggestion, bool>>>()))
-				.ReturnsAsync(Answer(1, "u1", 1, ApprovalStatus.Pending));
-
-			await Assert.ThrowsAsync<CustomValidationException>(
-				() => service.ApproveAnswerAsync(1, 0));
+				() => service.ApproveAnswerAsync(1));
 		}
 
 		[Fact]
@@ -280,7 +270,7 @@ namespace Cryptomind.Tests.Unit.Services
 				.ReturnsAsync((Cipher?)null);
 
 			await Assert.ThrowsAsync<Exception>(
-				() => service.ApproveAnswerAsync(1, 50));
+				() => service.ApproveAnswerAsync(1));
 		}
 
 		[Fact]
@@ -296,7 +286,7 @@ namespace Cryptomind.Tests.Unit.Services
 				.ReturnsAsync(Cipher(1, ChallengeType.Standard));
 
 			await Assert.ThrowsAsync<ConflictException>(
-				() => service.ApproveAnswerAsync(1, 50));
+				() => service.ApproveAnswerAsync(1));
 		}
 
 		[Fact]
@@ -312,7 +302,7 @@ namespace Cryptomind.Tests.Unit.Services
 				.ReturnsAsync(Cipher(1, ChallengeType.Experimental, "already solved"));
 
 			await Assert.ThrowsAsync<ConflictException>(
-				() => service.ApproveAnswerAsync(1, 50));
+				() => service.ApproveAnswerAsync(1));
 		}
 
 		[Fact]
@@ -330,7 +320,7 @@ namespace Cryptomind.Tests.Unit.Services
 				.ReturnsAsync((ApplicationUser?)null);
 
 			await Assert.ThrowsAsync<Exception>(
-				() => service.ApproveAnswerAsync(1, 50));
+				() => service.ApproveAnswerAsync(1));
 		}
 
 		[Fact]
@@ -348,9 +338,9 @@ namespace Cryptomind.Tests.Unit.Services
 				.ReturnsAsync(cipher);
 			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
 
-			var returnedIds = await service.ApproveAnswerAsync(1, 50);
+			var returnedIds = await service.ApproveAnswerAsync(1);
 
-			Assert.Equal(150, user.Score);
+			Assert.Equal(200, user.Score);
 			Assert.Contains("u1", returnedIds);
 		}
 
@@ -368,7 +358,7 @@ namespace Cryptomind.Tests.Unit.Services
 				.ReturnsAsync(cipher);
 			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(User("u1"));
 
-			await service.ApproveAnswerAsync(1, 50);
+			await service.ApproveAnswerAsync(1);
 
 			Assert.Equal("the answer", cipher.DecryptedText);
 			Assert.Equal(ChallengeType.Standard, cipher.ChallengeType);
@@ -395,10 +385,10 @@ namespace Cryptomind.Tests.Unit.Services
 			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user1);
 			userManagerMock.Setup(m => m.FindByIdAsync("u2")).ReturnsAsync(user2);
 
-			await service.ApproveAnswerAsync(1, 50);
+			await service.ApproveAnswerAsync(1);
 
-			Assert.Equal(150, user1.Score);
-			Assert.Equal(100, user2.Score);
+			Assert.Equal(200, user1.Score);
+			Assert.Equal(150, user2.Score);
 		}
 
 		[Fact]
@@ -416,7 +406,7 @@ namespace Cryptomind.Tests.Unit.Services
 				.ReturnsAsync(cipher);
 			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(User("u1"));
 
-			await service.ApproveAnswerAsync(1, 50);
+			await service.ApproveAnswerAsync(1);
 
 			Assert.Equal(ApprovalStatus.Rejected, wrong.Status);
 			Assert.NotNull(wrong.RejectionDate);
@@ -436,7 +426,7 @@ namespace Cryptomind.Tests.Unit.Services
 				.ReturnsAsync(cipher);
 			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(User("u1"));
 
-			await service.ApproveAnswerAsync(1, 50);
+			await service.ApproveAnswerAsync(1);
 
 			notificationMock.Verify(n => n.CreateAndSendNotification(
 				"u1",
@@ -460,7 +450,7 @@ namespace Cryptomind.Tests.Unit.Services
 			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(User("u1"));
 			userManagerMock.Setup(m => m.FindByIdAsync("u2")).ReturnsAsync(User("u2"));
 
-			var result = await service.ApproveAnswerAsync(1, 50);
+			var result = await service.ApproveAnswerAsync(1);
 
 			Assert.Contains("u1", result);
 			Assert.Contains("u2", result);
