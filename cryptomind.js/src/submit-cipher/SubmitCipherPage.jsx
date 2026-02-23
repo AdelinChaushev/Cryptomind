@@ -5,11 +5,11 @@ import SubmitActions from './SubmitActions';
 import Sidebar       from './Sidebar';
 import '../styles/submit-cipher.css';
 import axios from 'axios';
-
+import { useError } from '../ErrorContext.jsx';
 const SubmitCipherPage = () => {
 
     const [useImage, setUseImage] = useState(false);
-
+    const { setError } = useError();
     const [fields, setFields] = useState({
         title:         '',
         decryptedText: '',
@@ -48,8 +48,14 @@ const SubmitCipherPage = () => {
             withCredentials: true,
             headers: {
                 'Content-Type': 'multipart/form-data'
-            }}).then
-        console.log('payload:', fields, 'useImage:', useImage);
+            }}).then( e => console.log('payload:', fields, 'useImage:', useImage))
+        .catch(e => {
+            console.log('Submission error:', e);
+            console.log('Server Response Data:', e.response?.data);
+
+            setError(e.response?.data?.title || 'Failed to submit cipher. Please try again.')
+
+        });
     };
 
     const handleCancel = () => window.history.back();

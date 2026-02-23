@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, } from 'react';
+import React, { useState, useEffect, useCallback, use, } from 'react';
 import axios from 'axios';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
@@ -11,6 +11,7 @@ import { useParams } from "react-router-dom";
 // Configure axios globally
 import "../styles/cipher-review.css";
 import { useNavigate } from 'react-router-dom';
+import { useError } from '../ErrorContext';
 axios.defaults.withCredentials = true;
 
 
@@ -46,9 +47,10 @@ const GROUPS = ['Substitution', 'Polyalphabetic', 'Transposition', 'Encoding'];
 const CipherReview = () => {
     const [cipher, setCipher] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [localError, setLocalError] = useState(null);
     const navigate = useNavigate();
     // LLM state
+    const {setError} = useError();
     const [llmResult, setLlmResult] = useState(null);
     const [isLlmLoading, setIsLlmLoading] = useState(false);
     
@@ -56,18 +58,18 @@ const CipherReview = () => {
     const [title, setTitle] = useState('');
     const [selectedTags, setSelectedTags] = useState([]);
     const [allowHint, setAllowHint] = useState(true);
+    const [allowSolutionHint, setAllowSolutionHint] = useState(false);
     const [allowSolution, setAllowSolution] = useState(false);
     const [cipherType, setCipherType] = useState(0);
     const [showRejectForm, setShowRejectForm] = useState(false);
     const [rejectReason, setRejectReason] = useState('');
-
     const cipherId = useParams().id;
 
     // Fetch cipher
     useEffect(() => {
         const fetchCipher = async () => {
             if (!cipherId || isNaN(cipherId)) {
-                setError('Invalid cipher ID');
+                setLocalError('Invalid cipher ID');
                 setLoading(false);
                 return;
             }          
@@ -75,22 +77,26 @@ const CipherReview = () => {
                 .then(res => {
                     setCipher(res.data);
                     setTitle(res.data.title || '');
-                    setAllowHint(res.data.allowHint ?? true);
-                    setAllowSolution(res.data.allowFullSolution ?? false);
+                    setAllowHint(res.data.allowTypeHint ?? false);
+                    setAllowSolutionHint(res.data.allowHint ?? false);
+                    setAllowSolution(res.data.allowSolution ?? false);
                 }).catch(err => {
                     const status = err.response?.status;
-                    const serverMessage = err.response?.data?.message;
+                    const serverMessage = err?.data?.title;
                     switch (status) {
                         case 404:
-                            setError('Cipher not found');
-                             window.location.href = '/not-found';
+                            setLocalError('Cipher not found');
+                             navigate('/not-found');
                             break;
                         default:
-                            setError(serverMessage || 'Failed to fetch cipher');
+                            setLocalError(serverMessage || 'Failed to fetch cipher')
+                            setError(serverMessage || 'Failed to fetch cipher')
+                            ;
                             break;    
                     };
                 console.error('Failed to fetch cipher:', err);
-                setError(err.response?.data?.message || err.message)})
+                setlocalError(err.response?.data?.message || err.message)}
+                )
                 .finally(() => setLoading(false));
               
         
@@ -109,7 +115,7 @@ const CipherReview = () => {
             setLlmResult(data);
         } catch (err) {
             console.error('LLM analysis failed:', err);
-            alert(`LLM analysis failed: ${err.response?.data?.message || err.message}`);
+            setError(err.response.data.title || 'Failed to fetch cipher')
         } finally {
             setIsLlmLoading(false);
         }
@@ -135,8 +141,9 @@ const CipherReview = () => {
             title: title,
             allowTypeHint: cipher.allowType,
             allowHint: allowHint,
+            allowSolutionHint: allowSolutionHint,
             allowSolution: allowSolution,
-            typeOfCipher: isExperimental ? 1 : 0,
+            typeOfCipher: cipherType,
             tagIds: selectedTags
         });
 
@@ -147,8 +154,8 @@ const CipherReview = () => {
         navigate('/admin/pending-ciphers'); 
 
     } catch (err) {
-        const errorMsg = err.response?.data?.message || err.message;
-        alert(`Approval failed: ${errorMsg}`);
+        const errorMsg = err.response?.data.error || err.message;
+        setError(`Approval failed: ${errorMsg}`);
     }
 }
 
@@ -163,9 +170,10 @@ const CipherReview = () => {
             await axios.put(`${API_BASE}/cipher/${cipherId}/reject`, rejectReason, {
                 headers: { 'Content-Type': 'application/json' }
             });
-            alert('Cipher rejected');
-            window.location.href = '/admin/pending-ciphers';
+         
+           navigate('/admin/pending-ciphers');
         } catch (err) {
+
             alert(`Rejection failed: ${err.response?.data?.message || err.message}`);
         }
     }, [cipherId, rejectReason]);
@@ -185,14 +193,14 @@ const CipherReview = () => {
         );
     }
 
-    if (error || !cipher) {
+    if (localError || !cipher) {
         return (
             <div className="admin-shell">
                 <AdminSidebar activePage="pending-ciphers" />
                 <main className="admin-main">
                     <div className="admin-content">
                         <div className="empty-state">
-                            <div className="empty-state-title">{error || 'Cipher not found'}</div>
+                            <div className="empty-state-title">{localError || 'Cipher not found'}</div>
                             <a href="/admin/pending-ciphers" className="btn btn-ghost btn-sm" style={{ marginTop: '12px' }}>
                                 ← Back to Pending Ciphers
                             </a>
@@ -386,8 +394,8 @@ const CipherReview = () => {
                                     <label className="permission-toggle">
                                         <input
                                             type="checkbox"
-                                            checked={allowSolution}
-                                            onChange={(e) => setAllowSolution(e.target.checked)}
+                                            checked={allowSolutionHint}
+                                            onChange={(e) => setAllowSolutionHint(e.target.checked)}
                                         />
                                         <span>Allow Solution Hints</span>
                                     </label>
