@@ -2,9 +2,7 @@ import React, { useState, useEffect, useCallback, use, } from 'react';
 import axios from 'axios';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
-import MlAnalysisSection from './MlAnalysisSection';
 import LlmAssistantSection from './LlmAssistantSection';
-import AdminActions from './AdminActions';
 import '../styles/cipher-review.css';
 const API_BASE = 'http://localhost:5115/api/admin';
 import { useParams } from "react-router-dom";
@@ -80,6 +78,7 @@ const CipherReview = () => {
                     setAllowHint(res.data.allowTypeHint ?? false);
                     setAllowSolutionHint(res.data.allowHint ?? false);
                     setAllowSolution(res.data.allowSolution ?? false);
+                    console.log('Fetched cipher:', res.data);
                 }).catch(err => {
                     const status = err.response?.status;
                     const serverMessage = err?.data?.title;
