@@ -11,5 +11,7 @@ namespace Cryptomind.Common.ViewModels.AdminViewModels
 		public int Id { get; set; }
 		public string Title { get; set; }
 		public string CreatedBy { get; set; }
-	}
+
+        public DateTime? SubmittedAt { get; set; }
+    }
 }
