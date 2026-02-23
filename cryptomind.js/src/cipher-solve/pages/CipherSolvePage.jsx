@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import ExperimentalCipherPanel from "../components/ExperimentalCipherPanel";
+import { useError } from "../../ErrorContext.jsx";
 
 function CipherSolvePage() {
     const navigation = useNavigate();
@@ -21,7 +22,7 @@ function CipherSolvePage() {
     const [aiLoading, setAiLoading] = useState(false);
     const [expDecryptedText, setExpDecryptedText] = useState("");
     const [expDescription,   setExpDescription]   = useState("");
-
+    const { setError } = useError();
     function handleSubmit() {
         if (!answer.trim() || attempts >= MAX_ATTEMPTS) return;
         setAttempts(prev => prev + 1);
@@ -99,6 +100,8 @@ function CipherSolvePage() {
         .then(c => {
             setResult(c.data ? 'correct' : 'incorrect') 
             console.log(c.data)})
+            .catch(e => setError(e.response.data.error || 'Failed to submit answer. Please try again.'))
+            
         }
         else if (cipher.challengeTypeDisplay === "Experimental") {
             axios.post(`http://localhost:5115/api/ciphers/cipher/${id}/suggest-answer`,{
@@ -107,6 +110,10 @@ function CipherSolvePage() {
             }, {withCredentials : true})
             .then(c => {
                 console.log(c.data)})
+                .catch(e => (
+                     console.log(e),
+                     setError(e.response?.title|| 'Failed to submit answer. Please try again.')
+            ))
         }
 
     }
