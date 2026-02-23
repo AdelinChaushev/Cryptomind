@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import "../styles/cipher-tool.css";
-// ─── CONSTANTS ───────────────────────────────────────────────────────────────
+
+// ─── КОНСТАНТИ ───────────────────────────────────────────────────────────────
 const ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const SIMPLE_SUB_KEY = "QWERTYUIOPASDFGHJKLZXCVBNM"; // fixed educational mapping
+const SIMPLE_SUB_KEY = "QWERTYUIOPASDFGHJKLZXCVBNM"; // фиксирано образователно съпоставяне
 
 const MORSE = {
   A:".-",B:"-...",C:"-.-.",D:"-..",E:".",F:"..-.",G:"--.",H:"....",I:"..",J:".---",
@@ -13,55 +14,54 @@ const MORSE = {
 };
 
 const PRESETS = [
-  { label:"HELLO WORLD",         text:"HELLO WORLD"         },
+  { label:"HELLO WORLD",          text:"HELLO WORLD"         },
   { label:"THE QUICK BROWN FOX", text:"THE QUICK BROWN FOX" },
-  { label:"CRYPTOGRAPHY",        text:"CRYPTOGRAPHY"        },
+  { label:"CRYPTOGRAPHY",          text:"CRYPTOGRAPHY"        },
   { label:"ATTACK AT DAWN",      text:"ATTACK AT DAWN"      },
-  { label:"SECRET MESSAGE",      text:"SECRET MESSAGE"      },
+  { label:"SECRET MESSAGE",       text:"SECRET MESSAGE"      },
 ];
 
 const FAMILIES = [
   {
-    id:"substitution", label:"Substitution",
+    id:"substitution", label:"Заместващи",
     ciphers:[
-      { id:"caesar",            label:"Caesar",             color:"#fbbf24", desc:"Shift each letter by a fixed amount",     tip:"Each letter shifts forward N positions in the alphabet. Only 25 possible keys — the simplest cipher to break."  },
-      { id:"rot13",             label:"ROT13",              color:"#22d3ee", desc:"Caesar locked at shift 13",               tip:"A Caesar cipher permanently fixed at shift 13. Applying it twice returns the original — encryption and decryption are identical." },
-      { id:"atbash",            label:"Atbash",             color:"#a78bfa", desc:"Mirror the alphabet (A↔Z)",              tip:"A mirror mapping: A→Z, B→Y, C→X… The oldest known cipher, used in the Hebrew Bible around 600 BC." },
-      { id:"simpleSubstitution",label:"SimpleSubstitution", color:"#fb923c", desc:"Each letter maps to a fixed replacement",tip:"A scrambled alphabet replaces each letter. 26! possible keys, but frequency analysis breaks it in minutes." },
+      { id:"caesar",             label:"Цезар",             color:"#fbbf24", desc:"Измества всяка буква с фиксиран брой позиции",     tip:"Всяка буква се измества напред с N позиции в азбуката. Само 25 възможни ключа — най-лесният шифър за разбиване."  },
+      { id:"rot13",             label:"ROT13",              color:"#22d3ee", desc:"Цезар, фиксиран на изместване 13",               tip:"Шифър на Цезар, постоянно фиксиран на изместване 13. Прилагането му два пъти връща оригинала — криптирането и декриптирането са идентични." },
+      { id:"atbash",            label:"Атбаш",              color:"#a78bfa", desc:"Огледално обръщане на азбуката (A↔Z)",               tip:"Огледално съпоставяне: A→Z, B→Y, C→X… Най-старият известен шифър, използван в еврейската Библия около 600 г. пр. н. е." },
+      { id:"simpleSubstitution",label:"Просто заместване", color:"#fb923c", desc:"Всяка буква съответства на фиксиран заместител",tip:"Разбъркана азбука замества всяка буква. 26! възможни ключа, но честотният анализ го разбива за минути." },
     ]
   },
   {
-    id:"polyalphabetic", label:"Polyalphabetic",
+    id:"polyalphabetic", label:"Полиазбучни",
     ciphers:[
-      { id:"vigenere",  label:"Vigenère",  color:"#10b981", desc:"Keyword determines each letter's shift",       tip:"A repeated keyword gives each position a different Caesar shift, flattening frequency patterns. Called 'indecipherable' for 300 years." },
-      { id:"autokey",   label:"Autokey",   color:"#34d399", desc:"Key primer, then plaintext extends the key",   tip:"Starts with a keyword primer, then the plaintext itself becomes the key. Never repeats, defeating the Kasiski test." },
-      { id:"trithemius",label:"Trithemius",color:"#6ee7b7", desc:"Shift increases by 1 at each position",       tip:"No configurable key — shift simply increments by 1 at each letter position, wrapping at 26. Described in the first printed cryptography book (1508)." },
+      { id:"vigenere",  label:"Виженер",  color:"#10b981", desc:"Ключова дума определя изместването на всяка буква",       tip:"Повтаряща се ключова дума дава на всяка позиция различно изместване на Цезар, което изравнява честотните модели. Наричан „неразбиваем“ в продължение на 300 години." },
+      { id:"autokey",   label:"Автоматичен ключ",   color:"#34d399", desc:"Начален ключ, след което чистият текст удължава ключа",   tip:"Започва с начален ключ, след което самият чист текст се превръща в ключ. Никога не се повтаря, побеждавайки теста на Касиски." },
+      { id:"trithemius",label:"Тритемиус",color:"#6ee7b7", desc:"Изместването се увеличава с 1 на всяка позиция",       tip:"Без конфигурируем ключ — изместването просто се увеличава с 1 при всяка позиция на буква. Описан в първата печатна книга за криптография (1508 г.)." },
     ]
   },
   {
-    id:"transposition", label:"Transposition",
+    id:"transposition", label:"Транспозиционни",
     ciphers:[
-      { id:"railFence",label:"Rail Fence",color:"#60a5fa", desc:"Zigzag across N rails, read row by row",        tip:"Letters are written diagonally across N rails in a zigzag, then read row by row. Letter frequencies are preserved — identical to plaintext." },
-      { id:"columnar", label:"Columnar",  color:"#818cf8", desc:"Fill columns, read them in keyword order",      tip:"Text fills a grid row by row. Columns are read out in alphabetical order of the keyword letters. Used by both sides in WWI and WWII." },
-      { id:"route",    label:"Route",     color:"#c084fc", desc:"Fill a grid, read in a clockwise spiral path",  tip:"Text fills a grid, then is read following a route — here a clockwise spiral. Favored in the American Civil War with decoy words inserted into the grid." },
+      { id:"railFence",label:"Железопътна ограда",color:"#60a5fa", desc:"Зигзаг през N нива, четене ред по ред",        tip:"Буквите се изписват диагонално през N нива в зигзаг, след което се четат ред по ред. Честотата на буквите се запазва — идентична с тази на чистия текст." },
+      { id:"columnar", label:"Колонен",  color:"#818cf8", desc:"Запълване по колони, четене по ред на ключа",      tip:"Текстът запълва мрежа ред по ред. Колоните се изчитат в азбучен ред на буквите от ключовата дума. Използван и от двете страни в Първата и Втората световни войни." },
+      { id:"route",    label:"Маршрутен",     color:"#c084fc", desc:"Запълване на мрежа, четене в спирала",  tip:"Текстът запълва мрежа, след което се чете по определен маршрут — тук по посока на часовниковата стрелка. Предпочитан в Гражданската война в САЩ с вмъкнати подвеждащи думи." },
     ]
   },
   {
-    id:"encoding", label:"Encoding",
+    id:"encoding", label:"Кодиране",
     ciphers:[
-      { id:"morse",  label:"Morse",  color:"#f472b6", desc:"Dots and dashes representing each letter",  tip:"Not a cipher — a standardized signal encoding. Common letters get short codes (E = ·). Provides zero security." },
-      { id:"binary", label:"Binary", color:"#fb7185", desc:"8-bit binary code per character",           tip:"Each character's ASCII code written in base 2. H = ASCII 72 = 01001000. Universally recognisable — no security." },
-      { id:"hex",    label:"Hex",    color:"#fda4af", desc:"Two hex digits per character",              tip:"Each character's ASCII code in base 16. H = 48, I = 49. Used everywhere in computing for memory addresses and color codes." },
-      { id:"base64", label:"Base64", color:"#fca5a5", desc:"3-byte groups encoded as 4 ASCII chars",    tip:"Converts binary data to safe ASCII text. Takes 3 bytes → 4 characters. Used in email attachments, JWT tokens, and image data URIs." },
+      { id:"morse",  label:"Морз",  color:"#f472b6", desc:"Точки и тирета, представящи всяка буква",  tip:"Не е шифър — стандартизирано кодиране на сигнали. Често срещаните букви получават кратки кодове (E = ·). Осигурява нулева сигурност." },
+      { id:"binary", label:"Двоичен код", color:"#fb7185", desc:"8-битов двоичен код за всеки знак",           tip:"ASCII кодът на всеки знак, написан в двоична система. H = ASCII 72 = 01001000. Универсално разпознаваем — без сигурност." },
+      { id:"hex",    label:"Хексадецимален",    color:"#fda4af", desc:"Две шестнадесетични цифри за знак",              tip:"ASCII кодът на всеки знак в шестнадесетична система. H = 48, I = 49. Използва се навсякъде в изчисленията за адреси на паметта и цветове." },
+      { id:"base64", label:"Base64", color:"#fca5a5", desc:"Групи от 3 байта, кодирани като 4 знака",    tip:"Преобразува двоични данни в безопасен ASCII текст. Взема 3 байта → 4 знака. Използва се в прикачени файлове, JWT токени и изображения." },
     ]
   },
 ];
 
-// ─── CIPHER ENGINES ──────────────────────────────────────────────────────────
+// ─── ЕНДЖИНИ ЗА ШИФРОВАНЕ ──────────────────────────────────────────────────
 function isLetter(ch) { return /[A-Za-z]/.test(ch); }
 function ai(ch) { return ALPHA.indexOf(ch.toUpperCase()); }
 
-// Sub step object
 function ss(ch, out, formula, keyInfo = null) {
   return { mode:"sub", in:ch.toUpperCase(), out, formula, keyInfo, letter:isLetter(ch) };
 }
@@ -69,52 +69,52 @@ function ss(ch, out, formula, keyInfo = null) {
 function stepCaesar(ch, shift) {
   const i = ai(ch); if (i===-1) return ss(ch,ch,null);
   const o=(i+shift+26)%26;
-  return ss(ch,ALPHA[o],`pos(${ch.toUpperCase()}) = ${i}  →  (${i} + ${shift}) mod 26 = ${o}  →  ${ALPHA[o]}`);
+  return ss(ch,ALPHA[o],`поз(${ch.toUpperCase()}) = ${i}  →  (${i} + ${shift}) mod 26 = ${o}  →  ${ALPHA[o]}`);
 }
 function stepAtbash(ch) {
   const i=ai(ch); if(i===-1) return ss(ch,ch,null);
-  return ss(ch,ALPHA[25-i],`pos(${ch.toUpperCase()}) = ${i}  →  25 − ${i} = ${25-i}  →  ${ALPHA[25-i]}`);
+  return ss(ch,ALPHA[25-i],`поз(${ch.toUpperCase()}) = ${i}  →  25 − ${i} = ${25-i}  →  ${ALPHA[25-i]}`);
 }
 function stepSimpleSub(ch) {
   const i=ai(ch); if(i===-1) return ss(ch,ch,null);
-  return ss(ch,SIMPLE_SUB_KEY[i],`'${ch.toUpperCase()}' at position ${i}  →  mapped to  '${SIMPLE_SUB_KEY[i]}'`);
+  return ss(ch,SIMPLE_SUB_KEY[i],`'${ch.toUpperCase()}' на позиция ${i}  →  съпоставено с  '${SIMPLE_SUB_KEY[i]}'`);
 }
 function stepVigenere(ch, keyCh, pos) {
   const i=ai(ch), k=ai(keyCh); if(i===-1) return ss(ch,ch,null);
   const o=(i+k)%26;
   return ss(ch,ALPHA[o],
-    `pos(${ch.toUpperCase()}) = ${i}  +  key[${pos}](${keyCh.toUpperCase()}) = ${k}  →  (${i}+${k}) mod 26 = ${o}  →  ${ALPHA[o]}`,
+    `поз(${ch.toUpperCase()}) = ${i}  +  ключ[${pos}](${keyCh.toUpperCase()}) = ${k}  →  (${i}+${k}) mod 26 = ${o}  →  ${ALPHA[o]}`,
     {keyChar:keyCh.toUpperCase(), keyPos:pos});
 }
 function stepTrithemius(ch, pos) {
   const i=ai(ch); if(i===-1) return ss(ch,ch,null);
   const shift=pos%26, o=(i+shift)%26;
   return ss(ch,ALPHA[o],
-    `pos(${ch.toUpperCase()}) = ${i}  +  shift[${pos}] = ${shift}  →  (${i}+${shift}) mod 26 = ${o}  →  ${ALPHA[o]}`,
+    `поз(${ch.toUpperCase()}) = ${i}  +  изместване[${pos}] = ${shift}  →  (${i}+${shift}) mod 26 = ${o}  →  ${ALPHA[o]}`,
     {shift, pos});
 }
 
-// ─── BUILD VIZ DATA ──────────────────────────────────────────────────────────
+// ─── СЪЗДАВАНЕ НА ДАННИ ЗА ВИЗУАЛИЗАЦИЯ ───────────────────────────────────────
 function buildVizData(text, cipher, params) {
   const T = text.toUpperCase();
 
-  // ── SUBSTITUTION ──
+  // ── ЗАМЕСТВАЩИ ──
   if (["caesar","rot13","atbash","simpleSubstitution"].includes(cipher)) {
     const steps = T.split("").map(ch => {
-      if (cipher==="caesar")            return stepCaesar(ch, params.shift);
-      if (cipher==="rot13")             return stepCaesar(ch, 13);
-      if (cipher==="atbash")            return stepAtbash(ch);
-      if (cipher==="simpleSubstitution")return stepSimpleSub(ch);
+      if (cipher==="caesar")             return stepCaesar(ch, params.shift);
+      if (cipher==="rot13")              return stepCaesar(ch, 13);
+      if (cipher==="atbash")             return stepAtbash(ch);
+      if (cipher==="simpleSubstitution") return stepSimpleSub(ch);
     });
     return { type:"sub", steps };
   }
 
-  // ── POLYALPHABETIC ──
+  // ── ПОЛИАЗБУЧНИ ──
   if (["vigenere","autokey","trithemius"].includes(cipher)) {
     const kw = (params.keyword||"KEY").replace(/[^A-Za-z]/g,"").toUpperCase()||"KEY";
     const steps=[];
     let lIdx=0;
-    let akExt=""; // autokey: plaintext letters seen so far
+    let akExt=""; 
     for (const ch of T) {
       if (cipher==="trithemius") {
         if (isLetter(ch)) { steps.push(stepTrithemius(ch,lIdx)); lIdx++; }
@@ -126,19 +126,18 @@ function buildVizData(text, cipher, params) {
       if (cipher==="vigenere") {
         keyCh = kw[lIdx % kw.length];
       } else {
-        // autokey: primer + plaintext so far
         const fullKey = kw + akExt;
         keyCh = lIdx < fullKey.length ? fullKey[lIdx] : kw[lIdx % kw.length];
       }
       const s = stepVigenere(ch, keyCh, lIdx);
       if (cipher==="autokey") akExt += ch;
-      steps.push({ ...s, autokeySource: cipher==="autokey" && lIdx >= kw.length ? "plaintext" : "keyword" });
+      steps.push({ ...s, autokeySource: cipher==="autokey" && lIdx >= kw.length ? "чист текст" : "ключова дума" });
       lIdx++;
     }
     return { type:"poly", steps, keyword:kw };
   }
 
-  // ── RAIL FENCE ──
+  // ── ЖЕЛЕЗОПЪТНА ОГРАДА ──
   if (cipher==="railFence") {
     const rails = params.rails||3;
     const assign=[];
@@ -155,7 +154,7 @@ function buildVizData(text, cipher, params) {
     return { type:"trans", subtype:"railFence", grid, readOrder, totalCols:T.length, rails };
   }
 
-  // ── COLUMNAR ──
+  // ── КОЛОНЕН ──
   if (cipher==="columnar") {
     const kw=(params.colKey||params.keyword||"CODE").replace(/[^A-Za-z]/g,"").toUpperCase().slice(0,8)||"CODE";
     const cols=kw.length, rows=Math.ceil(T.length/cols);
@@ -176,7 +175,7 @@ function buildVizData(text, cipher, params) {
     return { type:"trans", subtype:"columnar", grid:grid2d, readOrder, cols, rows, keyword:kw, colOrder };
   }
 
-  // ── ROUTE ──
+  // ── МАРШРУТЕН ──
   if (cipher==="route") {
     const len=T.length;
     const cols=Math.ceil(Math.sqrt(len)), rows=Math.ceil(len/cols);
@@ -189,7 +188,6 @@ function buildVizData(text, cipher, params) {
       }
       grid2d.push(row);
     }
-    // clockwise spiral
     const readOrder=[];
     let top=0,bottom=rows-1,left=0,right=cols-1;
     while(top<=bottom&&left<=right) {
@@ -201,10 +199,10 @@ function buildVizData(text, cipher, params) {
     return { type:"trans", subtype:"route", grid:grid2d, readOrder, cols, rows };
   }
 
-  // ── ENCODING ──
+  // ── КОДИРАНЕ ──
   if (cipher==="morse")
     return { type:"encode", subtype:"morse",
-      steps:T.split("").map(ch=>({ in:ch, code:MORSE[ch]??"?", label:ch===" "?"(word break)":null })) };
+      steps:T.split("").map(ch=>({ in:ch, code:MORSE[ch]??"?", label:ch===" "?"(интервал)":null })) };
   if (cipher==="binary")
     return { type:"encode", subtype:"binary",
       steps:T.split("").map(ch=>({ in:ch, code:ch.charCodeAt(0).toString(2).padStart(8,"0"), label:`ASCII ${ch.charCodeAt(0)}` })) };
@@ -223,16 +221,14 @@ function buildVizData(text, cipher, params) {
   return { type:"sub", steps:[] };
 }
 
-// ─── THEME VARS ───────────────────────────────────────────────────────────────
+// ─── ТЕМА / ЦВЕТОВЕ ──────────────────────────────────────────────────────────
 const BG0="#020617",BG1="#0c1428",BG2="#1e293b",BGI="#0a1120";
 const T1="#f8fafc",T2="#cbd5e1",T3="#94a3b8",TD="#475569";
 const EM="#10b981",EMD="rgba(16,185,129,0.12)";
 const BD="rgba(203,213,225,0.08)",BDH="rgba(203,213,225,0.15)",BDY="rgba(251,191,36,0.28)";
 const MONO="'Space Mono',monospace",BODY="'Sora',sans-serif",DISP="'Orbitron',monospace";
 
-// ─── CSS ─────────────────────────────────────────────────────────────────────
-
-// ─── VISUALIZATION COMPONENTS ─────────────────────────────────────────────────
+// ─── КОМПОНЕНТИ ЗА ВИЗУАЛИЗАЦИЯ ───────────────────────────────────────────────
 
 function LetterRow({ steps, cur, mode }) {
   // mode: 'plain' | 'cipher'
@@ -263,15 +259,15 @@ function TransformCard({ step }) {
         <span className="ct-arrow">→</span>
         <span className="ct-big" style={{color:TD}}>{step.out}</span>
       </div>
-      <div className="ct-formula" style={{color:TD}}>non-letter — passed through unchanged</div>
+      <div className="ct-formula" style={{color:TD}}>не е буква — преминава непроменено</div>
     </div>
   );
   return (
     <div className="ct-tc">
       {step.keyInfo && (
         <div className="ct-key-badge">
-          {step.keyInfo.keyChar && `KEY LETTER: ${step.keyInfo.keyChar}`}
-          {step.keyInfo.shift !== undefined && `SHIFT: ${step.keyInfo.shift}  (position ${step.keyInfo.pos})`}
+          {step.keyInfo.keyChar && `КЛЮЧОВА БУКВА: ${step.keyInfo.keyChar}`}
+          {step.keyInfo.shift !== undefined && `ИЗМЕСТВАНЕ: ${step.keyInfo.shift}  (позиция ${step.keyInfo.pos})`}
           {step.autokeySource && <span style={{opacity:.7,marginLeft:5}}>({step.autokeySource})</span>}
         </div>
       )}
@@ -287,14 +283,14 @@ function TransformCard({ step }) {
 
 function AlphabetRuler({ cipher, shift, cur, steps }) {
   const s   = cur >= 0 && cur < steps.length ? steps[cur] : null;
-  const phi = s ? ai(s.in)  : -1;   // plain highlight index
-  const chi = s ? ai(s.out) : -1;   // cipher highlight index
+  const phi = s ? ai(s.in)  : -1; 
+  const chi = s ? ai(s.out) : -1;
 
   if (cipher === "simpleSubstitution") {
     return (
       <div className="ct-ruler">
         <div className="ct-ruler-inner">
-          <div className="ct-ruler-tag">PLAIN</div>
+          <div className="ct-ruler-tag">ЧИСТ ТЕКСТ</div>
           <div className="ct-ruler-row">
             {ALPHA.split("").map((l,i)=><div key={i} className={`ct-ac ${i===phi?"phi":""}`}>{l}</div>)}
           </div>
@@ -304,7 +300,7 @@ function AlphabetRuler({ cipher, shift, cur, steps }) {
               return <div key={i} className={`ct-ac ${isHi?"chi":""}`}>{l}</div>;
             })}
           </div>
-          <div className="ct-ruler-tag">CIPHER (fixed mapping)</div>
+          <div className="ct-ruler-tag">ШИФЪР (фиксирано съпоставяне)</div>
         </div>
       </div>
     );
@@ -320,7 +316,7 @@ function AlphabetRuler({ cipher, shift, cur, steps }) {
   return (
     <div className="ct-ruler">
       <div className="ct-ruler-inner">
-        <div className="ct-ruler-tag">PLAIN ALPHABET</div>
+        <div className="ct-ruler-tag">АЗБУКА (ЧИСТ ТЕКСТ)</div>
         <div className="ct-ruler-row">
           {ALPHA.split("").map((l,i)=><div key={i} className={`ct-ac ${i===phi?"phi":""}`}>{l}</div>)}
         </div>
@@ -332,7 +328,7 @@ function AlphabetRuler({ cipher, shift, cur, steps }) {
         <div className="ct-ruler-row">
           {cipherAlpha.map((l,i)=><div key={i} className={`ct-ac ${i===phi?"chi":""}`}>{l}</div>)}
         </div>
-        <div className="ct-ruler-tag">CIPHER ALPHABET (shift {cipher==="rot13"?13:cipher==="atbash"?"mirror":shift})</div>
+        <div className="ct-ruler-tag">АЗБУКА (ШИФЪР) (изместване {cipher==="rot13"?13:cipher==="atbash"?"огледално":shift})</div>
       </div>
     </div>
   );
@@ -346,7 +342,7 @@ function RailFenceViz({ meta, cur }) {
     <div className="ct-trans-wrap">
       {grid.map((railCells,r)=>(
         <div key={r} className="ct-rail-row">
-          <div className="ct-rail-label">Rail {r}</div>
+          <div className="ct-rail-label">Ниво {r}</div>
           <div style={{display:"flex",gap:5}}>
             {Array.from({length:totalCols},(_,c)=>{
               const cell=railCells.find(x=>x.col===c);
@@ -365,7 +361,7 @@ function RailFenceViz({ meta, cur }) {
         </div>
       ))}
       <div style={{marginTop:20}}>
-        <div className="ct-row-tag">// output (read each rail left to right)</div>
+        <div className="ct-row-tag">// изход (четене на всяко ниво от ляво на дясно)</div>
         <div className="ct-letter-row">
           {readOrder.map((cell,i)=>(
             <div key={i} className={`ct-lb ${i===cur?"act":i<cur?"comp":""}`}>{i<=cur?cell.char:""}</div>
@@ -406,7 +402,7 @@ function ColumnarViz({ meta, cur }) {
         </div>
       </div>
       <div style={{marginTop:16}}>
-        <div className="ct-row-tag">// output (columns read in alphabetical key order)</div>
+        <div className="ct-row-tag">// изход (четене на колоните по азбучен ред на ключа)</div>
         <div className="ct-letter-row">
           {readOrder.map((cell,i)=>(
             <div key={i} className={`ct-lb ${i===cur?"act":i<cur?"comp":""}`}>{i<=cur?cell.char:""}</div>
@@ -439,7 +435,7 @@ function RouteViz({ meta, cur }) {
         </div>
       </div>
       <div style={{marginTop:16}}>
-        <div className="ct-row-tag">// output (clockwise spiral reading order)</div>
+        <div className="ct-row-tag">// изход (четене в спирала по посока на часовника)</div>
         <div className="ct-letter-row">
           {readOrder.map((cell,i)=>(
             <div key={i} className={`ct-lb ${i===cur?"act":i<cur?"comp":""}`}>{i<=cur?cell.char:""}</div>
@@ -457,7 +453,7 @@ function EncodingViz({ meta, cur }) {
   const outSoFar = steps.slice(0,cur+1).map(s=>s.code).join(sep);
   return (
     <div className="ct-enc-wrap">
-      <div className="ct-row-tag">// input</div>
+      <div className="ct-row-tag">// вход</div>
       <div className="ct-letter-row" style={{marginBottom:16}}>
         {steps.map((s,i)=>(
           <div key={i} className={`ct-lb ${i===cur?"act":i<cur?"done":""}`}
@@ -475,12 +471,12 @@ function EncodingViz({ meta, cur }) {
             {step.label && <div className="ct-enc-sub">{step.label}</div>}
           </div>
         ) : (
-          <div className="ct-idle">{cur<0?"press PLAY or NEXT to begin →":"encoding complete"}</div>
+          <div className="ct-idle">{cur<0?"Натиснете СТАРТ или СЛЕДВАЩ за начало →":"кодирането завърши"}</div>
         )}
       </div>
       {cur>=0 && (
         <>
-          <div className="ct-row-tag">// encoded output</div>
+          <div className="ct-row-tag">// кодиран изход</div>
           <div className="ct-enc-out">{outSoFar}</div>
         </>
       )}
@@ -488,7 +484,7 @@ function EncodingViz({ meta, cur }) {
   );
 }
 
-// ─── MAIN ────────────────────────────────────────────────────────────────────
+// ─── ГЛАВЕН КОМПОНЕНТ ────────────────────────────────────────────────────────
 export default function CipherTool() {
   const [family,   setFamily]   = useState("substitution");
   const [cipher,   setCipher]   = useState("caesar");
@@ -550,14 +546,14 @@ export default function CipherTool() {
 
         {/* HEADER */}
         <div className="ct-hdr">
-          <div className="ct-hdr-tag">// interactive cipher tool</div>
-          <h1>ENCRYPTION STEP-BY-STEP</h1>
-          <p>Watch how each character transforms through the cipher — one step at a time.</p>
+          <div className="ct-hdr-tag">// интерактивен инструмент за шифроване</div>
+          <h1>КРИПТИРАНЕ СТЪПКА ПО СТЪПКА</h1>
+          <p>Наблюдавайте как всеки знак се трансформира чрез шифъра — стъпка по стъпка.</p>
         </div>
 
         {/* CIPHER PICKER */}
         <div className="ct-panel">
-          <div className="ct-ptag">// 01 — select cipher</div>
+          <div className="ct-ptag">// 01 — изберете шифър</div>
           <div className="ct-fam-tabs">
             {FAMILIES.map(f=>{
               const fc=f.ciphers[0].color;
@@ -584,7 +580,7 @@ export default function CipherTool() {
                     <a className="ct-learn"
                       href={`/cipher-library#${c.id}`}
                       onClick={e=>e.stopPropagation()}>
-                      Learn more →
+                      Научете повече →
                     </a>
                   </div>
                 </button>
@@ -595,10 +591,10 @@ export default function CipherTool() {
 
         {/* CONFIGURE */}
         <div className="ct-panel">
-          <div className="ct-ptag">// 02 — configure</div>
+          <div className="ct-ptag">// 02 — конфигурация</div>
           <div className="ct-ctrl-row">
             <div className="ct-field">
-              <span className="ct-lbl">Preset text</span>
+              <span className="ct-lbl">Примерен текст</span>
               <select className="ct-sel" value={presetIdx} onChange={e=>setPresetIdx(+e.target.value)}>
                 {PRESETS.map((p,i)=><option key={i} value={i}>{p.label}</option>)}
               </select>
@@ -606,7 +602,7 @@ export default function CipherTool() {
 
             {cipher==="caesar" && (
               <div className="ct-field">
-                <span className="ct-lbl">Shift</span>
+                <span className="ct-lbl">Изместване</span>
                 <div className="ct-shift-row">
                   <input type="range" min={1} max={25} value={shift} onChange={e=>setShift(+e.target.value)}/>
                   <span className="ct-shift-num">{shift}</span>
@@ -615,15 +611,15 @@ export default function CipherTool() {
             )}
             {(cipher==="vigenere"||cipher==="autokey") && (
               <div className="ct-field">
-                <span className="ct-lbl">Keyword</span>
+                <span className="ct-lbl">Ключова дума</span>
                 <input className="ct-inp" value={keyword}
                   onChange={e=>setKeyword(e.target.value.replace(/[^A-Za-z]/g,"").toUpperCase().slice(0,10))}
-                  maxLength={10} placeholder="KEY"/>
+                  maxLength={10} placeholder="КЛЮЧ"/>
               </div>
             )}
             {cipher==="railFence" && (
               <div className="ct-field">
-                <span className="ct-lbl">Rails</span>
+                <span className="ct-lbl">Нива (Rails)</span>
                 <div className="ct-shift-row">
                   <input type="range" min={2} max={5} value={rails} onChange={e=>setRails(+e.target.value)}/>
                   <span className="ct-shift-num">{rails}</span>
@@ -632,22 +628,22 @@ export default function CipherTool() {
             )}
             {cipher==="columnar" && (
               <div className="ct-field">
-                <span className="ct-lbl">Keyword</span>
+                <span className="ct-lbl">Ключова дума</span>
                 <input className="ct-inp" value={colKey}
                   onChange={e=>setColKey(e.target.value.replace(/[^A-Za-z]/g,"").toUpperCase().slice(0,8))}
-                  maxLength={8} placeholder="CODE"/>
+                  maxLength={8} placeholder="КОД"/>
               </div>
             )}
             {["rot13","atbash","trithemius","simpleSubstitution","route","morse","binary","hex","base64"].includes(cipher) && (
               <div className="ct-field">
-                <span className="ct-lbl">Parameters</span>
+                <span className="ct-lbl">Параметри</span>
                 <div style={{fontFamily:MONO,fontSize:12,color:cc,padding:"8px 0",letterSpacing:1}}>
-                  {cipher==="rot13"             ?"Fixed shift: 13"
-                  :cipher==="atbash"            ?"Rule: A ↔ Z, B ↔ Y…"
-                  :cipher==="trithemius"        ?"Shift = letter position"
-                  :cipher==="simpleSubstitution"?"Fixed 26-char mapping"
-                  :cipher==="route"             ?"Clockwise spiral"
-                  :"No parameters"}
+                  {cipher==="rot13"             ?"Фиксирано изместване: 13"
+                  :cipher==="atbash"            ?"Правило: A ↔ Z, B ↔ Y…"
+                  :cipher==="trithemius"        ?"Изместване = позиция на буквата"
+                  :cipher==="simpleSubstitution"?"Фиксирано 26-знаково съпоставяне"
+                  :cipher==="route"             ?"Спирала по часовника"
+                  :"Няма параметри"}
                 </div>
               </div>
             )}
@@ -656,21 +652,21 @@ export default function CipherTool() {
 
         {/* PLAYBACK */}
         <div className="ct-panel">
-          <div className="ct-ptag">// 03 — playback</div>
+          <div className="ct-ptag">// 03 — управление</div>
           <div className="ct-pb">
-            <button className="ct-btn" onClick={bck}   disabled={cur<0}>◀ BACK</button>
+            <button className="ct-btn" onClick={bck}   disabled={cur<0}>◀ НАЗАД</button>
             <button className="ct-btn pri" onClick={toggle}>
-              {playing?"⏸ PAUSE":cur>=total-1?"↺ REPLAY":cur<0?"▶ PLAY":"▶ RESUME"}
+              {playing?"⏸ ПАУЗА":cur>=total-1?"↺ ОТНАЧАЛО":cur<0?"▶ СТАРТ":"▶ ПРОДЪЛЖИ"}
             </button>
-            <button className="ct-btn" onClick={fwd}   disabled={cur>=total-1}>NEXT ▶</button>
-            <button className="ct-btn" onClick={reset}>↺ RESET</button>
+            <button className="ct-btn" onClick={fwd}   disabled={cur>=total-1}>СЛЕДВАЩ ▶</button>
+            <button className="ct-btn" onClick={reset}>↺ НУЛИРАЙ</button>
             <div className="ct-prog"><div className="ct-prog-fill" style={{width:`${prog}%`}}/></div>
             <span className="ct-step-count">{cur+1} / {total}</span>
             <select className="ct-sel" style={{padding:"5px 8px",fontSize:11}} value={speed} onChange={e=>setSpeed(+e.target.value)}>
-              <option value={1200}>SLOW</option>
-              <option value={700}>NORMAL</option>
-              <option value={350}>FAST</option>
-              <option value={120}>TURBO</option>
+              <option value={1200}>БАВНО</option>
+              <option value={700}>НОРМАЛНО</option>
+              <option value={350}>БЪРЗО</option>
+              <option value={120}>ТУРБО</option>
             </select>
           </div>
         </div>
@@ -680,20 +676,20 @@ export default function CipherTool() {
 
           {/* SUB / POLY */}
           {(viz.type==="sub"||viz.type==="poly") && (<>
-            <div className="ct-row-tag">// plaintext</div>
+            <div className="ct-row-tag">// чист текст</div>
             <LetterRow steps={viz.steps} cur={cur} mode="plain"/>
             <div className="ct-tz">
-              {cur<0 ? <div className="ct-idle">press PLAY or NEXT to begin →</div>
+              {cur<0 ? <div className="ct-idle">Натиснете СТАРТ или СЛЕДВАЩ за начало →</div>
                      : <TransformCard step={curStep}/>}
             </div>
-            <div className="ct-row-tag">// ciphertext</div>
+            <div className="ct-row-tag">// шифрован текст</div>
             <LetterRow steps={viz.steps} cur={cur} mode="cipher"/>
             {viz.type==="sub" && cur>=0 && (
               <AlphabetRuler cipher={cipher} shift={shift} cur={cur} steps={viz.steps}/>
             )}
             {viz.type==="poly" && cur>=0 && cipher!=="trithemius" && (
               <div className="ct-panel" style={{marginTop:20}}>
-                <div className="ct-ptag">// key schedule — {cipher==="autokey"?`primer: ${viz.keyword}  →  plaintext extends key`:`keyword: ${viz.keyword}  →  repeating`}</div>
+                <div className="ct-ptag">// график на ключа — {cipher==="autokey"?`начало: ${viz.keyword}  →  текстът удължава ключа`:`ключ: ${viz.keyword}  →  повтарящ се`}</div>
                 <div style={{display:"flex",gap:5,flexWrap:"wrap",justifyContent:"center"}}>
                   {viz.steps.filter(s=>s.letter).map((s,i)=>{
                     const lettersBefore = viz.steps.filter((x,xi)=>x.letter&&xi<=cur).length;
@@ -714,7 +710,7 @@ export default function CipherTool() {
 
           {/* TRANSPOSITION */}
           {viz.type==="trans" && (<>
-            {cur<0 && <div className="ct-idle">press PLAY or NEXT — each step reveals one character being read from the grid</div>}
+            {cur<0 && <div className="ct-idle">Натиснете СТАРТ или СЛЕДВАЩ — всяка стъпка показва един прочетен символ от мрежата</div>}
             {viz.subtype==="railFence" && <RailFenceViz meta={viz} cur={cur}/>}
             {viz.subtype==="columnar"  && <ColumnarViz  meta={viz} cur={cur}/>}
             {viz.subtype==="route"     && <RouteViz     meta={viz} cur={cur}/>}
@@ -726,7 +722,7 @@ export default function CipherTool() {
           {/* DONE BANNER */}
           {done && (
             <div className="ct-done">
-              <div className="ct-done-tag">// encryption complete</div>
+              <div className="ct-done-tag">// криптирането завърши</div>
               <div className="ct-done-txt">{doneOutput}</div>
             </div>
           )}

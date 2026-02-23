@@ -274,7 +274,7 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupAttachedNotifications();
 
 			await Assert.ThrowsAsync<NotFoundException>(
-				() => service.MarkAsRead(new List<int> { 99 }, "u1"));
+				() => service.MarkAsRead("u1"));
 		}
 
 		[Fact]
@@ -283,7 +283,7 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupAttachedNotifications(MakeNotification(1, "u2"));
 
 			await Assert.ThrowsAsync<NotFoundException>(
-				() => service.MarkAsRead(new List<int> { 1 }, "u1"));
+				() => service.MarkAsRead("u1"));
 		}
 
 		[Fact]
@@ -292,7 +292,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var notification = MakeNotification(1, "u1", isRead: false);
 			SetupAttachedNotifications(notification);
 
-			await service.MarkAsRead(new List<int> { 1 }, "u1");
+			await service.MarkAsRead("u1");
 
 			Assert.True(notification.IsRead);
 		}
@@ -303,7 +303,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var notification = MakeNotification(1, "u1", isRead: false);
 			SetupAttachedNotifications(notification);
 
-			await service.MarkAsRead(new List<int> { 1 }, "u1");
+			await service.MarkAsRead("u1");
 
 			notificationRepoMock.Verify(r => r.UpdateAsync(notification), Times.Once);
 		}
@@ -314,7 +314,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var notification = MakeNotification(1, "u1", isRead: true);
 			SetupAttachedNotifications(notification);
 
-			await service.MarkAsRead(new List<int> { 1 }, "u1");
+			await service.MarkAsRead("u1");
 
 			Assert.True(notification.IsRead);
 			notificationRepoMock.Verify(r => r.UpdateAsync(notification), Times.Once);
@@ -328,7 +328,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var n3 = MakeNotification(3, "u1", isRead: false);
 			SetupAttachedNotifications(n1, n2, n3);
 
-			await service.MarkAsRead(new List<int> { 1, 2, 3 }, "u1");
+			await service.MarkAsRead("u1");
 
 			Assert.True(n1.IsRead);
 			Assert.True(n2.IsRead);
@@ -344,7 +344,7 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupAttachedNotifications(n1);
 
 			await Assert.ThrowsAsync<NotFoundException>(
-				() => service.MarkAsRead(new List<int> { 99, 1 }, "u1"));
+				() => service.MarkAsRead("u1"));
 
 			// Since 99 was processed first and threw, n1 should not have been updated
 			notificationRepoMock.Verify(r => r.UpdateAsync(It.IsAny<Notification>()), Times.Never);

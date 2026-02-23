@@ -1,10 +1,10 @@
 import AIResponse from "./AIResponse";
 
 function AIAssistant({ onTypeHint, onSolutionHint, onSolution, aiMode, aiText, aiLoading , allowSolution,allowTypeHint,allowSolutionHint})
- {
+{
     return (
         <div className="ai-assistant-panel">
-            <h3 className="panel-heading">AI Assistance</h3>
+            <h3 className="panel-heading">AI Асистент</h3>
             
             <div className="ai-buttons">
              {allowTypeHint &&  <button
@@ -13,7 +13,7 @@ function AIAssistant({ onTypeHint, onSolutionHint, onSolution, aiMode, aiText, a
                     disabled={aiLoading}>
                     <span className="btn-ai-left">
                         <span className="btn-ai-icon">🔍</span>
-                        Type Hint
+                        Тип подсказка
                     </span>
                     <span className="btn-ai-arrow">→</span>
                 </button>}
@@ -23,8 +23,7 @@ function AIAssistant({ onTypeHint, onSolutionHint, onSolution, aiMode, aiText, a
                     onClick={onSolutionHint}
                     disabled={aiLoading}>
                     <span className="btn-ai-left">
-                        
-                        Solution Hint
+                        Подсказка за решение
                     </span>
                     <span className="btn-ai-arrow">→</span>
                 </button>}
@@ -34,18 +33,16 @@ function AIAssistant({ onTypeHint, onSolutionHint, onSolution, aiMode, aiText, a
                     onClick={onSolution}
                     disabled={aiLoading}>
                     <span className="btn-ai-left">
-                        
-                        Reveal Solution
+                        Разкрий решението
                     </span>
                     <span className="btn-ai-arrow">→</span>
                 </button>}
             </div>
 
             <div className="penalty-warning">
-              
                 <p className="warning-text">
-                    Using AI assistance will <strong>reduce points earned</strong> for this cipher.
-                    Type hints cost the least, solution hints cost more, and a full solution costs the most.
+                    Използването на AI асистент ще <strong>намали спечелените точки</strong> за този шифър.
+                    Подсказките за типа струват най-малко, тези за решението повече, а пълното решение – най-много.
                 </p>
             </div>
 
