@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../styles/not-found.css";
-
+import { useContext } from "react";
+import { AuthorizationContext } from "../App.jsx";
 // ─── Typing Effect ────────────────────────────────────────────────────────────
 function useTyping(text, delay = 0) {
     const [displayed, setDisplayed] = useState("");
@@ -97,6 +98,7 @@ function NfTerminal() {
 // ─── Actions ──────────────────────────────────────────────────────────────────
 function NfActions() {
     const navigate = useNavigate();
+    const { state,setState } = useContext(AuthorizationContext);
     return (
         <div className="nf-actions">
             <button className="nf-actions__btn-primary" onClick={() => navigate("/")}>
@@ -105,9 +107,10 @@ function NfActions() {
             <button className="nf-actions__btn-ghost" onClick={() => navigate(-1)}>
                 Назад
             </button>
-            <a href="/ciphers" className="nf-actions__btn-ghost">
+                {state.isLoggedIn && (
+            <Link to="/" className="nf-actions__btn-ghost">
                 Разгледай шифрите
-            </a>
+            </Link>)}
         </div>
     );
 }

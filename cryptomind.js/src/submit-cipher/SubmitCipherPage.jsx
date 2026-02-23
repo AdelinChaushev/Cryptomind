@@ -9,6 +9,7 @@ import { useError } from '../ErrorContext.jsx';
 const SubmitCipherPage = () => {
 
     const [useImage, setUseImage] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
     const { setError } = useError();
     const [fields, setFields] = useState({
         title:         '',
@@ -48,12 +49,12 @@ const SubmitCipherPage = () => {
             withCredentials: true,
             headers: {
                 'Content-Type': 'multipart/form-data'
-            }}).then( e => console.log('payload:', fields, 'useImage:', useImage))
+            }}).then( c => setSubmitted(true) )
         .catch(e => {
             console.log('Submission error:', e);
             console.log('Server Response Data:', e.response?.data);
 
-            setError(e.response?.data?.title || 'Failed to submit cipher. Please try again.')
+            setError(e.response?.data?.title ||  e.response.data.error)
 
         });
     };
@@ -74,6 +75,11 @@ const SubmitCipherPage = () => {
                 />
 
                 <div className="sidebar">
+                    {submitted && (
+                        <p className="submit-success">
+                            ✓ Cipher submitted successfully. It will be reviewed by an admin.
+                        </p>
+                    )}
                     <SubmitActions onSubmit={handleSubmit} onCancel={handleCancel} />
                     <Sidebar />
                 </div>
