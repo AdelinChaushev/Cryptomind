@@ -24,15 +24,16 @@ namespace Cryptomind.Controllers
 
 		[HttpPut]
 		[Route("mark-as-read")]
-		public async Task<IActionResult> MarkAsRead([FromBody] int[] notificationIds)
+		public async Task<IActionResult> MarkAsRead()
 		{
 			string userId = GetUserId();
 
-			await notificationService.MarkAsRead(notificationIds.ToList(), userId);
+			await notificationService.MarkAsRead(userId);
 			return Ok();
 		}
+      
 
-		private string GetUserId()
+        private string GetUserId()
 		   => User.FindFirstValue(ClaimTypes.NameIdentifier);
 	}
 }

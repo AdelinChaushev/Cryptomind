@@ -57,12 +57,14 @@ namespace Cryptomind.Core.Services
 			return await notificationRepo.GetAllAttached()
 				.CountAsync(x => x.UserId == userId && !x.IsRead);
 		}
-		public async Task MarkAsRead(List<int> notificationIds, string userId)
+		public async Task MarkAsRead(string userId)
 		{
-			foreach (var notificationId in notificationIds)
+			var userNotifications = await notificationRepo.GetAllAttached()
+				.Where(c => c.UserId == userId)
+				.ToListAsync();
+			foreach (var notification in userNotifications)
 			{
-				var notification = await notificationRepo.GetAllAttached()
-					.FirstOrDefaultAsync(x => x.Id == notificationId && x.UserId == userId);
+				
 
 				if (notification == null)
 					throw new NotFoundException("Notification not found");

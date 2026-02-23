@@ -5,6 +5,9 @@ import StatCard from './StatCard';
 import '../styles/admin-dashboard.css';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { useError } from "../ErrorContext";
+
+
 
 /* ───────────────────────────────────────────
    AdminDashboard.jsx
@@ -18,7 +21,7 @@ import { Link } from 'react-router-dom';
 ─────────────────────────────────────────── */
 
 const AdminDashboard = ({recentActivity = [] }) => {
-
+    const { setError } = useError(null);
     const [stats, setStats] = useState({  
         pendingCiphersCount: 0,
         approvedCiphersCount: 0,
@@ -39,7 +42,7 @@ const AdminDashboard = ({recentActivity = [] }) => {
                 pendingCipherTitles: res.data.pendingCipherTitles
             });
             console.log("DASHBOARD STATS:", res.data);
-        })
+        }).catch(err => { setError(err.response.data.message); console.error(err); });
     },[]);
     return (
         <div className="admin-shell">

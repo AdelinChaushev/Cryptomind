@@ -36,6 +36,7 @@ const MySubmissionsPage = () => {
         approved: cipherSubmissions.filter(s => s.status === 'Approved').length + answerSuggestions.filter(s => s.status === 'Approved').length,
         pending:  cipherSubmissions.filter(s => s.status === 'Pending').length + answerSuggestions.filter(s => s.status === 'Pending').length,
         rejected: cipherSubmissions.filter(s => s.status === 'Rejected').length + answerSuggestions.filter(s => s.status === 'Rejected').length,
+        deleted : cipherSubmissions.filter(c => c.status === 'CipherDeleted').length
     };
 
  
@@ -52,6 +53,7 @@ const MySubmissionsPage = () => {
                     approved={stats.approved}
                     pending={stats.pending}
                     rejected={stats.rejected}
+                    deleted={stats.deleted}
                 />
                 <SubmissionsTabs
                     activeTab={activeTab}

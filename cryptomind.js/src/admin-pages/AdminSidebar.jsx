@@ -62,7 +62,7 @@ const AdminSidebar = ({ activePage }) => {
                 </div>
             ))}
 
-            <div className="sidebar-footer">
+            {/* <div className="sidebar-footer">
                 <div className="sidebar-user">
                     <div className="sidebar-avatar">AD</div>
                     <div className="sidebar-user-info">
@@ -80,7 +80,7 @@ const AdminSidebar = ({ activePage }) => {
                         Logout
                     </Link>
                 </nav>
-            </div>
+            </div> */}
         </aside>
     );
 };

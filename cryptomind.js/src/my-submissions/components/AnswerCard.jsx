@@ -1,64 +1,81 @@
 import React from 'react';
 
 /* Props:
-   cipherTitle   : string  (the cipher this answer was submitted for)
-   status        : 'approved' | 'pending' | 'rejected'
-   suggestedAt   : string  (e.g. "Dec 16, 2024")
-   description   : string
-   pointsEarned  : number  — only shown when status === 'approved'
-   onViewCipher  : handler passed from parent
-   onViewDetails : handler passed from parent
+   cipherTitle     : string
+   status          : 'approved' | 'pending' | 'rejected' | 'cipher_removed'
+   suggestedAt     : string
+   deletedAt       : string | null    — when status === 'cipher_removed'
+   deletionReason  : string | null    — admin reason the cipher was removed
+   description     : string           — the user's suggested answer text
+   rejectionReason : string | null
+   pointsEarned    : number | null    — only meaningful when status === 'approved'
+   onViewCipher    : () => void
+   onViewDetails   : () => void
 */
+
 const AnswerCard = ({
     cipherTitle,
     status,
     suggestedAt,
+    deletedAt,
+    deletionReason,
     description,
+    rejectionReason,
     pointsEarned,
     onViewCipher,
     onViewDetails,
 }) => {
-    const statusClass = `status-${status.toLowerCase()}`;
+    const isCipherRemoved = status === 'cipher_removed';
+     
+    const statusClass =
+        status === 'approved'        ? 'badge-approved'  :
+        status === 'pending'         ? 'badge-pending'   :
+        status === 'rejected'        ? 'badge-rejected'  :
+        'badge-deleted';  // cipher_removed
+
     const statusLabel =
-        status === 'Approved' ? 'Correct' :
-        status === 'Pending'  ? 'Pending Review' :
-        'Incorrect';
+        status === 'approved'        ? 'Approved'        :
+        status === 'pending'         ? 'Pending Review'  :
+        status === 'rejected'        ? 'Rejected'        :
+        'Cipher Removed';
 
     const descriptionBorderClass =
-        status === 'Approved' ? 'border-emerald' :
-        status === 'Rejected' ? 'border-rose' :
+        status === 'approved'        ? 'border-emerald'  :
+        status === 'rejected'        ? 'border-rose'     :
+        isCipherRemoved              ? 'border-deleted'  :
         'border-yellow';
 
     return (
-        <div className="submission-card">
+        <div className={`submission-card ${isCipherRemoved ? 'submission-card--deleted' : ''}`}>
+
             {/* Header */}
             <div className="card-header">
-                <span className="card-title">Answer for: "{cipherTitle}"</span>
-                <span className={`status-badge ${statusClass}`}>{statusLabel}</span>
+                <div className="card-title-group">
+                    <span className={`card-title ${isCipherRemoved ? 'card-title--deleted' : ''}`}>
+                        Answer for: {cipherTitle}
+                    </span>
+                </div>
+                <span className={`status-badge ${statusClass}`}>
+                    <span className="status-dot" />
+                    {statusLabel}
+                </span>
             </div>
 
             {/* Meta */}
             <div className="card-meta">
-                <span className="meta-item">📅 {suggestedAt}</span>
+                <span className="meta-item">Suggested: {suggestedAt}</span>
 
-                {status === 'Approved' && (
+                {isCipherRemoved && deletedAt && (
                     <>
                         <span className="meta-dot" />
-                        <span className="meta-item">Verified Correct</span>
+                        <span className="meta-item">Cipher deleted: {deletedAt}</span>
                     </>
                 )}
 
-                {status === 'Pending' && (
+                {status === 'pending' && (
                     <>
                         <span className="meta-dot" />
-                        <span className="meta-item">Awaiting Verification</span>
-                    </>
-                )}
-
-                {status == 'Rejected' && (
-                    <>
-                        <span className="meta-dot" />
-                        <span className="meta-item">Not Accepted</span>
+                        <span className="meta-item">Awaiting Review</span>
                     </>
                 )}
             </div>
@@ -68,27 +85,51 @@ const AnswerCard = ({
                 {description}
             </p>
 
-            {/* Footer */}
-            <div className="card-footer">
-                <div className="card-footer-left">
-                    {status === 'Approved' && pointsEarned !== undefined && (
-                        <span className="points-badge">+{pointsEarned} pts</span>
-                    )}
+            {/* Rejection notice */}
+            {status === 'rejected' && rejectionReason && (
+                <div className="rejection-notice">
+                    <span className="rejection-icon">⚠</span>
+                    <p className="rejection-text">
+                        <strong>Rejection reason: </strong>{rejectionReason}
+                    </p>
                 </div>
+            )}
 
-                <div className="card-footer-right">
-                    {status === 'Approved' && (
-                        <button className="btn-card-action" onClick={onViewCipher}>
-                            View Cipher
-                        </button>
-                    )}
-                    {status !== 'Approved' && (
-                        <button className="btn-card-action" onClick={onViewDetails}>
-                            View Details
-                        </button>
-                    )}
+            {/* Cipher removed notice */}
+            {isCipherRemoved && (
+                <div className="deletion-notice">
+                    <span className="deletion-notice__label">Cipher removed by admin</span>
+                    <p className="deletion-notice__reason">
+                        {deletionReason
+                            ? deletionReason
+                            : 'The cipher this answer was submitted for has been removed from the platform.'}
+                    </p>
                 </div>
-            </div>
+            )}
+
+            {/* Footer — no actions for removed cipher cards */}
+            {!isCipherRemoved && (
+                <div className="card-footer">
+                    <div className="card-footer-left">
+                        {status === 'approved' && pointsEarned != null && (
+                            <span className="points-badge">+{pointsEarned} pts</span>
+                        )}
+                    </div>
+                    <div className="card-footer-right">
+                        {status === 'approved' && (
+                            <button className="btn-card-action" onClick={onViewCipher}>
+                                View Cipher
+                            </button>
+                        )}
+                        {status !== 'approved' && (
+                            <button className="btn-card-action" onClick={onViewDetails}>
+                                View Details
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 };
