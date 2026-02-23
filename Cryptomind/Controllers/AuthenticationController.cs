@@ -32,21 +32,10 @@ namespace Cryptomind.Controllers
 		[HttpPost("login")]
 		public async Task<IActionResult> Login([FromBody] LoginViewModel model)
 		{
-			try
-			{
-				ApplicationUser user = await authService.Authenticate(model.Email, model.Password);
-				string token = await authService.GenerateJSONWebToken(user);
-				AddCookie(token);
-				return Ok(await userService.GetRolesUsers(user.Id));
-			}
-			catch (UnauthorizedAccessException ex)
-			{
-				return Unauthorized(ex.Message);
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			ApplicationUser user = await authService.Authenticate(model.Email, model.Password);
+			string token = await authService.GenerateJSONWebToken(user);
+			AddCookie(token);
+			return Ok(await userService.GetRolesUsers(user.Id));
 		}
 
 		[HttpPost("logout")]
