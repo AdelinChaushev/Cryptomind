@@ -1,0 +1,587 @@
+/* ============================================================
+   CRYPTOMIND — Register Page
+   register.css
+   ============================================================ */
+
+:root {
+    --bg-primary:    #020617;
+    --bg-surface:    #0c1428;
+
+    --yellow-500:    #fbbf24;
+    --yellow-600:    #f59e0b;
+
+    --rose-500:      #f43f5e;
+    --orange-400:    #fb923c;
+    --emerald-500:   #10b981;
+
+    --text-primary:   #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-tertiary:  #94a3b8;
+
+    --border-default: rgba(203, 213, 225, 0.1);
+    --border-hover:   rgba(203, 213, 225, 0.2);
+    --border-yellow:  rgba(251, 191, 36, 0.3);
+
+    --gradient-primary: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+
+    --font-display: 'Orbitron', monospace;
+    --font-mono:    'Share Tech Mono', monospace;
+    --font-body:    'Exo 2', sans-serif;
+
+    --card-radius: 4px;
+    --transition-fast: 0.2s ease;
+}
+
+/* ─── Reset ──────────────────────────────────────────────── */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+a { text-decoration: none; color: inherit; }
+
+/* ─── Background ─────────────────────────────────────────── */
+.bg-grid {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-image:
+        linear-gradient(rgba(251, 191, 36, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(251, 191, 36, 0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+}
+
+.bg-vignette {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    background: radial-gradient(
+        ellipse 90% 90% at 50% 50%,
+        transparent 40%,
+        rgba(2, 6, 23, 0.88) 100%
+    );
+    pointer-events: none;
+}
+
+/* ─── Layout ─────────────────────────────────────────────── */
+.auth-main {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+/* ─── Card ───────────────────────────────────────────────── */
+.auth-card {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-yellow);
+    border-radius: var(--card-radius);
+    padding: 40px 44px 36px;
+    box-shadow:
+        0 0 0 1px rgba(251, 191, 36, 0.05),
+        0 0 40px rgba(251, 191, 36, 0.06),
+        0 24px 80px rgba(2, 6, 23, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    animation: cardEnter 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes cardEnter {
+    from { opacity: 0; transform: translateY(24px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ─── Top Accent Bar ─────────────────────────────────────── */
+.card-top-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--gradient-primary);
+    border-radius: var(--card-radius) var(--card-radius) 0 0;
+    overflow: hidden;
+}
+
+.card-top-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+    animation: barShine 4s ease-in-out 0.4s infinite;
+}
+
+@keyframes barShine {
+    0%        { left: -100%; }
+    60%, 100% { left: 160%; }
+}
+
+/* ─── Header ─────────────────────────────────────────────── */
+.auth-header {
+    text-align: center;
+    margin-bottom: 28px;
+    animation: fadeUp 0.65s ease both;
+    animation-delay: 0.08s;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.logo-link { display: inline-block; margin-bottom: 10px; }
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.logo-icon {
+    width: 34px;
+    height: 34px;
+    color: var(--yellow-500);
+    flex-shrink: 0;
+}
+
+.logo-text {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.logo-text span {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.auth-tagline {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    color: var(--text-tertiary);
+    margin-top: 8px;
+}
+
+.cipher-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.divider-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border-default);
+}
+
+.divider-icon {
+    font-size: 0.75rem;
+    color: var(--yellow-500);
+    opacity: 0.7;
+    animation: iconPulse 3s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+    0%, 100% { opacity: 0.4; }
+    50%       { opacity: 1; }
+}
+
+/* ─── Form Title ─────────────────────────────────────────── */
+.form-title-block {
+    margin-bottom: 24px;
+    animation: fadeUp 0.65s ease both;
+    animation-delay: 0.14s;
+}
+
+.form-title {
+    font-family: var(--font-display);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--text-primary);
+}
+
+.form-subtitle {
+    font-size: 0.78rem;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+    font-weight: 300;
+}
+
+/* ─── Form ───────────────────────────────────────────────── */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    animation: fadeUp 0.65s ease both;
+    animation-delay: 0.2s;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.form-label {
+    font-family: var(--font-mono);
+    font-size: 0.63rem;
+    letter-spacing: 0.18em;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color var(--transition-fast);
+}
+
+.label-prefix {
+    color: var(--yellow-600);
+    font-size: 0.58rem;
+    opacity: 0.8;
+}
+
+.form-group:focus-within .form-label {
+    color: var(--yellow-500);
+}
+
+.field-hint {
+    font-size: 0.7rem;
+    color: rgba(148, 163, 184, 0.4);
+    font-weight: 300;
+    padding-left: 2px;
+}
+
+/* ─── Inputs ─────────────────────────────────────────────── */
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 14px;
+    width: 16px;
+    height: 16px;
+    color: var(--text-tertiary);
+    transition: color var(--transition-fast);
+    pointer-events: none;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-icon svg { width: 16px; height: 16px; }
+
+.form-group:focus-within .input-icon {
+    color: var(--yellow-500);
+}
+
+.form-input {
+    width: 100%;
+    background: rgba(2, 6, 23, 0.7);
+    border: 1px solid var(--border-default);
+    border-radius: 3px;
+    padding: 11px 14px 11px 42px;
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-input::placeholder {
+    color: rgba(148, 163, 184, 0.35);
+    font-size: 0.82rem;
+}
+
+.form-input:focus {
+    border-color: var(--yellow-600);
+    background: rgba(2, 6, 23, 0.9);
+    box-shadow:
+        0 0 0 3px rgba(251, 191, 36, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.form-input:hover:not(:focus) {
+    border-color: var(--border-hover);
+}
+
+.input-focus-bar {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--gradient-primary);
+    transform: translateX(-50%);
+    transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    border-radius: 0 0 3px 3px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.form-group:focus-within .input-focus-bar {
+    width: 100%;
+}
+
+/* ─── Password Strength ──────────────────────────────────── */
+.strength-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.strength-track {
+    flex: 1;
+    height: 3px;
+    background: var(--border-default);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.strength-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 2px;
+    transition: width 0.4s ease, background 0.3s ease;
+}
+
+/* JS will toggle these classes on #strength-fill */
+.strength-fill.weak   { width: 25%; background: var(--rose-500); }
+.strength-fill.fair   { width: 50%; background: var(--orange-400); }
+.strength-fill.good   { width: 75%; background: var(--yellow-500); }
+.strength-fill.strong { width: 100%; background: var(--emerald-500); }
+
+.strength-label {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: rgba(148, 163, 184, 0.4);
+    white-space: nowrap;
+    letter-spacing: 0.05em;
+    min-width: 90px;
+    text-align: right;
+}
+
+/* ─── Terms Row ──────────────────────────────────────────── */
+.terms-group { margin-top: 4px; }
+
+.checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkbox-input { display: none; }
+
+.checkbox-custom {
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--border-default);
+    border-radius: 2px;
+    background: rgba(2, 6, 23, 0.6);
+    flex-shrink: 0;
+    position: relative;
+    margin-top: 2px;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.checkbox-custom::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    width: 5px;
+    height: 8px;
+    border: 2px solid transparent;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg) scale(0);
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.checkbox-input:checked + .checkbox-custom {
+    background: var(--yellow-600);
+    border-color: var(--yellow-600);
+}
+
+.checkbox-input:checked + .checkbox-custom::after {
+    border-color: var(--bg-primary);
+    transform: rotate(45deg) scale(1);
+}
+
+.checkbox-label:hover .checkbox-custom {
+    border-color: var(--border-yellow);
+}
+
+.checkbox-text {
+    font-size: 0.78rem;
+    color: var(--text-tertiary);
+    line-height: 1.5;
+}
+
+.terms-link {
+    color: var(--yellow-500);
+    transition: color var(--transition-fast);
+}
+
+.terms-link:hover {
+    color: var(--yellow-600);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* ─── Submit Button ──────────────────────────────────────── */
+.btn-submit {
+    position: relative;
+    width: 100%;
+    padding: 13px 24px;
+    background: var(--gradient-primary);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 4px;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.btn-submit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 32px rgba(251, 191, 36, 0.35);
+}
+
+.btn-submit:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 16px rgba(251, 191, 36, 0.2);
+}
+
+.btn-text {
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--bg-primary);
+    position: relative;
+    z-index: 1;
+}
+
+.btn-arrow {
+    font-size: 1rem;
+    color: var(--bg-primary);
+    position: relative;
+    z-index: 1;
+    transition: transform var(--transition-fast);
+}
+
+.btn-submit:hover .btn-arrow { transform: translateX(4px); }
+
+.btn-glow {
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 80%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+    animation: btnShimmer 4s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes btnShimmer {
+    0%        { left: -120%; }
+    50%, 100% { left: 160%; }
+}
+
+/* ─── Card Footer ────────────────────────────────────────── */
+.auth-card-footer {
+    margin-top: 24px;
+    text-align: center;
+    animation: fadeUp 0.65s ease both;
+    animation-delay: 0.3s;
+}
+
+.footer-text {
+    font-size: 0.82rem;
+    color: var(--text-tertiary);
+}
+
+.footer-link {
+    color: var(--yellow-500);
+    font-weight: 500;
+    margin-left: 4px;
+    transition: color var(--transition-fast);
+}
+
+.footer-link:hover {
+    color: var(--yellow-600);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* ─── Responsive ─────────────────────────────────────────── */
+@media (max-width: 520px) {
+    .auth-card { padding: 28px 20px 24px; }
+    .logo-text  { font-size: 1.2rem; }
+    .auth-main  { padding: 20px 14px; }
+}
+/* ─── FLUID RESPONSIVE ─── */
+body { overflow-x: hidden; }
+
+.auth-main {
+    padding: clamp(16px, 4vw, 40px) clamp(12px, 3vw, 20px);
+}
+
+.auth-card {
+    max-width: min(480px, 92vw);
+    padding: clamp(22px, 3.5vw, 40px) clamp(18px, 4vw, 44px) clamp(20px, 3vw, 36px);
+}
+
+.logo-text {
+    font-size: clamp(1.0rem, 2vw, 1.4rem);
+}
+
+.form-input {
+    font-size: clamp(0.8rem, 1.1vw, 0.875rem);
+    padding: clamp(8px, 1vw, 11px) clamp(10px, 1.2vw, 14px) clamp(8px, 1vw, 11px) clamp(34px, 3.5vw, 42px);
+}
+
+.btn-submit {
+    padding: clamp(10px, 1.2vw, 13px) clamp(18px, 2vw, 24px);
+}
+
+.btn-text {
+    font-size: clamp(0.66rem, 0.75vw, 0.72rem);
+}

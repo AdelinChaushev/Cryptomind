@@ -23,15 +23,17 @@ namespace Cryptomind.Core.Services
 				Message = message,
 				Link = link
 			};
-
-			await notificationRepo.AddAsync(notification);
+            // Clients.Group($"user_{userId}")
+            Console.WriteLine($"[Hub] OnConnectedAsync userId={userId}");
+            Console.WriteLine($"[SignalR] Targeting group: user_{userId}");
+            await notificationRepo.AddAsync(notification);
 			await hubContext.Clients.Group($"user_{userId}").SendAsync("ReceiveNotification", new
 			{
 				notification.Id,
 				notification.Type,
 				notification.Message,
 				notification.Link,
-				notification.CreatedAt
+				TimeSpan.Zero,
 			});
 		}
 		public async Task<List<NotificationDTO>> GetUserNotifications(string userId)

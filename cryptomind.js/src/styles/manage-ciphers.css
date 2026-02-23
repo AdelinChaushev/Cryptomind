@@ -1,0 +1,131 @@
+/* ============================================================
+   manage-ciphers.css
+   CryptoMind — Manage Approved Ciphers Page
+============================================================ */
+@import './admin-base.css';
+
+.cipher-title-cell {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.cipher-text-snippet {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 2px;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Image tag indicator */
+.image-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--sky-400);
+    background: var(--sky-dim);
+    border: 1px solid rgba(56, 189, 248, 0.20);
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.tags-cell {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.tag-pill {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    color: var(--text-dim);
+}
+
+.action-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.solve-count {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+
+/* Modal visibility */
+.modal-backdrop {
+    display: flex !important;
+}
+
+/* ─── EDIT MODAL SPECIFIC STYLES ─── */
+.modal-box-wide {
+    max-width: 560px;
+}
+
+.edit-permission-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    user-select: none;
+    padding: 8px 0;
+}
+
+.edit-permission-toggle input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.edit-permission-toggle:hover {
+    color: var(--text-primary);
+}
+
+.edit-tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.edit-tag-chip {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid var(--border-default);
+    background: var(--bg-surface);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all var(--transition);
+    user-select: none;
+}
+
+.edit-tag-chip:hover {
+    border-color: var(--border-hover);
+    color: var(--text-secondary);
+    background: var(--bg-elevated);
+}
+
+.edit-tag-chip.tag-selected {
+    background: var(--yellow-dim);
+    border-color: rgba(251, 191, 36, 0.35);
+    color: var(--yellow-500);
+    font-weight: 600;
+}
+
+.edit-tag-chip.tag-selected:hover {
+    border-color: rgba(251, 191, 36, 0.5);
+}

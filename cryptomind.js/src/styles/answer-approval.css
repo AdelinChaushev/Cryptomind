@@ -1,0 +1,89 @@
+/* ============================================================
+   answer-approval.css
+   CryptoMind — Pending Answer Approval Detail Page
+============================================================ */
+@import './admin-base.css';
+
+.answer-approval-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 18px;
+    align-items: start;
+}
+
+.answer-approval-main {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.answer-approval-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: sticky;
+    top: calc(var(--topbar-height) + 16px);
+}
+
+/* ─── Submission block ─── */
+.submitted-answer-box {
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    font-size: 14px;
+    color: var(--text-primary);
+    line-height: 1.65;
+    word-break: break-word;
+}
+
+.explanation-box {
+    background: var(--bg-elevated);
+    border-left: 3px solid var(--border-yellow);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+}
+
+/* ─── Original Cipher context ─── */
+.original-cipher-block {
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    line-height: 1.8;
+    word-break: break-all;
+    max-height: 140px;
+    overflow-y: auto;
+}
+
+@media (max-width: 900px) {
+    .answer-approval-layout { grid-template-columns: 1fr; }
+    .answer-approval-sidebar { position: static; }
+}
+
+/* ─── FLUID RESPONSIVE ─── */
+@media (max-width: 56.25em) {  /* ~900px */
+    .answer-approval-layout  { grid-template-columns: 1fr; }
+    .answer-approval-sidebar { position: static; }
+}
+
+.submitted-answer-box {
+    font-size: clamp(12px, 1.1vw, 14px);
+    padding: clamp(10px, 1.1vw, 14px) clamp(12px, 1.3vw, 16px);
+}
+
+.explanation-box {
+    font-size: clamp(11px, 1vw, 13px);
+    padding: clamp(10px, 1vw, 12px) clamp(11px, 1.1vw, 14px);
+}
+
+.original-cipher-block {
+    font-size: clamp(9px, 0.85vw, 11px);
+    padding: clamp(9px, 0.95vw, 12px) clamp(12px, 1.3vw, 16px);
+}
