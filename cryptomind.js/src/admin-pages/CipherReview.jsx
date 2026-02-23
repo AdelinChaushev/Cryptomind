@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, use, } from 'react';
+import React, { useState, useEffect, useCallback, } from 'react';
 import axios from 'axios';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
@@ -10,6 +10,7 @@ const API_BASE = 'http://localhost:5115/api/admin';
 import { useParams } from "react-router-dom";
 // Configure axios globally
 import "../styles/cipher-review.css";
+import { useNavigate } from 'react-router-dom';
 axios.defaults.withCredentials = true;
 
 
@@ -30,7 +31,7 @@ const CipherReview = () => {
     const [cipher, setCipher] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    
+    const navigate = useNavigate();
     // LLM state
     const [llmResult, setLlmResult] = useState(null);
     const [isLlmLoading, setIsLlmLoading] = useState(false);
@@ -52,9 +53,7 @@ const CipherReview = () => {
                 setError('Invalid cipher ID');
                 setLoading(false);
                 return;
-            }
-
-            
+            }          
                 axios.get(`${API_BASE}/cipher/${cipherId}`)
                 .then(res => {
                     setCipher(res.data);
@@ -92,8 +91,7 @@ const CipherReview = () => {
             console.log('LLM result:', data);
             setLlmResult(data);
         } catch (err) {
-            console.error('LLM analysis failed:', err);
-            alert(`LLM analysis failed: ${err.response?.data?.message || err.message}`);
+           
         } finally {
             setIsLlmLoading(false);
         }
@@ -109,24 +107,32 @@ const CipherReview = () => {
     }, []);
 
     // Approve
-    const handleApprove = useCallback(async (type) => {
-        if (!window.confirm(`Approve this cipher as ${type}?`)) return;
+    const handleApprove = async () => {
+    // 1. Determine type logic
+    const isExperimental = !cipher.decryptedText;
+    const typeLabel = isExperimental ? 'Experimental' : 'Standard';
 
-        try {
-            await axios.put(`${API_BASE}/cipher/${cipherId}/approve`, {
-                title: title,
-                allowTypeHint: cipher.allowType,
-                allowHint: allowHint,
-                allowSolution: allowSolution,
-                typeOfCipher: type === 'Experimental' ? 1 : 0,
-                tagIds: selectedTags
-            });
-            alert(`Cipher approved as ${type}!`);
-            window.location.href = '/admin/pending-ciphers';
-        } catch (err) {
-            alert(`Approval failed: ${err.response?.data?.message || err.message}`);
-        }
-    }, [cipherId, title, cipher, allowHint, allowSolution, selectedTags]);
+    try {
+        await axios.put(`${API_BASE}/cipher/${cipherId}/approve`, {
+            title: title,
+            allowTypeHint: cipher.allowType,
+            allowHint: allowHint,
+            allowSolution: allowSolution,
+            typeOfCipher: isExperimental ? 1 : 0,
+            tagIds: selectedTags
+        });
+
+        // 2. Use a better UX than alert if possible, but at least fix navigation
+        console.log(`Cipher approved as ${typeLabel}!`);
+        
+        // 3. SPA Navigation (No full page reload)
+        navigate('/admin/pending-ciphers'); 
+
+    } catch (err) {
+        const errorMsg = err.response?.data?.message || err.message;
+        alert(`Approval failed: ${errorMsg}`);
+    }
+}
 
     // Reject
     const handleReject = useCallback(async () => {
@@ -325,7 +331,7 @@ const CipherReview = () => {
                         {/* ─── Right: Admin Actions ─── */}
                         <div className="actions-column">
                             
-                            {/* Edit Details */}
+                            
                             <div className="admin-card">
                                 <div className="admin-card-header">
                                     <span className="admin-card-title">Cipher Details</span>
@@ -343,7 +349,9 @@ const CipherReview = () => {
                             </div>
 
                             {/* Permissions */}
-                            <div className="admin-card">
+                            
+                            {cipher.decryptedText && ( 
+                                <div className="admin-card">
                                 <div className="admin-card-header">
                                     <span className="admin-card-title">AI Assistance Permissions</span>
                                 </div>
@@ -374,10 +382,11 @@ const CipherReview = () => {
                                         <span>Allow Full Solution</span>
                                     </label>
                                 </div>
-                            </div>
+                            </div>)}
+                           
 
                             {/* Tags */}
-                            <div className="admin-card">
+                           {  <div className="admin-card">
                                 <div className="admin-card-header">
                                     <span className="admin-card-title">Tags</span>
                                 </div>
@@ -393,7 +402,7 @@ const CipherReview = () => {
                                         </button>
                                     ))}
                                 </div>
-                            </div>
+                            </div>}
 
                             {/* Challenge Type */}
                             <div className="admin-card">
@@ -425,7 +434,7 @@ const CipherReview = () => {
 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                     <button
-                                        onClick={() => handleApprove('Standard')}
+                                        onClick={handleApprove()}
                                         className="btn btn-success"
                                         style={{ justifyContent: 'center' }}>
                                         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
