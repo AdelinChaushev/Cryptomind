@@ -893,3 +893,30 @@ input, select, button { font-family: var(--font-body); }
     .footer-container { grid-template-columns: 1fr; }
     .footer-brand, .footer-column { text-align: center; }
 }
+.cipher-card--solved {
+    border-left: 3px solid rgba(16, 185, 129, 0.5);
+}
+
+.cipher-card--solved:hover {
+    border-color: rgba(16, 185, 129, 0.8);
+}
+
+/* Image badge */
+.badge-image {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(139, 92, 246, 0.12);
+    color: #a78bfa;
+    border: 1px solid rgba(139, 92, 246, 0.25);
+}
+
+/* Solved badge */
+.badge-solved {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(16, 185, 129, 0.12);
+    color: var(--emerald-500);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+}

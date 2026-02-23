@@ -21,7 +21,7 @@ const CipherSubmissionsList = ({ submissions = [], onViewCipher}) => {
                 <SubmissionCard
                     key={submission.id}
                     title={submission.title}
-                    status={submission.status}
+                    status={submission.status.toLowerCase()}
                     submittedAt={submission.submittedTime}
                     cipherType={submission.cipherType}
                     definition={submission.definition}
