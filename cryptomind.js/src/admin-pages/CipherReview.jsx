@@ -355,9 +355,16 @@ const CipherReview = () => {
                                             checked={allowHint}
                                             onChange={(e) => setAllowHint(e.target.checked)}
                                         />
-                                        <span>Allow Hints</span>
+                                        <span>Allow Type Hints</span>
                                     </label>
-
+                                    <label className="permission-toggle">
+                                        <input
+                                            type="checkbox"
+                                            checked={allowSolution}
+                                            onChange={(e) => setAllowSolution(e.target.checked)}
+                                        />
+                                        <span>Allow Solution Hints</span>
+                                    </label>
                                     <label className="permission-toggle">
                                         <input
                                             type="checkbox"
@@ -395,16 +402,18 @@ const CipherReview = () => {
                                 </div>
 
                                 <div className="type-toggle">
+                                {cipher.decryptedText ? (
                                     <button className="type-toggle-btn active-standard">
                                         <span className="type-toggle-dot dot-sky" />
                                         Standard
                                         <span className="type-toggle-note">HAS SOLUTION</span>
                                     </button>
+                                ) : (
                                     <button className="type-toggle-btn">
                                         <span className="type-toggle-dot dot-violet" />
                                         Experimental
                                         <span className="type-toggle-note">NO SOLUTION YET</span>
-                                    </button>
+                                    </button> )}
                                 </div>
                             </div>
 
@@ -418,24 +427,12 @@ const CipherReview = () => {
                                     <button
                                         onClick={() => handleApprove('Standard')}
                                         className="btn btn-success"
-                                        style={{ justifyContent: 'center' }}
-                                    >
+                                        style={{ justifyContent: 'center' }}>
                                         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
                                             <path d="M2 8l4 4 8-8"/>
                                         </svg>
-                                        Approve as Standard
-                                    </button>
-
-                                    <button
-                                        onClick={() => handleApprove('Experimental')}
-                                        className="btn btn-sky"
-                                        style={{ justifyContent: 'center' }}
-                                    >
-                                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                            <circle cx="8" cy="8" r="6.5"/><path d="M8 5v3l2 2"/>
-                                        </svg>
-                                        Approve as Experimental
-                                    </button>
+                                        Approve
+                                    </button>                               
 
                                     <div className="reject-section">
                                         <button

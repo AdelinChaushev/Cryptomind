@@ -26,8 +26,8 @@ export default function Login() {
             navigate('/');
           }, 0); 
     } ).catch(e =>{ e.response.status == 403 ? 
-        setState({isLoggedIn: false, roles: [], isBanned: true}) : setState({isLoggedIn: false, roles: []})
-        navigate('/banned')  }
+        setState({isLoggedIn: false, roles: [], isBanned: true}): setState({isLoggedIn: false, roles: []})
+         }
     );   
     
    }
