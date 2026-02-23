@@ -6,11 +6,12 @@ export const NotificationType = {
     CipherRejected:        1,
     CipherDeleted:         2,
     CipherRestored:        3,
-    AnswerApproved:        4,
-    AnswerRejected:        5,
-    AnswerCipherDeleted:   6,
-    AnswerCipherRestored:  7,
-    BadgeEarned:           8,
+    CipherUpdated:         4,
+    AnswerApproved:        5,
+    AnswerRejected:        6,
+    AnswerCipherDeleted:   7,
+    AnswerCipherRestored:  8,
+    BadgeEarned:           9,
 };
 
 const API_BASE = 'http://localhost:5115/api/notifications';
@@ -63,17 +64,20 @@ function resolveLink(notification) {
         const raw = notification.link;
         return raw.startsWith('/') ? raw : `/${raw}`;
     }
-    switch (notification.type) {
-        case NotificationType.CipherApproved:
-        case NotificationType.CipherRejected:
-        case NotificationType.CipherDeleted:
-        case NotificationType.CipherRestored:
-        case NotificationType.AnswerApproved:
-        case NotificationType.AnswerRejected:
-        case NotificationType.AnswerCipherDeleted:
-        case NotificationType.AnswerCipherRestored:
+   
+     switch (notification.type) {
+        case 0: // CipherApproved
+        case 1: // CipherRejected
+        case 2: // CipherDeleted
+        case 3: // CipherRestored
+        case 4: // CipherUpdated
             return '/my-submissions';
-        case NotificationType.BadgeEarned:
+        case 5: // AnswerApproved
+        case 6: // AnswerRejected
+        case 7: // AnswerCipherDeleted
+        case 8: // AnswerCipherRestored
+            return '/my-submissions';
+        case 9: // BadgeEarned
             return '/profile#badges';
         default:
             return null;

@@ -112,7 +112,7 @@ function CipherSolvePage() {
                 console.log(c.data)})
                 .catch(e => (
                      console.log(e),
-                     setError(e.response?.title|| 'Failed to submit answer. Please try again.')
+                     setError(e.response?.title|| e.response?.data?.error || 'Failed to submit answer. Please try again.')
             ))
         }
 

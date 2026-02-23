@@ -2,56 +2,56 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
-import MlAnalysisSection from './MlAnalysisSection';
 import LlmAssistantSection from './LlmAssistantSection';
 import '../styles/cipher-review.css';
-import { useParams, useNavigate } from "react-router-dom";
-import { useError } from '../ErrorContext';
-
 const API_BASE = 'http://localhost:5115/api/admin';
+import { useParams } from "react-router-dom";
+// Configure axios globally
+import "../styles/cipher-review.css";
+import { useNavigate } from 'react-router-dom';
+import { useError } from '../ErrorContext';
 axios.defaults.withCredentials = true;
 
+
+
 const AVAILABLE_TAGS = [
-    { id: 1, label: 'Изображение' },
-    { id: 2, label: 'Пъзел' },
-    { id: 3, label: 'Исторически' },
-    { id: 4, label: 'Кратък' },
-    { id: 5, label: 'Дълъг' },
-    { id: 6, label: 'За начинаещи' },
-    { id: 7, label: 'Предизвикателен' }
+    { id: 1, label: 'Image' },
+    { id: 2, label: 'Puzzle' },
+    { id: 3, label: 'Historical' },
+    { id: 4, label: 'Short' },
+    { id: 5, label: 'Long' },
+    { id: 6, label: 'Beginner Friendly' },
+    { id: 7, label: 'Tricky' }
 ];
-
 const CIPHER_TYPES = [
-    { value: '0',  label: 'Цезар',              group: 'Заместване' },
-    { value: '1',  label: 'Атбаш',              group: 'Заместване' },
-    { value: '2',  label: 'Проста замяна',      group: 'Заместване' },
-    { value: '3',  label: 'ROT13',              group: 'Заместване' },
-    { value: '4',  label: 'Виженер',            group: 'Полиалфавитен' },
-    { value: '5',  label: 'Автоключ',           group: 'Полиалфавитен' },
-    { value: '6',  label: 'Тритемиус',          group: 'Полиалфавитен' },
-    { value: '7',  label: 'Rail Fence (Ограда)', group: 'Транспозиция' },
-    { value: '8',  label: 'Колонен',            group: 'Транспозиция' },
-    { value: '9',  label: 'Маршрутен',          group: 'Транспозиция' },
-    { value: '10', label: 'Base64',             group: 'Кодиране' },
-    { value: '11', label: 'Морзова азбука',     group: 'Кодиране' },
-    { value: '12', label: 'Бинарен',            group: 'Кодиране' },
-    { value: '13', label: 'Хексадесетичен',      group: 'Кодиране' },
+    { value: '0',  label: 'Caesar',              group: 'Substitution' },
+    { value: '1',  label: 'Atbash',              group: 'Substitution' },
+    { value: '2',  label: 'Simple Substitution', group: 'Substitution' },
+    { value: '3',  label: 'ROT13',               group: 'Substitution' },
+    { value: '4',  label: 'Vigenere',            group: 'Polyalphabetic' },
+    { value: '5',  label: 'Autokey',             group: 'Polyalphabetic' },
+    { value: '6',  label: 'Trithemius',          group: 'Polyalphabetic' },
+    { value: '7',  label: 'Rail Fence',          group: 'Transposition' },
+    { value: '8',  label: 'Columnar',            group: 'Transposition' },
+    { value: '9',  label: 'Route',               group: 'Transposition' },
+    { value: '10', label: 'Base64',              group: 'Encoding' },
+    { value: '11', label: 'Morse',               group: 'Encoding' },
+    { value: '12', label: 'Binary',              group: 'Encoding' },
+    { value: '13', label: 'Hex',                 group: 'Encoding' },
 ];
 
-const GROUPS = ['Заместване', 'Полиалфавитен', 'Транспозиция', 'Кодиране'];
 
 const CipherReview = () => {
     const [cipher, setCipher] = useState(null);
     const [loading, setLoading] = useState(true);
     const [localError, setLocalError] = useState(null);
     const navigate = useNavigate();
-    const { setError } = useError();
-    
-    // LLM състояние
+    // LLM state
+    const {setError} = useError();
     const [llmResult, setLlmResult] = useState(null);
     const [isLlmLoading, setIsLlmLoading] = useState(false);
     
-    // Състояние на формата
+    // Form state
     const [title, setTitle] = useState('');
     const [selectedTags, setSelectedTags] = useState([]);
     const [allowHint, setAllowHint] = useState(true);
@@ -62,41 +62,45 @@ const CipherReview = () => {
     const [rejectReason, setRejectReason] = useState('');
     const cipherId = useParams().id;
 
-    // Извличане на шифъра
+    // Fetch cipher
     useEffect(() => {
         const fetchCipher = async () => {
             if (!cipherId || isNaN(cipherId)) {
-                setLocalError('Невалидно ID на шифъра');
+                setLocalError('Invalid cipher ID');
                 setLoading(false);
                 return;
             }          
-            axios.get(`${API_BASE}/cipher/${cipherId}`)
+                axios.get(`${API_BASE}/cipher/${cipherId}`)
                 .then(res => {
                     setCipher(res.data);
                     setTitle(res.data.title || '');
                     setAllowHint(res.data.allowTypeHint ?? false);
                     setAllowSolutionHint(res.data.allowHint ?? false);
                     setAllowSolution(res.data.allowSolution ?? false);
+                    console.log('Fetched cipher:', res.data);
                 }).catch(err => {
                     const status = err.response?.status;
                     const serverMessage = err?.data?.title;
                     switch (status) {
                         case 404:
-                            setLocalError('Шифърът не е намерен');
-                            navigate('/not-found');
+                            setLocalError('Cipher not found');
+                             navigate('/not-found');
                             break;
                         default:
-                            setLocalError(serverMessage || 'Грешка при извличане на шифъра');
-                            setError(serverMessage || 'Грешка при извличане на шифъра');
+                            setLocalError(serverMessage || 'Failed to fetch cipher')
+                            setError(serverMessage || 'Failed to fetch cipher')
+                            ;
                             break;    
                     };
-                })
+                console.error('Failed to fetch cipher:', err);
+                setLocalError(err.response?.data?.message || err.message)}
+                )
                 .finally(() => setLoading(false));
         };
         fetchCipher();
-    }, [cipherId, navigate, setError]);
+    }, [cipherId]);
 
-    // Пускане на LLM анализ
+    // Run LLM analysis
     const handleRunLlm = useCallback(async () => {
         setIsLlmLoading(true);
         try {
@@ -137,7 +141,7 @@ const CipherReview = () => {
     // Отхвърляне
     const handleReject = useCallback(async () => {
         if (!rejectReason.trim()) {
-            alert('Моля, посочете причина за отхвърляне.');
+            setError('Please provide a reason for rejecting this cipher.');
             return;
         }
         try {
@@ -146,7 +150,8 @@ const CipherReview = () => {
             });
             navigate('/admin/pending-ciphers');
         } catch (err) {
-            alert(`Отхвърлянето пропадна: ${err.response?.data?.message || err.message}`);
+
+            setError(`Rejection failed: ${err.response?.data?.message || err.message}`);
         }
     }, [cipherId, rejectReason, navigate]);
 
