@@ -31,7 +31,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowAll");
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+	app.UseHttpsRedirection();
+}
 app.UseAuthentication();
 app.UseMiddleware<BanCheckMiddleware>();
 app.UseAuthorization();

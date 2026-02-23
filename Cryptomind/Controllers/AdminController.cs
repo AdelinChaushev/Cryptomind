@@ -122,9 +122,9 @@ namespace Cryptomind.Controllers
 		}
 
 		[HttpPut("answer/{id}/approve")]
-		public async Task<IActionResult> ApproveAnswer([FromRoute] int id, [FromForm] int points)
+		public async Task<IActionResult> ApproveAnswer([FromRoute] int id)
 		{
-			List<string> userIds = await adminAnswerService.ApproveAnswerAsync(id, points);
+			List<string> userIds = await adminAnswerService.ApproveAnswerAsync(id);
 
 			foreach (var userId in userIds)
 			{
