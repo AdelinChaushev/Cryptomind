@@ -1,60 +1,57 @@
-import React, { useState, useEffect, useCallback, use, } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
 import MlAnalysisSection from './MlAnalysisSection';
 import LlmAssistantSection from './LlmAssistantSection';
-import AdminActions from './AdminActions';
 import '../styles/cipher-review.css';
-const API_BASE = 'http://localhost:5115/api/admin';
-import { useParams } from "react-router-dom";
-// Configure axios globally
-import "../styles/cipher-review.css";
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from "react-router-dom";
 import { useError } from '../ErrorContext';
+
+const API_BASE = 'http://localhost:5115/api/admin';
 axios.defaults.withCredentials = true;
 
-
-
 const AVAILABLE_TAGS = [
-    { id: 1, label: 'Image' },
-    { id: 2, label: 'Puzzle' },
-    { id: 3, label: 'Historical' },
-    { id: 4, label: 'Short' },
-    { id: 5, label: 'Long' },
-    { id: 6, label: 'Beginner Friendly' },
-    { id: 7, label: 'Tricky' }
+    { id: 1, label: 'Изображение' },
+    { id: 2, label: 'Пъзел' },
+    { id: 3, label: 'Исторически' },
+    { id: 4, label: 'Кратък' },
+    { id: 5, label: 'Дълъг' },
+    { id: 6, label: 'За начинаещи' },
+    { id: 7, label: 'Предизвикателен' }
 ];
-const CIPHER_TYPES = [
-    { value: '0',  label: 'Caesar',              group: 'Substitution' },
-    { value: '1',  label: 'Atbash',              group: 'Substitution' },
-    { value: '2',  label: 'Simple Substitution', group: 'Substitution' },
-    { value: '3',  label: 'ROT13',               group: 'Substitution' },
-    { value: '4',  label: 'Vigenere',            group: 'Polyalphabetic' },
-    { value: '5',  label: 'Autokey',             group: 'Polyalphabetic' },
-    { value: '6',  label: 'Trithemius',          group: 'Polyalphabetic' },
-    { value: '7',  label: 'Rail Fence',          group: 'Transposition' },
-    { value: '8',  label: 'Columnar',            group: 'Transposition' },
-    { value: '9',  label: 'Route',               group: 'Transposition' },
-    { value: '10', label: 'Base64',              group: 'Encoding' },
-    { value: '11', label: 'Morse',               group: 'Encoding' },
-    { value: '12', label: 'Binary',              group: 'Encoding' },
-    { value: '13', label: 'Hex',                 group: 'Encoding' },
-];
-const GROUPS = ['Substitution', 'Polyalphabetic', 'Transposition', 'Encoding'];
 
+const CIPHER_TYPES = [
+    { value: '0',  label: 'Цезар',              group: 'Заместване' },
+    { value: '1',  label: 'Атбаш',              group: 'Заместване' },
+    { value: '2',  label: 'Проста замяна',      group: 'Заместване' },
+    { value: '3',  label: 'ROT13',              group: 'Заместване' },
+    { value: '4',  label: 'Виженер',            group: 'Полиалфавитен' },
+    { value: '5',  label: 'Автоключ',           group: 'Полиалфавитен' },
+    { value: '6',  label: 'Тритемиус',          group: 'Полиалфавитен' },
+    { value: '7',  label: 'Rail Fence (Ограда)', group: 'Транспозиция' },
+    { value: '8',  label: 'Колонен',            group: 'Транспозиция' },
+    { value: '9',  label: 'Маршрутен',          group: 'Транспозиция' },
+    { value: '10', label: 'Base64',             group: 'Кодиране' },
+    { value: '11', label: 'Морзова азбука',     group: 'Кодиране' },
+    { value: '12', label: 'Бинарен',            group: 'Кодиране' },
+    { value: '13', label: 'Хексадесетичен',      group: 'Кодиране' },
+];
+
+const GROUPS = ['Заместване', 'Полиалфавитен', 'Транспозиция', 'Кодиране'];
 
 const CipherReview = () => {
     const [cipher, setCipher] = useState(null);
     const [loading, setLoading] = useState(true);
     const [localError, setLocalError] = useState(null);
     const navigate = useNavigate();
-    // LLM state
-    const {setError} = useError();
+    const { setError } = useError();
+    
+    // LLM състояние
     const [llmResult, setLlmResult] = useState(null);
     const [isLlmLoading, setIsLlmLoading] = useState(false);
     
-    // Form state
+    // Състояние на формата
     const [title, setTitle] = useState('');
     const [selectedTags, setSelectedTags] = useState([]);
     const [allowHint, setAllowHint] = useState(true);
@@ -65,15 +62,15 @@ const CipherReview = () => {
     const [rejectReason, setRejectReason] = useState('');
     const cipherId = useParams().id;
 
-    // Fetch cipher
+    // Извличане на шифъра
     useEffect(() => {
         const fetchCipher = async () => {
             if (!cipherId || isNaN(cipherId)) {
-                setLocalError('Invalid cipher ID');
+                setLocalError('Невалидно ID на шифъра');
                 setLoading(false);
                 return;
             }          
-                axios.get(`${API_BASE}/cipher/${cipherId}`)
+            axios.get(`${API_BASE}/cipher/${cipherId}`)
                 .then(res => {
                     setCipher(res.data);
                     setTitle(res.data.title || '');
@@ -85,98 +82,73 @@ const CipherReview = () => {
                     const serverMessage = err?.data?.title;
                     switch (status) {
                         case 404:
-                            setLocalError('Cipher not found');
-                             navigate('/not-found');
+                            setLocalError('Шифърът не е намерен');
+                            navigate('/not-found');
                             break;
                         default:
-                            setLocalError(serverMessage || 'Failed to fetch cipher')
-                            setError(serverMessage || 'Failed to fetch cipher')
-                            ;
+                            setLocalError(serverMessage || 'Грешка при извличане на шифъра');
+                            setError(serverMessage || 'Грешка при извличане на шифъра');
                             break;    
                     };
-                console.error('Failed to fetch cipher:', err);
-                setlocalError(err.response?.data?.message || err.message)}
-                )
+                })
                 .finally(() => setLoading(false));
-              
-        
-            
         };
-
         fetchCipher();
-    }, [cipherId]);
+    }, [cipherId, navigate, setError]);
 
-    // Run LLM analysis
+    // Пускане на LLM анализ
     const handleRunLlm = useCallback(async () => {
         setIsLlmLoading(true);
         try {
             const { data } = await axios.get(`${API_BASE}/cipher/${cipherId}/analyze`);
-            console.log('LLM result:', data);
             setLlmResult(data);
         } catch (err) {
-            console.error('LLM analysis failed:', err);
-            setError(err.response.data.title || 'Failed to fetch cipher')
+            setError(err.response?.data?.title || 'LLM анализът пропадна');
         } finally {
             setIsLlmLoading(false);
         }
-    }, [cipherId]);
+    }, [cipherId, setError]);
 
-    // Tag toggle
+    // Превключване на тагове
     const handleTagToggle = useCallback((tagId) => {
         setSelectedTags(prev => 
-            prev.includes(tagId) 
-                ? prev.filter(id => id !== tagId)
-                : [...prev, tagId]
+            prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]
         );
     }, []);
 
-    // Approve
+    // Одобрение
     const handleApprove = async () => {
-    // 1. Determine type logic
-    const isExperimental = !cipher.decryptedText;
-    const typeLabel = isExperimental ? 'Experimental' : 'Standard';
-
-    try {
-        await axios.put(`${API_BASE}/cipher/${cipherId}/approve`, {
-            title: title,
-            allowTypeHint: cipher.allowType,
-            allowHint: allowHint,
-            allowSolutionHint: allowSolutionHint,
-            allowSolution: allowSolution,
-            typeOfCipher: cipherType,
-            tagIds: selectedTags
-        });
-
-        // 2. Use a better UX than alert if possible, but at least fix navigation
-        console.log(`Cipher approved as ${typeLabel}!`);
-        
-        // 3. SPA Navigation (No full page reload)
-        navigate('/admin/pending-ciphers'); 
-
-    } catch (err) {
-        const errorMsg = err.response?.data.error || err.message;
-        setError(`Approval failed: ${errorMsg}`);
+        try {
+            await axios.put(`${API_BASE}/cipher/${cipherId}/approve`, {
+                title: title,
+                allowTypeHint: cipher.allowType,
+                allowHint: allowHint,
+                allowSolutionHint: allowSolutionHint,
+                allowSolution: allowSolution,
+                typeOfCipher: cipherType,
+                tagIds: selectedTags
+            });
+            navigate('/admin/pending-ciphers'); 
+        } catch (err) {
+            setError(`Одобрението пропадна: ${err.response?.data.error || err.message}`);
+        }
     }
-}
 
-    // Reject
+    // Отхвърляне
     const handleReject = useCallback(async () => {
         if (!rejectReason.trim()) {
-            alert('Please provide a reason for rejecting this cipher.');
+            alert('Моля, посочете причина за отхвърляне.');
             return;
         }
-
         try {
             await axios.put(`${API_BASE}/cipher/${cipherId}/reject`, rejectReason, {
                 headers: { 'Content-Type': 'application/json' }
             });
-         
-           navigate('/admin/pending-ciphers');
+            navigate('/admin/pending-ciphers');
         } catch (err) {
-
-            alert(`Rejection failed: ${err.response?.data?.message || err.message}`);
+            alert(`Отхвърлянето пропадна: ${err.response?.data?.message || err.message}`);
         }
-    }, [cipherId, rejectReason]);
+    }, [cipherId, rejectReason, navigate]);
 
     if (loading) {
         return (
@@ -185,7 +157,7 @@ const CipherReview = () => {
                 <main className="admin-main">
                     <div className="admin-content">
                         <div className="empty-state">
-                            <div className="empty-state-title">Loading...</div>
+                            <div className="empty-state-title">Зареждане...</div>
                         </div>
                     </div>
                 </main>
@@ -200,9 +172,9 @@ const CipherReview = () => {
                 <main className="admin-main">
                     <div className="admin-content">
                         <div className="empty-state">
-                            <div className="empty-state-title">{localError || 'Cipher not found'}</div>
+                            <div className="empty-state-title">{localError || 'Шифърът не е намерен'}</div>
                             <a href="/admin/pending-ciphers" className="btn btn-ghost btn-sm" style={{ marginTop: '12px' }}>
-                                ← Back to Pending Ciphers
+                                ← Обратно към изчакващи
                             </a>
                         </div>
                     </div>
@@ -214,323 +186,183 @@ const CipherReview = () => {
     return (
         <div className="admin-shell">
             <AdminSidebar activePage="pending-ciphers" />
-
             <main className="admin-main">
                 <AdminTopbar
                     breadcrumbs={[
-                        { label: 'Pending Submissions', href: '/admin/pending-ciphers' },
-                        { label: cipher.title || `Cipher #${cipher.id}` }
+                        { label: 'Изчакващи предложения', href: '/admin/pending-ciphers' },
+                        { label: cipher.title || `Шифър #${cipher.id}` }
                     ]}
                 >
                     <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-dim)' }}>
-                        #{cipher.id} — submitted by {cipher.submittedBy}
+                        #{cipher.id} — изпратено от {cipher.submittedBy}
                     </span>
                 </AdminTopbar>
 
                 <div className="admin-content">
                     <div className="page-header">
-                        <h1 className="page-title">{cipher.title || `Cipher #${cipher.id}`}</h1>
-                        <p className="page-subtitle">Review submission, verify ML prediction, and make an approval decision</p>
+                        <h1 className="page-title">{cipher.title || `Шифър #${cipher.id}`}</h1>
+                        <p className="page-subtitle">Прегледайте съдържанието, проверете ML анализа и вземете решение</p>
                     </div>
 
                     <div className="review-layout">
-                        {/* ─── Left: Main Review Panels ─── */}
                         <div className="review-main">
-                            
-                            {/* 1. Cipher Content */}
+                            {/* 1. Съдържание */}
                             <div className="admin-card review-card">
                                 <div className="admin-card-header">
                                     <div className="review-card-title-row">
-                                        <span className="review-section-tag">INPUT</span>
-                                        <span className="admin-card-title">Submitted Content</span>
+                                        <span className="review-section-tag">ВХОД</span>
+                                        <span className="admin-card-title">Подадено съдържание</span>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '6px' }}>
-                                        {cipher.isImage && (
-                                            <span className="badge badge-standard">Has Image</span>
-                                        )}
-                                    </div>
+                                    {cipher.isImage && <span className="badge badge-standard">Има изображение</span>}
                                 </div>
 
-                                {/* Cipher Text */}
-                                <div className="form-label">Cipher Text</div>
+                                <div className="form-label">Шифрован текст</div>
                                 <div className="cipher-text-display prominent">{cipher.cipherText}</div>
 
-                                {/* Image (if any) */}
                                 {cipher.isImage && cipher.imageBase64 && (
                                     <div className="cipher-image-preview">
-                                        <div className="form-label">Uploaded Image</div>
-                                        <img src={`${cipher.imageBase64}`} alt="Cipher" />
-                                        <div className="ocr-note">
-                                            ↑ Text above was extracted via OCR from this image
-                                        </div>
+                                        <div className="form-label">Прикачено изображение</div>
+                                        <img src={`${cipher.imageBase64}`} alt="Шифър" />
+                                        <div className="ocr-note">↑ Текстът беше извлечен чрез OCR от това изображение</div>
                                     </div>
                                 )}
 
-                                {/* Submitted Solution */}
                                 {cipher.decryptedText && (
                                     <div style={{ marginTop: '14px' }}>
-                                        <div className="form-label">Submitted Plaintext Solution</div>
+                                        <div className="form-label">Подадено решение (чист текст)</div>
                                         <div className="solution-display">{cipher.decryptedText}</div>
                                     </div>
                                 )}
 
-                                {/* Metadata Row */}
                                 <div className="cipher-meta-row">
                                     <div className="cipher-meta-item">
-                                        <span className="cipher-meta-label">Submitted By</span>
+                                        <span className="cipher-meta-label">Изпратено от</span>
                                         <span className="cipher-meta-value text-mono">{cipher.submittedBy}</span>
                                     </div>
                                     <div className="cipher-meta-item">
-                                        <span className="cipher-meta-label">Submitted At</span>
+                                        <span className="cipher-meta-label">Дата</span>
                                         <span className="cipher-meta-value text-mono">{cipher.submittedAt || '—'}</span>
                                     </div>
                                     <div className="cipher-meta-item">
-                                        <span className="cipher-meta-label">Text Length</span>
+                                        <span className="cipher-meta-label">Дължина</span>
                                         <span className="cipher-meta-value text-mono">
-                                            {cipher.cipherText?.length ?? 0} chars
+                                            {cipher.cipherText?.length ?? 0} симв.
                                             {cipher.cipherText?.length < 150 && (
-                                                <span style={{ color: 'var(--rose-500)', marginLeft: '6px' }}>⚠ Below 150</span>
+                                                <span style={{ color: 'var(--rose-500)', marginLeft: '6px' }}>⚠ Под 150</span>
                                             )}
                                         </span>
                                     </div>
                                     <div className="cipher-meta-item">
-                                        <span className="cipher-meta-label">Has Solution</span>
+                                        <span className="cipher-meta-label">Има решение</span>
                                         <span className={`cipher-meta-value ${cipher.decryptedText ? 'text-emerald' : 'text-dim'}`}>
-                                            {cipher.decryptedText ? 'Yes' : 'No'}
+                                            {cipher.decryptedText ? 'Да' : 'Не'}
                                         </span>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* 2. ML Analysis */}
+                            {/* 2. ML Анализ */}
                             <div className="admin-card review-card">
                                 <div className="admin-card-header">
                                     <div className="review-card-title-row">
                                         <span className="review-section-tag">ML</span>
-                                        <span className="admin-card-title">ML Analysis</span>
+                                        <span className="admin-card-title">ML Анализ</span>
                                     </div>
                                     <span className={`badge ${cipher.percentageOfConfidence >= 85 ? 'badge-approved' : cipher.percentageOfConfidence >= 65 ? 'badge-pending' : 'badge-rejected'}`}>
-                                        {cipher.percentageOfConfidence}% confidence
+                                        {cipher.percentageOfConfidence}% увереност
                                     </span>
                                 </div>
-
                                 <div className="ml-result-grid">
                                     <div className="ml-metric">
-                                        <span className="ml-metric-label">Predicted Type</span>
+                                        <span className="ml-metric-label">Прогнозиран тип</span>
                                         <span className="ml-metric-value">{cipher.mlPrediction || '—'}</span>
                                     </div>
-
                                     <div className="ml-metric">
-                                        <span className="ml-metric-label">LLM Recommended</span>
+                                        <span className="ml-metric-label">LLM препоръка</span>
                                         <span className={`badge ${cipher.isLLMRecommended ? 'badge-pending' : 'badge-approved'}`}>
-                                            {cipher.isLLMRecommended ? 'Yes' : 'No'}
+                                            {cipher.isLLMRecommended ? 'Да' : 'Не'}
                                         </span>
                                     </div>
-
-                                    <div className="ml-metric ml-metric-wide">
-                                        <span className="ml-metric-label">Confidence</span>
-                                        <div className="ml-confidence-row">
-                                            <div className="ml-confidence-bar">
-                                                <div 
-                                                    className={`ml-confidence-fill ${
-                                                        cipher.percentageOfConfidence >= 85 ? 'confidence-high' : 
-                                                        cipher.percentageOfConfidence >= 65 ? 'confidence-mid' : 
-                                                        'confidence-low'
-                                                    }`}
-                                                    style={{ width: `${cipher.percentageOfConfidence}%` }}
-                                                />
-                                            </div>
-                                            <span className="ml-confidence-pct">{cipher.percentageOfConfidence}%</span>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
 
-                            {/* 3. LLM Assistant */}
-                            <LlmAssistantSection
-                                result={llmResult}
-                                isLoading={isLlmLoading}
-                                onRunAnalysis={handleRunLlm}
-                            />
+                            <LlmAssistantSection result={llmResult} isLoading={isLlmLoading} onRunAnalysis={handleRunLlm} />
                         </div>
 
-                        {/* ─── Right: Admin Actions ─── */}
                         <div className="actions-column">
-                            
-                            
                             <div className="admin-card">
-                                <div className="admin-card-header">
-                                    <span className="admin-card-title">Cipher Details</span>
-                                </div>
-
+                                <div className="admin-card-header"><span className="admin-card-title">Детайли</span></div>
                                 <div className="form-group">
-                                    <label className="form-label">Title</label>
-                                    <input
-                                        type="text"
-                                        className="form-input"
-                                        value={title}
-                                        onChange={(e) => setTitle(e.target.value)}
-                                    />
+                                    <label className="form-label">Заглавие</label>
+                                    <input type="text" className="form-input" value={title} onChange={(e) => setTitle(e.target.value)} />
                                 </div>
                             </div>
 
-                            {/* Permissions */}
-                            
-                            {cipher.decryptedText && ( 
+                            {cipher.decryptedText && (
                                 <div className="admin-card">
-                                <div className="admin-card-header">
-                                    <span className="admin-card-title">AI Assistance Permissions</span>
+                                    <div className="admin-card-header"><span className="admin-card-title">AI Помощ (Настройки)</span></div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                        <label className="permission-toggle">
+                                            <input type="checkbox" checked={allowHint} onChange={(e) => setAllowHint(e.target.checked)} />
+                                            <span>Подсказки за типа</span>
+                                        </label>
+                                        <label className="permission-toggle">
+                                            <input type="checkbox" checked={allowSolutionHint} onChange={(e) => setAllowSolutionHint(e.target.checked)} />
+                                            <span>Подсказки за решението</span>
+                                        </label>
+                                        <label className="permission-toggle">
+                                            <input type="checkbox" checked={allowSolution} onChange={(e) => setAllowSolution(e.target.checked)} />
+                                            <span>Пълно решение</span>
+                                        </label>
+                                    </div>
                                 </div>
+                            )}
 
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <label className="permission-toggle">
-                                        <input
-                                            type="checkbox"
-                                            checked={allowHint}
-                                            onChange={(e) => setAllowHint(e.target.checked)}
-                                        />
-                                        <span>Allow Type Hints</span>
-                                    </label>
-                                    <label className="permission-toggle">
-                                        <input
-                                            type="checkbox"
-                                            checked={allowSolutionHint}
-                                            onChange={(e) => setAllowSolutionHint(e.target.checked)}
-                                        />
-                                        <span>Allow Solution Hints</span>
-                                    </label>
-                                    <label className="permission-toggle">
-                                        <input
-                                            type="checkbox"
-                                            checked={allowSolution}
-                                            onChange={(e) => setAllowSolution(e.target.checked)}
-                                        />
-                                        <span>Allow Full Solution</span>
-                                    </label>
-                                </div>
-                            </div>)}
-                           
-
-                            {/* Tags */}
-                           {  <div className="admin-card">
-                                <div className="admin-card-header">
-                                    <span className="admin-card-title">Tags</span>
-                                </div>
-
+                            <div className="admin-card">
+                                <div className="admin-card-header"><span className="admin-card-title">Етикети (Tags)</span></div>
                                 <div className="tag-cloud">
                                     {AVAILABLE_TAGS.map((tag) => (
-                                        <button
-                                            key={tag.id}
-                                            className={`tag-chip${selectedTags.includes(tag.id) ? ' tag-selected' : ''}`}
-                                            onClick={() => handleTagToggle(tag.id)}
-                                        >
+                                        <button key={tag.id} className={`tag-chip${selectedTags.includes(tag.id) ? ' tag-selected' : ''}`} onClick={() => handleTagToggle(tag.id)}>
                                             {tag.label}
                                         </button>
                                     ))}
                                 </div>
-                            </div>}
-
-                            {/* Challenge Type */}
-                            <div className="admin-card">
-                                <div className="admin-card-header">
-                                    <span className="admin-card-title">Challenge Type</span>
-                                </div>
-
-                                <div>
-                               <select
-                    className="field-select"
-                    value={cipherType}
-                    onChange={e => setCipherType( e.target.value)}
-                >
-                    <option value="">Unknown — let the ML decide</option>
-                    {GROUPS.map(group => (
-                        <optgroup key={group} label={group}>
-                            {CIPHER_TYPES
-                                .filter(t => t.group === group)
-                                .map(t => (
-                                    <option key={t.value} value={t.value}>{t.label}</option>
-                                ))
-                            }
-                        </optgroup>
-                    ))}
-                </select>
-                                </div>
                             </div>
-                             <div className="admin-card">
-                                <div className="admin-card-header">
-                                    <span className="admin-card-title">Challenge Type</span>
-                                </div>
 
-                                <div className="type-toggle">
-                                {cipher.decryptedText ? (
-                                    <button className="type-toggle-btn active-standard">
-                                        <span className="type-toggle-dot dot-sky" />
-                                        Standard
-                                        <span className="type-toggle-note">HAS SOLUTION</span>
-                                    </button>
-                                ) : (
-                                    <button className="type-toggle-btn">
-                                        <span className="type-toggle-dot dot-violet" />
-                                        Experimental
-                                        <span className="type-toggle-note">NO SOLUTION YET</span>
-                                    </button> )}
-                                </div>
-                            </div>
-                            {/* Actions */}
                             <div className="admin-card">
-                                <div className="admin-card-header">
-                                    <span className="admin-card-title">Review Decision</span>
-                                </div>
+                                <div className="admin-card-header"><span className="admin-card-title">Тип на шифъра</span></div>
+                                <select className="field-select" value={cipherType} onChange={e => setCipherType(e.target.value)}>
+                                    <option value="">Неизвестен — нека ML реши</option>
+                                    {GROUPS.map(group => (
+                                        <optgroup key={group} label={group}>
+                                            {CIPHER_TYPES.filter(t => t.group === group).map(t => (
+                                                <option key={t.value} value={t.value}>{t.label}</option>
+                                            ))}
+                                        </optgroup>
+                                    ))}
+                                </select>
+                            </div>
 
+                            <div className="admin-card">
+                                <div className="admin-card-header"><span className="admin-card-title">Решение на администратора</span></div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                    <button
-                                        onClick={handleApprove}
-                                        className="btn btn-success"
-                                        style={{ justifyContent: 'center' }}>
-                                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
-                                            <path d="M2 8l4 4 8-8"/>
-                                        </svg>
-                                        Approve
-                                    </button>                               
+                                    <button onClick={handleApprove} className="btn btn-success" style={{ justifyContent: 'center' }}>
+                                        Одобри
+                                    </button>
+                                    <button onClick={() => setShowRejectForm(prev => !prev)} className="btn btn-danger" style={{ justifyContent: 'center' }}>
+                                        Отхвърли
+                                    </button>
 
-                                    <div className="reject-section">
-                                        <button
-                                            onClick={() => setShowRejectForm(prev => !prev)}
-                                            className="btn btn-danger"
-                                            style={{ justifyContent: 'center', width: '100%' }}
-                                        >
-                                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
-                                                <path d="M3 3l10 10M13 3L3 13"/>
-                                            </svg>
-                                            Reject Submission
-                                        </button>
-
-                                        {showRejectForm && (
-                                            <div className="reject-form" style={{ marginTop: '10px' }}>
-                                                <label className="form-label">
-                                                    Rejection Reason <span style={{ color: 'var(--rose-500)' }}>*</span>
-                                                </label>
-                                                <textarea
-                                                    className="form-textarea"
-                                                    placeholder="Explain why this is being rejected..."
-                                                    rows="3"
-                                                    value={rejectReason}
-                                                    onChange={(e) => setRejectReason(e.target.value)}
-                                                />
-                                                <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-                                                    <button onClick={handleReject} className="btn btn-danger btn-sm" style={{ flex: 1 }}>
-                                                        Confirm Reject
-                                                    </button>
-                                                    <button onClick={() => {
-                                                        setShowRejectForm(false);
-                                                        setRejectReason('');
-                                                    }} className="btn btn-ghost btn-sm">
-                                                        Cancel
-                                                    </button>
-                                                </div>
+                                    {showRejectForm && (
+                                        <div className="reject-form" style={{ marginTop: '10px' }}>
+                                            <label className="form-label">Причина за отказ <span style={{ color: 'var(--rose-500)' }}>*</span></label>
+                                            <textarea className="form-textarea" rows="3" value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} placeholder="Обяснете защо отхвърляте..." />
+                                            <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                                                <button onClick={handleReject} className="btn btn-danger btn-sm" style={{ flex: 1 }}>Потвърди</button>
+                                                <button onClick={() => setShowRejectForm(false)} className="btn btn-ghost btn-sm">Отказ</button>
                                             </div>
-                                        )}
-                                    </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
