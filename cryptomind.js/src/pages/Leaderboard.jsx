@@ -7,141 +7,150 @@ const MEDALS = ["🥇", "🥈", "🥉"];
 const RANK_CLASSES = ["rank-1", "rank-2", "rank-3"];
 
 function getInitial(username) {
-    if (!username) return "?";
-    return username.charAt(0).toUpperCase();
+  if (!username) return "?";
+  return username.charAt(0).toUpperCase();
 }
 
 function PodiumCard({ entry }) {
-    const rankIndex = entry.place - 1;
-    return (
-        <div className={`lb-podium-card ${RANK_CLASSES[rankIndex]}`}>
-            <span className="lb-podium-crown">{MEDALS[rankIndex]}</span>
-            <span className="lb-podium-rank-num">#{entry.place}</span>
-            <div className="lb-podium-avatar">{getInitial(entry.username)}</div>
-            <p className="lb-podium-username">{entry.username}</p>
-            <p className="lb-podium-points">{entry.points.toLocaleString()}</p>
-            <span className="lb-podium-pts-label">PTS</span>
-        </div>
-    );
+  const rankIndex = entry.place - 1;
+  return (
+    <div className={`lb-podium-card ${RANK_CLASSES[rankIndex]}`}>
+      <span className="lb-podium-crown">{MEDALS[rankIndex]}</span>
+      <span className="lb-podium-rank-num">#{entry.place}</span>
+      <div className="lb-podium-avatar">{getInitial(entry.username)}</div>
+      <p className="lb-podium-username">{entry.username}</p>
+      <p className="lb-podium-points">{entry.points.toLocaleString()}</p>
+      <span className="lb-podium-pts-label">ТЧК</span>
+    </div>
+  );
 }
 
 function LeaderboardRow({ entry }) {
-    return (
-        <li className="lb-row">
-            <span className="lb-row-rank">#{entry.place}</span>
-            <div className="lb-row-user">
-                <div className="lb-row-avatar">{getInitial(entry.username)}</div>
-                <span className="lb-row-username">{entry.username}</span>
-            </div>
-            <span className="lb-row-points">{entry.points.toLocaleString()}</span>
-        </li>
-    );
+  return (
+    <li className="lb-row">
+      <span className="lb-row-rank">#{entry.place}</span>
+      <div className="lb-row-user">
+        <div className="lb-row-avatar">{getInitial(entry.username)}</div>
+        <span className="lb-row-username">{entry.username}</span>
+      </div>
+      <span className="lb-row-points">{entry.points.toLocaleString()}</span>
+    </li>
+  );
 }
 
 function StatusBar({ count, status }) {
-    const dotClass = status === "success" ? "online" : status === "error" ? "error" : "";
-    const label =
-        status === "loading" ? "FETCHING DATA..." :
-        status === "success" ? `${count} CRYPTOANALYSTS RANKED` :
-        "CONNECTION FAILED";
+  const dotClass =
+    status === "success" ? "online" :
+    status === "error"   ? "error"  : "";
 
-    return (
-        <div className="lb-status">
-            <span>{label}</span>
-            <span className={`lb-status-dot ${dotClass}`} />
-        </div>
-    );
+  const label =
+    status === "loading" ? "ИЗВЛИЧАНЕ НА ДАННИ..." :
+    status === "success" ? `${count} КРИПТОАНАЛИЗАТОРА В КЛАСАЦИЯТА` :
+    "ГРЕШКА ПРИ СВЪРЗВАНЕ";
+
+  return (
+    <div className="lb-status">
+      <span>{label}</span>
+      <span className={`lb-status-dot ${dotClass}`} />
+    </div>
+  );
 }
 
 function EmptyState({ message }) {
-    return (
-        <div className="lb-empty">
-            <span className="lb-empty-icon">📡</span>
-            {message}
-        </div>
-    );
+  return (
+    <div className="lb-empty">
+      <span className="lb-empty-icon">📡</span>
+      {message}
+    </div>
+  );
 }
 
 export default function Leaderboard() {
-    const [entries, setEntries] = useState([]);
-    const [status, setStatus]   = useState("loading");
-    const [errorMsg, setErrorMsg] = useState("");
+  const [entries, setEntries] = useState([]);
+  const [status, setStatus] = useState("loading");
+  const [errorMsg, setErrorMsg] = useState("");
 
-    useEffect(() => {
-        async function fetchLeaderboard() {
-            try {
-                const response = await fetch(API_URL);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const data = await response.json();
-                setEntries(data);
-                setStatus("success");
-            } catch (err) {
-                setErrorMsg(err.message);
-                setStatus("error");
-            }
-        }
-        fetchLeaderboard();
-    }, []);
+  useEffect(() => {
+    async function fetchLeaderboard() {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        setEntries(data);
+        setStatus("success");
+      } catch (err) {
+        setErrorMsg(err.message);
+        setStatus("error");
+      }
+    }
 
-    const top3 = entries.filter((e) => e.place <= 3);
-    const rest  = entries.filter((e) => e.place > 3);
+    fetchLeaderboard();
+  }, []);
 
-    // Classic podium order: 2nd | 1st | 3rd
-    const podiumOrder = [
-        top3.find((e) => e.place === 2),
-        top3.find((e) => e.place === 1),
-        top3.find((e) => e.place === 3),
-    ].filter(Boolean);
+  // Prepare data
+  const top3 = entries.filter((e) => e.place <= 3);
+  const rest = entries.filter((e) => e.place > 3);
 
-    return (
-        <div className="leaderboard-page">
-            <div className="lb-grid-bg" />
+  // Podium order: 2nd | 1st | 3rd (classic visual layout)
+  const podiumOrder = [
+    top3.find((e) => e.place === 2),
+    top3.find((e) => e.place === 1),
+    top3.find((e) => e.place === 3),
+  ].filter(Boolean);
 
-            <div className="lb-container">
+  const hasTop3 = top3.length > 0;
+  const hasRest = rest.length > 0;
 
-                <header className="lb-header">
-                    <div className="lb-header-decoration">
-                        <span className="lb-bracket">[</span>
-                        <span className="lb-header-label">GLOBAL_RANKINGS</span>
-                        <span className="lb-bracket">]</span>
-                    </div>
-                    <h1 className="lb-title">LEADERBOARD</h1>
-                    <p className="lb-subtitle">Top cryptoanalysts ranked by decoded ciphers</p>
-                </header>
+  return (
+    <div className="leaderboard-page">
+      <div className="lb-grid-bg" />
 
-                {status === "error" ? (
-                    <EmptyState message={`FAILED TO LOAD — ${errorMsg}`} />
-                ) : (
-                    <>
-                        <div className="lb-podium">
-                            {podiumOrder.map((entry) => (
-                                <PodiumCard key={entry.place} entry={entry} />
-                            ))}
-                        </div>
+      <div className="lb-container">
+        <header className="lb-header">
+          <div className="lb-header-decoration">
+            <span className="lb-bracket">[</span>
+            <span className="lb-header-label">ГЛОБАЛНО_КЛАСИРАНЕ</span>
+            <span className="lb-bracket">]</span>
+          </div>
+          <h1 className="lb-title">КЛАСАЦИЯ</h1>
+          <p className="lb-subtitle">Топ криптоанализатори според разбити шифри</p>
+        </header>
 
-                        <div className="lb-table">
-                            <div className="lb-table-header">
-                                <span>RANK</span>
-                                <span>CRYPTOANALYST</span>
-                                <span className="lb-col-pts">POINTS</span>
-                            </div>
+        {status === "error" ? (
+          <EmptyState message={`ГРЕШКА ПРИ ЗАРЕЖДАНЕ — ${errorMsg}`} />
+        ) : status === "loading" ? (
+          <EmptyState message="Зареждане на класацията..." />
+        ) : entries.length === 0 ? (
+          <EmptyState message="НЯМА НАМЕРЕНИ ПОТРЕБИТЕЛИ В СИСТЕМАТА" />
+        ) : (
+          <>
+            {hasTop3 && (
+              <div className="lb-podium">
+                {podiumOrder.map((entry) => (
+                  <PodiumCard key={entry.place} entry={entry} />
+                ))}
+              </div>
+            )}
 
-                            <ul className="lb-list">
-                                {rest.length === 0 && status === "success" ? (
-                                    <EmptyState message="NO ADDITIONAL ENTRIES" />
-                                ) : (
-                                    rest.map((entry) => (
-                                        <LeaderboardRow key={entry.place} entry={entry} />
-                                    ))
-                                )}
-                            </ul>
-                        </div>
-                    </>
-                )}
+           {hasRest && (
+              <div className="lb-table">
+                <div className="lb-table-header">
+                  <span>РАНГ</span>
+                  <span>КРИПТОАНАЛИЗАТОР</span>
+                  <span className="lb-col-pts">ТОЧКИ</span>
+                </div>
+                <ul className="lb-list">
+                  {rest.map((entry) => (
+                    <LeaderboardRow key={entry.place} entry={entry} />
+                  ))}
+                </ul>
+              </div>
+            )}
+          </>
+        )}
 
-                <StatusBar count={entries.length} status={status} />
-
-            </div>
-        </div>
-    );
+        <StatusBar count={entries.length} status={status} />
+      </div>
+    </div>
+  );
 }

@@ -1,12 +1,11 @@
 function ActivityLog({ solvers ,timeAgo }) {
-
     return (
         <div className="activity-panel">
             <div className="activity-header">
-                <p className="activity-header-title">Recent Solvers</p>
+                <p className="activity-header-title">Скорошни решения</p>
                 <div className="live-badge">
                     <span className="live-dot"></span>
-                    Live
+                    На живо
                 </div>
             </div>
 
@@ -14,7 +13,7 @@ function ActivityLog({ solvers ,timeAgo }) {
                 {solvers.length === 0 ? (
                     <div style={{ padding: "20px", textAlign: "center" }}>
                         <p style={{ fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--text-dim)" }}>
-                            No solvers yet — be the first!
+                            Все още няма решения — бъди първият!
                         </p>
                     </div>
                 ) : (

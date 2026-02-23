@@ -2,13 +2,13 @@ function AIResponse({ mode, text, isLoading }) {
     if (mode == -1 && !isLoading) return null;
     const hintType = mode === 0 ? "typeHint" : mode === 1 ? "solutionHint" : mode === 2 ? "solution" : null;
     const modeConfig = {
-        typeHint:     { label: "TYPE HINT",     icon: "🔍" },
-        solutionHint: { label: "SOLUTION HINT", icon: "💡" },
-        solution:     { label: "FULL SOLUTION", icon: "🔓" },
+        typeHint:     { label: "ТИП ПОДСКАЗКА",    icon: "🔍" },
+        solutionHint: { label: "ПОДСКАЗКА ЗА РЕШЕНИЕ", icon: "💡" },
+        solution:     { label: "ПЪЛНО РЕШЕНИЕ", icon: "🔓" },
     };
 
-    const config = modeConfig[hintType] ?? { label: "AI RESPONSE", icon: "🤖" };
-    console.log("AIResponse config:", config);
+    const config = modeConfig[hintType] ?? { label: "AI ОТГОВОР", icon: "🤖" };
+    
     return (
         <div className="ai-response">
             <div className="ai-response-header">
@@ -24,7 +24,7 @@ function AIResponse({ mode, text, isLoading }) {
                             <div className="loading-dot"></div>
                             <div className="loading-dot"></div>
                         </div>
-                        Analyzing cipher...
+                        Анализиране на шифъра...
                     </div>
                 ) : (
                     <p>{text}</p>
