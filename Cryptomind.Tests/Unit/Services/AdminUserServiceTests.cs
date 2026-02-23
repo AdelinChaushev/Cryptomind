@@ -17,28 +17,28 @@ namespace Cryptomind.Tests.Unit.Services
 {
 	public class AdminUserServiceTests
 	{
-		private readonly Mock<UserManager<ApplicationUser>> _userManagerMock;
-		private readonly AdminUserService _service;
+		private readonly Mock<UserManager<ApplicationUser>> userManagerMock;
+		private readonly AdminUserService service;
 
 		public AdminUserServiceTests()
 		{
 			var store = new Mock<IUserStore<ApplicationUser>>();
-			_userManagerMock = new Mock<UserManager<ApplicationUser>>(
+			userManagerMock = new Mock<UserManager<ApplicationUser>>(
 				store.Object, null, null, null, null, null, null, null, null);
 
-			_service = new AdminUserService(_userManagerMock.Object);
+			service = new AdminUserService(userManagerMock.Object);
 
-			_userManagerMock.Setup(m => m.UpdateAsync(It.IsAny<ApplicationUser>()))
+			userManagerMock.Setup(m => m.UpdateAsync(It.IsAny<ApplicationUser>()))
 				.ReturnsAsync(IdentityResult.Success);
-			_userManagerMock.Setup(m => m.SetLockoutEndDateAsync(It.IsAny<ApplicationUser>(), It.IsAny<DateTimeOffset?>()))
+			userManagerMock.Setup(m => m.SetLockoutEndDateAsync(It.IsAny<ApplicationUser>(), It.IsAny<DateTimeOffset?>()))
 				.ReturnsAsync(IdentityResult.Success);
-			_userManagerMock.Setup(m => m.SetLockoutEnabledAsync(It.IsAny<ApplicationUser>(), It.IsAny<bool>()))
+			userManagerMock.Setup(m => m.SetLockoutEnabledAsync(It.IsAny<ApplicationUser>(), It.IsAny<bool>()))
 				.ReturnsAsync(IdentityResult.Success);
-			_userManagerMock.Setup(m => m.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+			userManagerMock.Setup(m => m.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
 				.ReturnsAsync(IdentityResult.Success);
-			_userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
+			userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
 				.ReturnsAsync(new List<string>());
-			_userManagerMock.Setup(m => m.IsInRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+			userManagerMock.Setup(m => m.IsInRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
 				.ReturnsAsync(false);
 		}
 
@@ -72,7 +72,7 @@ namespace Cryptomind.Tests.Unit.Services
 		private void SetupUsers(params ApplicationUser[] users)
 		{
 			var mock = users.AsQueryable().BuildMock();
-			_userManagerMock.Setup(m => m.Users).Returns(mock);
+			userManagerMock.Setup(m => m.Users).Returns(mock);
 		}
 
 		#region GetAllUsers
@@ -81,10 +81,10 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task GetAllUsers_ReturnsEmptyList_WhenNoUsersExist()
 		{
 			SetupUsers();
-			_userManagerMock.Setup(m => m.GetUsersInRoleAsync("Admin"))
+			userManagerMock.Setup(m => m.GetUsersInRoleAsync("Admin"))
 				.ReturnsAsync(new List<ApplicationUser>());
 
-			var result = await _service.GetAllUsers(new UserFilter());
+			var result = await service.GetAllUsers(new UserFilter());
 
 			Assert.Empty(result);
 		}
@@ -94,12 +94,12 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var users = new[] { MakeUser("u1", "alice"), MakeUser("u2", "bob") };
 			SetupUsers(users);
-			_userManagerMock.Setup(m => m.GetUsersInRoleAsync("Admin"))
+			userManagerMock.Setup(m => m.GetUsersInRoleAsync("Admin"))
 				.ReturnsAsync(new List<ApplicationUser>());
-			_userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
+			userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
 				.ReturnsAsync(new List<string>());
 
-			var result = await _service.GetAllUsers(new UserFilter());
+			var result = await service.GetAllUsers(new UserFilter());
 
 			Assert.Equal(2, result.Count);
 		}
@@ -111,14 +111,14 @@ namespace Cryptomind.Tests.Unit.Services
 			var regularUser = MakeUser("u2", "bob");
 			SetupUsers(adminUser, regularUser);
 
-			_userManagerMock.Setup(m => m.GetUsersInRoleAsync("Admin"))
+			userManagerMock.Setup(m => m.GetUsersInRoleAsync("Admin"))
 				.ReturnsAsync(new List<ApplicationUser> { adminUser });
-			_userManagerMock.Setup(m => m.GetRolesAsync(adminUser))
+			userManagerMock.Setup(m => m.GetRolesAsync(adminUser))
 				.ReturnsAsync(new List<string> { "Admin" });
-			_userManagerMock.Setup(m => m.GetRolesAsync(regularUser))
+			userManagerMock.Setup(m => m.GetRolesAsync(regularUser))
 				.ReturnsAsync(new List<string>());
 
-			var result = await _service.GetAllUsers(new UserFilter());
+			var result = await service.GetAllUsers(new UserFilter());
 
 			Assert.True(result.First(x => x.Id == "u1").IsAdmin);
 			Assert.False(result.First(x => x.Id == "u2").IsAdmin);
@@ -130,12 +130,12 @@ namespace Cryptomind.Tests.Unit.Services
 			var banned = MakeUser("u1", isBanned: true);
 			var notBanned = MakeUser("u2", isBanned: false);
 			SetupUsers(banned, notBanned);
-			_userManagerMock.Setup(m => m.GetUsersInRoleAsync("Admin"))
+			userManagerMock.Setup(m => m.GetUsersInRoleAsync("Admin"))
 				.ReturnsAsync(new List<ApplicationUser>());
-			_userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
+			userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
 				.ReturnsAsync(new List<string>());
 
-			var result = await _service.GetAllUsers(new UserFilter { IsBanned = true });
+			var result = await service.GetAllUsers(new UserFilter { IsBanned = true });
 
 			Assert.Single(result);
 			Assert.Equal("u1", result[0].Id);
@@ -147,12 +147,12 @@ namespace Cryptomind.Tests.Unit.Services
 			var banned = MakeUser("u1", isBanned: true);
 			var notBanned = MakeUser("u2", isBanned: false);
 			SetupUsers(banned, notBanned);
-			_userManagerMock.Setup(m => m.GetUsersInRoleAsync("Admin"))
+			userManagerMock.Setup(m => m.GetUsersInRoleAsync("Admin"))
 				.ReturnsAsync(new List<ApplicationUser>());
-			_userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
+			userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
 				.ReturnsAsync(new List<string>());
 
-			var result = await _service.GetAllUsers(new UserFilter { IsBanned = false });
+			var result = await service.GetAllUsers(new UserFilter { IsBanned = false });
 
 			Assert.Single(result);
 			Assert.Equal("u2", result[0].Id);
@@ -164,12 +164,12 @@ namespace Cryptomind.Tests.Unit.Services
 			var deactivated = MakeUser("u1", isDeactivated: true);
 			var active = MakeUser("u2", isDeactivated: false);
 			SetupUsers(deactivated, active);
-			_userManagerMock.Setup(m => m.GetUsersInRoleAsync("Admin"))
+			userManagerMock.Setup(m => m.GetUsersInRoleAsync("Admin"))
 				.ReturnsAsync(new List<ApplicationUser>());
-			_userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
+			userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
 				.ReturnsAsync(new List<string>());
 
-			var result = await _service.GetAllUsers(new UserFilter { IsDeactivated = true });
+			var result = await service.GetAllUsers(new UserFilter { IsDeactivated = true });
 
 			Assert.Single(result);
 			Assert.Equal("u1", result[0].Id);
@@ -186,12 +186,12 @@ namespace Cryptomind.Tests.Unit.Services
 			};
 			var user = MakeUser("u1", uploadedCiphers: ciphers);
 			SetupUsers(user);
-			_userManagerMock.Setup(m => m.GetUsersInRoleAsync("Admin"))
+			userManagerMock.Setup(m => m.GetUsersInRoleAsync("Admin"))
 				.ReturnsAsync(new List<ApplicationUser>());
-			_userManagerMock.Setup(m => m.GetRolesAsync(user))
+			userManagerMock.Setup(m => m.GetRolesAsync(user))
 				.ReturnsAsync(new List<string>());
 
-			var result = await _service.GetAllUsers(new UserFilter());
+			var result = await service.GetAllUsers(new UserFilter());
 
 			Assert.Equal(2, result[0].PendingCiphers);
 		}
@@ -205,7 +205,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupUsers();
 
-			await Assert.ThrowsAsync<NotFoundException>(() => _service.GetUser("ghost"));
+			await Assert.ThrowsAsync<NotFoundException>(() => service.GetUser("ghost"));
 		}
 
 		[Fact]
@@ -216,10 +216,10 @@ namespace Cryptomind.Tests.Unit.Services
 			user.Score = 500;
 			user.SolvedCount = 3;
 			SetupUsers(user);
-			_userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
+			userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
 						.ReturnsAsync(new List<string>());
 
-			var result = await _service.GetUser("u1");
+			var result = await service.GetUser("u1");
 
 			Assert.Equal("u1", result.Id);
 			Assert.Equal("alice", result.Username);
@@ -234,9 +234,9 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var user = MakeUser("u1");
 			SetupUsers(user);
-			_userManagerMock.Setup(m => m.IsInRoleAsync(user, "Admin")).ReturnsAsync(true);
+			userManagerMock.Setup(m => m.IsInRoleAsync(user, "Admin")).ReturnsAsync(true);
 
-			var result = await _service.GetUser("u1");
+			var result = await service.GetUser("u1");
 
 			Assert.True(result.IsAdmin);
 		}
@@ -252,10 +252,10 @@ namespace Cryptomind.Tests.Unit.Services
 			};
 			var user = MakeUser("u1", uploadedCiphers: ciphers);
 			SetupUsers(user);
-			_userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
+			userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
 						.ReturnsAsync(new List<string>());
 
-			var result = await _service.GetUser("u1");
+			var result = await service.GetUser("u1");
 
 			Assert.Equal(3, result.CiphersSubmitted);
 			Assert.Equal(1, result.ApprovedCiphers);
@@ -272,10 +272,10 @@ namespace Cryptomind.Tests.Unit.Services
 			};
 			var user = MakeUser("u1", cipherAnswers: solutions);
 			SetupUsers(user);
-			_userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
+			userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
 						.ReturnsAsync(new List<string>());
 
-			var result = await _service.GetUser("u1");
+			var result = await service.GetUser("u1");
 
 			Assert.Single(result.SolvedCiphers);
 			Assert.Equal(1, result.SolvedCiphers[0].Id);
@@ -289,10 +289,10 @@ namespace Cryptomind.Tests.Unit.Services
 			user.BanReason = "cheating";
 			user.BannedAt = bannedAt;
 			SetupUsers(user);
-			_userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
+			userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
 						.ReturnsAsync(new List<string>());
 
-			var result = await _service.GetUser("u1");
+			var result = await service.GetUser("u1");
 
 			Assert.True(result.IsBanned);
 			Assert.Equal("cheating", result.BanReason);
@@ -306,32 +306,32 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task MakeAdmin_Throws_WhenUserNotFound()
 		{
-			_userManagerMock.Setup(m => m.FindByIdAsync("ghost"))
+			userManagerMock.Setup(m => m.FindByIdAsync("ghost"))
 				.ReturnsAsync((ApplicationUser?)null);
 
-			await Assert.ThrowsAsync<NotFoundException>(() => _service.MakeAdmin("ghost"));
+			await Assert.ThrowsAsync<NotFoundException>(() => service.MakeAdmin("ghost"));
 		}
 
 		[Fact]
 		public async Task MakeAdmin_Throws_WhenUserIsAlreadyAdmin()
 		{
 			var user = MakeUser("u1");
-			_userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
-			_userManagerMock.Setup(m => m.IsInRoleAsync(user, "Admin")).ReturnsAsync(true);
+			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
+			userManagerMock.Setup(m => m.IsInRoleAsync(user, "Admin")).ReturnsAsync(true);
 
-			await Assert.ThrowsAsync<ConflictException>(() => _service.MakeAdmin("u1"));
+			await Assert.ThrowsAsync<ConflictException>(() => service.MakeAdmin("u1"));
 		}
 
 		[Fact]
 		public async Task MakeAdmin_AddsAdminRole_WhenUserIsNotAdmin()
 		{
 			var user = MakeUser("u1");
-			_userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
-			_userManagerMock.Setup(m => m.IsInRoleAsync(user, "Admin")).ReturnsAsync(false);
+			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
+			userManagerMock.Setup(m => m.IsInRoleAsync(user, "Admin")).ReturnsAsync(false);
 
-			await _service.MakeAdmin("u1");
+			await service.MakeAdmin("u1");
 
-			_userManagerMock.Verify(m => m.AddToRoleAsync(user, "Admin"), Times.Once);
+			userManagerMock.Verify(m => m.AddToRoleAsync(user, "Admin"), Times.Once);
 		}
 
 		#endregion
@@ -341,48 +341,48 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task BanUserAsync_Throws_WhenUserNotFound()
 		{
-			_userManagerMock.Setup(m => m.FindByIdAsync("ghost"))
+			userManagerMock.Setup(m => m.FindByIdAsync("ghost"))
 				.ReturnsAsync((ApplicationUser?)null);
 
-			await Assert.ThrowsAsync<NotFoundException>(() => _service.BanUserAsync("ghost", "reason"));
+			await Assert.ThrowsAsync<NotFoundException>(() => service.BanUserAsync("ghost", "reason"));
 		}
 
 		[Fact]
 		public async Task BanUserAsync_Throws_WhenUserIsDeactivated()
 		{
 			var user = MakeUser("u1", isDeactivated: true);
-			_userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
+			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
 
-			await Assert.ThrowsAsync<ConflictException>(() => _service.BanUserAsync("u1", "reason"));
+			await Assert.ThrowsAsync<ConflictException>(() => service.BanUserAsync("u1", "reason"));
 		}
 
 		[Fact]
 		public async Task BanUserAsync_Throws_WhenUserIsAlreadyBanned()
 		{
 			var user = MakeUser("u1", isBanned: true);
-			_userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
+			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
 
-			await Assert.ThrowsAsync<ConflictException>(() => _service.BanUserAsync("u1", "reason"));
+			await Assert.ThrowsAsync<ConflictException>(() => service.BanUserAsync("u1", "reason"));
 		}
 
 		[Fact]
 		public async Task BanUserAsync_Throws_WhenUserIsAdmin()
 		{
 			var user = MakeUser("u1");
-			_userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
-			_userManagerMock.Setup(m => m.IsInRoleAsync(user, "Admin")).ReturnsAsync(true);
+			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
+			userManagerMock.Setup(m => m.IsInRoleAsync(user, "Admin")).ReturnsAsync(true);
 
-			await Assert.ThrowsAsync<ConflictException>(() => _service.BanUserAsync("u1", "reason"));
+			await Assert.ThrowsAsync<ConflictException>(() => service.BanUserAsync("u1", "reason"));
 		}
 
 		[Fact]
 		public async Task BanUserAsync_SetsBanFields_OnUser()
 		{
 			var user = MakeUser("u1");
-			_userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
-			_userManagerMock.Setup(m => m.IsInRoleAsync(user, "Admin")).ReturnsAsync(false);
+			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
+			userManagerMock.Setup(m => m.IsInRoleAsync(user, "Admin")).ReturnsAsync(false);
 
-			await _service.BanUserAsync("u1", "rule violation");
+			await service.BanUserAsync("u1", "rule violation");
 
 			Assert.True(user.IsBanned);
 			Assert.Equal("rule violation", user.BanReason);
@@ -393,13 +393,13 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task BanUserAsync_SetsLockout_OnUser()
 		{
 			var user = MakeUser("u1");
-			_userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
-			_userManagerMock.Setup(m => m.IsInRoleAsync(user, "Admin")).ReturnsAsync(false);
+			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
+			userManagerMock.Setup(m => m.IsInRoleAsync(user, "Admin")).ReturnsAsync(false);
 
-			await _service.BanUserAsync("u1", "reason");
+			await service.BanUserAsync("u1", "reason");
 
-			_userManagerMock.Verify(m => m.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue), Times.Once);
-			_userManagerMock.Verify(m => m.SetLockoutEnabledAsync(user, true), Times.Once);
+			userManagerMock.Verify(m => m.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue), Times.Once);
+			userManagerMock.Verify(m => m.SetLockoutEnabledAsync(user, true), Times.Once);
 		}
 
 		#endregion
@@ -409,19 +409,19 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task UnbanUserAsync_Throws_WhenUserNotFound()
 		{
-			_userManagerMock.Setup(m => m.FindByIdAsync("ghost"))
+			userManagerMock.Setup(m => m.FindByIdAsync("ghost"))
 				.ReturnsAsync((ApplicationUser?)null);
 
-			await Assert.ThrowsAsync<NotFoundException>(() => _service.UnbanUserAsync("ghost"));
+			await Assert.ThrowsAsync<NotFoundException>(() => service.UnbanUserAsync("ghost"));
 		}
 
 		[Fact]
 		public async Task UnbanUserAsync_Throws_WhenUserIsNotBanned()
 		{
 			var user = MakeUser("u1", isBanned: false);
-			_userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
+			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
 
-			await Assert.ThrowsAsync<ConflictException>(() => _service.UnbanUserAsync("u1"));
+			await Assert.ThrowsAsync<ConflictException>(() => service.UnbanUserAsync("u1"));
 		}
 
 		[Fact]
@@ -430,9 +430,9 @@ namespace Cryptomind.Tests.Unit.Services
 			var user = MakeUser("u1", isBanned: true);
 			user.BanReason = "old reason";
 			user.BannedAt = DateTime.UtcNow.AddDays(-5);
-			_userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
+			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
 
-			await _service.UnbanUserAsync("u1");
+			await service.UnbanUserAsync("u1");
 
 			Assert.False(user.IsBanned);
 			Assert.Null(user.BanReason);
@@ -443,11 +443,11 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task UnbanUserAsync_RemovesLockout_OnUser()
 		{
 			var user = MakeUser("u1", isBanned: true);
-			_userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
+			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
 
-			await _service.UnbanUserAsync("u1");
+			await service.UnbanUserAsync("u1");
 
-			_userManagerMock.Verify(m => m.SetLockoutEndDateAsync(user, It.IsAny<DateTimeOffset?>()), Times.Once);
+			userManagerMock.Verify(m => m.SetLockoutEndDateAsync(user, It.IsAny<DateTimeOffset?>()), Times.Once);
 		}
 
 		#endregion

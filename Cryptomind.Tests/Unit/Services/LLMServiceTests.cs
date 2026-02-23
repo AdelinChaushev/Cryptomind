@@ -19,38 +19,38 @@ namespace Cryptomind.Tests.Unit.Services
 {
 	public class LLMServiceTests
 	{
-		private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;
-		private readonly Mock<IConfiguration> _configurationMock;
-		private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock;
-		private readonly LLMService _service;
+		private readonly Mock<IHttpClientFactory> httpClientFactoryMock;
+		private readonly Mock<IConfiguration> configurationMock;
+		private readonly Mock<HttpMessageHandler> httpMessageHandlerMock;
+		private readonly LLMService service;
 
 		public LLMServiceTests()
 		{
-			_httpMessageHandlerMock = new Mock<HttpMessageHandler>();
-			var httpClient = new HttpClient(_httpMessageHandlerMock.Object);
+			httpMessageHandlerMock = new Mock<HttpMessageHandler>();
+			var httpClient = new HttpClient(httpMessageHandlerMock.Object);
 
-			_httpClientFactoryMock = new Mock<IHttpClientFactory>();
-			_httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>()))
+			httpClientFactoryMock = new Mock<IHttpClientFactory>();
+			httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>()))
 				.Returns(httpClient);
 
-			_configurationMock = new Mock<IConfiguration>();
-			_configurationMock.Setup(c => c["LLMService:ApiUrl"])
+			configurationMock = new Mock<IConfiguration>();
+			configurationMock.Setup(c => c["LLMService:ApiUrl"])
 				.Returns("https://api.openai.com/v1");
-			_configurationMock.Setup(c => c["LLMService:ApiKey"])
+			configurationMock.Setup(c => c["LLMService:ApiKey"])
 				.Returns("test-api-key");
-			_configurationMock.Setup(c => c["LLMService:ValidationModel"])
+			configurationMock.Setup(c => c["LLMService:ValidationModel"])
 				.Returns("gpt-4o-mini");
-			_configurationMock.Setup(c => c["LLMService:EducationalModel"])
+			configurationMock.Setup(c => c["LLMService:EducationalModel"])
 				.Returns("gpt-4o");
 
-			_service = new LLMService(
-				_httpClientFactoryMock.Object,
-				_configurationMock.Object);
+			service = new LLMService(
+				httpClientFactoryMock.Object,
+				configurationMock.Object);
 		}
 
 		private void SetupHttpResponse(HttpStatusCode statusCode, string content)
 		{
-			_httpMessageHandlerMock
+			httpMessageHandlerMock
 				.Protected()
 				.Setup<Task<HttpResponseMessage>>(
 					"SendAsync",
@@ -65,7 +65,7 @@ namespace Cryptomind.Tests.Unit.Services
 
 		private void SetupHttpException(Exception exception)
 		{
-			_httpMessageHandlerMock
+			httpMessageHandlerMock
 				.Protected()
 				.Setup<Task<HttpResponseMessage>>(
 					"SendAsync",
@@ -139,7 +139,7 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupHttpResponse(HttpStatusCode.OK, llmResponse);
 
 			var mlResult = CreateMLResult();
-			var result = await _service.ValidateCipherAsync(
+			var result = await service.ValidateCipherAsync(
 				"KHOOR", "HELLO", mlResult, "Caesar");
 
 			Assert.NotNull(result);
@@ -162,7 +162,7 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupHttpResponse(HttpStatusCode.OK, llmResponse);
 
 			var mlResult = CreateMLResult();
-			var result = await _service.ValidateCipherAsync(
+			var result = await service.ValidateCipherAsync(
 				"KHOOR", null, mlResult, "Caesar");
 
 			Assert.NotNull(result);
@@ -182,7 +182,7 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupHttpResponse(HttpStatusCode.OK, llmResponse);
 
 			var mlResult = CreateMLResult();
-			var result = await _service.ValidateCipherAsync(
+			var result = await service.ValidateCipherAsync(
 				"KHOOR", "HELLO", mlResult, null);
 
 			Assert.NotNull(result);
@@ -201,7 +201,7 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupHttpResponse(HttpStatusCode.OK, llmResponse);
 
 			var mlResult = CreateMLResult();
-			var result = await _service.ValidateCipherAsync(
+			var result = await service.ValidateCipherAsync(
 				"KHOOR", "HELLO", mlResult, "Caesar");
 
 			Assert.NotNull(result);
@@ -217,8 +217,8 @@ namespace Cryptomind.Tests.Unit.Services
 
 			var mlResult = CreateMLResult();
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.ValidateCipherAsync("KHOOR", "HELLO", mlResult, "Caesar"));
+			await Assert.ThrowsAsync<Exception>(
+				() => service.ValidateCipherAsync("KHOOR", "HELLO", mlResult, "Caesar"));
 		}
 
 		[Fact]
@@ -229,8 +229,8 @@ namespace Cryptomind.Tests.Unit.Services
 
 			var mlResult = CreateMLResult();
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.ValidateCipherAsync("KHOOR", "HELLO", mlResult, "Caesar"));
+			await Assert.ThrowsAsync<Exception>(
+				() => service.ValidateCipherAsync("KHOOR", "HELLO", mlResult, "Caesar"));
 		}
 
 		#endregion
@@ -250,7 +250,7 @@ namespace Cryptomind.Tests.Unit.Services
 				TypeOfCipher = CipherType.Caesar
 			};
 
-			var result = await _service.GetHint(cipher, HintType.Type);
+			var result = await service.GetHint(cipher, HintType.Type);
 
 			Assert.Equal("This is a Caesar cipher.", result);
 		}
@@ -268,7 +268,7 @@ namespace Cryptomind.Tests.Unit.Services
 				TypeOfCipher = CipherType.Caesar
 			};
 
-			var result = await _service.GetHint(cipher, HintType.Hint);
+			var result = await service.GetHint(cipher, HintType.Hint);
 
 			Assert.Equal("Look for letter frequency patterns.", result);
 		}
@@ -286,7 +286,7 @@ namespace Cryptomind.Tests.Unit.Services
 				TypeOfCipher = CipherType.Caesar
 			};
 
-			var result = await _service.GetHint(cipher, HintType.FullSolution);
+			var result = await service.GetHint(cipher, HintType.FullSolution);
 
 			Assert.Equal("The plaintext is HELLO with shift 3.", result);
 		}
@@ -303,8 +303,8 @@ namespace Cryptomind.Tests.Unit.Services
 				TypeOfCipher = CipherType.Caesar
 			};
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.GetHint(cipher, HintType.Type));
+			await Assert.ThrowsAsync<Exception>(
+				() => service.GetHint(cipher, HintType.Type));
 		}
 
 		#endregion
@@ -318,8 +318,8 @@ namespace Cryptomind.Tests.Unit.Services
 			config.Setup(c => c["LLMService:ApiUrl"]).Returns((string)null);
 			config.Setup(c => c["LLMService:ApiKey"]).Returns("key");
 
-			Assert.Throws<InvalidOperationException>(
-				() => new LLMService(_httpClientFactoryMock.Object, config.Object));
+			Assert.Throws<Exception>(
+				() => new LLMService(httpClientFactoryMock.Object, config.Object));
 		}
 
 		[Fact]
@@ -329,8 +329,8 @@ namespace Cryptomind.Tests.Unit.Services
 			config.Setup(c => c["LLMService:ApiUrl"]).Returns("https://api.openai.com");
 			config.Setup(c => c["LLMService:ApiKey"]).Returns((string)null);
 
-			Assert.Throws<InvalidOperationException>(
-				() => new LLMService(_httpClientFactoryMock.Object, config.Object));
+			Assert.Throws<Exception>(
+				() => new LLMService(httpClientFactoryMock.Object, config.Object));
 		}
 
 		#endregion

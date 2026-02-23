@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
 using Cryptomind.Core.Contracts;
 using Microsoft.Extensions.Configuration;
@@ -27,7 +28,7 @@ namespace Cryptomind.Core.Services
 		{
 			if (string.IsNullOrWhiteSpace(inputText))
 			{
-				throw new ValidationException("Input text cannot be empty");
+				throw new CustomValidationException("Input text cannot be empty");
 			}
 
 			try

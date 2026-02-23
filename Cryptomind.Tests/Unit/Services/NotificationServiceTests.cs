@@ -1,4 +1,6 @@
-﻿using Cryptomind.Core.Hubs;
+﻿using Cryptomind.Common.Exceptions;
+using Cryptomind.Core.Contracts;
+using Cryptomind.Core.Hubs;
 using Cryptomind.Core.Services;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
@@ -16,28 +18,26 @@ namespace Cryptomind.Tests.Unit.Services
 {
 	public class NotificationServiceTests
 	{
-		private readonly Mock<IRepository<Notification, int>> _notificationRepoMock = new();
-		private readonly Mock<IHubContext<NotificationHub>> _hubContextMock = new();
-		private readonly NotificationService _service;
+		private readonly Mock<IRepository<Notification, int>> notificationRepoMock = new();
+		private readonly Mock<IHubContext<NotificationHub>> hubContextMock = new();
+		private readonly Mock<IClientProxy> clientProxyMock = new();
+		private readonly NotificationService service;
 
 		public NotificationServiceTests()
 		{
-			// Setup SignalR hub context mock chain
-			var clientProxyMock = new Mock<IClientProxy>();
 			var hubClientsMock = new Mock<IHubClients>();
 
-			hubClientsMock.Setup(c => c.User(It.IsAny<string>())).Returns(clientProxyMock.Object);
 			hubClientsMock.Setup(c => c.Group(It.IsAny<string>())).Returns(clientProxyMock.Object);
 			hubClientsMock.Setup(c => c.All).Returns(clientProxyMock.Object);
-			_hubContextMock.Setup(h => h.Clients).Returns(hubClientsMock.Object);
+			hubContextMock.Setup(h => h.Clients).Returns(hubClientsMock.Object);
 
-			_service = new NotificationService(
-				_notificationRepoMock.Object,
-				_hubContextMock.Object);
+			service = new NotificationService(
+				notificationRepoMock.Object,
+				hubContextMock.Object);
 
-			_notificationRepoMock.Setup(r => r.AddAsync(It.IsAny<Notification>()))
+			notificationRepoMock.Setup(r => r.AddAsync(It.IsAny<Notification>()))
 				.Returns(Task.CompletedTask);
-			_notificationRepoMock.Setup(r => r.UpdateAsync(It.IsAny<Notification>()))
+			notificationRepoMock.Setup(r => r.UpdateAsync(It.IsAny<Notification>()))
 				.ReturnsAsync(true);
 		}
 
@@ -50,6 +50,7 @@ namespace Cryptomind.Tests.Unit.Services
 				UserId = userId,
 				Type = type,
 				Message = $"Notification {id}",
+				Link = $"/link/{id}",
 				IsRead = isRead,
 				CreatedAt = createdAt ?? DateTime.UtcNow,
 			};
@@ -57,20 +58,20 @@ namespace Cryptomind.Tests.Unit.Services
 		private void SetupAttachedNotifications(params Notification[] notifications)
 		{
 			var mock = new List<Notification>(notifications).AsQueryable().BuildMock();
-			_notificationRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
+			notificationRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
 		}
 
 		#region CreateAndSendNotification
 
 		[Fact]
- 		public async Task CreateAndSendNotification_CreatesNotification_WithCorrectFields() //Will have to fix this
+		public async Task CreateAndSendNotification_CreatesNotification_WithCorrectFields()
 		{
 			Notification captured = null;
-			_notificationRepoMock.Setup(r => r.AddAsync(It.IsAny<Notification>()))
+			notificationRepoMock.Setup(r => r.AddAsync(It.IsAny<Notification>()))
 				.Callback<Notification>(n => captured = n)
 				.Returns(Task.CompletedTask);
 
-			await _service.CreateAndSendNotification(
+			await service.CreateAndSendNotification(
 				"u1",
 				NotificationType.CipherApproved,
 				"Your cipher was approved",
@@ -83,6 +84,30 @@ namespace Cryptomind.Tests.Unit.Services
 			Assert.Equal("/cipher/123", captured.Link);
 		}
 
+		[Fact]
+		public async Task CreateAndSendNotification_SendsToCorrectGroup()
+		{
+			var hubClientsMock = new Mock<IHubClients>();
+			hubClientsMock.Setup(c => c.Group("user_u1")).Returns(clientProxyMock.Object);
+			hubContextMock.Setup(h => h.Clients).Returns(hubClientsMock.Object);
+
+			await service.CreateAndSendNotification(
+				"u1",
+				NotificationType.CipherApproved,
+				"Your cipher was approved",
+				"/cipher/123");
+
+			hubClientsMock.Verify(c => c.Group("user_u1"), Times.Once);
+		}
+
+		[Fact]
+		public async Task CreateAndSendNotification_CallsAddAsync()
+		{
+			await service.CreateAndSendNotification("u1", NotificationType.CipherApproved, "msg", "/link");
+
+			notificationRepoMock.Verify(r => r.AddAsync(It.IsAny<Notification>()), Times.Once);
+		}
+
 		#endregion
 
 		#region GetUnreadCount
@@ -92,7 +117,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedNotifications();
 
-			var result = await _service.GetUnreadCount("u1");
+			var result = await service.GetUnreadCount("u1");
 
 			Assert.Equal(0, result);
 		}
@@ -105,7 +130,7 @@ namespace Cryptomind.Tests.Unit.Services
 				MakeNotification(2, "u1", isRead: false),
 				MakeNotification(3, "u1", isRead: true));
 
-			var result = await _service.GetUnreadCount("u1");
+			var result = await service.GetUnreadCount("u1");
 
 			Assert.Equal(2, result);
 		}
@@ -117,9 +142,21 @@ namespace Cryptomind.Tests.Unit.Services
 				MakeNotification(1, "u1", isRead: false),
 				MakeNotification(2, "u2", isRead: false));
 
-			var result = await _service.GetUnreadCount("u1");
+			var result = await service.GetUnreadCount("u1");
 
 			Assert.Equal(1, result);
+		}
+
+		[Fact]
+		public async Task GetUnreadCount_ReturnsZero_WhenAllAreRead()
+		{
+			SetupAttachedNotifications(
+				MakeNotification(1, "u1", isRead: true),
+				MakeNotification(2, "u1", isRead: true));
+
+			var result = await service.GetUnreadCount("u1");
+
+			Assert.Equal(0, result);
 		}
 
 		#endregion
@@ -131,7 +168,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedNotifications();
 
-			var result = await _service.GetUserNotifications("u1");
+			var result = await service.GetUserNotifications("u1");
 
 			Assert.Empty(result);
 		}
@@ -143,7 +180,7 @@ namespace Cryptomind.Tests.Unit.Services
 				MakeNotification(1, "u1"),
 				MakeNotification(2, "u2"));
 
-			var result = await _service.GetUserNotifications("u1");
+			var result = await service.GetUserNotifications("u1");
 
 			Assert.Single(result);
 			Assert.Equal(1, result[0].Id);
@@ -157,7 +194,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var newest = MakeNotification(3, "u1", createdAt: DateTime.UtcNow);
 			SetupAttachedNotifications(old, recent, newest);
 
-			var result = await _service.GetUserNotifications("u1");
+			var result = await service.GetUserNotifications("u1");
 
 			Assert.Equal(3, result[0].Id);
 			Assert.Equal(2, result[1].Id);
@@ -172,7 +209,7 @@ namespace Cryptomind.Tests.Unit.Services
 				.ToArray();
 			SetupAttachedNotifications(notifications);
 
-			var result = await _service.GetUserNotifications("u1");
+			var result = await service.GetUserNotifications("u1");
 
 			Assert.Equal(20, result.Count);
 		}
@@ -184,65 +221,134 @@ namespace Cryptomind.Tests.Unit.Services
 				MakeNotification(1, "u1", isRead: true),
 				MakeNotification(2, "u1", isRead: false));
 
-			var result = await _service.GetUserNotifications("u1");
+			var result = await service.GetUserNotifications("u1");
 
 			Assert.Equal(2, result.Count);
+		}
+
+		[Fact]
+		public async Task GetUserNotifications_MapsFieldsCorrectly()
+		{
+			var createdAt = DateTime.UtcNow.AddHours(-2);
+			SetupAttachedNotifications(
+				new Notification
+				{
+					Id = 7,
+					UserId = "u1",
+					Type = NotificationType.CipherApproved,
+					Message = "Test message",
+					Link = "/test/link",
+					IsRead = true,
+					CreatedAt = createdAt
+				});
+
+			var result = await service.GetUserNotifications("u1");
+
+			var dto = result[0];
+			Assert.Equal(7, dto.Id);
+			Assert.Equal(NotificationType.CipherApproved, dto.Type);
+			Assert.Equal("Test message", dto.Message);
+			Assert.Equal("/test/link", dto.Link);
+			Assert.True(dto.IsRead);
+			// CreatedSince should be approximately 2 hours
+			Assert.True(dto.CreatedSince.TotalHours >= 1.9 && dto.CreatedSince.TotalHours <= 2.1);
+		}
+
+		[Fact]
+		public async Task GetUserNotifications_ReturnsListOfNotificationDTOs()
+		{
+			SetupAttachedNotifications(MakeNotification(1, "u1"));
+
+			var result = await service.GetUserNotifications("u1");
+
+			Assert.IsType<List<NotificationDTO>>(result);
 		}
 
 		#endregion
 
 		#region MarkAsRead
 
-		//[Fact]
-		//public async Task MarkAsRead_Throws_WhenNotificationNotFound()
-		//{
-		//	SetupAttachedNotifications();
+		[Fact]
+		public async Task MarkAsRead_Throws_WhenNotificationNotFound()
+		{
+			SetupAttachedNotifications();
 
-		//	await Assert.ThrowsAsync<InvalidOperationException>(
-		//		() => _service.MarkAsRead(99, "u1"));
-		//}
+			await Assert.ThrowsAsync<NotFoundException>(
+				() => service.MarkAsRead(new List<int> { 99 }, "u1"));
+		}
 
-		//[Fact]
-		//public async Task MarkAsRead_Throws_WhenNotificationBelongsToOtherUser()
-		//{
-		//	SetupAttachedNotifications(MakeNotification(1, "u2"));
+		[Fact]
+		public async Task MarkAsRead_Throws_WhenNotificationBelongsToOtherUser()
+		{
+			SetupAttachedNotifications(MakeNotification(1, "u2"));
 
-		//	await Assert.ThrowsAsync<InvalidOperationException>(
-		//		() => _service.MarkAsRead(1, "u1"));
-		//}
+			await Assert.ThrowsAsync<NotFoundException>(
+				() => service.MarkAsRead(new List<int> { 1 }, "u1"));
+		}
 
-		//[Fact]
-		//public async Task MarkAsRead_SetsIsReadToTrue()
-		//{
-		//	var notification = MakeNotification(1, "u1", isRead: false);
-		//	SetupAttachedNotifications(notification);
+		[Fact]
+		public async Task MarkAsRead_SetsIsReadToTrue()
+		{
+			var notification = MakeNotification(1, "u1", isRead: false);
+			SetupAttachedNotifications(notification);
 
-		//	await _service.MarkAsRead(1, "u1");
+			await service.MarkAsRead(new List<int> { 1 }, "u1");
 
-		//	Assert.True(notification.IsRead);
-		//}
+			Assert.True(notification.IsRead);
+		}
 
-		//[Fact]
-		//public async Task MarkAsRead_UpdatesNotification()
-		//{
-		//	var notification = MakeNotification(1, "u1", isRead: false);
-		//	SetupAttachedNotifications(notification);
+		[Fact]
+		public async Task MarkAsRead_CallsUpdateAsync()
+		{
+			var notification = MakeNotification(1, "u1", isRead: false);
+			SetupAttachedNotifications(notification);
 
-		//	await _service.MarkAsRead(1, "u1");
+			await service.MarkAsRead(new List<int> { 1 }, "u1");
 
-		//	_notificationRepoMock.Verify(r => r.UpdateAsync(notification), Times.Once);
-		//}
+			notificationRepoMock.Verify(r => r.UpdateAsync(notification), Times.Once);
+		}
 
-		//[Fact]
-		//public async Task MarkAsRead_WorksWhenAlreadyRead()
-		//{
-		//	var notification = MakeNotification(1, "u1", isRead: true);
-		//	SetupAttachedNotifications(notification);
+		[Fact]
+		public async Task MarkAsRead_WorksWhenAlreadyRead()
+		{
+			var notification = MakeNotification(1, "u1", isRead: true);
+			SetupAttachedNotifications(notification);
 
-		//	await _service.MarkAsRead(1, "u1");
+			await service.MarkAsRead(new List<int> { 1 }, "u1");
 
-		//	Assert.True(notification.IsRead);
-		//}
+			Assert.True(notification.IsRead);
+			notificationRepoMock.Verify(r => r.UpdateAsync(notification), Times.Once);
+		}
+
+		[Fact]
+		public async Task MarkAsRead_MarksMultipleNotifications()
+		{
+			var n1 = MakeNotification(1, "u1", isRead: false);
+			var n2 = MakeNotification(2, "u1", isRead: false);
+			var n3 = MakeNotification(3, "u1", isRead: false);
+			SetupAttachedNotifications(n1, n2, n3);
+
+			await service.MarkAsRead(new List<int> { 1, 2, 3 }, "u1");
+
+			Assert.True(n1.IsRead);
+			Assert.True(n2.IsRead);
+			Assert.True(n3.IsRead);
+			notificationRepoMock.Verify(r => r.UpdateAsync(It.IsAny<Notification>()), Times.Exactly(3));
+		}
+
+		[Fact]
+		public async Task MarkAsRead_Throws_OnFirstNotFound_AndStopsProcessing()
+		{
+			// Only notification 1 exists, 99 does not
+			var n1 = MakeNotification(1, "u1", isRead: false);
+			SetupAttachedNotifications(n1);
+
+			await Assert.ThrowsAsync<NotFoundException>(
+				() => service.MarkAsRead(new List<int> { 99, 1 }, "u1"));
+
+			// Since 99 was processed first and threw, n1 should not have been updated
+			notificationRepoMock.Verify(r => r.UpdateAsync(It.IsAny<Notification>()), Times.Never);
+		}
 
 		#endregion
 	}

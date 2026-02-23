@@ -15,25 +15,46 @@ namespace Cryptomind.Tests.Unit.Services
 {
 	public class BadgeServiceTests
 	{
-		private readonly Mock<IRepository<UserBadge, int>> _userBadgeRepoMock = new();
-		private readonly Mock<IRepository<ApplicationUser, string>> _userRepoMock = new();
-		private readonly Mock<IRepository<Badge, int>> _badgeRepoMock = new();
-		private readonly Mock<IBadgeStatisticsService> _statsServiceMock = new();
-		private readonly Mock<INotificationService> _notificationMock = new();
-		private readonly BadgeService _service;
+		private readonly Mock<IRepository<UserBadge, int>> userBadgeRepoMock = new();
+		private readonly Mock<IRepository<ApplicationUser, string>> userRepoMock = new();
+		private readonly Mock<IRepository<Badge, int>> badgeRepoMock = new();
+		private readonly Mock<IBadgeStatisticsService> statsServiceMock = new();
+		private readonly Mock<INotificationService> notificationMock = new();
+		private readonly BadgeService service;
 
 		public BadgeServiceTests()
 		{
-			_service = new BadgeService(
-				_userBadgeRepoMock.Object,
-				_userRepoMock.Object,
-				_badgeRepoMock.Object,
-				_statsServiceMock.Object,
-				_notificationMock.Object);
+			service = new BadgeService(
+				userBadgeRepoMock.Object,
+				userRepoMock.Object,
+				badgeRepoMock.Object,
+				statsServiceMock.Object,
+				notificationMock.Object);
 
-			_userBadgeRepoMock.Setup(r => r.AddAsync(It.IsAny<UserBadge>()))
+			// Default safe queryable setups for ALL repos
+			SetupUserBadgeIds("u1");
+			SetupAttachedUsers(MakeUser("u1")); // <-- prevents "user not found" from masking real failures
+			SetupAttachedBadges(
+				MakeBadge(1), MakeBadge(2), MakeBadge(3), MakeBadge(4),
+				MakeBadge(5), MakeBadge(6), MakeBadge(7), MakeBadge(8),
+				MakeBadge(9), MakeBadge(10), MakeBadge(11), MakeBadge(12),
+				MakeBadge(13), MakeBadge(14), MakeBadge(15));
+
+			// Default all stats to 0 so no criteria is accidentally satisfied
+			statsServiceMock.Setup(s => s.GetSolvedCount(It.IsAny<string>())).ReturnsAsync(0);
+			statsServiceMock.Setup(s => s.GetDistinctCipherTypesSolved(It.IsAny<string>())).ReturnsAsync(0);
+			statsServiceMock.Setup(s => s.GetApprovedCount(It.IsAny<string>())).ReturnsAsync(0);
+			statsServiceMock.Setup(s => s.GetApprovedAnswersCount(It.IsAny<string>())).ReturnsAsync(0);
+			statsServiceMock.Setup(s => s.GetSolvedWithoutHintCount(It.IsAny<string>())).ReturnsAsync(0);
+			statsServiceMock.Setup(s => s.GetSolvedOnFirstAttemptCount(It.IsAny<string>())).ReturnsAsync(0);
+			statsServiceMock.Setup(s => s.GetUsedHints(It.IsAny<string>())).ReturnsAsync(0);
+			statsServiceMock.Setup(s => s.GetRareSolves(It.IsAny<string>())).ReturnsAsync(0);
+
+			userBadgeRepoMock.Setup(r => r.AddAsync(It.IsAny<UserBadge>()))
 				.Returns(Task.CompletedTask);
-			_notificationMock.Setup(n => n.CreateAndSendNotification(
+			badgeRepoMock.Setup(r => r.UpdateAsync(It.IsAny<Badge>()))
+				.ReturnsAsync(true);
+			notificationMock.Setup(n => n.CreateAndSendNotification(
 				It.IsAny<string>(), It.IsAny<NotificationType>(),
 				It.IsAny<string>(), It.IsAny<string>()))
 				.Returns(Task.CompletedTask);
@@ -59,112 +80,116 @@ namespace Cryptomind.Tests.Unit.Services
 				.Select(id => new UserBadge { UserId = userId, BadgeId = id })
 				.ToList();
 			var mock = userBadges.AsQueryable().BuildMock();
-			_userBadgeRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
+			userBadgeRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
 		}
 
 		private void SetupAttachedUsers(params ApplicationUser[] users)
 		{
 			var mock = new List<ApplicationUser>(users).AsQueryable().BuildMock();
-			_userRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
+			userRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
 		}
 
 		private void SetupAttachedBadges(params Badge[] badges)
 		{
 			var mock = new List<Badge>(badges).AsQueryable().BuildMock();
-			_badgeRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
+			badgeRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
 		}
 
-		#region CheckBadgesByCategory
+		#region CheckBadgesByCategory - OnSolve
 
 		[Fact]
-		public async Task CheckBadgesByCategory_SkipsBadge_WhenUserAlreadyHasIt()
+		public async Task CheckBadgesByCategory_SkipsBadge_WhenUserAlreadyHasAllOnSolveBadges()
 		{
-			SetupUserBadgeIds("u1", 1, 2);
+			// All 10 OnSolve badge IDs: 1-6 and 12-15
+			SetupUserBadgeIds("u1", 1, 2, 3, 4, 5, 6, 12, 13, 14, 15);
 
-			await _service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
 
-			_statsServiceMock.Verify(s => s.GetSolvedCount(It.IsAny<string>()), Times.Never);
+			statsServiceMock.Verify(s => s.GetSolvedCount(It.IsAny<string>()), Times.Never);
+			statsServiceMock.Verify(s => s.GetDistinctCipherTypesSolved(It.IsAny<string>()), Times.Never);
+			statsServiceMock.Verify(s => s.GetSolvedWithoutHintCount(It.IsAny<string>()), Times.Never);
+			statsServiceMock.Verify(s => s.GetSolvedOnFirstAttemptCount(It.IsAny<string>()), Times.Never);
+			statsServiceMock.Verify(s => s.GetUsedHints(It.IsAny<string>()), Times.Never);
+			statsServiceMock.Verify(s => s.GetRareSolves(It.IsAny<string>()), Times.Never);
 		}
 
 		[Fact]
 		public async Task CheckBadgesByCategory_AwardsBadge_WhenCriteriaIsSatisfied()
 		{
 			SetupUserBadgeIds("u1");
-			_statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(1);
+			statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(1);
 			SetupAttachedUsers(MakeUser("u1"));
 			SetupAttachedBadges(MakeBadge(1), MakeBadge(2));
 
-			await _service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
 
-			_userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 1)), Times.Once);
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 1)), Times.Once);
 		}
 
 		[Fact]
 		public async Task CheckBadgesByCategory_DoesNotAwardBadge_WhenCriteriaIsNotSatisfied()
 		{
 			SetupUserBadgeIds("u1");
-			_statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(0);
+			statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(0);
 
-			await _service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
 
-			_userBadgeRepoMock.Verify(r => r.AddAsync(It.IsAny<UserBadge>()), Times.Never);
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.IsAny<UserBadge>()), Times.Never);
 		}
 
 		[Fact]
 		public async Task CheckBadgesByCategory_AwardsBothOnSolveBadges_WhenBothCriteriaAreSatisfied()
 		{
-			// Badge 1 requires 1 solve, badge 2 requires 25 solves
 			SetupUserBadgeIds("u1");
-			_statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(25);
+			statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(25);
 			SetupAttachedUsers(MakeUser("u1"));
 			SetupAttachedBadges(MakeBadge(1), MakeBadge(2));
 
-			await _service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
 
-			_userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 1)), Times.Once);
-			_userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 2)), Times.Once);
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 1)), Times.Once);
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 2)), Times.Once);
 		}
 
 		[Fact]
 		public async Task CheckBadgesByCategory_AwardsOnlyFirstBadge_WhenOnlyFirstCriteriaIsSatisfied()
 		{
 			SetupUserBadgeIds("u1");
-			_statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(1);
+			statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(1);
 			SetupAttachedUsers(MakeUser("u1"));
 			SetupAttachedBadges(MakeBadge(1), MakeBadge(2));
 
-			await _service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
 
-			_userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 1)), Times.Once);
-			_userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 2)), Times.Never);
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 1)), Times.Once);
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 2)), Times.Never);
 		}
 
 		[Fact]
 		public async Task CheckBadgesByCategory_SkipsAlreadyEarnedBadge_ButAwardsNewOne()
 		{
-			// User already has badge 1, qualifies for badge 2
 			SetupUserBadgeIds("u1", 1);
-			_statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(25);
+			statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(25);
 			SetupAttachedUsers(MakeUser("u1"));
 			SetupAttachedBadges(MakeBadge(2));
 
-			await _service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
 
-			_userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 1)), Times.Never);
-			_userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 2)), Times.Once);
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 1)), Times.Never);
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 2)), Times.Once);
 		}
 
 		[Fact]
 		public async Task CheckBadgesByCategory_SendsNotification_WhenBadgeIsAwarded()
 		{
 			SetupUserBadgeIds("u1");
-			_statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(1);
+			statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(1);
 			SetupAttachedUsers(MakeUser("u1"));
 			SetupAttachedBadges(MakeBadge(1, "First Solve"));
 
-			await _service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
 
-			_notificationMock.Verify(n => n.CreateAndSendNotification(
+			notificationMock.Verify(n => n.CreateAndSendNotification(
 				"u1",
 				NotificationType.BadgeEarned,
 				It.IsAny<string>(),
@@ -175,14 +200,236 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task CheckBadgesByCategory_IncrementsBadgeEarnedByCount_WhenAwarded()
 		{
 			SetupUserBadgeIds("u1");
-			_statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(1);
+			statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(1);
 			SetupAttachedUsers(MakeUser("u1"));
 			var badge = MakeBadge(1);
 			SetupAttachedBadges(badge);
 
-			await _service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
 
 			Assert.Equal(1, badge.EarnedBy);
+		}
+
+		// Badge 12 - NoHintsSolvedCriteria (requires 10 solves without hints)
+		[Fact]
+		public async Task CheckBadgesByCategory_AwardsBadge12_WhenNoHintSolvesCriteriaMet()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetSolvedWithoutHintCount("u1")).ReturnsAsync(10);
+			SetupAttachedUsers(MakeUser("u1"));
+			SetupAttachedBadges(MakeBadge(12));
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 12)), Times.Once);
+		}
+
+		[Fact]
+		public async Task CheckBadgesByCategory_DoesNotAwardBadge12_WhenNoHintSolvesCriteriaNotMet()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetSolvedWithoutHintCount("u1")).ReturnsAsync(5);
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 12)), Times.Never);
+		}
+
+		// Badge 13 - PerfectSolveCountCriteria (requires 10 first-attempt solves)
+		[Fact]
+		public async Task CheckBadgesByCategory_AwardsBadge13_WhenPerfectSolveCriteriaMet()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetSolvedOnFirstAttemptCount("u1")).ReturnsAsync(10);
+			SetupAttachedUsers(MakeUser("u1"));
+			SetupAttachedBadges(MakeBadge(13));
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 13)), Times.Once);
+		}
+
+		[Fact]
+		public async Task CheckBadgesByCategory_DoesNotAwardBadge13_WhenPerfectSolveCriteriaNotMet()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetSolvedOnFirstAttemptCount("u1")).ReturnsAsync(9);
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 13)), Times.Never);
+		}
+
+		// Badge 14 - HintUsageCountCriteria (requires 25 hint usages)
+		[Fact]
+		public async Task CheckBadgesByCategory_AwardsBadge14_WhenHintUsageCriteriaMet()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetUsedHints("u1")).ReturnsAsync(25);
+			SetupAttachedUsers(MakeUser("u1"));
+			SetupAttachedBadges(MakeBadge(14));
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 14)), Times.Once);
+		}
+
+		[Fact]
+		public async Task CheckBadgesByCategory_DoesNotAwardBadge14_WhenHintUsageCriteriaNotMet()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetUsedHints("u1")).ReturnsAsync(24);
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 14)), Times.Never);
+		}
+
+		// Badge 15 - RareSolveCriteria (requires 25 rare solves)
+		[Fact]
+		public async Task CheckBadgesByCategory_AwardsBadge15_WhenRareSolveCriteriaMet()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetRareSolves("u1")).ReturnsAsync(25);
+			SetupAttachedUsers(MakeUser("u1"));
+			SetupAttachedBadges(MakeBadge(15));
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 15)), Times.Once);
+		}
+
+		[Fact]
+		public async Task CheckBadgesByCategory_DoesNotAwardBadge15_WhenRareSolveCriteriaNotMet()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetRareSolves("u1")).ReturnsAsync(24);
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 15)), Times.Never);
+		}
+
+		#endregion
+
+		#region CheckBadgesByCategory - OnCipherApprove
+
+		[Fact]
+		public async Task CheckBadgesByCategory_SkipsBadge_WhenUserAlreadyHasAllOnCipherApproveBadges()
+		{
+			SetupUserBadgeIds("u1", 7, 8, 9);
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnUpload);
+
+			statsServiceMock.Verify(s => s.GetApprovedCount(It.IsAny<string>()), Times.Never);
+		}
+
+		[Fact]
+		public async Task CheckBadgesByCategory_AwardsBadge7_WhenFirstCipherApproved()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetApprovedCount("u1")).ReturnsAsync(1);
+			SetupAttachedUsers(MakeUser("u1"));
+			SetupAttachedBadges(MakeBadge(7), MakeBadge(8), MakeBadge(9));
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnUpload);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 7)), Times.Once);
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 8)), Times.Never);
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 9)), Times.Never);
+		}
+
+		[Fact]
+		public async Task CheckBadgesByCategory_AwardsAllOnCipherApproveBadges_WhenAllCriteriaAreSatisfied()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetApprovedCount("u1")).ReturnsAsync(15);
+			SetupAttachedUsers(MakeUser("u1"));
+			SetupAttachedBadges(MakeBadge(7), MakeBadge(8), MakeBadge(9));
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnUpload);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 7)), Times.Once);
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 8)), Times.Once);
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 9)), Times.Once);
+		}
+
+		[Fact]
+		public async Task CheckBadgesByCategory_DoesNotAwardOnCipherApproveBadge_WhenNoApprovedCiphers()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetApprovedCount("u1")).ReturnsAsync(0);
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnUpload);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.IsAny<UserBadge>()), Times.Never);
+		}
+
+		[Fact]
+		public async Task CheckBadgesByCategory_SkipsAlreadyEarnedCipherBadge_ButAwardsNext()
+		{
+			SetupUserBadgeIds("u1", 7);
+			statsServiceMock.Setup(s => s.GetApprovedCount("u1")).ReturnsAsync(5);
+			SetupAttachedUsers(MakeUser("u1"));
+			SetupAttachedBadges(MakeBadge(8));
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnUpload);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 7)), Times.Never);
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 8)), Times.Once);
+		}
+
+		#endregion
+
+		#region CheckBadgesByCategory - OnAnswerApprove
+
+		[Fact]
+		public async Task CheckBadgesByCategory_SkipsBadge_WhenUserAlreadyHasAllOnAnswerApproveBadges()
+		{
+			SetupUserBadgeIds("u1", 10, 11);
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSuggesting);
+
+			statsServiceMock.Verify(s => s.GetApprovedAnswersCount(It.IsAny<string>()), Times.Never);
+		}
+
+		[Fact]
+		public async Task CheckBadgesByCategory_AwardsBadge10_WhenFirstAnswerApproved()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetApprovedAnswersCount("u1")).ReturnsAsync(1);
+			SetupAttachedUsers(MakeUser("u1"));
+			SetupAttachedBadges(MakeBadge(10), MakeBadge(11));
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSuggesting);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 10)), Times.Once);
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 11)), Times.Never);
+		}
+
+		[Fact]
+		public async Task CheckBadgesByCategory_AwardsBothOnAnswerApproveBadges_WhenBothCriteriaAreSatisfied()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetApprovedAnswersCount("u1")).ReturnsAsync(10);
+			SetupAttachedUsers(MakeUser("u1"));
+			SetupAttachedBadges(MakeBadge(10), MakeBadge(11));
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSuggesting);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 10)), Times.Once);
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 11)), Times.Once);
+		}
+
+		[Fact]
+		public async Task CheckBadgesByCategory_DoesNotAwardOnAnswerApproveBadge_WhenNoApprovedAnswers()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetApprovedAnswersCount("u1")).ReturnsAsync(0);
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSuggesting);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.IsAny<UserBadge>()), Times.Never);
 		}
 
 		#endregion
@@ -190,7 +437,6 @@ namespace Cryptomind.Tests.Unit.Services
 
 	public class BadgeStatisticsServiceTests
 	{
-		private readonly Mock<IRepository<Cipher, int>> cipherRepoMock = new();
 		private readonly Mock<IRepository<ApplicationUser, string>> userRepoMock = new();
 		private readonly Mock<IRepository<UserSolution, int>> solutionRepoMock = new();
 		private readonly Mock<IRepository<HintRequest, int>> hintRepoMock = new();
@@ -214,6 +460,12 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var mock = new List<UserSolution>(solutions).AsQueryable().BuildMock();
 			solutionRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
+		}
+
+		private void SetupAttachedHints(params HintRequest[] hints)
+		{
+			var mock = new List<HintRequest>(hints).AsQueryable().BuildMock();
+			hintRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
 		}
 
 		#region GetApprovedCount
@@ -258,9 +510,9 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var solutions = new[]
 			{
-				new UserSolution { UserId = "u1", Cipher = new ConcreteCipher { TypeOfCipher = CipherType.Caesar } },
-				new UserSolution { UserId = "u1", Cipher = new ConcreteCipher { TypeOfCipher = CipherType.Caesar } },
-				new UserSolution { UserId = "u1", Cipher = new ConcreteCipher { TypeOfCipher = CipherType.Vigenere } },
+				new UserSolution { UserId = "u1", IsCorrect = true, Cipher = new ConcreteCipher { TypeOfCipher = CipherType.Caesar, Status = ApprovalStatus.Approved } },
+				new UserSolution { UserId = "u1", IsCorrect = true, Cipher = new ConcreteCipher { TypeOfCipher = CipherType.Caesar, Status = ApprovalStatus.Approved } },
+				new UserSolution { UserId = "u1", IsCorrect = true, Cipher = new ConcreteCipher { TypeOfCipher = CipherType.Vigenere, Status = ApprovalStatus.Approved } },
 			};
 			SetupAttachedSolutions(solutions);
 
@@ -284,8 +536,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var solutions = new[]
 			{
-				new UserSolution { UserId = "u1", Cipher = new ConcreteCipher { TypeOfCipher = CipherType.Caesar } },
-				new UserSolution { UserId = "u2", Cipher = new ConcreteCipher { TypeOfCipher = CipherType.Vigenere } },
+				new UserSolution { UserId = "u1", IsCorrect = true, Cipher = new ConcreteCipher { TypeOfCipher = CipherType.Caesar, Status = ApprovalStatus.Approved } },
+				new UserSolution { UserId = "u2", IsCorrect = true, Cipher = new ConcreteCipher { TypeOfCipher = CipherType.Vigenere, Status = ApprovalStatus.Approved } }
 			};
 			SetupAttachedSolutions(solutions);
 
@@ -335,22 +587,324 @@ namespace Cryptomind.Tests.Unit.Services
 		#region GetSolvedCount
 
 		[Fact]
-		public async Task GetSolvedCount_Throws_WhenUserNotFound()
-		{
-			userRepoMock.Setup(r => r.GetByIdAsync("ghost")).ReturnsAsync((ApplicationUser?)null);
-
-			await Assert.ThrowsAsync<InvalidOperationException>(() => service.GetSolvedCount("ghost"));
-		}
-
-		[Fact]
 		public async Task GetSolvedCount_ReturnsUserSolvedCount()
 		{
-			var user = new ApplicationUser { Id = "u1", SolvedCount = 7 };
-			userRepoMock.Setup(r => r.GetByIdAsync("u1")).ReturnsAsync(user);
+			var solutions = new[]
+			{
+				new UserSolution { UserId = "u1" },
+				new UserSolution { UserId = "u1" },
+				new UserSolution { UserId = "u1" },
+				new UserSolution { UserId = "u2" },
+			};
+			SetupAttachedSolutions(solutions);
 
 			var result = await service.GetSolvedCount("u1");
 
-			Assert.Equal(7, result);
+			Assert.Equal(3, result);
+		}
+
+		[Fact]
+		public async Task GetSolvedCount_ReturnsZero_WhenUserHasNoSolutions()
+		{
+			SetupAttachedSolutions();
+
+			var result = await service.GetSolvedCount("u1");
+
+			Assert.Equal(0, result);
+		}
+
+		#endregion
+
+		#region GetSolvedWithoutHintCount
+
+		[Fact]
+		public async Task GetSolvedWithoutHintCount_ReturnsOnlySolutionsWithNoHintsUsed()
+		{
+			var solutions = new[]
+			{
+				new UserSolution { UserId = "u1", UsedFullSolution = false, UsedTypeHint = false, UsedSolutionHint = false },
+				new UserSolution { UserId = "u1", UsedFullSolution = false, UsedTypeHint = false, UsedSolutionHint = false },
+				new UserSolution { UserId = "u1", UsedFullSolution = true,  UsedTypeHint = false, UsedSolutionHint = false },
+				new UserSolution { UserId = "u1", UsedFullSolution = false, UsedTypeHint = true,  UsedSolutionHint = false },
+				new UserSolution { UserId = "u1", UsedFullSolution = false, UsedTypeHint = false, UsedSolutionHint = true  },
+			};
+			SetupAttachedSolutions(solutions);
+
+			var result = await service.GetSolvedWithoutHintCount("u1");
+
+			Assert.Equal(2, result);
+		}
+
+		[Fact]
+		public async Task GetSolvedWithoutHintCount_ReturnsZero_WhenAllSolutionsUsedHints()
+		{
+			var solutions = new[]
+			{
+				new UserSolution { UserId = "u1", UsedFullSolution = true, UsedTypeHint = false, UsedSolutionHint = false },
+				new UserSolution { UserId = "u1", UsedFullSolution = false, UsedTypeHint = true, UsedSolutionHint = false },
+			};
+			SetupAttachedSolutions(solutions);
+
+			var result = await service.GetSolvedWithoutHintCount("u1");
+
+			Assert.Equal(0, result);
+		}
+
+		[Fact]
+		public async Task GetSolvedWithoutHintCount_OnlyCountsForGivenUser()
+		{
+			var solutions = new[]
+			{
+				new UserSolution { UserId = "u1", UsedFullSolution = false, UsedTypeHint = false, UsedSolutionHint = false },
+				new UserSolution { UserId = "u2", UsedFullSolution = false, UsedTypeHint = false, UsedSolutionHint = false },
+			};
+			SetupAttachedSolutions(solutions);
+
+			var result = await service.GetSolvedWithoutHintCount("u1");
+
+			Assert.Equal(1, result);
+		}
+
+		[Fact]
+		public async Task GetSolvedWithoutHintCount_ReturnsZero_WhenUserHasNoSolutions()
+		{
+			SetupAttachedSolutions();
+
+			var result = await service.GetSolvedWithoutHintCount("u1");
+
+			Assert.Equal(0, result);
+		}
+
+		#endregion
+
+		#region GetSolvedOnFirstAttemptCount
+
+		[Fact]
+		public async Task GetSolvedOnFirstAttemptCount_ReturnsCiphersWithExactlyOneCorrectAttempt()
+		{
+			var solutions = new[]
+			{
+                // Cipher 1: solved on first attempt
+                new UserSolution { UserId = "u1", CipherId = 1, IsCorrect = true },
+                // Cipher 2: solved but had a prior wrong attempt (2 attempts total)
+                new UserSolution { UserId = "u1", CipherId = 2, IsCorrect = false },
+				new UserSolution { UserId = "u1", CipherId = 2, IsCorrect = true },
+                // Cipher 3: one attempt but wrong
+                new UserSolution { UserId = "u1", CipherId = 3, IsCorrect = false },
+			};
+			SetupAttachedSolutions(solutions);
+
+			var result = await service.GetSolvedOnFirstAttemptCount("u1");
+
+			Assert.Equal(1, result);
+		}
+
+		[Fact]
+		public async Task GetSolvedOnFirstAttemptCount_ReturnsZero_WhenNoFirstAttemptSolves()
+		{
+			var solutions = new[]
+			{
+				new UserSolution { UserId = "u1", CipherId = 1, IsCorrect = false },
+				new UserSolution { UserId = "u1", CipherId = 1, IsCorrect = true },
+			};
+			SetupAttachedSolutions(solutions);
+
+			var result = await service.GetSolvedOnFirstAttemptCount("u1");
+
+			Assert.Equal(0, result);
+		}
+
+		[Fact]
+		public async Task GetSolvedOnFirstAttemptCount_OnlyCountsForGivenUser()
+		{
+			var solutions = new[]
+			{
+				new UserSolution { UserId = "u1", CipherId = 1, IsCorrect = true },
+				new UserSolution { UserId = "u2", CipherId = 2, IsCorrect = true },
+			};
+			SetupAttachedSolutions(solutions);
+
+			var result = await service.GetSolvedOnFirstAttemptCount("u1");
+
+			Assert.Equal(1, result);
+		}
+
+		[Fact]
+		public async Task GetSolvedOnFirstAttemptCount_ReturnsZero_WhenUserHasNoSolutions()
+		{
+			SetupAttachedSolutions();
+
+			var result = await service.GetSolvedOnFirstAttemptCount("u1");
+
+			Assert.Equal(0, result);
+		}
+
+		#endregion
+
+		#region GetUsedHints
+
+		[Fact]
+		public async Task GetUsedHints_ReturnsDistinctCipherCount_WithHintRequests()
+		{
+			var hints = new[]
+			{
+				new HintRequest { UserId = "u1", CipherId = 1 },
+				new HintRequest { UserId = "u1", CipherId = 1 }, // duplicate cipher
+                new HintRequest { UserId = "u1", CipherId = 2 },
+				new HintRequest { UserId = "u1", CipherId = 3 },
+			};
+			SetupAttachedHints(hints);
+
+			var result = await service.GetUsedHints("u1");
+
+			Assert.Equal(3, result);
+		}
+
+		[Fact]
+		public async Task GetUsedHints_ReturnsZero_WhenUserHasNoHintRequests()
+		{
+			SetupAttachedHints();
+
+			var result = await service.GetUsedHints("u1");
+
+			Assert.Equal(0, result);
+		}
+
+		[Fact]
+		public async Task GetUsedHints_OnlyCountsForGivenUser()
+		{
+			var hints = new[]
+			{
+				new HintRequest { UserId = "u1", CipherId = 1 },
+				new HintRequest { UserId = "u2", CipherId = 2 },
+				new HintRequest { UserId = "u2", CipherId = 3 },
+			};
+			SetupAttachedHints(hints);
+
+			var result = await service.GetUsedHints("u1");
+
+			Assert.Equal(1, result);
+		}
+
+		#endregion
+
+		#region GetRareSolves
+
+		[Fact]
+		public async Task GetRareSolves_CountsCiphers_WithThreeOrFewerCorrectSolversTotal()
+		{
+			var rareCipher = new ConcreteCipher
+			{
+				Id = 1,
+				UserSolutions = new List<UserSolution>
+				{
+					new() { IsCorrect = true },
+					new() { IsCorrect = true },
+                    // Only 2 correct solvers total - qualifies as rare
+                }
+			};
+			var commonCipher = new ConcreteCipher
+			{
+				Id = 2,
+				UserSolutions = new List<UserSolution>
+				{
+					new() { IsCorrect = true },
+					new() { IsCorrect = true },
+					new() { IsCorrect = true },
+					new() { IsCorrect = true },
+                    // 4 correct solvers - not rare
+                }
+			};
+			var solutions = new[]
+			{
+				new UserSolution { UserId = "u1", CipherId = 1, IsCorrect = true, Cipher = rareCipher },
+				new UserSolution { UserId = "u1", CipherId = 2, IsCorrect = true, Cipher = commonCipher },
+			};
+			SetupAttachedSolutions(solutions);
+
+			var result = await service.GetRareSolves("u1");
+
+			Assert.Equal(1, result);
+		}
+
+		[Fact]
+		public async Task GetRareSolves_CountsCipher_WhenExactlyThreeCorrectSolversTotal()
+		{
+			var cipher = new ConcreteCipher
+			{
+				Id = 1,
+				UserSolutions = new List<UserSolution>
+				{
+					new() { IsCorrect = true },
+					new() { IsCorrect = true },
+					new() { IsCorrect = true },
+				}
+			};
+			var solutions = new[]
+			{
+				new UserSolution { UserId = "u1", CipherId = 1, IsCorrect = true, Cipher = cipher },
+			};
+			SetupAttachedSolutions(solutions);
+
+			var result = await service.GetRareSolves("u1");
+
+			Assert.Equal(1, result);
+		}
+
+		[Fact]
+		public async Task GetRareSolves_DoesNotCountCipher_WhenFourOrMoreCorrectSolversTotal()
+		{
+			var cipher = new ConcreteCipher
+			{
+				Id = 1,
+				UserSolutions = new List<UserSolution>
+				{
+					new() { IsCorrect = true },
+					new() { IsCorrect = true },
+					new() { IsCorrect = true },
+					new() { IsCorrect = true },
+				}
+			};
+			var solutions = new[]
+			{
+				new UserSolution { UserId = "u1", CipherId = 1, IsCorrect = true, Cipher = cipher },
+			};
+			SetupAttachedSolutions(solutions);
+
+			var result = await service.GetRareSolves("u1");
+
+			Assert.Equal(0, result);
+		}
+
+		[Fact]
+		public async Task GetRareSolves_OnlyCountsCorrectSolutions_ForGivenUser()
+		{
+			var cipher = new ConcreteCipher
+			{
+				Id = 1,
+				UserSolutions = new List<UserSolution> { new() { IsCorrect = true } }
+			};
+			var solutions = new[]
+			{
+				new UserSolution { UserId = "u1", CipherId = 1, IsCorrect = false, Cipher = cipher },
+				new UserSolution { UserId = "u2", CipherId = 1, IsCorrect = true,  Cipher = cipher },
+			};
+			SetupAttachedSolutions(solutions);
+
+			var result = await service.GetRareSolves("u1");
+
+			// u1 did not solve it correctly, so should be 0
+			Assert.Equal(0, result);
+		}
+
+		[Fact]
+		public async Task GetRareSolves_ReturnsZero_WhenUserHasNoCorrectSolutions()
+		{
+			SetupAttachedSolutions();
+
+			var result = await service.GetRareSolves("u1");
+
+			Assert.Equal(0, result);
 		}
 
 		#endregion

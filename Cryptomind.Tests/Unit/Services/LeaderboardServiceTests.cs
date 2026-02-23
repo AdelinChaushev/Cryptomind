@@ -12,12 +12,12 @@ namespace Cryptomind.Tests.Unit.Services
 {
 	public class LeaderboardServiceTests
 	{
-		private readonly Mock<IRepository<ApplicationUser, string>> _userRepoMock = new();
-		private readonly LeaderboardService _service;
+		private readonly Mock<IRepository<ApplicationUser, string>> userRepoMock = new();
+		private readonly LeaderboardService service;
 
 		public LeaderboardServiceTests()
 		{
-			_service = new LeaderboardService(_userRepoMock.Object);
+			service = new LeaderboardService(userRepoMock.Object);
 		}
 
 		private static ApplicationUser MakeUser(string id, string userName, int score) => new()
@@ -30,7 +30,7 @@ namespace Cryptomind.Tests.Unit.Services
 		private void SetupAttachedUsers(params ApplicationUser[] users)
 		{
 			var mock = new List<ApplicationUser>(users).AsQueryable().BuildMock();
-			_userRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
+			userRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
 		}
 
 		[Fact]
@@ -38,7 +38,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedUsers();
 
-			var result = await _service.GetLeaderboard();
+			var result = await service.GetLeaderboard();
 
 			Assert.Empty(result);
 		}
@@ -48,7 +48,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedUsers(MakeUser("u1", "alice", 100));
 
-			var result = await _service.GetLeaderboard();
+			var result = await service.GetLeaderboard();
 
 			Assert.Single(result);
 			Assert.Equal("alice", result[0].Username);
@@ -64,7 +64,7 @@ namespace Cryptomind.Tests.Unit.Services
 				MakeUser("u2", "bob", 150),
 				MakeUser("u3", "charlie", 100));
 
-			var result = await _service.GetLeaderboard();
+			var result = await service.GetLeaderboard();
 
 			Assert.Equal(3, result.Count);
 			Assert.Equal("bob", result[0].Username);
@@ -83,7 +83,7 @@ namespace Cryptomind.Tests.Unit.Services
 				MakeUser("u2", "second", 200),
 				MakeUser("u3", "third", 100));
 
-			var result = await _service.GetLeaderboard();
+			var result = await service.GetLeaderboard();
 
 			Assert.Equal(1, result[0].Place);
 			Assert.Equal(2, result[1].Place);
@@ -98,7 +98,7 @@ namespace Cryptomind.Tests.Unit.Services
 				MakeUser("u2", "bob", 100),
 				MakeUser("u3", "charlie", 50));
 
-			var result = await _service.GetLeaderboard();
+			var result = await service.GetLeaderboard();
 
 			Assert.Equal(1, result[0].Place);
 			Assert.Equal(2, result[1].Place);
@@ -112,7 +112,7 @@ namespace Cryptomind.Tests.Unit.Services
 				MakeUser("u1", "alice", 0),
 				MakeUser("u2", "bob", 0));
 
-			var result = await _service.GetLeaderboard();
+			var result = await service.GetLeaderboard();
 
 			Assert.Equal(2, result.Count);
 			Assert.Equal(0, result[0].Points);

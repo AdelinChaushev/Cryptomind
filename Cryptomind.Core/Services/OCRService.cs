@@ -6,6 +6,7 @@ using Cryptomind.Common.Constants;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.ComponentModel.DataAnnotations;
+using Cryptomind.Common.Exceptions;
 
 namespace Cryptomind.Core.Services.OCR
 {
@@ -27,14 +28,14 @@ namespace Cryptomind.Core.Services.OCR
 		public async Task<OCRResultDTO> ExtractTextFromImageAsync(IFormFile imageFile)
 		{
 			if (imageFile == null || imageFile.Length == 0)
-				throw new ValidationException("Image file cannot be empty");
+				throw new CustomValidationException("Image file cannot be empty");
 
 			return await SendOCRRequestAsync(imageFile, "ocr/extract");
 		}
 		public async Task<OCRResultDTO> ExtractTextWithMultipleMethodsAsync(IFormFile imageFile)
 		{
 			if (imageFile == null || imageFile.Length == 0)
-				throw new ValidationException("Image file cannot be empty");
+				throw new CustomValidationException("Image file cannot be empty");
 
 			return await SendOCRRequestAsync(imageFile, "ocr/extract-multiple");
 		}

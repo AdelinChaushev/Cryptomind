@@ -8,7 +8,6 @@ namespace Cryptomind.Data.Entities
 	{
 		[Key]
 		public int Id { get; set; }
-
 		[ForeignKey(nameof(ApplicationUser))]
 		public string UserId { get; set; }
 		public ApplicationUser User { get; set; }
