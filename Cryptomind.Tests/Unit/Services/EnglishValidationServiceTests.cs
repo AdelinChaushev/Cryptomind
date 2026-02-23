@@ -1,8 +1,10 @@
-﻿using Cryptomind.Core.Services;
+﻿using Cryptomind.Common.Exceptions;
+using Cryptomind.Core.Services;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.Protected;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
@@ -14,32 +16,32 @@ namespace Cryptomind.Tests.Unit.Services
 {
 	public class EnglishValidationServiceTests
 	{
-		private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;
-		private readonly Mock<IConfiguration> _configurationMock;
-		private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock;
-		private readonly EnglishValidationService _service;
+		private readonly Mock<IHttpClientFactory> httpClientFactoryMock;
+		private readonly Mock<IConfiguration> configurationMock;
+		private readonly Mock<HttpMessageHandler> httpMessageHandlerMock;
+		private readonly EnglishValidationService service;
 
 		public EnglishValidationServiceTests()
 		{
-			_httpMessageHandlerMock = new Mock<HttpMessageHandler>();
-			var httpClient = new HttpClient(_httpMessageHandlerMock.Object);
+			httpMessageHandlerMock = new Mock<HttpMessageHandler>();
+			var httpClient = new HttpClient(httpMessageHandlerMock.Object);
 
-			_httpClientFactoryMock = new Mock<IHttpClientFactory>();
-			_httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>()))
+			httpClientFactoryMock = new Mock<IHttpClientFactory>();
+			httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>()))
 				.Returns(httpClient);
 
-			_configurationMock = new Mock<IConfiguration>();
-			_configurationMock.Setup(c => c["MLService:ApiUrl"])
+			configurationMock = new Mock<IConfiguration>();
+			configurationMock.Setup(c => c["MLService:ApiUrl"])
 				.Returns("http://localhost:5002");
 
-			_service = new EnglishValidationService(
-				_httpClientFactoryMock.Object,
-				_configurationMock.Object);
+			service = new EnglishValidationService(
+				httpClientFactoryMock.Object,
+				configurationMock.Object);
 		}
 
 		private void SetupHttpResponse(HttpStatusCode statusCode, string content)
 		{
-			_httpMessageHandlerMock
+			httpMessageHandlerMock
 				.Protected()
 				.Setup<Task<HttpResponseMessage>>(
 					"SendAsync",
@@ -54,7 +56,7 @@ namespace Cryptomind.Tests.Unit.Services
 
 		private void SetupHttpException(Exception exception)
 		{
-			_httpMessageHandlerMock
+			httpMessageHandlerMock
 				.Protected()
 				.Setup<Task<HttpResponseMessage>>(
 					"SendAsync",
@@ -77,19 +79,19 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task ValidatePlaintextAsync_Throws_WhenPlaintextIsNull()
 		{
-			await Assert.ThrowsAsync<ArgumentException>(() => _service.ValidatePlaintextAsync(null));
+			await Assert.ThrowsAsync<CustomValidationException>(() => service.ValidatePlaintextAsync(null));
 		}
 
 		[Fact]
 		public async Task ValidatePlaintextAsync_Throws_WhenPlaintextIsEmpty()
 		{
-			await Assert.ThrowsAsync<ArgumentException>(() => _service.ValidatePlaintextAsync(""));
+			await Assert.ThrowsAsync<CustomValidationException>(() => service.ValidatePlaintextAsync(""));
 		}
 
 		[Fact]
 		public async Task ValidatePlaintextAsync_Throws_WhenPlaintextIsWhitespace()
 		{
-			await Assert.ThrowsAsync<ArgumentException>(() => _service.ValidatePlaintextAsync("   "));
+			await Assert.ThrowsAsync<CustomValidationException>(() => service.ValidatePlaintextAsync("   "));
 		}
 
 		[Fact]
@@ -97,7 +99,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpResponse(HttpStatusCode.OK, CreateValidationResponse(true, 0.95));
 
-			var result = await _service.ValidatePlaintextAsync("Hello world");
+			var result = await service.ValidatePlaintextAsync("Hello world");
 
 			Assert.NotNull(result);
 			Assert.True(result.IsEnglish);
@@ -109,7 +111,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpResponse(HttpStatusCode.OK, CreateValidationResponse(false, 0.15));
 
-			var result = await _service.ValidatePlaintextAsync("xqz jkl vwp");
+			var result = await service.ValidatePlaintextAsync("xqz jkl vwp");
 
 			Assert.False(result.IsEnglish);
 			Assert.Equal(0.15, result.Confidence);
@@ -120,8 +122,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpResponse(HttpStatusCode.InternalServerError, "Internal error");
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.ValidatePlaintextAsync("test"));
+			await Assert.ThrowsAsync<Exception>(
+				() => service.ValidatePlaintextAsync("test"));
 		}
 
 		[Fact]
@@ -129,8 +131,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpResponse(HttpStatusCode.OK, "not json at all");
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.ValidatePlaintextAsync("test"));
+			await Assert.ThrowsAsync<Exception>(
+				() => service.ValidatePlaintextAsync("test"));
 		}
 
 		[Fact]
@@ -138,8 +140,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpException(new HttpRequestException("Connection refused"));
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.ValidatePlaintextAsync("test"));
+			await Assert.ThrowsAsync<Exception>(
+				() => service.ValidatePlaintextAsync("test"));
 		}
 
 		[Fact]
@@ -147,8 +149,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpException(new TaskCanceledException("Timeout"));
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.ValidatePlaintextAsync("test"));
+			await Assert.ThrowsAsync<Exception>(
+				() => service.ValidatePlaintextAsync("test"));
 		}
 
 		#endregion
@@ -160,7 +162,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpResponse(HttpStatusCode.OK, CreateValidationResponse(true, 0.75));
 
-			var result = await _service.IsLikelyEnglishAsync("Hello world", minConfidence: 0.5);
+			var result = await service.IsLikelyEnglishAsync("Hello world", minConfidence: 0.5);
 
 			Assert.True(result);
 		}
@@ -170,7 +172,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpResponse(HttpStatusCode.OK, CreateValidationResponse(true, 0.3));
 
-			var result = await _service.IsLikelyEnglishAsync("test", minConfidence: 0.5);
+			var result = await service.IsLikelyEnglishAsync("test", minConfidence: 0.5);
 
 			Assert.False(result);
 		}
@@ -180,7 +182,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpResponse(HttpStatusCode.OK, CreateValidationResponse(false, 0.9));
 
-			var result = await _service.IsLikelyEnglishAsync("test", minConfidence: 0.5);
+			var result = await service.IsLikelyEnglishAsync("test", minConfidence: 0.5);
 
 			Assert.False(result);
 		}
@@ -190,7 +192,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpResponse(HttpStatusCode.OK, CreateValidationResponse(true, 0.6));
 
-			var result = await _service.IsLikelyEnglishAsync("Hello world");
+			var result = await service.IsLikelyEnglishAsync("Hello world");
 
 			Assert.True(result);
 		}
@@ -200,7 +202,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpResponse(HttpStatusCode.OK, CreateValidationResponse(true, 0.5));
 
-			var result = await _service.IsLikelyEnglishAsync("test", minConfidence: 0.5);
+			var result = await service.IsLikelyEnglishAsync("test", minConfidence: 0.5);
 
 			Assert.True(result);
 		}

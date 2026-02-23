@@ -1,6 +1,7 @@
 ﻿using Cryptomind.Common.Enums;
+using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
-using Cryptomind.Common.ViewModels.CipherSubmissionViewModels;
+using System.ComponentModel.DataAnnotations;
 using Cryptomind.Common.ViewModels.CipherViewModels;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Core.Services;
@@ -8,6 +9,7 @@ using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using MockQueryable.Moq;
 using Moq;
 using System;
@@ -22,24 +24,24 @@ namespace Cryptomind.Tests.Unit.Services
 {
 	public class CipherSubmissionServiceTests
 	{
-		private readonly Mock<IRepository<Cipher, int>> _cipherRepoMock = new();
-		private readonly Mock<IOCRService> _ocrServiceMock = new();
-		private readonly Mock<ICipherRecognizerService> _cipherRecognizerMock = new();
+		private readonly Mock<IRepository<Cipher, int>> cipherRepoMock = new();
+		private readonly Mock<IOCRService> ocrServiceMock = new();
+		private readonly Mock<ICipherRecognizerService> cipherRecognizerMock = new();
 		private readonly Mock<IEnglishValidationService> _englishValidationMock = new();
-		private readonly CipherSubmissionService _service;
+		private readonly CipherSubmissionService service;
 
 		public CipherSubmissionServiceTests()
 		{
-			_service = new CipherSubmissionService(
-				_cipherRepoMock.Object,
-				_ocrServiceMock.Object,
-				_cipherRecognizerMock.Object,
+			service = new CipherSubmissionService(
+				cipherRepoMock.Object,
+				ocrServiceMock.Object,
+				cipherRecognizerMock.Object,
 				_englishValidationMock.Object);
 
-			_cipherRepoMock.Setup(r => r.AddAsync(It.IsAny<Cipher>()))
+			cipherRepoMock.Setup(r => r.AddAsync(It.IsAny<Cipher>()))
 				.Returns(Task.CompletedTask);
 
-			_cipherRecognizerMock.Setup(s => s.ClassifyCipher(It.IsAny<string>()))
+			cipherRecognizerMock.Setup(s => s.ClassifyCipher(It.IsAny<string>()))
 				.ReturnsAsync(new CipherRecognitionResultViewModel
 				{
 					TopPrediction = new PredictionViewModel
@@ -58,7 +60,7 @@ namespace Cryptomind.Tests.Unit.Services
 		private void SetupAttachedCiphers(params Cipher[] ciphers)
 		{
 			var mock = new List<Cipher>(ciphers).AsQueryable().BuildMock();
-			_cipherRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
+			cipherRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
 		}
 
 		private static SubmitCipherViewModel MakeTextCipherModel(
@@ -94,8 +96,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var model = MakeTextCipherModel(title: "");
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.SubmitCipherAsync(model, "u1"));
+			await Assert.ThrowsAsync<CustomValidationException>(
+				() => service.SubmitCipherAsync(model, "u1"));
 		}
 
 		[Fact]
@@ -104,8 +106,8 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupAttachedCiphers(new TextCipher { Title = "Existing Title", CreatedByUserId = "u2" });
 			var model = MakeTextCipherModel(title: "Existing Title");
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.SubmitCipherAsync(model, "u1"));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.SubmitCipherAsync(model, "u1"));
 		}
 
 		[Fact]
@@ -114,8 +116,8 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupAttachedCiphers(new TextCipher { Title = "My Title", CreatedByUserId = "u1" });
 			var model = MakeTextCipherModel(title: "My Title");
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.SubmitCipherAsync(model, "u1"));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.SubmitCipherAsync(model, "u1"));
 		}
 
 		[Fact]
@@ -124,8 +126,8 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupAttachedCiphers(new TextCipher { EncryptedText = "KHOOR", CreatedByUserId = "u2" });
 			var model = MakeTextCipherModel(encryptedText: "KHOOR");
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.SubmitCipherAsync(model, "u1"));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.SubmitCipherAsync(model, "u1"));
 		}
 
 		[Fact]
@@ -142,8 +144,8 @@ namespace Cryptomind.Tests.Unit.Services
 				title: "New Title",
 				encryptedText: "KHOOR");
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.SubmitCipherAsync(model, "u1"));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.SubmitCipherAsync(model, "u1"));
 		}
 
 		[Fact]
@@ -152,13 +154,13 @@ namespace Cryptomind.Tests.Unit.Services
 			var model = MakeTextCipherModel(decryptedText: null, cipherType: null);
 
 			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.SubmitCipherAsync(model, "u1"));
+				() => service.SubmitCipherAsync(model, "u1"));
 		}
 
 		[Fact]
 		public async Task SubmitCipherAsync_Throws_WhenMLClassifiesAsPlaintext()
 		{
-			_cipherRecognizerMock.Setup(s => s.ClassifyCipher(It.IsAny<string>()))
+			cipherRecognizerMock.Setup(s => s.ClassifyCipher(It.IsAny<string>()))
 				.ReturnsAsync(new CipherRecognitionResultViewModel
 				{
 					TopPrediction = new PredictionViewModel { Type = "plaintext" },
@@ -167,8 +169,8 @@ namespace Cryptomind.Tests.Unit.Services
 			var model = MakeTextCipherModel();
 			SetupAttachedCiphers();
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.SubmitCipherAsync(model, "u1"));
+			await Assert.ThrowsAsync<CustomValidationException>(
+				() => service.SubmitCipherAsync(model, "u1"));
 		}
 
 		#endregion
@@ -185,11 +187,11 @@ namespace Cryptomind.Tests.Unit.Services
 				decryptedText: "XYZ");
 
 			Cipher captured = null;
-			_cipherRepoMock.Setup(r => r.AddAsync(It.IsAny<Cipher>()))
+			cipherRepoMock.Setup(r => r.AddAsync(It.IsAny<Cipher>()))
 				.Callback<Cipher>(c => captured = c)
 				.Returns(Task.CompletedTask);
 
-			await _service.SubmitCipherAsync(model, "u1");
+			await service.SubmitCipherAsync(model, "u1");
 
 			Assert.NotNull(captured);
 			Assert.IsType<TextCipher>(captured);
@@ -206,7 +208,7 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupAttachedCiphers();
 			var model = MakeTextCipherModel(decryptedText: "HELLO WORLD");
 
-			await _service.SubmitCipherAsync(model, "u1");
+			await service.SubmitCipherAsync(model, "u1");
 
 			_englishValidationMock.Verify(s => s.IsLikelyEnglishAsync("HELLO WORLD", It.IsAny<double>()), Times.Once);
 		}
@@ -217,7 +219,7 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupAttachedCiphers();
 			var model = MakeTextCipherModel(decryptedText: null, cipherType: CipherType.Caesar);
 
-			await _service.SubmitCipherAsync(model, "u1");
+			await service.SubmitCipherAsync(model, "u1");
 
 			_englishValidationMock.Verify(s => s.IsLikelyEnglishAsync(It.IsAny<string>(), It.IsAny<double>()), Times.Never);
 		}
@@ -226,7 +228,7 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task SubmitCipherAsync_SetsIsLLMRecommendedFalse_WhenHighConfidenceAndTypesMatch()
 		{
 			SetupAttachedCiphers();
-			_cipherRecognizerMock.Setup(s => s.ClassifyCipher(It.IsAny<string>()))
+			cipherRecognizerMock.Setup(s => s.ClassifyCipher(It.IsAny<string>()))
 				.ReturnsAsync(new CipherRecognitionResultViewModel
 				{
 					TopPrediction = new PredictionViewModel
@@ -240,11 +242,11 @@ namespace Cryptomind.Tests.Unit.Services
 
 			var model = MakeTextCipherModel(cipherType: CipherType.Caesar);
 			Cipher captured = null;
-			_cipherRepoMock.Setup(r => r.AddAsync(It.IsAny<Cipher>()))
+			cipherRepoMock.Setup(r => r.AddAsync(It.IsAny<Cipher>()))
 				.Callback<Cipher>(c => captured = c)
 				.Returns(Task.CompletedTask);
 
-			await _service.SubmitCipherAsync(model, "u1");
+			await service.SubmitCipherAsync(model, "u1");
 
 			Assert.False(captured.IsLLMRecommended);
 		}
@@ -253,7 +255,7 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task SubmitCipherAsync_SetsIsLLMRecommendedTrue_WhenTypesDoNotMatch()
 		{
 			SetupAttachedCiphers();
-			_cipherRecognizerMock.Setup(s => s.ClassifyCipher(It.IsAny<string>()))
+			cipherRecognizerMock.Setup(s => s.ClassifyCipher(It.IsAny<string>()))
 				.ReturnsAsync(new CipherRecognitionResultViewModel
 				{
 					TopPrediction = new PredictionViewModel
@@ -266,11 +268,11 @@ namespace Cryptomind.Tests.Unit.Services
 
 			var model = MakeTextCipherModel(cipherType: CipherType.Vigenere);
 			Cipher captured = null;
-			_cipherRepoMock.Setup(r => r.AddAsync(It.IsAny<Cipher>()))
+			cipherRepoMock.Setup(r => r.AddAsync(It.IsAny<Cipher>()))
 				.Callback<Cipher>(c => captured = c)
 				.Returns(Task.CompletedTask);
 
-			await _service.SubmitCipherAsync(model, "u1");
+			await service.SubmitCipherAsync(model, "u1");
 
 			Assert.True(captured.IsLLMRecommended);
 		}
@@ -279,7 +281,7 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task SubmitCipherAsync_SetsIsLLMRecommendedTrue_WhenConfidenceLow()
 		{
 			SetupAttachedCiphers();
-			_cipherRecognizerMock.Setup(s => s.ClassifyCipher(It.IsAny<string>()))
+			cipherRecognizerMock.Setup(s => s.ClassifyCipher(It.IsAny<string>()))
 				.ReturnsAsync(new CipherRecognitionResultViewModel
 				{
 					TopPrediction = new PredictionViewModel
@@ -292,12 +294,12 @@ namespace Cryptomind.Tests.Unit.Services
 
 			var model = MakeTextCipherModel(cipherType: CipherType.Caesar);
 			Cipher captured = null;
-			_cipherRepoMock.Setup(r => r.AddAsync(It.IsAny<Cipher>())
+			cipherRepoMock.Setup(r => r.AddAsync(It.IsAny<Cipher>())
 )
 				.Callback<Cipher>(c => captured = c)
 				.Returns(Task.CompletedTask);
 
-			await _service.SubmitCipherAsync(model, "u1");
+			await service.SubmitCipherAsync(model, "u1");
 
 			Assert.True(captured.IsLLMRecommended);
 		}
@@ -306,7 +308,7 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task SubmitCipherAsync_SetsIsLLMRecommendedTrue_WhenProblematicCipherType()
 		{
 			SetupAttachedCiphers();
-			_cipherRecognizerMock.Setup(s => s.ClassifyCipher(It.IsAny<string>()))
+			cipherRecognizerMock.Setup(s => s.ClassifyCipher(It.IsAny<string>()))
 				.ReturnsAsync(new CipherRecognitionResultViewModel
 				{
 					TopPrediction = new PredictionViewModel
@@ -319,11 +321,11 @@ namespace Cryptomind.Tests.Unit.Services
 
 			var model = MakeTextCipherModel(cipherType: null, decryptedText: "HELLO");
 			Cipher captured = null;
-			_cipherRepoMock.Setup(r => r.AddAsync(It.IsAny<Cipher>()))
+			cipherRepoMock.Setup(r => r.AddAsync(It.IsAny<Cipher>()))
 				.Callback<Cipher>(c => captured = c)
 				.Returns(Task.CompletedTask);
 
-			await _service.SubmitCipherAsync(model, "u1");
+			await service.SubmitCipherAsync(model, "u1");
 
 			Assert.True(captured.IsLLMRecommended);
 		}
@@ -343,7 +345,7 @@ namespace Cryptomind.Tests.Unit.Services
 			};
 
 			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.SubmitCipherAsync(model, "u1"));
+				() => service.SubmitCipherAsync(model, "u1"));
 		}
 
 		[Fact]
@@ -358,7 +360,7 @@ namespace Cryptomind.Tests.Unit.Services
 			};
 
 			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.SubmitCipherAsync(model, "u1"));
+				() => service.SubmitCipherAsync(model, "u1"));
 		}
 
 		[Fact]
@@ -373,7 +375,7 @@ namespace Cryptomind.Tests.Unit.Services
 			};
 
 			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.SubmitCipherAsync(model, "u1"));
+				() => service.SubmitCipherAsync(model, "u1"));
 		}
 
 		[Fact]
@@ -388,7 +390,7 @@ namespace Cryptomind.Tests.Unit.Services
 			};
 
 			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.SubmitCipherAsync(model, "u1"));
+				() => service.SubmitCipherAsync(model, "u1"));
 		}
 
 		#endregion
@@ -400,7 +402,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedCiphers();
 
-			var result = await _service.SubmittedCiphers("u1");
+			var result = await service.SubmittedCiphers("u1");
 
 			Assert.Empty(result);
 		}
@@ -412,7 +414,7 @@ namespace Cryptomind.Tests.Unit.Services
 				new TextCipher { CreatedByUserId = "u1", Title = "User1 Cipher" },
 				new TextCipher { CreatedByUserId = "u2", Title = "User2 Cipher" });
 
-			var result = await _service.SubmittedCiphers("u1");
+			var result = await service.SubmittedCiphers("u1");
 
 			Assert.Single(result);
 			Assert.Equal("User1 Cipher", result[0].Title);
@@ -436,7 +438,7 @@ namespace Cryptomind.Tests.Unit.Services
 				}
 			});
 
-			var result = await _service.SubmittedCiphers("u1");
+			var result = await service.SubmittedCiphers("u1");
 
 			Assert.Equal("Approved", result[0].Status);
 			Assert.Equal(approvedAt, result[0].ApprovedTime);
@@ -457,7 +459,7 @@ namespace Cryptomind.Tests.Unit.Services
 				RejectionReason = "Not appropriate"
 			});
 
-			var result = await _service.SubmittedCiphers("u1");
+			var result = await service.SubmittedCiphers("u1");
 
 			Assert.Equal("Rejected", result[0].Status);
 			Assert.Equal(rejectedAt, result[0].RejectionTime);
@@ -477,7 +479,7 @@ namespace Cryptomind.Tests.Unit.Services
 				Status = ApprovalStatus.Approved
 			});
 
-			var result = await _service.SubmittedCiphers("u1");
+			var result = await service.SubmittedCiphers("u1");
 
 			Assert.Equal("CipherDeleted", result[0].Status);
 			Assert.Equal(deletedAt, result[0].DeletedTime);

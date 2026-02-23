@@ -181,7 +181,7 @@ namespace Cryptomind.Tests.Integration
 			});
 
 			// Deactivated users should not be able to log in
-			((int)loginResponse.StatusCode).Should().BeOneOf(400, 401);
+			((int)loginResponse.StatusCode).Should().BeOneOf(400, 409);
 		}
 
 		#endregion

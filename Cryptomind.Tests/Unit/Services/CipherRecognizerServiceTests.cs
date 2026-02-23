@@ -1,8 +1,10 @@
-﻿using Cryptomind.Core.Services;
+﻿using Cryptomind.Common.Exceptions;
+using Cryptomind.Core.Services;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.Protected;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
@@ -14,32 +16,32 @@ namespace Cryptomind.Tests.Unit.Services
 {
 	public class CipherRecognizerServiceTests
 	{
-		private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;
-		private readonly Mock<IConfiguration> _configurationMock;
-		private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock;
-		private readonly CipherRecognizerService _service;
+		private readonly Mock<IHttpClientFactory> httpClientFactoryMock;
+		private readonly Mock<IConfiguration> configurationMock;
+		private readonly Mock<HttpMessageHandler> httpMessageHandlerMock;
+		private readonly CipherRecognizerService service;
 
 		public CipherRecognizerServiceTests()
 		{
-			_httpMessageHandlerMock = new Mock<HttpMessageHandler>();
-			var httpClient = new HttpClient(_httpMessageHandlerMock.Object);
+			httpMessageHandlerMock = new Mock<HttpMessageHandler>();
+			var httpClient = new HttpClient(httpMessageHandlerMock.Object);
 
-			_httpClientFactoryMock = new Mock<IHttpClientFactory>();
-			_httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>()))
+			httpClientFactoryMock = new Mock<IHttpClientFactory>();
+			httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>()))
 				.Returns(httpClient);
 
-			_configurationMock = new Mock<IConfiguration>();
-			_configurationMock.Setup(c => c["MLService:ApiUrl"])
+			configurationMock = new Mock<IConfiguration>();
+			configurationMock.Setup(c => c["MLService:ApiUrl"])
 				.Returns("http://localhost:5002");
 
-			_service = new CipherRecognizerService(
-				_httpClientFactoryMock.Object,
-				_configurationMock.Object);
+			service = new CipherRecognizerService(
+				httpClientFactoryMock.Object,
+				configurationMock.Object);
 		}
 
 		private void SetupHttpResponse(HttpStatusCode statusCode, string content)
 		{
-			_httpMessageHandlerMock
+			httpMessageHandlerMock
 				.Protected()
 				.Setup<Task<HttpResponseMessage>>(
 					"SendAsync",
@@ -54,7 +56,7 @@ namespace Cryptomind.Tests.Unit.Services
 
 		private void SetupHttpException(Exception exception)
 		{
-			_httpMessageHandlerMock
+			httpMessageHandlerMock
 				.Protected()
 				.Setup<Task<HttpResponseMessage>>(
 					"SendAsync",
@@ -86,19 +88,19 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task ClassifyCipher_Throws_WhenInputIsNull()
 		{
-			await Assert.ThrowsAsync<ArgumentException>(() => _service.ClassifyCipher(null));
+			await Assert.ThrowsAsync<CustomValidationException>(() => service.ClassifyCipher(null));
 		}
 
 		[Fact]
 		public async Task ClassifyCipher_Throws_WhenInputIsEmpty()
 		{
-			await Assert.ThrowsAsync<ArgumentException>(() => _service.ClassifyCipher(""));
+			await Assert.ThrowsAsync<CustomValidationException>(() => service.ClassifyCipher(""));
 		}
 
 		[Fact]
 		public async Task ClassifyCipher_Throws_WhenInputIsWhitespace()
 		{
-			await Assert.ThrowsAsync<ArgumentException>(() => _service.ClassifyCipher("   "));
+			await Assert.ThrowsAsync<CustomValidationException>(() => service.ClassifyCipher("   "));
 		}
 
 		[Fact]
@@ -106,7 +108,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpResponse(HttpStatusCode.OK, CreateValidPythonResponse());
 
-			var result = await _service.ClassifyCipher("KHOOR ZRUOG");
+			var result = await service.ClassifyCipher("KHOOR ZRUOG");
 
 			Assert.NotNull(result);
 			Assert.Equal("Substitution", result.TopPrediction.Family);
@@ -119,7 +121,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpResponse(HttpStatusCode.OK, CreateValidPythonResponse());
 
-			var result = await _service.ClassifyCipher("KHOOR ZRUOG");
+			var result = await service.ClassifyCipher("KHOOR ZRUOG");
 
 			Assert.Equal(2, result.AllPredictions.Count);
 			Assert.Equal("Caesar", result.AllPredictions[0].Type);
@@ -130,7 +132,7 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task ClassifyCipher_ConvertsInputToUpperCase_BeforeSendingToAPI()
 		{
 			HttpRequestMessage capturedRequest = null;
-			_httpMessageHandlerMock
+			httpMessageHandlerMock
 				.Protected()
 				.Setup<Task<HttpResponseMessage>>(
 					"SendAsync",
@@ -143,7 +145,7 @@ namespace Cryptomind.Tests.Unit.Services
 					Content = new StringContent(CreateValidPythonResponse())
 				});
 
-			await _service.ClassifyCipher("hello world");
+			await service.ClassifyCipher("hello world");
 
 			var requestBody = await capturedRequest.Content.ReadAsStringAsync();
 			Assert.Contains("HELLO WORLD", requestBody);
@@ -154,8 +156,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpResponse(HttpStatusCode.InternalServerError, "Internal error");
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.ClassifyCipher("test"));
+			await Assert.ThrowsAsync<Exception>(
+				() => service.ClassifyCipher("test"));
 		}
 
 		[Fact]
@@ -163,8 +165,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpResponse(HttpStatusCode.OK, "not json at all");
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.ClassifyCipher("test"));
+			await Assert.ThrowsAsync<Exception>(
+				() => service.ClassifyCipher("test"));
 		}
 
 		[Fact]
@@ -179,8 +181,8 @@ namespace Cryptomind.Tests.Unit.Services
 			});
 			SetupHttpResponse(HttpStatusCode.OK, invalidResponse);
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.ClassifyCipher("test"));
+			await Assert.ThrowsAsync<Exception>(
+				() => service.ClassifyCipher("test"));
 		}
 
 		[Fact]
@@ -197,7 +199,7 @@ namespace Cryptomind.Tests.Unit.Services
 			});
 			SetupHttpResponse(HttpStatusCode.OK, responseWithoutAll);
 
-			var result = await _service.ClassifyCipher("test");
+			var result = await service.ClassifyCipher("test");
 
 			Assert.Empty(result.AllPredictions);
 		}
@@ -207,8 +209,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpException(new HttpRequestException("Connection refused"));
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.ClassifyCipher("test"));
+			await Assert.ThrowsAsync<Exception>(
+				() => service.ClassifyCipher("test"));
 		}
 
 		[Fact]
@@ -216,8 +218,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpException(new TaskCanceledException("Timeout"));
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.ClassifyCipher("test"));
+			await Assert.ThrowsAsync<Exception>(
+				() => service.ClassifyCipher("test"));
 		}
 
 		#endregion
@@ -229,7 +231,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpResponse(HttpStatusCode.OK, "healthy");
 
-			var result = await _service.IsServiceHealthyAsync();
+			var result = await service.IsServiceHealthyAsync();
 
 			Assert.True(result);
 		}
@@ -239,7 +241,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpResponse(HttpStatusCode.InternalServerError, "unhealthy");
 
-			var result = await _service.IsServiceHealthyAsync();
+			var result = await service.IsServiceHealthyAsync();
 
 			Assert.False(result);
 		}
@@ -249,7 +251,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpException(new HttpRequestException("Connection failed"));
 
-			var result = await _service.IsServiceHealthyAsync();
+			var result = await service.IsServiceHealthyAsync();
 
 			Assert.False(result);
 		}

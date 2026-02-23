@@ -1,4 +1,5 @@
-﻿using Cryptomind.Core.Contracts;
+﻿using Cryptomind.Common.Exceptions;
+using Cryptomind.Core.Contracts;
 using Cryptomind.Core.Services;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
@@ -15,23 +16,23 @@ namespace Cryptomind.Tests.Unit.Services
 {
 	public class HintServiceTests
 	{
-		private readonly Mock<IRepository<Cipher, int>> _cipherRepoMock = new();
-		private readonly Mock<IRepository<HintRequest, int>> _hintRequestRepoMock = new();
-		private readonly Mock<ILLMService> _llmServiceMock = new();
-		private readonly HintService _service;
+		private readonly Mock<IRepository<Cipher, int>> cipherRepoMock = new();
+		private readonly Mock<IRepository<HintRequest, int>> hintRequestRepoMock = new();
+		private readonly Mock<ILLMService> llmServiceMock = new();
+		private readonly HintService service;
 
 		public HintServiceTests()
 		{
-			_service = new HintService(
-				_cipherRepoMock.Object,
-				_hintRequestRepoMock.Object,
-				_llmServiceMock.Object);
+			service = new HintService(
+				cipherRepoMock.Object,
+				hintRequestRepoMock.Object,
+				llmServiceMock.Object);
 
-			_hintRequestRepoMock.Setup(r => r.AddAsync(It.IsAny<HintRequest>()))
+			hintRequestRepoMock.Setup(r => r.AddAsync(It.IsAny<HintRequest>()))
 				.Returns(Task.CompletedTask);
-			_cipherRepoMock.Setup(r => r.UpdateAsync(It.IsAny<Cipher>()))
+			cipherRepoMock.Setup(r => r.UpdateAsync(It.IsAny<Cipher>()))
 				.ReturnsAsync(true);
-			_llmServiceMock.Setup(s => s.GetHint(It.IsAny<Cipher>(), It.IsAny<HintType>()))
+			llmServiceMock.Setup(s => s.GetHint(It.IsAny<Cipher>(), It.IsAny<HintType>()))
 				.ReturnsAsync("Generated hint from LLM");
 		}
 
@@ -57,7 +58,7 @@ namespace Cryptomind.Tests.Unit.Services
 		private void SetupAttachedCiphers(params Cipher[] ciphers)
 		{
 			var mock = new List<Cipher>(ciphers).AsQueryable().BuildMock();
-			_cipherRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
+			cipherRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
 		}
 
 		#region RequestHintAsync - Guard Clauses
@@ -67,8 +68,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedCiphers();
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.RequestHintAsync("u1", 99, HintType.Type));
+			await Assert.ThrowsAsync<NotFoundException>(
+				() => service.RequestHintAsync("u1", 99, HintType.Type));
 		}
 
 		[Fact]
@@ -78,8 +79,8 @@ namespace Cryptomind.Tests.Unit.Services
 			cipher.Status = ApprovalStatus.Pending;
 			SetupAttachedCiphers(cipher);
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.RequestHintAsync("u1", 1, HintType.Type));
+			await Assert.ThrowsAsync<NotFoundException>(
+				() => service.RequestHintAsync("u1", 1, HintType.Type));
 		}
 
 		[Fact]
@@ -87,8 +88,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedCiphers(MakeCipher(1, createdByUserId: "u1"));
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.RequestHintAsync("u1", 1, HintType.Type));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.RequestHintAsync("u1", 1, HintType.Type));
 		}
 
 		[Fact]
@@ -100,8 +101,8 @@ namespace Cryptomind.Tests.Unit.Services
 			});
 			SetupAttachedCiphers(cipher);
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.RequestHintAsync("u1", 1, HintType.Type));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.RequestHintAsync("u1", 1, HintType.Type));
 		}
 
 		[Fact]
@@ -113,7 +114,7 @@ namespace Cryptomind.Tests.Unit.Services
 			});
 			SetupAttachedCiphers(cipher);
 
-			var result = await _service.RequestHintAsync("u1", 1, HintType.Type);
+			var result = await service.RequestHintAsync("u1", 1, HintType.Type);
 
 			Assert.NotNull(result);
 		}
@@ -123,8 +124,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedCiphers(MakeCipher(1, allowTypeHint: false));
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.RequestHintAsync("u1", 1, HintType.Type));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.RequestHintAsync("u1", 1, HintType.Type));
 		}
 
 		[Fact]
@@ -132,8 +133,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedCiphers(MakeCipher(1, allowHint: false));
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.RequestHintAsync("u1", 1, HintType.Hint));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.RequestHintAsync("u1", 1, HintType.Hint));
 		}
 
 		[Fact]
@@ -141,8 +142,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedCiphers(MakeCipher(1, allowSolution: false));
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.RequestHintAsync("u1", 1, HintType.FullSolution));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.RequestHintAsync("u1", 1, HintType.FullSolution));
 		}
 
 		#endregion
@@ -162,10 +163,10 @@ namespace Cryptomind.Tests.Unit.Services
 			var cipher = MakeCipher(1, hintsRequested: new List<HintRequest> { existingHint });
 			SetupAttachedCiphers(cipher);
 
-			var result = await _service.RequestHintAsync("u1", 1, HintType.Type);
+			var result = await service.RequestHintAsync("u1", 1, HintType.Type);
 
 			Assert.Equal("Previously requested hint", result);
-			_llmServiceMock.Verify(s => s.GetHint(It.IsAny<Cipher>(), It.IsAny<HintType>()), Times.Never);
+			llmServiceMock.Verify(s => s.GetHint(It.IsAny<Cipher>(), It.IsAny<HintType>()), Times.Never);
 		}
 
 		[Fact]
@@ -181,7 +182,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var cipher = MakeCipher(1, hintsRequested: new List<HintRequest> { otherUserHint });
 			SetupAttachedCiphers(cipher);
 
-			var result = await _service.RequestHintAsync("u1", 1, HintType.Type);
+			var result = await service.RequestHintAsync("u1", 1, HintType.Type);
 
 			Assert.NotEqual("Other user's hint", result);
 		}
@@ -199,7 +200,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var cipher = MakeCipher(1, hintsRequested: new List<HintRequest> { differentTypeHint });
 			SetupAttachedCiphers(cipher);
 
-			var result = await _service.RequestHintAsync("u1", 1, HintType.Type);
+			var result = await service.RequestHintAsync("u1", 1, HintType.Type);
 
 			Assert.NotEqual("Solution hint content", result);
 		}
@@ -215,10 +216,10 @@ namespace Cryptomind.Tests.Unit.Services
 			cipher.LLMData.CachedTypeHint = "Cached type hint";
 			SetupAttachedCiphers(cipher);
 
-			var result = await _service.RequestHintAsync("u1", 1, HintType.Type);
+			var result = await service.RequestHintAsync("u1", 1, HintType.Type);
 
 			Assert.Equal("Cached type hint", result);
-			_llmServiceMock.Verify(s => s.GetHint(It.IsAny<Cipher>(), It.IsAny<HintType>()), Times.Never);
+			llmServiceMock.Verify(s => s.GetHint(It.IsAny<Cipher>(), It.IsAny<HintType>()), Times.Never);
 		}
 
 		[Fact]
@@ -228,10 +229,10 @@ namespace Cryptomind.Tests.Unit.Services
 			cipher.LLMData.CachedHint = "Cached solution hint";
 			SetupAttachedCiphers(cipher);
 
-			var result = await _service.RequestHintAsync("u1", 1, HintType.Hint);
+			var result = await service.RequestHintAsync("u1", 1, HintType.Hint);
 
 			Assert.Equal("Cached solution hint", result);
-			_llmServiceMock.Verify(s => s.GetHint(It.IsAny<Cipher>(), It.IsAny<HintType>()), Times.Never);
+			llmServiceMock.Verify(s => s.GetHint(It.IsAny<Cipher>(), It.IsAny<HintType>()), Times.Never);
 		}
 
 		[Fact]
@@ -241,10 +242,10 @@ namespace Cryptomind.Tests.Unit.Services
 			cipher.LLMData.CachedSolution = "Cached full solution";
 			SetupAttachedCiphers(cipher);
 
-			var result = await _service.RequestHintAsync("u1", 1, HintType.FullSolution);
+			var result = await service.RequestHintAsync("u1", 1, HintType.FullSolution);
 
 			Assert.Equal("Cached full solution", result);
-			_llmServiceMock.Verify(s => s.GetHint(It.IsAny<Cipher>(), It.IsAny<HintType>()), Times.Never);
+			llmServiceMock.Verify(s => s.GetHint(It.IsAny<Cipher>(), It.IsAny<HintType>()), Times.Never);
 		}
 
 		#endregion
@@ -255,13 +256,13 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task RequestHintAsync_CallsLLM_WhenNoExistingOrCachedHint()
 		{
 			SetupAttachedCiphers(MakeCipher(1));
-			_llmServiceMock.Setup(s => s.GetHint(It.IsAny<Cipher>(), HintType.Type))
+			llmServiceMock.Setup(s => s.GetHint(It.IsAny<Cipher>(), HintType.Type))
 				.ReturnsAsync("Fresh LLM hint");
 
-			var result = await _service.RequestHintAsync("u1", 1, HintType.Type);
+			var result = await service.RequestHintAsync("u1", 1, HintType.Type);
 
 			Assert.Equal("Fresh LLM hint", result);
-			_llmServiceMock.Verify(s => s.GetHint(It.IsAny<Cipher>(), HintType.Type), Times.Once);
+			llmServiceMock.Verify(s => s.GetHint(It.IsAny<Cipher>(), HintType.Type), Times.Once);
 		}
 
 		[Fact]
@@ -269,11 +270,11 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedCiphers(MakeCipher(1));
 			HintRequest captured = null;
-			_hintRequestRepoMock.Setup(r => r.AddAsync(It.IsAny<HintRequest>()))
+			hintRequestRepoMock.Setup(r => r.AddAsync(It.IsAny<HintRequest>()))
 				.Callback<HintRequest>(h => captured = h)
 				.Returns(Task.CompletedTask);
 
-			await _service.RequestHintAsync("u1", 1, HintType.Type);
+			await service.RequestHintAsync("u1", 1, HintType.Type);
 
 			Assert.NotNull(captured);
 			Assert.Equal("u1", captured.UserId);
@@ -287,10 +288,10 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var cipher = MakeCipher(1);
 			SetupAttachedCiphers(cipher);
-			_llmServiceMock.Setup(s => s.GetHint(cipher, HintType.Type))
+			llmServiceMock.Setup(s => s.GetHint(cipher, HintType.Type))
 				.ReturnsAsync("New type hint");
 
-			await _service.RequestHintAsync("u1", 1, HintType.Type);
+			await service.RequestHintAsync("u1", 1, HintType.Type);
 
 			Assert.Equal("New type hint", cipher.LLMData.CachedTypeHint);
 		}
@@ -300,10 +301,10 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var cipher = MakeCipher(1);
 			SetupAttachedCiphers(cipher);
-			_llmServiceMock.Setup(s => s.GetHint(cipher, HintType.Hint))
+			llmServiceMock.Setup(s => s.GetHint(cipher, HintType.Hint))
 				.ReturnsAsync("New solution hint");
 
-			await _service.RequestHintAsync("u1", 1, HintType.Hint);
+			await service.RequestHintAsync("u1", 1, HintType.Hint);
 
 			Assert.Equal("New solution hint", cipher.LLMData.CachedHint);
 		}
@@ -313,10 +314,10 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var cipher = MakeCipher(1);
 			SetupAttachedCiphers(cipher);
-			_llmServiceMock.Setup(s => s.GetHint(cipher, HintType.FullSolution))
+			llmServiceMock.Setup(s => s.GetHint(cipher, HintType.FullSolution))
 				.ReturnsAsync("New full solution");
 
-			await _service.RequestHintAsync("u1", 1, HintType.FullSolution);
+			await service.RequestHintAsync("u1", 1, HintType.FullSolution);
 
 			Assert.Equal("New full solution", cipher.LLMData.CachedSolution);
 		}
@@ -327,9 +328,9 @@ namespace Cryptomind.Tests.Unit.Services
 			var cipher = MakeCipher(1);
 			SetupAttachedCiphers(cipher);
 
-			await _service.RequestHintAsync("u1", 1, HintType.Type);
+			await service.RequestHintAsync("u1", 1, HintType.Type);
 
-			_cipherRepoMock.Verify(r => r.UpdateAsync(cipher), Times.Once);
+			cipherRepoMock.Verify(r => r.UpdateAsync(cipher), Times.Once);
 		}
 
 		#endregion
