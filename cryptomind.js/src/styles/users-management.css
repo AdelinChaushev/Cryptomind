@@ -1,0 +1,51 @@
+/* ============================================================
+   users-management.css
+   CryptoMind — Users Management Page
+============================================================ */
+@import './admin-base.css';
+
+/* ─── FILTER TABS ─── */
+.filter-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    padding: 3px;
+}
+
+.filter-tab {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    padding: 5px 12px;
+    border-radius: 4px;
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.filter-tab.active {
+    background: var(--yellow-dim);
+    color: var(--yellow-500);
+}
+
+.filter-tab:hover:not(.active) {
+    color: var(--text-secondary);
+}
+
+/* ─── USERNAME COLUMN ─── */
+.user-name {
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+/* ─── EMAIL COLUMN ─── */
+.user-email {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+}

@@ -1,0 +1,30 @@
+/* ============================================================
+   deleted-ciphers.css
+   CryptoMind — Deleted Ciphers Page
+============================================================ */
+@import './admin-base.css';
+
+.cipher-title-cell {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+/* Image tag indicator */
+.image-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--sky-400);
+    background: var(--sky-dim);
+    border: 1px solid rgba(56, 189, 248, 0.20);
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.action-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
