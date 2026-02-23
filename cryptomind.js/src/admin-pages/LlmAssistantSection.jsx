@@ -17,7 +17,7 @@ const LlmAssistantSection = ({
     return (
         <div className="admin-card">
             <div className="admin-card-header">
-                <span className="admin-card-title">LLM Assistant</span>
+                <span className="admin-card-title">LLM Асистент</span>
                 {result && <span className="badge badge-approved">Analysis Complete</span>}
             </div>
 
