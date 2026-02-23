@@ -30,6 +30,7 @@ const AdminDashboard = ({recentActivity = [] }) => {
         deletedCiphersCount: 0,
         pendingCipherTitles: []
     });
+   
     useEffect(() => {
         axios.get('http://localhost:5115/api/admin/dashboard')
         .then(res => {
