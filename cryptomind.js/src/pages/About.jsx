@@ -83,9 +83,7 @@ function CipherCard({ family, types, accuracy, icon, partial }) {
         >
             <div className="about-cipher-card__top">
                 <span className="about-cipher-card__icon">{icon}</span>
-                <span className={`about-cipher-card__badge${partial ? " about-cipher-card__badge--partial" : ""}`}>
-                    {accuracy}
-                </span>
+               
             </div>
             <h3 className="about-cipher-card__family">{family}</h3>
             <div className="about-cipher-card__types">
@@ -243,10 +241,10 @@ function Stats() {
 // ─── Cipher Families ──────────────────────────────────────────────────────────
 function CipherFamilies() {
     const families = [
-        { family: "ЗАМЕСТВАНЕ",   types: ["Цезар", "ROT13", "Atbash", "Просто заместване"], accuracy: "100%", icon: "⟳", partial: false },
-        { family: "ПОЛИАЗБУЧНИ",  types: ["Виженер", "Autokey", "Трифемий"],                accuracy: "100%", icon: "◈", partial: false },
-        { family: "ТРАНСПОЗИЦИЯ", types: ["Rail Fence", "Колонна", "Маршрутна"],            accuracy: "67%",  icon: "⊞", partial: true  },
-        { family: "КОДИРАНЕ",     types: ["Base64", "Morse", "Binary", "Hex"],              accuracy: "100%", icon: "⌬", partial: false },
+        { family: "ЗАМЕСТВАНЕ",   types: ["Цезар", "ROT13", "Atbash", "Просто заместване"], icon: "⟳", partial: false },
+        { family: "ПОЛИАЗБУЧНИ",  types: ["Виженер", "Autokey", "Трифемий"],                icon: "◈", partial: false },
+        { family: "ТРАНСПОЗИЦИЯ", types: ["Rail Fence", "Колонна", "Маршрутна"],            icon: "⊞", partial: true  },
+        { family: "КОДИРАНЕ",     types: ["Base64", "Morse", "Binary", "Hex"],              icon: "⌬", partial: false },
     ];
 
     return (
@@ -367,7 +365,7 @@ function CTA() {
                 <p className="about-cta__sub">Историята на тайните съобщения чака да бъде открита.</p>
                 <div className="about-cta__buttons">
                     {!state.isLoggedIn ? <Link to="/register" className="about-cta__btn-primary">Регистрирай се</Link>
-                   : <Link to="/ciphers"  className="about-cta__btn-secondary">Разгледай шифрите</Link>}
+                   : <Link to="/"  className="about-cta__btn-secondary">Разгледай шифрите</Link>}
                 </div>
             </div>
         </section>
@@ -380,7 +378,7 @@ export default function AboutPage() {
         <div className="about-page">
             <Hero />
             <Mission />
-            <Stats />
+            {/* <Stats /> */}
             <CipherFamilies />
             <HowItWorks />
             <Limitations />
