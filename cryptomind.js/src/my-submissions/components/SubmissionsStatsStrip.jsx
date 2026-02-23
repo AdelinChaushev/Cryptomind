@@ -6,7 +6,7 @@ import React from 'react';
    pending           : number
    rejected          : number
 */
-const SubmissionsStatsStrip = ({ totalSubmissions = 0, approved = 0, pending = 0, rejected = 0 }) => {
+const SubmissionsStatsStrip = ({ totalSubmissions = 0, approved = 0, pending = 0, rejected = 0 , deleted = 0 }) => {
     return (
         <div className="stats-strip">
             <div className="stat-chip">
@@ -31,6 +31,11 @@ const SubmissionsStatsStrip = ({ totalSubmissions = 0, approved = 0, pending = 0
                 <span className="stat-chip-label">Rejected</span>
                 <div className="stat-divider" />
                 <span className="stat-chip-value rose">{rejected}</span>
+            </div>
+             <div className="stat-chip">
+                <span className="stat-chip-label">Deleted</span>
+                <div className="stat-divider" />
+                <span className="stat-chip-value grey">{deleted}</span>
             </div>
         </div>
     );

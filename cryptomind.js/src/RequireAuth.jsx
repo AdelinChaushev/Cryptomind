@@ -20,7 +20,6 @@ export default function RequireAuth({ allowedRoles = [], mustNotBeLogged = false
   if (allowedRoles.length === 0) {
     return children;
   }
-  
   const hasAccess = roles.some(role => allowedRoles.includes(role));
   return hasAccess ? children : <h1>403 - Unauthorized</h1>;
 }

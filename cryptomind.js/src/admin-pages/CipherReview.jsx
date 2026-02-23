@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, use, } from 'react';
+import React, { useState, useEffect, useCallback, } from 'react';
 import axios from 'axios';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
@@ -10,6 +10,7 @@ const API_BASE = 'http://localhost:5115/api/admin';
 import { useParams } from "react-router-dom";
 // Configure axios globally
 import "../styles/cipher-review.css";
+import { useNavigate } from 'react-router-dom';
 axios.defaults.withCredentials = true;
 
 
@@ -23,14 +24,30 @@ const AVAILABLE_TAGS = [
     { id: 6, label: 'Beginner Friendly' },
     { id: 7, label: 'Tricky' }
 ];
-
+const CIPHER_TYPES = [
+    { value: '0',  label: 'Caesar',              group: 'Substitution' },
+    { value: '1',  label: 'Atbash',              group: 'Substitution' },
+    { value: '2',  label: 'Simple Substitution', group: 'Substitution' },
+    { value: '3',  label: 'ROT13',               group: 'Substitution' },
+    { value: '4',  label: 'Vigenere',            group: 'Polyalphabetic' },
+    { value: '5',  label: 'Autokey',             group: 'Polyalphabetic' },
+    { value: '6',  label: 'Trithemius',          group: 'Polyalphabetic' },
+    { value: '7',  label: 'Rail Fence',          group: 'Transposition' },
+    { value: '8',  label: 'Columnar',            group: 'Transposition' },
+    { value: '9',  label: 'Route',               group: 'Transposition' },
+    { value: '10', label: 'Base64',              group: 'Encoding' },
+    { value: '11', label: 'Morse',               group: 'Encoding' },
+    { value: '12', label: 'Binary',              group: 'Encoding' },
+    { value: '13', label: 'Hex',                 group: 'Encoding' },
+];
+const GROUPS = ['Substitution', 'Polyalphabetic', 'Transposition', 'Encoding'];
 
 
 const CipherReview = () => {
     const [cipher, setCipher] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    
+    const navigate = useNavigate();
     // LLM state
     const [llmResult, setLlmResult] = useState(null);
     const [isLlmLoading, setIsLlmLoading] = useState(false);
@@ -40,6 +57,7 @@ const CipherReview = () => {
     const [selectedTags, setSelectedTags] = useState([]);
     const [allowHint, setAllowHint] = useState(true);
     const [allowSolution, setAllowSolution] = useState(false);
+    const [cipherType, setCipherType] = useState(0);
     const [showRejectForm, setShowRejectForm] = useState(false);
     const [rejectReason, setRejectReason] = useState('');
 
@@ -52,9 +70,7 @@ const CipherReview = () => {
                 setError('Invalid cipher ID');
                 setLoading(false);
                 return;
-            }
-
-            
+            }          
                 axios.get(`${API_BASE}/cipher/${cipherId}`)
                 .then(res => {
                     setCipher(res.data);
@@ -109,24 +125,32 @@ const CipherReview = () => {
     }, []);
 
     // Approve
-    const handleApprove = useCallback(async (type) => {
-        if (!window.confirm(`Approve this cipher as ${type}?`)) return;
+    const handleApprove = async () => {
+    // 1. Determine type logic
+    const isExperimental = !cipher.decryptedText;
+    const typeLabel = isExperimental ? 'Experimental' : 'Standard';
 
-        try {
-            await axios.put(`${API_BASE}/cipher/${cipherId}/approve`, {
-                title: title,
-                allowTypeHint: cipher.allowType,
-                allowHint: allowHint,
-                allowSolution: allowSolution,
-                typeOfCipher: type === 'Experimental' ? 1 : 0,
-                tagIds: selectedTags
-            });
-            alert(`Cipher approved as ${type}!`);
-            window.location.href = '/admin/pending-ciphers';
-        } catch (err) {
-            alert(`Approval failed: ${err.response?.data?.message || err.message}`);
-        }
-    }, [cipherId, title, cipher, allowHint, allowSolution, selectedTags]);
+    try {
+        await axios.put(`${API_BASE}/cipher/${cipherId}/approve`, {
+            title: title,
+            allowTypeHint: cipher.allowType,
+            allowHint: allowHint,
+            allowSolution: allowSolution,
+            typeOfCipher: isExperimental ? 1 : 0,
+            tagIds: selectedTags
+        });
+
+        // 2. Use a better UX than alert if possible, but at least fix navigation
+        console.log(`Cipher approved as ${typeLabel}!`);
+        
+        // 3. SPA Navigation (No full page reload)
+        navigate('/admin/pending-ciphers'); 
+
+    } catch (err) {
+        const errorMsg = err.response?.data?.message || err.message;
+        alert(`Approval failed: ${errorMsg}`);
+    }
+}
 
     // Reject
     const handleReject = useCallback(async () => {
@@ -325,7 +349,7 @@ const CipherReview = () => {
                         {/* ─── Right: Admin Actions ─── */}
                         <div className="actions-column">
                             
-                            {/* Edit Details */}
+                            
                             <div className="admin-card">
                                 <div className="admin-card-header">
                                     <span className="admin-card-title">Cipher Details</span>
@@ -343,7 +367,9 @@ const CipherReview = () => {
                             </div>
 
                             {/* Permissions */}
-                            <div className="admin-card">
+                            
+                            {cipher.decryptedText && ( 
+                                <div className="admin-card">
                                 <div className="admin-card-header">
                                     <span className="admin-card-title">AI Assistance Permissions</span>
                                 </div>
@@ -355,9 +381,16 @@ const CipherReview = () => {
                                             checked={allowHint}
                                             onChange={(e) => setAllowHint(e.target.checked)}
                                         />
-                                        <span>Allow Hints</span>
+                                        <span>Allow Type Hints</span>
                                     </label>
-
+                                    <label className="permission-toggle">
+                                        <input
+                                            type="checkbox"
+                                            checked={allowSolution}
+                                            onChange={(e) => setAllowSolution(e.target.checked)}
+                                        />
+                                        <span>Allow Solution Hints</span>
+                                    </label>
                                     <label className="permission-toggle">
                                         <input
                                             type="checkbox"
@@ -367,10 +400,11 @@ const CipherReview = () => {
                                         <span>Allow Full Solution</span>
                                     </label>
                                 </div>
-                            </div>
+                            </div>)}
+                           
 
                             {/* Tags */}
-                            <div className="admin-card">
+                           {  <div className="admin-card">
                                 <div className="admin-card-header">
                                     <span className="admin-card-title">Tags</span>
                                 </div>
@@ -386,7 +420,7 @@ const CipherReview = () => {
                                         </button>
                                     ))}
                                 </div>
-                            </div>
+                            </div>}
 
                             {/* Challenge Type */}
                             <div className="admin-card">
@@ -394,20 +428,46 @@ const CipherReview = () => {
                                     <span className="admin-card-title">Challenge Type</span>
                                 </div>
 
+                                <div>
+                               <select
+                    className="field-select"
+                    value={cipherType}
+                    onChange={e => setCipherType( e.target.value)}
+                >
+                    <option value="">Unknown — let the ML decide</option>
+                    {GROUPS.map(group => (
+                        <optgroup key={group} label={group}>
+                            {CIPHER_TYPES
+                                .filter(t => t.group === group)
+                                .map(t => (
+                                    <option key={t.value} value={t.value}>{t.label}</option>
+                                ))
+                            }
+                        </optgroup>
+                    ))}
+                </select>
+                                </div>
+                            </div>
+                             <div className="admin-card">
+                                <div className="admin-card-header">
+                                    <span className="admin-card-title">Challenge Type</span>
+                                </div>
+
                                 <div className="type-toggle">
+                                {cipher.decryptedText ? (
                                     <button className="type-toggle-btn active-standard">
                                         <span className="type-toggle-dot dot-sky" />
                                         Standard
                                         <span className="type-toggle-note">HAS SOLUTION</span>
                                     </button>
+                                ) : (
                                     <button className="type-toggle-btn">
                                         <span className="type-toggle-dot dot-violet" />
                                         Experimental
                                         <span className="type-toggle-note">NO SOLUTION YET</span>
-                                    </button>
+                                    </button> )}
                                 </div>
                             </div>
-
                             {/* Actions */}
                             <div className="admin-card">
                                 <div className="admin-card-header">
@@ -416,26 +476,14 @@ const CipherReview = () => {
 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                     <button
-                                        onClick={() => handleApprove('Standard')}
+                                        onClick={handleApprove}
                                         className="btn btn-success"
-                                        style={{ justifyContent: 'center' }}
-                                    >
+                                        style={{ justifyContent: 'center' }}>
                                         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
                                             <path d="M2 8l4 4 8-8"/>
                                         </svg>
-                                        Approve as Standard
-                                    </button>
-
-                                    <button
-                                        onClick={() => handleApprove('Experimental')}
-                                        className="btn btn-sky"
-                                        style={{ justifyContent: 'center' }}
-                                    >
-                                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                            <circle cx="8" cy="8" r="6.5"/><path d="M8 5v3l2 2"/>
-                                        </svg>
-                                        Approve as Experimental
-                                    </button>
+                                        Approve
+                                    </button>                               
 
                                     <div className="reject-section">
                                         <button
