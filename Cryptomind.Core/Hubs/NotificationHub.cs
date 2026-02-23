@@ -1,14 +1,15 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
+using System.Security.Claims;
 
 namespace Cryptomind.Core.Hubs
 {
-	[Authorize]
+	[Authorize(AuthenticationSchemes ="Bearer")]
 	public class NotificationHub : Hub
 	{
 		public override async Task OnConnectedAsync()
 		{
-			var userId = Context.User?.FindFirst("userId")?.Value;
+			var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
 
 			if (!string.IsNullOrEmpty(userId))
 			{
@@ -20,7 +21,7 @@ namespace Cryptomind.Core.Hubs
 
 		public override async Task OnDisconnectedAsync(Exception exception)
 		{
-			var userId = Context.User?.FindFirst("userId")?.Value;
+			var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
 
 			if (!string.IsNullOrEmpty(userId))
 			{
