@@ -2,66 +2,88 @@ import React from 'react';
 
 /* Props:
    title           : string
-   status          : 'approved' | 'pending' | 'rejected'
-   submittedAt     : string   (e.g. "Dec 15, 2024")
-   cipherType      : string   (e.g. "Caesar", "Vigenere") — optional
-   definition      : string   (e.g. "Standard", "Experimental") — optional
+   status          : 'approved' | 'pending' | 'rejected' | 'deleted'
+   submittedAt     : string
+   deletedAt       : string | null    — only present when status === 'deleted'
+   deletionReason  : string | null    — optional, shown in notice block
+   cipherType      : string | null
+   definition      : string | null
    description     : string
-   rejectionReason : string   — only shown when status === 'rejected'
-   onViewCipher    : handler passed from parent
-   onViewDetails   : handler passed from parent
+   rejectionReason : string | null
+   onViewCipher    : () => void       — only called when status === 'approved'
+   onViewDetails   : () => void       — called for pending / rejected
 */
 const SubmissionCard = ({
     title,
     status,
     submittedAt,
+    deletedAt,
+    deletionReason,
     cipherType,
     definition,
     description,
     rejectionReason,
     onViewCipher,
-    
+    onViewDetails,
 }) => {
-    status = status == "CipherDeleted" ? "Rejected" : status;
-    console.log(status) // Treat deleted ciphers as rejected for display purposes
-    const statusClass = `status-${status.toLowerCase()}`;
+    const statusClass =
+        status === 'approved' ? 'badge-approved' :
+        status === 'pending'  ? 'badge-pending'  :
+        status === 'rejected' ? 'badge-rejected' :
+        'badge-deleted';
+
     const statusLabel =
-        status === 'Approved' ? 'Approved' :
-        status === 'Pending'  ? 'Pending Review' :
-        'Rejected';
+        status === 'approved' ? 'Approved'       :
+        status === 'pending'  ? 'Pending Review' :
+        status === 'rejected' ? 'Rejected'       :
+        'Deleted';
 
     const descriptionBorderClass =
-        status === 'Approved' ? 'border-emerald' :
-        status === 'Rejected' ? 'border-rose' :
+        status === 'approved' ? 'border-emerald' :
+        status === 'rejected' ? 'border-rose'    :
+        status === 'cipherdeleted'  ? 'border-deleted' :
         'border-yellow';
 
+    const isDeleted = status === 'deleted';
+
     return (
-        <div className="submission-card">
+        <div className={`submission-card ${isDeleted ? 'submission-card--deleted' : ''}`}>
+
             {/* Header */}
             <div className="card-header">
-                <span className="card-title">{title}</span>
-                <span className={`status-badge ${statusClass}`}>{statusLabel}</span>
+                <div className="card-title-group">
+                    <span className={`card-title ${isDeleted ? 'card-title--deleted' : ''}`}>
+                        {title}
+                    </span>
+                    {cipherType && (
+                        <span className="card-type-tag">{cipherType}</span>
+                    )}
+                </div>
+                <span className={`status-badge ${statusClass}`}>
+                    <span className="status-dot" />
+                    {statusLabel}
+                </span>
             </div>
 
             {/* Meta */}
             <div className="card-meta">
-                <span className="meta-item">📅 {submittedAt}</span>
+                <span className="meta-item">Submitted: {submittedAt}</span>
 
-                {cipherType && (
+                {isDeleted && deletedAt && (
                     <>
                         <span className="meta-dot" />
-                        <span className="meta-tag">{cipherType}</span>
+                        <span className="meta-item">Deleted: {deletedAt}</span>
                     </>
                 )}
 
-                {definition && (
+                {definition && !isDeleted && (
                     <>
                         <span className="meta-dot" />
                         <span className="meta-item">{definition}</span>
                     </>
                 )}
 
-                {status === 'Pending' && (
+                {status === 'pending' && (
                     <>
                         <span className="meta-dot" />
                         <span className="meta-item">Under Review</span>
@@ -75,30 +97,46 @@ const SubmissionCard = ({
             </p>
 
             {/* Rejection notice */}
-            {status === 'Rejected' && (
+            {status === 'rejected' && rejectionReason && (
                 <div className="rejection-notice">
                     <span className="rejection-icon">⚠</span>
                     <p className="rejection-text">
-                        <strong>Rejection reason: </strong>{rejectionReason ? rejectionReason : "Not specified by admin."}
+                        <strong>Rejection reason: </strong>{rejectionReason}
                     </p>
                 </div>
             )}
 
-            {/* Footer */}
-            <div className="card-footer">
-                <div className="card-footer-left">
-                    {status === 'Approved' && (
-                        <button className="btn-card-action" onClick={onViewCipher}>
-                            View Cipher
-                        </button>
-                    )}
-                    {/* {(status === 'Pending' || status === 'Rejected') && (
-                        <button className="btn-card-action" onClick={onViewDetails}>
-                            View Details
-                        </button>
-                    )} */}
+            {/* Deletion notice */}
+            {isDeleted && (
+                <div className="deletion-notice">
+                    <span className="deletion-notice__label">Removed by admin</span>
+                    <p className="deletion-notice__reason">
+                        {deletionReason
+                            ? deletionReason
+                            : 'This cipher was removed from the platform by an administrator.'}
+                    </p>
                 </div>
-            </div>
+            )}
+
+            {/* Footer — no actions for deleted cards */}
+            {!isDeleted && (
+                <div className="card-footer">
+                    <div className="card-footer-left" />
+                    <div className="card-footer-right">
+                        {status === 'approved' && (
+                            <button className="btn-card-action" onClick={onViewCipher}>
+                                View Cipher
+                            </button>
+                        )}
+                        {(status === 'pending' || status === 'rejected') && (
+                            <button className="btn-card-action" onClick={onViewDetails}>
+                                View Details
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 };

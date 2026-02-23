@@ -21,7 +21,7 @@ function ActivityLog({ solvers ,timeAgo }) {
                     solvers.map((solver, i) => (
                         <div className="activity-item" key={i}>
                             <div className="activity-avatar">
-                                {solver.username?.charAt(0) ?? "?"}
+                                {solver.userName?.charAt(0) ?? "?"}
                             </div>
                             <div className="activity-info">
                                 <p className="activity-username">{solver.userName}</p>
