@@ -14,7 +14,7 @@ const Footer = () => {
                     <ul className="footer-links">
                         <li><a href="/browse">Browse Ciphers</a></li>
                         <li><a href="/leaderboard">Leaderboard</a></li>
-                        <li><a href="/tools">Tools</a></li>
+                        <li><a href="/cipher-tool">Cipher Tool</a></li>
                         <li><a href="/submit">Submit Cipher</a></li>
                     </ul>
                 </div>
@@ -22,12 +22,11 @@ const Footer = () => {
                     <h4>Learn</h4>
                     <ul className="footer-links">
                         <li><a href="/about">About</a></li>
-                        <li><a href="/how-it-works">How It Works</a></li>
                     </ul>
                 </div>               
             </div>
             <div className="footer-bottom">
-                &copy; 2025 CryptoMind. Educational use only.
+                &copy; 2026 Cryptomind. Educational use only.
             </div>
         </footer>
     );

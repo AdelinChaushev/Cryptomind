@@ -432,7 +432,7 @@ const CipherReview = () => {
                             {/* Challenge Type */}
                             <div className="admin-card">
                                 <div className="admin-card-header">
-                                    <span className="admin-card-title">Challenge Type</span>
+                                    <span className="admin-card-title">Cipher Type</span>
                                 </div>
 
                                 <div>
