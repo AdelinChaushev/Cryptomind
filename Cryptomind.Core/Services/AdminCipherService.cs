@@ -301,7 +301,7 @@ namespace Cryptomind.Core.Services
 				userId, 
 				NotificationType.CipherApproved, 
 				$"Your cipher was successfully approved {cipher.Title}", 
-				$"api/ciphers/cipher/{cipher.Id}");
+				$"cipher/{cipher.Id}");
 			return cipher.CreatedByUserId;
 		}
 		public async Task RejectCipherAsync(int id, string reason)
@@ -388,7 +388,7 @@ namespace Cryptomind.Core.Services
 						answer.UserId, 
 						NotificationType.AnswerCipherDeleted,
 						$"A cipher you submitted an answer for ('{cipher.Title}') has been removed by an admin.",
-						"api/submissions");
+                        "my_submissions");
 				}
 			}
 
@@ -399,7 +399,7 @@ namespace Cryptomind.Core.Services
 				cipher.CreatedByUserId, 
 				NotificationType.CipherDeleted,
 				$"Your cipher '{cipher.Title}' has been removed by an admin.",
-				"api/submissions");
+                "my_submissions");
 			await cipherRepo.UpdateAsync(cipher);
 		}
 		public async Task RestoreCipher (int id, string? newTitle = null)
@@ -441,7 +441,7 @@ namespace Cryptomind.Core.Services
 						answer.UserId, 
 						NotificationType.AnswerCipherRestored,
 						$"A cipher you submitted an answer for ('{answer.Cipher.Title}') has been restored and is now active again.", 
-						$"api/ciphers/cipher/{cipher.Id}");
+						$"cipher/{cipher.Id}");
 				}
 			}
 
@@ -451,7 +451,7 @@ namespace Cryptomind.Core.Services
 				cipher.CreatedByUserId, 
 				NotificationType.CipherRestored,
 				$"Your cipher '{cipher.Title}' has been restored and is now active again.",
-				$"api/ciphers/cipher/{cipher.Id}");
+				$"cipher/{cipher.Id}");
 			await cipherRepo.UpdateAsync(cipher);
 		}
 
