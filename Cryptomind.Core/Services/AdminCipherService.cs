@@ -365,7 +365,7 @@ namespace Cryptomind.Core.Services
 				cipher.CreatedByUserId,
 				NotificationType.CipherUpdated,
 				$"Your cipher was updated {cipher.Title}",
-				$"api/ciphers/cipher/{cipher.Id}");
+				$"cipher/{cipher.Id}");
 		}
 		public async Task SoftDeleteCipher(int id)
 		{
