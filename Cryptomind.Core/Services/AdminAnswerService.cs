@@ -199,7 +199,7 @@ namespace Cryptomind.Core.Services
 					currentUser.Id, 
 					NotificationType.AnswerApproved,
 					$"Your answer suggestion was approved +{cipher.Points} points", 
-					$"api/ciphers/cipher/{cipher.Id}");
+					$"cipher/{cipher.Id}");
 			}
 
 			foreach(var wrongAnswer in wrongAnswerSuggestions)
@@ -219,7 +219,7 @@ namespace Cryptomind.Core.Services
 				user.Id, 
 				NotificationType.AnswerApproved, 
 				$"Your answer was approved +{pointsGranted} points", 
-				$"api/ciphers/cipher/{cipher.Id}");
+				$"cipher/{cipher.Id}");
 
 			return userIds;
 		}
@@ -249,7 +249,7 @@ namespace Cryptomind.Core.Services
 				answer.UserId, 
 				NotificationType.AnswerRejected, 
 				reason,
-				"api/submissions");
+                "my_submissions");
 		}
 		#endregion
 	}
