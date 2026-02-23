@@ -21,5 +21,8 @@ export default function RequireAuth({ allowedRoles = [], mustNotBeLogged = false
     return children;
   }
   const hasAccess = roles.some(role => allowedRoles.includes(role));
-  return hasAccess ? children : <h1>403 - Unauthorized</h1>;
+  if (hasAccess) {
+    return children;
+  }
+  return <Navigate to="/" replace />;
 }

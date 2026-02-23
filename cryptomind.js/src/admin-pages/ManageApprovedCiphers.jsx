@@ -16,7 +16,7 @@ const AVAILABLE_TAGS = [
     { value: 7, label: 'Tricky' },
 ];
 axios.defaults.withCredentials = true;
-
+import { useError } from '../ErrorContext.jsx';
 
 const ManageApprovedCiphers = () => {
     const [ciphers, setCiphers] = useState([]);
@@ -28,7 +28,7 @@ const ManageApprovedCiphers = () => {
     const [challengeTypeFilter, setChallengeTypeFilter] = useState(0);
     const [tagsFilter, setTagsFilter] = useState(0);
     const [deleteModal, setDeleteModal] = useState({ open: false, id: null });
-    
+    const { setError: setGlobalError } = useError();
     // Edit modal state
     const [editModal, setEditModal] = useState({ open: false, cipher: null });
     const [editTitle, setEditTitle] = useState('');
@@ -118,8 +118,7 @@ const ManageApprovedCiphers = () => {
             closeEditModal();
             fetchCiphers();
         } catch (err) {
-            console.error('Edit error:', err);
-            alert(`Failed to update: ${err.response?.data?.message || err.message}`);
+            setGlobalError(`Failed to update cipher: ${err.response?.data?.error || err.message}`);
         }
     }, [editModal.cipher, editTitle, editAllowTypeHint, editAllowHint, editAllowSolution, editSelectedTags, closeEditModal, fetchCiphers]);
 

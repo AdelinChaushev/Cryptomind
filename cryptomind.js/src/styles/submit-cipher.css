@@ -648,3 +648,12 @@ body { overflow-x: hidden; }
     .main-layout { grid-template-columns: 1fr; }
     .sidebar     { position: static; }
 }
+.submit-success {
+    color: #10b981;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 14px;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 8px;
+    background: rgba(16, 185, 129, 0.08);
+}
