@@ -40,7 +40,11 @@ function App() {
    const [state, setState] = useState({roles : [], isLoggedIn: false, isBanned : false});
    const[loading, setLoading] = useState(true);
 
-
+    useEffect(() => {
+        if (state.isLoggedIn) {
+            notifications.refetch();
+        }
+    }, [state.isLoggedIn]);
   
    useEffect(() => {
     axios.get('http://localhost:5115/api/user/get-roles').then(response => {
