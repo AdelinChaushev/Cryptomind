@@ -102,7 +102,7 @@ function CipherSolvePage() {
         }
         else if (cipher.challengeTypeDisplay === "Experimental") {
             axios.post(`http://localhost:5115/api/ciphers/cipher/${id}/suggest-answer`,{
-                description : expDecryptedText,
+                description : expDescription,
                 decryptedText : expDecryptedText
             }, {withCredentials : true})
             .then(c => {
