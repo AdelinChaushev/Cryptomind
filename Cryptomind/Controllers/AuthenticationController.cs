@@ -9,7 +9,7 @@ namespace Cryptomind.Controllers
 {
 	[Route("api/auth")]
 	[ApiController]
-	public class AuthenticationController(IAuthService authService , IUserService userService) : ControllerBase
+	public class AuthenticationController(IAuthService authService , IUserService userService, IWebHostEnvironment env) : ControllerBase
 	{
 		[HttpPost("register")]
 		public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
@@ -77,11 +77,12 @@ namespace Cryptomind.Controllers
 		#region Private methods
 		private void AddCookie(string token)
 		{
+			bool isTesting = env.EnvironmentName == "Testing";
 			HttpContext.Response.Cookies.Append("token", token, new CookieOptions
 			{
 				HttpOnly = true,
-				Secure = true,
-				SameSite = SameSiteMode.None,
+				Secure = !isTesting,
+				SameSite = isTesting ? SameSiteMode.Lax : SameSiteMode.None,
 				IsEssential = true,
 				Expires = DateTimeOffset.UtcNow.AddHours(3),
 			});
