@@ -183,7 +183,7 @@ namespace Cryptomind.Core.Services
 			{
 				Id = cipher.Id,
 				Title = cipher.Title,
-				AlreadySolved = cipher.UserSolutions.FirstOrDefault(x => x.UserId == userId) != null,
+				AlreadySolved = cipher.UserSolutions.FirstOrDefault(x => x.UserId == userId && x.IsCorrect) != null,
 				ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
 				IsImage = cipher is ImageCipher
 			};

@@ -33,7 +33,7 @@ export default function Login() {
         
         }
          setState({isLoggedIn: false, roles: []})
-         setError(e.response?.data?.message || 'Login failed. Please check your credentials and try again.');
+         setError(e.response?.data?.title || 'Login failed. Please check your credentials and try again.');
          }
     );   
     
@@ -136,14 +136,14 @@ export default function Login() {
                             </div>
                         </div>
 
-                        <div className="form-options">
+                        {/* <div className="form-options">
                             <label className="checkbox-label">
                                 <input type="checkbox" name="rememberMe" className="checkbox-input" />
                                 <span className="checkbox-custom" aria-hidden="true" />
                                 <span className="checkbox-text">Remember session</span>
                             </label>
                             <a href="/forgot-password" className="forgot-link">Forgot key?</a>
-                        </div>
+                        </div> */}
 
                         <button type="submit" className="btn-submit">
                             <span className="btn-text">DECRYPT &amp; ENTER</span>

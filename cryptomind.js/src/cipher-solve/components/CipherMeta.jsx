@@ -7,11 +7,14 @@ function CipherMeta({ cipher , timeAgo }) {
                 <p className="meta-header-title">Cipher Info</p>
             </div>
 
-            <div className="meta-body">
-                <div className="points-display">
+            
+             <div className="meta-body">
+              {cipher.challengeTypeDisplay === "Standard" &&  <div className="points-display">
                     <div className="points-value">{cipher.points ?? 100}</div>
                     <div className="points-label">Points Available</div>
-                </div>
+                </div> 
+               
+            }
 
                 <div className="meta-stats">
                     

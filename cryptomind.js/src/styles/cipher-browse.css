@@ -892,8 +892,7 @@ input, select, button { font-family: var(--font-body); }
     .cipher-grid { grid-template-columns: 1fr; }
     .footer-container { grid-template-columns: 1fr; }
     .footer-brand, .footer-column { text-align: center; }
-}
-.cipher-card--solved {
+}.cipher-card--solved {
     border-left: 3px solid rgba(16, 185, 129, 0.5);
 }
 
