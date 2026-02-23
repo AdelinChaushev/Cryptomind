@@ -13,7 +13,7 @@ namespace Cryptomind.Data.Entities
 		[ForeignKey(nameof(ApplicationUser))]
 		public string UserId { get; set; }
 		public ApplicationUser User { get; set; }
-		public DateTime TimeSolved { get; set; }
+		public DateTime TimeSubmitted { get; set; }
 		public bool IsCorrect { get; set; }
 		public bool UsedTypeHint { get; set; } = false;
 		public bool UsedSolutionHint { get; set; } = false;

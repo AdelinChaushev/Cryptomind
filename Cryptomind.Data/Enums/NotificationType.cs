@@ -7,12 +7,13 @@
 		CipherRejected = 1,
 		CipherDeleted = 2,
 		CipherRestored = 3,
+		CipherUpdated = 4,
 		//Answer related
-		AnswerApproved = 4,
-		AnswerRejected = 5,
-		AnswerCipherDeleted = 6,
-		AnswerCipherRestored = 7,
+		AnswerApproved = 5,
+		AnswerRejected = 6,
+		AnswerCipherDeleted = 7,
+		AnswerCipherRestored = 8,
 		//Badges related
-		BadgeEarned = 8,
+		BadgeEarned = 9,
 	}
 }

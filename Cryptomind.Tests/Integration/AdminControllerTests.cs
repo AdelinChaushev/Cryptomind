@@ -99,13 +99,13 @@ namespace Cryptomind.Tests.Integration
 		#region Get Single Cipher
 
 		[Fact]
-		public async Task GetCipher_NonExistentId_Returns400()
+		public async Task GetCipher_NonExistentId_Returns404()
 		{
 			var adminClient = await GetAuthenticatedAdminClientAsync();
 
 			var response = await adminClient.GetAsync("/api/admin/cipher/99999");
 
-			response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+			response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 		}
 
 		#endregion
@@ -113,7 +113,7 @@ namespace Cryptomind.Tests.Integration
 		#region Approve Cipher
 
 		[Fact]
-		public async Task ApproveCipher_NonExistentId_Returns400()
+		public async Task ApproveCipher_NonExistentId_Returns404()
 		{
 			var adminClient = await GetAuthenticatedAdminClientAsync();
 			var model = new
@@ -125,7 +125,7 @@ namespace Cryptomind.Tests.Integration
 
 			var response = await adminClient.PutAsJsonAsync("/api/admin/cipher/99999/approve", model);
 
-			response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+			response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 		}
 
 		#endregion
@@ -133,13 +133,13 @@ namespace Cryptomind.Tests.Integration
 		#region Reject Cipher
 
 		[Fact]
-		public async Task RejectCipher_NonExistentId_Returns400()
+		public async Task RejectCipher_NonExistentId_Returns404()
 		{
 			var adminClient = await GetAuthenticatedAdminClientAsync();
 
 			var response = await adminClient.PutAsJsonAsync("/api/admin/cipher/99999/reject", "Not valid content");
 
-			response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+			response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 		}
 
 		#endregion
@@ -147,13 +147,13 @@ namespace Cryptomind.Tests.Integration
 		#region Restore Cipher
 
 		[Fact]
-		public async Task RestoreCipher_NonExistentId_Returns400()
+		public async Task RestoreCipher_NonExistentId_Returns404()
 		{
 			var adminClient = await GetAuthenticatedAdminClientAsync();
 
 			var response = await adminClient.PutAsync("/api/admin/cipher/99999/restore", null);
 
-			response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+			response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 		}
 
 		#endregion
@@ -181,17 +181,17 @@ namespace Cryptomind.Tests.Integration
 		}
 
 		[Fact]
-		public async Task GetUser_NonExistentId_Returns400()
+		public async Task GetUser_NonExistentId_Returns404()
 		{
 			var adminClient = await GetAuthenticatedAdminClientAsync();
 
 			var response = await adminClient.GetAsync("/api/admin/user/nonexistent-id-000");
 
-			response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+			response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 		}
 
 		[Fact]
-		public async Task BanUser_NonExistentId_Returns400()
+		public async Task BanUser_NonExistentId_Returns404()
 		{
 			var adminClient = await GetAuthenticatedAdminClientAsync();
 
@@ -202,17 +202,17 @@ namespace Cryptomind.Tests.Integration
 
 			var response = await adminClient.PutAsync("/api/admin/user/nonexistent-user-id/ban", content);
 
-			response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+			response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 		}
 
 		[Fact]
-		public async Task UnbanUser_NonExistentId_Returns400()
+		public async Task UnbanUser_NonExistentId_Returns404()
 		{
 			var adminClient = await GetAuthenticatedAdminClientAsync();
 
 			var response = await adminClient.PutAsync("/api/admin/user/nonexistent-user-id/unban", null);
 
-			response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+			response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 		}
 
 		#endregion
@@ -230,13 +230,13 @@ namespace Cryptomind.Tests.Integration
 		}
 
 		[Fact]
-		public async Task GetAnswer_NonExistentId_Returns400()
+		public async Task GetAnswer_NonExistentId_Returns404()
 		{
 			var adminClient = await GetAuthenticatedAdminClientAsync();
 
 			var response = await adminClient.GetAsync("/api/admin/answer/99999");
 
-			response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+			response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 		}
 
 		#endregion

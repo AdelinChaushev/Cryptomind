@@ -1,4 +1,5 @@
-﻿using Cryptomind.Core.Services;
+﻿using Cryptomind.Common.Exceptions;
+using Cryptomind.Core.Services;
 using Cryptomind.Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -16,29 +17,29 @@ namespace Cryptomind.Tests.Unit.Services
 {
 	public class AuthServiceTests
 	{
-		private readonly Mock<UserManager<ApplicationUser>> _userManagerMock;
-		private readonly Mock<IConfiguration> _configurationMock;
-		private readonly AuthService _service;
+		private readonly Mock<UserManager<ApplicationUser>> userManagerMock;
+		private readonly Mock<IConfiguration> configurationMock;
+		private readonly AuthService service;
 
 		public AuthServiceTests()
 		{
 			var store = new Mock<IUserStore<ApplicationUser>>();
-			_userManagerMock = new Mock<UserManager<ApplicationUser>>(
+			userManagerMock = new Mock<UserManager<ApplicationUser>>(
 				store.Object, null, null, null, null, null, null, null, null);
 
-			_configurationMock = new Mock<IConfiguration>();
-			_configurationMock.Setup(c => c["JWT:Secret"])
+			configurationMock = new Mock<IConfiguration>();
+			configurationMock.Setup(c => c["JWT:Secret"])
 				.Returns("super-secret-key-that-is-long-enough-for-hmac");
-			_configurationMock.Setup(c => c["JWT:ValidIssuer"]).Returns("TestIssuer");
-			_configurationMock.Setup(c => c["JWT:ValidAudience"]).Returns("TestAudience");
+			configurationMock.Setup(c => c["JWT:ValidIssuer"]).Returns("TestIssuer");
+			configurationMock.Setup(c => c["JWT:ValidAudience"]).Returns("TestAudience");
 
-			_service = new AuthService(_userManagerMock.Object, _configurationMock.Object);
+			service = new AuthService(userManagerMock.Object, configurationMock.Object);
 
-			_userManagerMock.Setup(m => m.UpdateAsync(It.IsAny<ApplicationUser>()))
+			userManagerMock.Setup(m => m.UpdateAsync(It.IsAny<ApplicationUser>()))
 				.ReturnsAsync(IdentityResult.Success);
-			_userManagerMock.Setup(m => m.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+			userManagerMock.Setup(m => m.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
 				.ReturnsAsync(IdentityResult.Success);
-			_userManagerMock.Setup(m => m.IsInRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+			userManagerMock.Setup(m => m.IsInRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
 				.ReturnsAsync(false);
 		}
 
@@ -56,43 +57,43 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task Authenticate_Throws_WhenUserNotFound()
 		{
-			_userManagerMock.Setup(m => m.FindByEmailAsync("ghost@test.com"))
+			userManagerMock.Setup(m => m.FindByEmailAsync("ghost@test.com"))
 				.ReturnsAsync((ApplicationUser?)null);
 
-			await Assert.ThrowsAsync<UnauthorizedAccessException>(
-				() => _service.Authenticate("ghost@test.com", "password"));
+			await Assert.ThrowsAsync<UnauthorizedException>(
+				() => service.Authenticate("ghost@test.com", "password"));
 		}
 
 		[Fact]
 		public async Task Authenticate_Throws_WhenPasswordIsIncorrect()
 		{
 			var user = MakeUser("u1");
-			_userManagerMock.Setup(m => m.FindByEmailAsync(user.Email)).ReturnsAsync(user);
-			_userManagerMock.Setup(m => m.CheckPasswordAsync(user, "wrongpassword")).ReturnsAsync(false);
+			userManagerMock.Setup(m => m.FindByEmailAsync(user.Email)).ReturnsAsync(user);
+			userManagerMock.Setup(m => m.CheckPasswordAsync(user, "wrongpassword")).ReturnsAsync(false);
 
-			await Assert.ThrowsAsync<UnauthorizedAccessException>(
-				() => _service.Authenticate(user.Email, "wrongpassword"));
+			await Assert.ThrowsAsync<UnauthorizedException>(
+				() => service.Authenticate(user.Email, "wrongpassword"));
 		}
 
 		[Fact]
 		public async Task Authenticate_Throws_WhenAccountIsDeactivated()
 		{
 			var user = MakeUser("u1", isDeactivated: true);
-			_userManagerMock.Setup(m => m.FindByEmailAsync(user.Email)).ReturnsAsync(user);
-			_userManagerMock.Setup(m => m.CheckPasswordAsync(user, "password")).ReturnsAsync(true);
+			userManagerMock.Setup(m => m.FindByEmailAsync(user.Email)).ReturnsAsync(user);
+			userManagerMock.Setup(m => m.CheckPasswordAsync(user, "password")).ReturnsAsync(true);
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.Authenticate(user.Email, "password"));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.Authenticate(user.Email, "password"));
 		}
 
 		[Fact]
 		public async Task Authenticate_ReturnsUser_WhenCredentialsAreValid()
 		{
 			var user = MakeUser("u1");
-			_userManagerMock.Setup(m => m.FindByEmailAsync(user.Email)).ReturnsAsync(user);
-			_userManagerMock.Setup(m => m.CheckPasswordAsync(user, "correctpassword")).ReturnsAsync(true);
+			userManagerMock.Setup(m => m.FindByEmailAsync(user.Email)).ReturnsAsync(user);
+			userManagerMock.Setup(m => m.CheckPasswordAsync(user, "correctpassword")).ReturnsAsync(true);
 
-			var result = await _service.Authenticate(user.Email, "correctpassword");
+			var result = await service.Authenticate(user.Email, "correctpassword");
 
 			Assert.Equal("u1", result.Id);
 		}
@@ -105,9 +106,9 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task GenerateJSONWebToken_ReturnsNonEmptyToken()
 		{
 			var user = MakeUser("u1", "alice");
-			_userManagerMock.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(new List<string>());
+			userManagerMock.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(new List<string>());
 
-			var token = await _service.GenerateJSONWebToken(user);
+			var token = await service.GenerateJSONWebToken(user);
 
 			Assert.False(string.IsNullOrWhiteSpace(token));
 		}
@@ -116,9 +117,9 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task GenerateJSONWebToken_ContainsUserIdAndUsernameClaims()
 		{
 			var user = MakeUser("u1", "alice");
-			_userManagerMock.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(new List<string>());
+			userManagerMock.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(new List<string>());
 
-			var tokenString = await _service.GenerateJSONWebToken(user);
+			var tokenString = await service.GenerateJSONWebToken(user);
 			var decoded = new JwtSecurityTokenHandler().ReadJwtToken(tokenString);
 
 			Assert.Contains(decoded.Claims, c => c.Type == ClaimTypes.NameIdentifier && c.Value == "u1");
@@ -129,10 +130,10 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task GenerateJSONWebToken_ContainsRoleClaims_WhenUserHasRoles()
 		{
 			var user = MakeUser("u1");
-			_userManagerMock.Setup(m => m.GetRolesAsync(user))
+			userManagerMock.Setup(m => m.GetRolesAsync(user))
 				.ReturnsAsync(new List<string> { "Admin" });
 
-			var tokenString = await _service.GenerateJSONWebToken(user);
+			var tokenString = await service.GenerateJSONWebToken(user);
 			var decoded = new JwtSecurityTokenHandler().ReadJwtToken(tokenString);
 
 			Assert.Contains(decoded.Claims, c => c.Type == ClaimTypes.Role && c.Value == "Admin");
@@ -142,10 +143,10 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task GenerateJSONWebToken_TokenExpires_InThreeHours()
 		{
 			var user = MakeUser("u1");
-			_userManagerMock.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(new List<string>());
+			userManagerMock.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(new List<string>());
 
 			var before = DateTime.UtcNow.AddHours(3).AddSeconds(-5);
-			var tokenString = await _service.GenerateJSONWebToken(user);
+			var tokenString = await service.GenerateJSONWebToken(user);
 			var after = DateTime.UtcNow.AddHours(3).AddSeconds(5);
 
 			var decoded = new JwtSecurityTokenHandler().ReadJwtToken(tokenString);
@@ -160,22 +161,22 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task CreateUser_Throws_WhenEmailAlreadyExists()
 		{
-			_userManagerMock.Setup(m => m.FindByEmailAsync("taken@test.com"))
+			userManagerMock.Setup(m => m.FindByEmailAsync("taken@test.com"))
 				.ReturnsAsync(MakeUser("u1"));
 
-			await Assert.ThrowsAsync<ArgumentException>(
-				() => _service.CreateUser("alice", "taken@test.com", "password"));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.CreateUser("alice", "taken@test.com", "password"));
 		}
 
 		[Fact]
 		public async Task CreateUser_ReturnsNull_WhenCreationFails()
 		{
-			_userManagerMock.Setup(m => m.FindByEmailAsync("new@test.com"))
+			userManagerMock.Setup(m => m.FindByEmailAsync("new@test.com"))
 				.ReturnsAsync((ApplicationUser?)null);
-			_userManagerMock.Setup(m => m.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+			userManagerMock.Setup(m => m.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
 				.ReturnsAsync(IdentityResult.Failed());
 
-			var result = await _service.CreateUser("alice", "new@test.com", "password");
+			var result = await service.CreateUser("alice", "new@test.com", "password");
 
 			Assert.Null(result);
 		}
@@ -183,12 +184,12 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task CreateUser_ReturnsUser_WithCorrectFields_WhenSuccessful()
 		{
-			_userManagerMock.Setup(m => m.FindByEmailAsync("new@test.com"))
+			userManagerMock.Setup(m => m.FindByEmailAsync("new@test.com"))
 				.ReturnsAsync((ApplicationUser?)null);
-			_userManagerMock.Setup(m => m.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+			userManagerMock.Setup(m => m.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
 				.ReturnsAsync(IdentityResult.Success);
 
-			var result = await _service.CreateUser("alice", "new@test.com", "password");
+			var result = await service.CreateUser("alice", "new@test.com", "password");
 
 			Assert.NotNull(result);
 			Assert.Equal("alice", result.UserName);
@@ -199,27 +200,27 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task CreateUser_AssignsUserRole_WhenCreationSucceeds()
 		{
-			_userManagerMock.Setup(m => m.FindByEmailAsync("new@test.com"))
+			userManagerMock.Setup(m => m.FindByEmailAsync("new@test.com"))
 				.ReturnsAsync((ApplicationUser?)null);
-			_userManagerMock.Setup(m => m.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+			userManagerMock.Setup(m => m.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
 				.ReturnsAsync(IdentityResult.Success);
 
-			await _service.CreateUser("alice", "new@test.com", "password");
+			await service.CreateUser("alice", "new@test.com", "password");
 
-			_userManagerMock.Verify(m => m.AddToRoleAsync(It.IsAny<ApplicationUser>(), "User"), Times.Once);
+			userManagerMock.Verify(m => m.AddToRoleAsync(It.IsAny<ApplicationUser>(), "User"), Times.Once);
 		}
 
 		[Fact]
 		public async Task CreateUser_DoesNotAssignRole_WhenCreationFails()
 		{
-			_userManagerMock.Setup(m => m.FindByEmailAsync("new@test.com"))
+			userManagerMock.Setup(m => m.FindByEmailAsync("new@test.com"))
 				.ReturnsAsync((ApplicationUser?)null);
-			_userManagerMock.Setup(m => m.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+			userManagerMock.Setup(m => m.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
 				.ReturnsAsync(IdentityResult.Failed());
 
-			await _service.CreateUser("alice", "new@test.com", "password");
+			await service.CreateUser("alice", "new@test.com", "password");
 
-			_userManagerMock.Verify(m => m.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Never);
+			userManagerMock.Verify(m => m.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Never);
 		}
 
 		#endregion
@@ -229,41 +230,41 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task DeactivateAccount_Throws_WhenUserNotFound()
 		{
-			_userManagerMock.Setup(m => m.FindByIdAsync("ghost"))
+			userManagerMock.Setup(m => m.FindByIdAsync("ghost"))
 				.ReturnsAsync((ApplicationUser?)null);
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.DeactivateAccount("ghost"));
+			await Assert.ThrowsAsync<NotFoundException>(
+				() => service.DeactivateAccount("ghost"));
 		}
 
 		[Fact]
 		public async Task DeactivateAccount_Throws_WhenUserIsAlreadyDeactivated()
 		{
-			_userManagerMock.Setup(m => m.FindByIdAsync("u1"))
+			userManagerMock.Setup(m => m.FindByIdAsync("u1"))
 				.ReturnsAsync(MakeUser("u1", isDeactivated: true));
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.DeactivateAccount("u1"));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.DeactivateAccount("u1"));
 		}
 
 		[Fact]
 		public async Task DeactivateAccount_Throws_WhenUserIsAdmin()
 		{
 			var user = MakeUser("u1");
-			_userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
-			_userManagerMock.Setup(m => m.IsInRoleAsync(user, "Admin")).ReturnsAsync(true);
+			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
+			userManagerMock.Setup(m => m.IsInRoleAsync(user, "Admin")).ReturnsAsync(true);
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.DeactivateAccount("u1"));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.DeactivateAccount("u1"));
 		}
 
 		[Fact]
 		public async Task DeactivateAccount_SetsIsDeactivatedAndDeactivatedAt()
 		{
 			var user = MakeUser("u1");
-			_userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
+			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
 
-			await _service.DeactivateAccount("u1");
+			await service.DeactivateAccount("u1");
 
 			Assert.True(user.IsDeactivated);
 			Assert.NotNull(user.DeactivatedAt);

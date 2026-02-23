@@ -44,6 +44,8 @@ namespace Cryptomind.Tests.Unit.Services
 			cipherRepoMock.Setup(r => r.UpdateAsync(It.IsAny<Cipher>())).ReturnsAsync(true);
 			solutionRepoMock.Setup(r => r.AddAsync(It.IsAny<UserSolution>())).Returns(Task.CompletedTask);
 			userManagerMock.Setup(m => m.UpdateAsync(It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
+			userManagerMock.Setup(m => m.FindByIdAsync(It.IsAny<string>()))
+				.ReturnsAsync((string id) => User(id));
 			notificationMock.Setup(n => n.CreateAndSendNotification(
 				It.IsAny<string>(), It.IsAny<NotificationType>(),
 				It.IsAny<string>(), It.IsAny<string>()))
@@ -86,9 +88,7 @@ namespace Cryptomind.Tests.Unit.Services
 			userManagerMock.Setup(m => m.Users).Returns(mock);
 		}
 
-		// -------------------------------------------------------------------------
-		// GetPendingAnswersCount
-		// -------------------------------------------------------------------------
+		#region GetPendingAnswersCount
 
 		[Fact]
 		public async Task GetPendingAnswersCount_ReturnsOnlyPendingOnes()
@@ -116,9 +116,9 @@ namespace Cryptomind.Tests.Unit.Services
 			Assert.Equal(0, result);
 		}
 
-		// -------------------------------------------------------------------------
-		// GetApprovedAnswersCount
-		// -------------------------------------------------------------------------
+		#endregion
+
+		#region GetApprovedAnswersCount
 
 		[Fact]
 		public async Task GetApprovedAnswersCount_ReturnsOnlyApprovedOnes()
@@ -135,9 +135,9 @@ namespace Cryptomind.Tests.Unit.Services
 			Assert.Equal(1, result);
 		}
 
-		// -------------------------------------------------------------------------
-		// AllSubmittedAnswersAsync
-		// -------------------------------------------------------------------------
+		#endregion
+
+		#region AllSubmittedAnswersAsync
 
 		[Fact]
 		public async Task AllSubmittedAnswersAsync_ReturnsPendingAnswersOnly_WithCorrectUsername()
@@ -145,7 +145,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var answers = new List<AnswerSuggestion>
 			{
 				Answer(1, "u1", 1, ApprovalStatus.Pending),
-				Answer(2, "u2", 1, ApprovalStatus.Approved), // should be excluded
+				Answer(2, "u2", 1, ApprovalStatus.Approved),
 			};
 
 			answerRepoMock.Setup(r => r.GetAllAttached()).Returns(answers.AsQueryable().BuildMock());
@@ -160,22 +160,21 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task AllSubmittedAnswersAsync_Throws_WhenUserDoesNotExist()
 		{
-			// The service uses GetAllAttached(), not GetAllAsync(), so we mock that.
 			var answers = new List<AnswerSuggestion>
 			{
 				Answer(1, "ghost", 1, ApprovalStatus.Pending),
 			};
 
 			answerRepoMock.Setup(r => r.GetAllAttached()).Returns(answers.AsQueryable().BuildMock());
-			SetupUsers(); // no users in the system
+			SetupUsers();
 
 			await Assert.ThrowsAsync<Exception>(
 				() => service.AllSubmittedAnswersAsync(null, null));
 		}
 
-		// -------------------------------------------------------------------------
-		// GetAnswerById
-		// -------------------------------------------------------------------------
+		#endregion
+
+		#region GetAnswerById
 
 		[Fact]
 		public async Task GetAnswerById_ReturnsViewModel_WhenAnswerIsPending()
@@ -234,9 +233,9 @@ namespace Cryptomind.Tests.Unit.Services
 				() => service.GetAnswerById(1));
 		}
 
-		// -------------------------------------------------------------------------
-		// ApproveAnswerAsync
-		// -------------------------------------------------------------------------
+		#endregion
+
+		#region ApproveAnswerAsync
 
 		[Fact]
 		public async Task ApproveAnswerAsync_Throws_WhenAnswerNotFound()
@@ -264,7 +263,7 @@ namespace Cryptomind.Tests.Unit.Services
 			answerRepoMock.Setup(r => r.FirstOrDefaultAsync(It.IsAny<Expression<Func<AnswerSuggestion, bool>>>()))
 				.ReturnsAsync(Answer(1, "u1", 1, ApprovalStatus.Pending));
 
-			await Assert.ThrowsAsync<ValidationException>(
+			await Assert.ThrowsAsync<CustomValidationException>(
 				() => service.ApproveAnswerAsync(1, 0));
 		}
 
@@ -337,7 +336,6 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task ApproveAnswerAsync_GrantsFullPoints_ToFirstCorrectSubmitter()
 		{
-			// bonus (50) + cipher.Points (100) = 150
 			var answer = Answer(1, "u1", 1, ApprovalStatus.Pending, "hello");
 			var cipher = Cipher(1, ChallengeType.Experimental, null, 100);
 			var user = User("u1");
@@ -379,7 +377,6 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task ApproveAnswerAsync_GivesReducedPoints_ToOtherCorrectSubmitters()
 		{
-			// u1 submitted first (older timestamp), u2 submitted the same correct answer later
 			var first = Answer(1, "u1", 1, ApprovalStatus.Pending, "hello",
 				DateTime.UtcNow.AddMinutes(-10));
 			var second = Answer(2, "u2", 1, ApprovalStatus.Pending, "hello",
@@ -400,7 +397,6 @@ namespace Cryptomind.Tests.Unit.Services
 
 			await service.ApproveAnswerAsync(1, 50);
 
-			// first submitter: 50 + 100 = 150; second submitter: cipher.Points only = 100
 			Assert.Equal(150, user1.Score);
 			Assert.Equal(100, user2.Score);
 		}
@@ -410,7 +406,6 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var correct = Answer(1, "u1", 1, ApprovalStatus.Pending, "hello");
 			var wrong = Answer(2, "u2", 1, ApprovalStatus.Pending, "wrong answer");
-
 			var cipher = Cipher(1, ChallengeType.Experimental, null, 100);
 
 			answerRepoMock.Setup(r => r.FirstOrDefaultAsync(It.IsAny<Expression<Func<AnswerSuggestion, bool>>>()))
@@ -471,9 +466,9 @@ namespace Cryptomind.Tests.Unit.Services
 			Assert.Contains("u2", result);
 		}
 
-		// -------------------------------------------------------------------------
-		// RejectAnswerAsync
-		// -------------------------------------------------------------------------
+		#endregion
+
+		#region RejectAnswerAsync
 
 		[Fact]
 		public async Task RejectAnswerAsync_Throws_WhenAnswerNotFound()
@@ -500,6 +495,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var answer = Answer(1, "u1", 1, ApprovalStatus.Pending);
 			answerRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(answer);
+			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(User("u1"));
 
 			await service.RejectAnswerAsync(1, "not good enough");
 
@@ -513,6 +509,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var answer = Answer(1, "u1", 1, ApprovalStatus.Pending);
 			answerRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(answer);
+			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(User("u1"));
 
 			await service.RejectAnswerAsync(1, "not good enough");
 
@@ -522,16 +519,20 @@ namespace Cryptomind.Tests.Unit.Services
 				"not good enough",
 				It.IsAny<string>()), Times.Once);
 		}
+
 		[Fact]
 		public async Task RejectAnswerAsync_Throws_WhenAnswerIsAlreadyRejected()
 		{
 			var answer = Answer(1, "u1", 1, ApprovalStatus.Pending);
 			answerRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(answer);
+			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(User("u1"));
 
 			await service.RejectAnswerAsync(1, "not good enough");
 
 			await Assert.ThrowsAsync<ConflictException>(
 				() => service.RejectAnswerAsync(1, "not good enough"));
 		}
+
+		#endregion
 	}
 }

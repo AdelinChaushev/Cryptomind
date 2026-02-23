@@ -111,7 +111,7 @@ namespace Cryptomind.Core.Services
 				throw new ConflictException("Answer is already resolved");
 
 			if (points <= 0)
-				throw new ValidationException("Cannot approve answer without points");
+				throw new CustomValidationException("Cannot approve answer without points");
 
 			var firstCorrectAnswerSuggestion = (await answerRepo.GetAllAsync())
 				.Where(x => x.CipherId == selectedAnswer.CipherId)
@@ -153,7 +153,7 @@ namespace Cryptomind.Core.Services
 				CipherId = firstCorrectAnswerSuggestion.CipherId,
 				UserId = firstCorrectAnswerSuggestion.UserId,
 				PointsEarned = pointsGranted,
-				TimeSolved = DateTime.UtcNow,
+				TimeSubmitted = DateTime.UtcNow,
 				IsCorrect = true,
 			};
 
@@ -181,7 +181,7 @@ namespace Cryptomind.Core.Services
 					CipherId = correctAnswer.CipherId,
 					UserId = correctAnswer.UserId,
 					PointsEarned = cipher.Points,
-					TimeSolved = DateTime.UtcNow,
+					TimeSubmitted = DateTime.UtcNow,
 					IsCorrect = true,
 				};
 				currentUser.Score += cipher.Points;
