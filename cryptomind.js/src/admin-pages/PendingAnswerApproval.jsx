@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useCallback, use } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
 import '../styles/answer-approval.css';
 const API_BASE = 'http://localhost:5115/api/admin';
-import { useParams } from "react-router-dom";
+import { useParams,useNavigate } from "react-router-dom";
+import { useError } from '../ErrorContext.jsx';
+
 axios.defaults.withCredentials = true;
 
 const PendingAnswerApproval = () => {
@@ -14,8 +16,9 @@ const PendingAnswerApproval = () => {
     const [error, setError] = useState(null);
     const [showRejectForm, setShowRejectForm] = useState(false);
     const [rejectionReason, setRejectionReason] = useState('');
-      const {  id } = useParams();
-
+    const {  id } = useParams();
+    const navigate = useNavigate();
+     const { setError: setGlobalError } = useError();
     // Fetch answer submission
     useEffect(() => {
         const fetchAnswer = async () => {
@@ -39,7 +42,7 @@ const PendingAnswerApproval = () => {
                 }
             } catch (err) {
                 console.error('Failed to fetch answer:', err);
-                setError(err.response?.data?.message || err.message);
+                setGlobalError(err.response?.data?.message || err.message);
             } finally {
                 setLoading(false);
             }
@@ -50,15 +53,14 @@ const PendingAnswerApproval = () => {
 
     // Approve answer
     const handleApprove = useCallback(async () => {
-        if (!window.confirm('Approve this answer? The user will be awarded points.')) return;
-
+      
         try {
             await axios.put(`${API_BASE}/answer/${id}/approve`);
-            alert('Answer approved successfully!');
-            window.location.href = '/admin/pending-answers';
+           
+            navigate('/admin/pending-answers');
         } catch (err) {
             console.error('Approve error:', err);
-            alert(`Failed to approve: ${err.response?.data?.message || err.message}`);
+            setGlobalError(err.response?.data?.message || err.message);
         }
     }, [id]);
 
@@ -76,11 +78,11 @@ const PendingAnswerApproval = () => {
                 "Content-Type": "application/json"
                 }
             });
-            alert('Answer rejected');
-            window.location.href = '/admin/pending-answers';
+
+            navigate('/admin/pending-answers');
         } catch (err) {
             console.error('Reject error:', err);
-            alert(`Failed to reject: ${err.response?.data?.message || err.message}`);
+            setGlobalError(err.response?.data?.message || err.message);
         }
     }, [id]);
 
