@@ -9,7 +9,7 @@ using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
-using ValidationException = Cryptomind.Common.Exceptions.ValidationException;
+using CustomValidationException = Cryptomind.Common.Exceptions.CustomValidationException;
 
 namespace Cryptomind.Core.Services
 {
@@ -22,7 +22,7 @@ namespace Cryptomind.Core.Services
 		public async Task<Cipher> SubmitCipherAsync(SubmitCipherViewModel model, string userId)
 		{
 			if (string.IsNullOrEmpty(model.Title))
-				throw new ValidationException("Title is required");
+				throw new CustomValidationException("Title is required");
 
 			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.Title == model.Title))
 				throw new ConflictException("There is already a cipher with this title");
@@ -59,7 +59,7 @@ namespace Cryptomind.Core.Services
 				var result = await ocrService.ExtractTextFromImageAsync(model.Image);
 
 				if (string.IsNullOrWhiteSpace(result.ExtractedText))
-					throw new ValidationException("OCR failed to extract any text from the image");
+					throw new CustomValidationException("OCR failed to extract any text from the image");
 
 				encryptedTextForAnalysis = result.ExtractedText;
 
@@ -104,7 +104,7 @@ namespace Cryptomind.Core.Services
 
 			if (mlResult.TopPrediction.Type.ToLower() == "plaintext")
 			{
-				throw new ValidationException("Your text appears to already be in plaintext. Only encrypted text is allowed.");
+				throw new CustomValidationException("Your text appears to already be in plaintext. Only encrypted text is allowed.");
 			}
 
 			cipher.MLPrediction = JsonSerializer.Serialize(new
@@ -197,20 +197,20 @@ namespace Cryptomind.Core.Services
 		private void ValidateImageFile(IFormFile imageFile)
 		{
 			if (imageFile == null)
-				throw new ValidationException("Image file is required for image ciphers");
+				throw new CustomValidationException("Image file is required for image ciphers");
 
 			var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
 			var extension = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
 
 			if (!allowedExtensions.Contains(extension))
-				throw new ValidationException($"Invalid file type. Allowed types: {string.Join(", ", allowedExtensions)}");
+				throw new CustomValidationException($"Invalid file type. Allowed types: {string.Join(", ", allowedExtensions)}");
 
 			const int maxSizeInBytes = 5 * 1024 * 1024;
 			if (imageFile.Length == 0)
-				throw new ValidationException("File cannot be empty");
+				throw new CustomValidationException("File cannot be empty");
 
 			if (imageFile.Length > maxSizeInBytes)
-				throw new ValidationException("File size cannot exceed 5MB");
+				throw new CustomValidationException("File size cannot exceed 5MB");
 
 		}
 		private bool DetermineLLMRecommendation(

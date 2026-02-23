@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using System.Text;
 using System.Text.Json;
 using System.ComponentModel.DataAnnotations;
+using Cryptomind.Common.Exceptions;
 
 namespace Cryptomind.Core.Services
 {
@@ -26,7 +27,7 @@ namespace Cryptomind.Core.Services
 		{
 			if (string.IsNullOrWhiteSpace(plaintext))
 			{
-				throw new ValidationException("Plaintext cannot be empty");
+				throw new CustomValidationException("Plaintext cannot be empty");
 			}
 
 			try

@@ -1,4 +1,5 @@
 ﻿using Cryptomind.Common.DTOs;
+using Cryptomind.Common.Exceptions;
 using Cryptomind.Core.Services;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
@@ -15,17 +16,17 @@ namespace Cryptomind.Tests.Unit.Services
 {
 	public class AnswerSubmissionServiceTests
 	{
-		private readonly Mock<IRepository<Cipher, int>> _cipherRepoMock = new();
-		private readonly Mock<IRepository<AnswerSuggestion, int>> _answerRepoMock = new();
-		private readonly AnswerSubmissionService _service;
+		private readonly Mock<IRepository<Cipher, int>> cipherRepoMock = new();
+		private readonly Mock<IRepository<AnswerSuggestion, int>> answerRepoMock = new();
+		private readonly AnswerSubmissionService service;
 
 		public AnswerSubmissionServiceTests()
 		{
-			_service = new AnswerSubmissionService(
-				_cipherRepoMock.Object,
-				_answerRepoMock.Object);
+			service = new AnswerSubmissionService(
+				cipherRepoMock.Object,
+				answerRepoMock.Object);
 
-			_answerRepoMock.Setup(r => r.AddAsync(It.IsAny<AnswerSuggestion>()))
+			answerRepoMock.Setup(r => r.AddAsync(It.IsAny<AnswerSuggestion>()))
 				.Returns(Task.CompletedTask);
 		}
 
@@ -58,13 +59,13 @@ namespace Cryptomind.Tests.Unit.Services
 		private void SetupAttachedCiphers(params Cipher[] ciphers)
 		{
 			var mock = new List<Cipher>(ciphers).AsQueryable().BuildMock();
-			_cipherRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
+			cipherRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
 		}
 
 		private void SetupAttachedAnswers(params AnswerSuggestion[] answers)
 		{
 			var mock = new List<AnswerSuggestion>(answers).AsQueryable().BuildMock();
-			_answerRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
+			answerRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
 		}
 
 		#region SuggestAnswerAsync
@@ -74,8 +75,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedCiphers();
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.SuggestAnswerAsync(new SuggestAnswerDTO { DecryptedText = "answer" }, "u1", 99));
+			await Assert.ThrowsAsync<NotFoundException>(
+				() => service.SuggestAnswerAsync(new SuggestAnswerDTO { DecryptedText = "answer" }, "u1", 99));
 		}
 
 		[Fact]
@@ -83,8 +84,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedCiphers(MakeCipher(1, ChallengeType.Experimental, decryptedText: "already solved"));
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.SuggestAnswerAsync(new SuggestAnswerDTO { DecryptedText = "answer" }, "u1", 1));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.SuggestAnswerAsync(new SuggestAnswerDTO { DecryptedText = "answer" }, "u1", 1));
 		}
 
 		[Fact]
@@ -92,8 +93,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedCiphers(MakeCipher(1, ChallengeType.Standard));
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.SuggestAnswerAsync(new SuggestAnswerDTO { DecryptedText = "answer" }, "u1", 1));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.SuggestAnswerAsync(new SuggestAnswerDTO { DecryptedText = "answer" }, "u1", 1));
 		}
 
 		[Fact]
@@ -101,8 +102,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedCiphers(MakeCipher(1, ChallengeType.Experimental));
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.SuggestAnswerAsync(new SuggestAnswerDTO { DecryptedText = "   " }, "u1", 1));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.SuggestAnswerAsync(new SuggestAnswerDTO { DecryptedText = "   " }, "u1", 1));
 		}
 
 		[Fact]
@@ -110,8 +111,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedCiphers(MakeCipher(1, ChallengeType.Experimental, createdByUserId: "u1"));
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.SuggestAnswerAsync(new SuggestAnswerDTO { DecryptedText = "answer" }, "u1", 1));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.SuggestAnswerAsync(new SuggestAnswerDTO { DecryptedText = "answer" }, "u1", 1));
 		}
 
 		[Fact]
@@ -121,8 +122,8 @@ namespace Cryptomind.Tests.Unit.Services
 			var cipher = MakeCipher(1, ChallengeType.Experimental, answerSuggestions: new List<AnswerSuggestion> { existingAnswer });
 			SetupAttachedCiphers(cipher);
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.SuggestAnswerAsync(new SuggestAnswerDTO { DecryptedText = "Hello World" }, "u1", 1));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.SuggestAnswerAsync(new SuggestAnswerDTO { DecryptedText = "Hello World" }, "u1", 1));
 		}
 
 		[Fact]
@@ -132,8 +133,8 @@ namespace Cryptomind.Tests.Unit.Services
 			var cipher = MakeCipher(1, ChallengeType.Experimental, answerSuggestions: new List<AnswerSuggestion> { existingAnswer });
 			SetupAttachedCiphers(cipher);
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.SuggestAnswerAsync(new SuggestAnswerDTO { DecryptedText = "hello world" }, "u1", 1));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.SuggestAnswerAsync(new SuggestAnswerDTO { DecryptedText = "hello world" }, "u1", 1));
 		}
 
 		[Fact]
@@ -143,9 +144,9 @@ namespace Cryptomind.Tests.Unit.Services
 			var cipher = MakeCipher(1, ChallengeType.Experimental, answerSuggestions: new List<AnswerSuggestion> { existingAnswer });
 			SetupAttachedCiphers(cipher);
 
-			await _service.SuggestAnswerAsync(new SuggestAnswerDTO { DecryptedText = "hello world" }, "u2", 1);
+			await service.SuggestAnswerAsync(new SuggestAnswerDTO { DecryptedText = "hello world" }, "u2", 1);
 
-			_answerRepoMock.Verify(r => r.AddAsync(It.IsAny<AnswerSuggestion>()), Times.Once);
+			answerRepoMock.Verify(r => r.AddAsync(It.IsAny<AnswerSuggestion>()), Times.Once);
 		}
 
 		[Fact]
@@ -153,11 +154,11 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedCiphers(MakeCipher(1, ChallengeType.Experimental));
 			AnswerSuggestion? captured = null;
-			_answerRepoMock.Setup(r => r.AddAsync(It.IsAny<AnswerSuggestion>()))
+			answerRepoMock.Setup(r => r.AddAsync(It.IsAny<AnswerSuggestion>()))
 				.Callback<AnswerSuggestion>(a => captured = a)
 				.Returns(Task.CompletedTask);
 
-			await _service.SuggestAnswerAsync(new SuggestAnswerDTO
+			await service.SuggestAnswerAsync(new SuggestAnswerDTO
 			{
 				DecryptedText = "my answer",
 				Description = "my reasoning",
@@ -180,7 +181,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedAnswers();
 
-			var result = await _service.SubmittedAnswers("u1");
+			var result = await service.SubmittedAnswers("u1");
 
 			Assert.Empty(result);
 		}
@@ -193,7 +194,7 @@ namespace Cryptomind.Tests.Unit.Services
 				MakeAnswer(1, "u1", 1, "answer one", cipher: cipher),
 				MakeAnswer(2, "u2", 1, "answer two", cipher: cipher));
 
-			var result = await _service.SubmittedAnswers("u1");
+			var result = await service.SubmittedAnswers("u1");
 
 			Assert.Single(result);
 			Assert.Equal("answer one", result[0].SuggestedAnswer);
@@ -209,7 +210,7 @@ namespace Cryptomind.Tests.Unit.Services
 			answer.ApprovalDate = approvedDate;
 			SetupAttachedAnswers(answer);
 
-			var result = await _service.SubmittedAnswers("u1");
+			var result = await service.SubmittedAnswers("u1");
 
 			Assert.Equal(150, result[0].PointsEarned);
 			Assert.Equal(approvedDate, result[0].ApprovedDate);
@@ -225,7 +226,7 @@ namespace Cryptomind.Tests.Unit.Services
 			answer.RejectionDate = rejectionDate;
 			SetupAttachedAnswers(answer);
 
-			var result = await _service.SubmittedAnswers("u1");
+			var result = await service.SubmittedAnswers("u1");
 
 			Assert.Equal("incorrect", result[0].RejectionReason);
 			Assert.Equal(rejectionDate, result[0].RejectionDate);
@@ -241,7 +242,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var answer = MakeAnswer(1, "u1", 1, "answer", cipher: cipher);
 			SetupAttachedAnswers(answer);
 
-			var result = await _service.SubmittedAnswers("u1");
+			var result = await service.SubmittedAnswers("u1");
 
 			Assert.Equal("CipherDeleted", result[0].Status);
 			Assert.Equal(deletedAt, result[0].CipherDeletedAt);
@@ -254,7 +255,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var answer = MakeAnswer(1, "u1", 1, "answer", ApprovalStatus.Pending, cipher: cipher);
 			SetupAttachedAnswers(answer);
 
-			var result = await _service.SubmittedAnswers("u1");
+			var result = await service.SubmittedAnswers("u1");
 
 			Assert.Equal("Pending", result[0].Status);
 		}

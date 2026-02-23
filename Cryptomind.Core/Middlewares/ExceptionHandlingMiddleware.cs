@@ -33,7 +33,7 @@ public class ExceptionHandlingMiddleware
 		{
 			await WriteResponse(context, StatusCodes.Status401Unauthorized, ex.Message);
 		}
-		catch (ValidationException ex)
+		catch (CustomValidationException ex)
 		{
 			await WriteResponse(context, StatusCodes.Status400BadRequest, ex.Message);
 		}

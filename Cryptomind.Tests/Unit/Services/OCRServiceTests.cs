@@ -1,9 +1,12 @@
-﻿using Cryptomind.Core.Services.OCR;
+﻿using Cryptomind.Common.Exceptions;
+using Cryptomind.Core.Services.OCR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.Protected;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -17,32 +20,32 @@ namespace Cryptomind.Tests.Unit.Services
 {
 	public class OCRServiceTests
 	{
-		private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;
-		private readonly Mock<IConfiguration> _configurationMock;
-		private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock;
-		private readonly OCRService _service;
+		private readonly Mock<IHttpClientFactory> httpClientFactoryMock;
+		private readonly Mock<IConfiguration> configurationMock;
+		private readonly Mock<HttpMessageHandler> httpMessageHandlerMock;
+		private readonly OCRService service;
 
 		public OCRServiceTests()
 		{
-			_httpMessageHandlerMock = new Mock<HttpMessageHandler>();
-			var httpClient = new HttpClient(_httpMessageHandlerMock.Object);
+			httpMessageHandlerMock = new Mock<HttpMessageHandler>();
+			var httpClient = new HttpClient(httpMessageHandlerMock.Object);
 
-			_httpClientFactoryMock = new Mock<IHttpClientFactory>();
-			_httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>()))
+			httpClientFactoryMock = new Mock<IHttpClientFactory>();
+			httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>()))
 				.Returns(httpClient);
 
-			_configurationMock = new Mock<IConfiguration>();
-			_configurationMock.Setup(c => c["OCRService:ApiUrl"])
+			configurationMock = new Mock<IConfiguration>();
+			configurationMock.Setup(c => c["OCRService:ApiUrl"])
 				.Returns("http://localhost:5001");
 
-			_service = new OCRService(
-				_httpClientFactoryMock.Object,
-				_configurationMock.Object);
+			service = new OCRService(
+				httpClientFactoryMock.Object,
+				configurationMock.Object);
 		}
 
 		private void SetupHttpResponse(HttpStatusCode statusCode, string content)
 		{
-			_httpMessageHandlerMock
+			httpMessageHandlerMock
 				.Protected()
 				.Setup<Task<HttpResponseMessage>>(
 					"SendAsync",
@@ -57,7 +60,7 @@ namespace Cryptomind.Tests.Unit.Services
 
 		private void SetupHttpException(Exception exception)
 		{
-			_httpMessageHandlerMock
+			httpMessageHandlerMock
 				.Protected()
 				.Setup<Task<HttpResponseMessage>>(
 					"SendAsync",
@@ -111,8 +114,8 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task ExtractTextFromImageAsync_Throws_WhenImageFileIsNull()
 		{
-			await Assert.ThrowsAsync<ArgumentException>(
-				() => _service.ExtractTextFromImageAsync(null));
+			await Assert.ThrowsAsync<CustomValidationException>(
+				() => service.ExtractTextFromImageAsync(null));
 		}
 
 		[Fact]
@@ -120,8 +123,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var imageFile = CreateMockImageFile(length: 0);
 
-			await Assert.ThrowsAsync<ArgumentException>(
-				() => _service.ExtractTextFromImageAsync(imageFile.Object));
+			await Assert.ThrowsAsync<CustomValidationException>(
+				() => service.ExtractTextFromImageAsync(imageFile.Object));
 		}
 
 		[Fact]
@@ -130,7 +133,7 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupHttpResponse(HttpStatusCode.OK, CreateOCRResponse());
 			var imageFile = CreateMockImageFile();
 
-			var result = await _service.ExtractTextFromImageAsync(imageFile.Object);
+			var result = await service.ExtractTextFromImageAsync(imageFile.Object);
 
 			Assert.NotNull(result);
 			Assert.True(result.Success);
@@ -145,7 +148,7 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupHttpResponse(HttpStatusCode.OK, CreateOCRResponse());
 			var imageFile = CreateMockImageFile();
 
-			var result = await _service.ExtractTextFromImageAsync(imageFile.Object);
+			var result = await service.ExtractTextFromImageAsync(imageFile.Object);
 
 			Assert.NotNull(result.Validation);
 			Assert.True(result.Validation.IsValid);
@@ -158,7 +161,7 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupHttpResponse(HttpStatusCode.OK, CreateOCRResponse(validationIsValid: null));
 			var imageFile = CreateMockImageFile();
 
-			var result = await _service.ExtractTextFromImageAsync(imageFile.Object);
+			var result = await service.ExtractTextFromImageAsync(imageFile.Object);
 
 			Assert.NotNull(result.Validation);
 			Assert.False(result.Validation.IsValid);
@@ -172,8 +175,8 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupHttpResponse(HttpStatusCode.InternalServerError, "Server error");
 			var imageFile = CreateMockImageFile();
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.ExtractTextFromImageAsync(imageFile.Object));
+			await Assert.ThrowsAsync<Exception>(
+				() => service.ExtractTextFromImageAsync(imageFile.Object));
 		}
 
 		[Fact]
@@ -183,7 +186,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var imageFile = CreateMockImageFile();
 
 			await Assert.ThrowsAsync<JsonException>(
-				() => _service.ExtractTextFromImageAsync(imageFile.Object));
+				() => service.ExtractTextFromImageAsync(imageFile.Object));
 		}
 
 		[Fact]
@@ -194,8 +197,8 @@ namespace Cryptomind.Tests.Unit.Services
 				error: "OCR processing failed"));
 			var imageFile = CreateMockImageFile();
 
-			var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.ExtractTextFromImageAsync(imageFile.Object));
+			var exception = await Assert.ThrowsAsync<Exception>(
+				() => service.ExtractTextFromImageAsync(imageFile.Object));
 
 			Assert.Contains("OCR extraction failed", exception.Message);
 		}
@@ -207,8 +210,8 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task ExtractTextWithMultipleMethodsAsync_Throws_WhenImageFileIsNull()
 		{
-			await Assert.ThrowsAsync<ArgumentException>(
-				() => _service.ExtractTextWithMultipleMethodsAsync(null));
+			await Assert.ThrowsAsync<CustomValidationException>(
+				() => service.ExtractTextWithMultipleMethodsAsync(null));
 		}
 
 		[Fact]
@@ -216,8 +219,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var imageFile = CreateMockImageFile(length: 0);
 
-			await Assert.ThrowsAsync<ArgumentException>(
-				() => _service.ExtractTextWithMultipleMethodsAsync(imageFile.Object));
+			await Assert.ThrowsAsync<CustomValidationException>(
+				() => service.ExtractTextWithMultipleMethodsAsync(imageFile.Object));
 		}
 
 		[Fact]
@@ -226,7 +229,7 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupHttpResponse(HttpStatusCode.OK, CreateOCRResponse());
 			var imageFile = CreateMockImageFile();
 
-			var result = await _service.ExtractTextWithMultipleMethodsAsync(imageFile.Object);
+			var result = await service.ExtractTextWithMultipleMethodsAsync(imageFile.Object);
 
 			Assert.NotNull(result);
 			Assert.True(result.Success);
@@ -239,8 +242,8 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupHttpResponse(HttpStatusCode.BadRequest, "Bad request");
 			var imageFile = CreateMockImageFile();
 
-			await Assert.ThrowsAsync<InvalidOperationException>(
-				() => _service.ExtractTextWithMultipleMethodsAsync(imageFile.Object));
+			await Assert.ThrowsAsync<Exception>(
+				() => service.ExtractTextWithMultipleMethodsAsync(imageFile.Object));
 		}
 
 		#endregion
@@ -252,7 +255,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpResponse(HttpStatusCode.OK, "healthy");
 
-			var result = await _service.IsServiceHealthyAsync();
+			var result = await service.IsServiceHealthyAsync();
 
 			Assert.True(result);
 		}
@@ -262,7 +265,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpResponse(HttpStatusCode.ServiceUnavailable, "unhealthy");
 
-			var result = await _service.IsServiceHealthyAsync();
+			var result = await service.IsServiceHealthyAsync();
 
 			Assert.False(result);
 		}
@@ -272,7 +275,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpException(new HttpRequestException("Connection failed"));
 
-			var result = await _service.IsServiceHealthyAsync();
+			var result = await service.IsServiceHealthyAsync();
 
 			Assert.False(result);
 		}

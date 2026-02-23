@@ -16,9 +16,9 @@ namespace Cryptomind.Tests.Unit.Services
 {
 	public class NotificationServiceTests
 	{
-		private readonly Mock<IRepository<Notification, int>> _notificationRepoMock = new();
-		private readonly Mock<IHubContext<NotificationHub>> _hubContextMock = new();
-		private readonly NotificationService _service;
+		private readonly Mock<IRepository<Notification, int>> notificationRepoMock = new();
+		private readonly Mock<IHubContext<NotificationHub>> hubContextMock = new();
+		private readonly NotificationService service;
 
 		public NotificationServiceTests()
 		{
@@ -29,15 +29,15 @@ namespace Cryptomind.Tests.Unit.Services
 			hubClientsMock.Setup(c => c.User(It.IsAny<string>())).Returns(clientProxyMock.Object);
 			hubClientsMock.Setup(c => c.Group(It.IsAny<string>())).Returns(clientProxyMock.Object);
 			hubClientsMock.Setup(c => c.All).Returns(clientProxyMock.Object);
-			_hubContextMock.Setup(h => h.Clients).Returns(hubClientsMock.Object);
+			hubContextMock.Setup(h => h.Clients).Returns(hubClientsMock.Object);
 
-			_service = new NotificationService(
-				_notificationRepoMock.Object,
-				_hubContextMock.Object);
+			service = new NotificationService(
+				notificationRepoMock.Object,
+				hubContextMock.Object);
 
-			_notificationRepoMock.Setup(r => r.AddAsync(It.IsAny<Notification>()))
+			notificationRepoMock.Setup(r => r.AddAsync(It.IsAny<Notification>()))
 				.Returns(Task.CompletedTask);
-			_notificationRepoMock.Setup(r => r.UpdateAsync(It.IsAny<Notification>()))
+			notificationRepoMock.Setup(r => r.UpdateAsync(It.IsAny<Notification>()))
 				.ReturnsAsync(true);
 		}
 
@@ -57,7 +57,7 @@ namespace Cryptomind.Tests.Unit.Services
 		private void SetupAttachedNotifications(params Notification[] notifications)
 		{
 			var mock = new List<Notification>(notifications).AsQueryable().BuildMock();
-			_notificationRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
+			notificationRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
 		}
 
 		#region CreateAndSendNotification
@@ -66,11 +66,11 @@ namespace Cryptomind.Tests.Unit.Services
  		public async Task CreateAndSendNotification_CreatesNotification_WithCorrectFields() //Will have to fix this
 		{
 			Notification captured = null;
-			_notificationRepoMock.Setup(r => r.AddAsync(It.IsAny<Notification>()))
+			notificationRepoMock.Setup(r => r.AddAsync(It.IsAny<Notification>()))
 				.Callback<Notification>(n => captured = n)
 				.Returns(Task.CompletedTask);
 
-			await _service.CreateAndSendNotification(
+			await service.CreateAndSendNotification(
 				"u1",
 				NotificationType.CipherApproved,
 				"Your cipher was approved",
@@ -92,7 +92,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedNotifications();
 
-			var result = await _service.GetUnreadCount("u1");
+			var result = await service.GetUnreadCount("u1");
 
 			Assert.Equal(0, result);
 		}
@@ -105,7 +105,7 @@ namespace Cryptomind.Tests.Unit.Services
 				MakeNotification(2, "u1", isRead: false),
 				MakeNotification(3, "u1", isRead: true));
 
-			var result = await _service.GetUnreadCount("u1");
+			var result = await service.GetUnreadCount("u1");
 
 			Assert.Equal(2, result);
 		}
@@ -117,7 +117,7 @@ namespace Cryptomind.Tests.Unit.Services
 				MakeNotification(1, "u1", isRead: false),
 				MakeNotification(2, "u2", isRead: false));
 
-			var result = await _service.GetUnreadCount("u1");
+			var result = await service.GetUnreadCount("u1");
 
 			Assert.Equal(1, result);
 		}
@@ -131,7 +131,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedNotifications();
 
-			var result = await _service.GetUserNotifications("u1");
+			var result = await service.GetUserNotifications("u1");
 
 			Assert.Empty(result);
 		}
@@ -143,7 +143,7 @@ namespace Cryptomind.Tests.Unit.Services
 				MakeNotification(1, "u1"),
 				MakeNotification(2, "u2"));
 
-			var result = await _service.GetUserNotifications("u1");
+			var result = await service.GetUserNotifications("u1");
 
 			Assert.Single(result);
 			Assert.Equal(1, result[0].Id);
@@ -157,7 +157,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var newest = MakeNotification(3, "u1", createdAt: DateTime.UtcNow);
 			SetupAttachedNotifications(old, recent, newest);
 
-			var result = await _service.GetUserNotifications("u1");
+			var result = await service.GetUserNotifications("u1");
 
 			Assert.Equal(3, result[0].Id);
 			Assert.Equal(2, result[1].Id);
@@ -172,7 +172,7 @@ namespace Cryptomind.Tests.Unit.Services
 				.ToArray();
 			SetupAttachedNotifications(notifications);
 
-			var result = await _service.GetUserNotifications("u1");
+			var result = await service.GetUserNotifications("u1");
 
 			Assert.Equal(20, result.Count);
 		}
@@ -184,7 +184,7 @@ namespace Cryptomind.Tests.Unit.Services
 				MakeNotification(1, "u1", isRead: true),
 				MakeNotification(2, "u1", isRead: false));
 
-			var result = await _service.GetUserNotifications("u1");
+			var result = await service.GetUserNotifications("u1");
 
 			Assert.Equal(2, result.Count);
 		}

@@ -263,7 +263,7 @@ namespace Cryptomind.Core.Services
 				throw new NotFoundException("User not found.");
 
 			if (string.IsNullOrEmpty(model.Title))
-				throw new ValidationException("Title is required.");
+				throw new CustomValidationException("Title is required.");
 
 			if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.Title == model.Title && x.Id != id && !x.IsDeleted) != null)
 				throw new ConflictException("There is already a cipher with this title");
@@ -344,7 +344,7 @@ namespace Cryptomind.Core.Services
 				throw new ConflictException("Cipher is not approved");
 
 			if (string.IsNullOrEmpty(model.Title))
-				throw new ValidationException("Title is required.");
+				throw new CustomValidationException("Title is required.");
 			if (cipherRepo.GetAll().FirstOrDefault(x => x.Title == model.Title && x.Id != id && !x.IsDeleted) != null)
 				throw new ConflictException("There is already a cipher with this title");
 
@@ -415,7 +415,7 @@ namespace Cryptomind.Core.Services
 			if (newTitle != null)
 			{
 				if (string.IsNullOrEmpty(newTitle))
-					throw new ValidationException("Title is required");
+					throw new CustomValidationException("Title is required");
 
 				titleConflict = (await cipherRepo.GetAllAsync())
 					.Any(x => x.Title == newTitle && x.Id != cipher.Id && !x.IsDeleted);
