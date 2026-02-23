@@ -1,0 +1,117 @@
+/* ============================================================
+   pending-ciphers.css
+   CryptoMind — Pending Cipher Submissions Page
+============================================================ */
+@import './admin-base.css';
+
+/* ─── CIPHER PREVIEW ─── */
+.cipher-preview {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ─── HAS IMAGE indicator ─── */
+.image-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--sky-400);
+    background: var(--sky-dim);
+    border: 1px solid rgba(56, 189, 248, 0.20);
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+/* ─── FILTER TABS ─── */
+.filter-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    padding: 3px;
+}
+
+.filter-tab {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    padding: 5px 12px;
+    border-radius: 4px;
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.filter-tab.active {
+    background: var(--yellow-dim);
+    color: var(--yellow-500);
+}
+
+.filter-tab:hover:not(.active) {
+    color: var(--text-secondary);
+}
+
+/* ─── SUBMISSION TYPE ─── */
+.type-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+/* ─── ML CONFIDENCE INLINE ─── */
+.confidence-inline {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 100px;
+}
+
+.confidence-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.confidence-type {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-secondary);
+}
+
+.confidence-pct {
+    font-family: var(--font-mono);
+    font-size: 10px;
+}
+
+.confidence-bar {
+    height: 3px;
+    background: var(--bg-elevated);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.confidence-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+}
+
+.confidence-high .confidence-bar-fill { background: var(--emerald-500); }
+.confidence-high .confidence-pct { color: var(--emerald-500); }
+.confidence-low .confidence-bar-fill { background: var(--rose-500); }
+.confidence-low .confidence-pct { color: var(--rose-500); }
+.confidence-mid .confidence-bar-fill { background: var(--yellow-500); }
+.confidence-mid .confidence-pct { color: var(--yellow-500); }

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Submissions — Cryptomind</title>
+    <link rel="stylesheet" href="styles/my-submissions.css" />
+</head>
+<body>
+
+    <!-- ─── NAVBAR ─── -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="navbar-logo">
+                <span class="bracket">[</span>CRYPTOMIND<span class="bracket">]</span>
+            </a>
+            <ul class="navbar-nav">
+                <li><a href="/browse">Browse</a></li>
+                <li><a href="/leaderboard">Leaderboard</a></li>
+                <li><a href="/tools">Tools</a></li>
+                <li><a href="/about">About</a></li>
+            </ul>
+            <div class="navbar-actions">
+                <a href="/submit" class="btn-nav-ghost">Submit Cipher</a>
+                <a href="/dashboard" class="btn-nav-primary">Dashboard</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ─── PAGE ─── -->
+    <main class="page-wrapper">
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <nav class="breadcrumb">
+                <a href="/">Home</a>
+                <span class="breadcrumb-sep">/</span>
+                <a href="/dashboard">Dashboard</a>
+                <span class="breadcrumb-sep">/</span>
+                <span class="breadcrumb-current">My Submissions</span>
+            </nav>
+            <h1 class="page-title">My <span>Submissions</span></h1>
+            <p class="page-subtitle">Track your cipher submissions and answer suggestions</p>
+        </div>
+
+        <!-- Stats Strip -->
+        <div class="stats-strip">
+            <div class="stat-chip">
+                <span class="stat-chip-label">Total</span>
+                <div class="stat-divider"></div>
+                <span class="stat-chip-value">3</span>
+            </div>
+            <div class="stat-chip">
+                <span class="stat-chip-label">Approved</span>
+                <div class="stat-divider"></div>
+                <span class="stat-chip-value emerald">1</span>
+            </div>
+            <div class="stat-chip">
+                <span class="stat-chip-label">Pending</span>
+                <div class="stat-divider"></div>
+                <span class="stat-chip-value yellow">1</span>
+            </div>
+            <div class="stat-chip">
+                <span class="stat-chip-label">Rejected</span>
+                <div class="stat-divider"></div>
+                <span class="stat-chip-value rose">1</span>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs-nav">
+            <button class="tab-btn active" data-tab="ciphers">
+                Cipher Submissions
+                <span class="tab-count">3</span>
+            </button>
+            <button class="tab-btn" data-tab="answers">
+                Answer Suggestions
+                <span class="tab-count">2</span>
+            </button>
+        </div>
+
+        <!-- ─── CIPHER SUBMISSIONS TAB ─── -->
+        <div id="tab-ciphers" class="tab-content active">
+
+            <!-- Approved Card -->
+            <div class="submission-card">
+                <div class="card-header">
+                    <span class="card-title">The Ancient Roman Secret</span>
+                    <span class="status-badge status-approved">Approved</span>
+                </div>
+                <div class="card-meta">
+                    <span class="meta-item">📅 Dec 15, 2024</span>
+                    <span class="meta-dot"></span>
+                    <span class="meta-tag">Caesar</span>
+                    <span class="meta-dot"></span>
+                    <span class="meta-item">Standard</span>
+                </div>
+                <p class="card-description border-emerald">
+                    A Caesar cipher with a shift of 3, describing Roman military tactics.
+                </p>
+                <div class="card-footer">
+                    <div class="card-footer-left">
+                        <button class="btn-card-action">View Cipher</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Card -->
+            <div class="submission-card">
+                <div class="card-header">
+                    <span class="card-title">Mystery Code Challenge</span>
+                    <span class="status-badge status-pending">Pending Review</span>
+                </div>
+                <div class="card-meta">
+                    <span class="meta-item">📅 Dec 18, 2024</span>
+                    <span class="meta-dot"></span>
+                    <span class="meta-tag">Vigenere</span>
+                    <span class="meta-dot"></span>
+                    <span class="meta-item">Under Review</span>
+                </div>
+                <p class="card-description border-yellow">
+                    A Vigenere cipher waiting for admin approval and classification.
+                </p>
+                <div class="card-footer">
+                    <div class="card-footer-left">
+                        <button class="btn-card-action">View Details</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rejected Card -->
+            <div class="submission-card">
+                <div class="card-header">
+                    <span class="card-title">Quick Cipher Test</span>
+                    <span class="status-badge status-rejected">Rejected</span>
+                </div>
+                <div class="card-meta">
+                    <span class="meta-item">📅 Dec 10, 2024</span>
+                </div>
+                <p class="card-description border-rose">
+                    Submitted cipher text did not meet the minimum character requirement.
+                </p>
+                <div class="rejection-notice">
+                    <span class="rejection-icon">⚠</span>
+                    <p class="rejection-text">
+                        <strong>Rejection reason: </strong>Text was too short — minimum 150 characters required.
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <div class="card-footer-left">
+                        <button class="btn-card-action">View Details</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ─── ANSWER SUGGESTIONS TAB ─── -->
+        <div id="tab-answers" class="tab-content">
+
+            <!-- Approved Answer -->
+            <div class="submission-card">
+                <div class="card-header">
+                    <span class="card-title">Answer for: "Lost Message"</span>
+                    <span class="status-badge status-approved">Correct</span>
+                </div>
+                <div class="card-meta">
+                    <span class="meta-item">📅 Dec 16, 2024</span>
+                    <span class="meta-dot"></span>
+                    <span class="meta-item">Verified Correct</span>
+                </div>
+                <p class="card-description border-emerald">
+                    Your answer was correct. The plaintext was deciphered using ROT13 analysis.
+                </p>
+                <div class="card-footer">
+                    <div class="card-footer-left">
+                        <span class="points-badge">+50 pts</span>
+                    </div>
+                    <div class="card-footer-right">
+                        <button class="btn-card-action">View Cipher</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Answer -->
+            <div class="submission-card">
+                <div class="card-header">
+                    <span class="card-title">Answer for: "Vigenere Challenge"</span>
+                    <span class="status-badge status-pending">Pending Review</span>
+                </div>
+                <div class="card-meta">
+                    <span class="meta-item">📅 Dec 19, 2024</span>
+                    <span class="meta-dot"></span>
+                    <span class="meta-item">Awaiting Verification</span>
+                </div>
+                <p class="card-description border-yellow">
+                    Your answer is awaiting admin verification.
+                </p>
+                <div class="card-footer">
+                    <div class="card-footer-left"></div>
+                    <div class="card-footer-right">
+                        <button class="btn-card-action">View Details</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty state (uncomment when no answers exist)
+            <div class="empty-state">
+                <div class="empty-state-icon">💡</div>
+                <p class="empty-state-title">No Answer Suggestions Yet</p>
+                <p class="empty-state-subtitle">Browse experimental ciphers and submit your solution to have it verified.</p>
+                <a href="/browse?type=experimental" class="btn-empty-cta">Browse Experimental</a>
+            </div>
+            -->
+
+        </div>
+
+    </main>
+
+    <!-- ─── FOOTER ─── -->
+    <footer class="footer">
+        <p class="footer-text">
+            <span>[CRYPTOMIND]</span> &mdash; Educational Cryptanalysis Platform
+        </p>
+    </footer>
+
+</body>
+</html>
