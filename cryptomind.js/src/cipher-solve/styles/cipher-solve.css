@@ -224,8 +224,11 @@ body {
 .tag-medium { border-color: var(--orange-400);  color: var(--orange-400);  background: var(--orange-dim); }
 .tag-hard   { border-color: var(--rose-500);    color: var(--rose-500);    background: var(--rose-dim); }
 .tag-type   { border-color: var(--border-yellow); color: var(--yellow-500); background: var(--yellow-faint); }
-.tag-cipher { border-color: var(--border-hover); color: var(--text-secondary); background: rgba(255,255,255,0.03); }
-
+.tag-cipher { 
+    border-color: rgba(99, 179, 237, 0.4); 
+    color: #63b3ed; 
+    background: rgba(99, 179, 237, 0.07); 
+}
 .difficulty-badge {
     flex-shrink: 0;
     display: flex;

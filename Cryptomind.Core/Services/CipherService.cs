@@ -253,7 +253,7 @@ namespace Cryptomind.Core.Services
 				FullSolutionUsed = userHints.Any(x => x.HintType == HintType.FullSolution),
 				AllSubmissions = cipher.UserSolutions.Count(),
 				SuccessfulSubmissions = (int)successfullSolutionCount,
-				Tags = cipher.CipherTags.Select(x => x.Tag).ToList(),
+				Tags = cipher.CipherTags.Select(x => x.Tag.Type.ToString()).ToList(),
 				PreviousHints = userHints.Select(x => new HintData
 				{
 					Type = x.HintType,
