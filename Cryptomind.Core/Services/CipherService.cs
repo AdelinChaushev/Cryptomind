@@ -120,6 +120,8 @@ namespace Cryptomind.Core.Services
 				throw new ConflictException("Cannot solve the same cipher 2 times");
 
 			var userNow = await userManager.FindByIdAsync(userId);
+			if (userNow == null)
+				throw new Exception($"Data integrity error: user {cipher.CreatedByUserId} not found for cipher {cipher.Id}.");
 
 			if (!userNow.CipherAnswers.Any(x => x.CipherId == cipherId))
 				userNow.AttemptedCiphers += 1;
@@ -154,19 +156,12 @@ namespace Cryptomind.Core.Services
 					cipher.Points,
 					usedTypeHint,
 					usedSolutionHint,
-					usedFullSolution);
-
-				ApplicationUser user = await userManager.FindByIdAsync(userId);
-
-				if (user == null)
-					throw new Exception($"Data integrity error: user {cipher.CreatedByUserId} not found for cipher {cipher.Id}.");
+					usedFullSolution);		
 
 				userSolution.PointsEarned = pointsEarned;
 				userSolution.IsCorrect = true;
 
-				user.Score += pointsEarned;
-
-				await userManager.UpdateAsync(user);
+				userNow.Score += pointsEarned;
 			}
 			await userManager.UpdateAsync(userNow);
 			await solutionRepo.AddAsync(userSolution);
