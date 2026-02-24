@@ -17,7 +17,6 @@ const PendingAnswers = () => {
     const [debouncedCipherName, setDebouncedCipherName] = useState('');
     const [debouncedUsername, setDebouncedUsername] = useState('');
 
-    // Debounce cipher name filter
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedCipherName(cipherNameFilter);
@@ -25,7 +24,6 @@ const PendingAnswers = () => {
         return () => clearTimeout(timer);
     }, [cipherNameFilter]);
 
-    // Debounce username filter
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedUsername(usernameFilter);
@@ -33,7 +31,6 @@ const PendingAnswers = () => {
         return () => clearTimeout(timer);
     }, [usernameFilter]);
 
-    // Fetch pending answers
     const fetchAnswers = useCallback(async () => {
         try {
             setLoading(true);
@@ -57,7 +54,6 @@ const PendingAnswers = () => {
         fetchAnswers();
     }, [fetchAnswers]);
 
-    // Refresh button handler
     useEffect(() => {
         const refreshBtn = document.getElementById('btn-refresh-answers');
         if (refreshBtn) {
@@ -73,17 +69,17 @@ const PendingAnswers = () => {
             <AdminSidebar activePage="pending-answers" />
 
             <main className="admin-main">
-                <AdminTopbar breadcrumbs={[{ label: 'Pending Answers' }]}>
+                <AdminTopbar breadcrumbs={[{ label: 'Изчакващи отговори' }]}>
                     <button className="btn btn-ghost btn-sm" id="btn-refresh-answers">
-                        Refresh
+                        Опресни
                     </button>
                 </AdminTopbar>
 
                 <div className="admin-content">
                     <div className="page-header">
-                        <h1 className="page-title">Pending Answer Suggestions</h1>
+                        <h1 className="page-title">Изчакващи предложени отговори</h1>
                         <p className="page-subtitle">
-                            {answers.length} suggestion{answers.length !== 1 ? 's' : ''} awaiting review
+                            {answers.length} предложени{answers.length !== 1 ? 'я' : 'е'} изчакват преглед
                         </p>
                     </div>
 
@@ -97,7 +93,7 @@ const PendingAnswers = () => {
                                 <input
                                     type="text"
                                     className="form-input"
-                                    placeholder="Filter by cipher name..."
+                                    placeholder="Филтър по име на шифър..."
                                     value={cipherNameFilter}
                                     onChange={(e) => setCipherNameFilter(e.target.value)}
                                 />
@@ -110,14 +106,14 @@ const PendingAnswers = () => {
                                 <input
                                     type="text"
                                     className="form-input"
-                                    placeholder="Filter by username..."
+                                    placeholder="Филтър по потребителско име..."
                                     value={usernameFilter}
                                     onChange={(e) => setUsernameFilter(e.target.value)}
                                 />
                             </div>
                         </div>
                         <div className="toolbar-right">
-                            {loading && <span style={{ fontSize: '11px', color: 'var(--text-dim)' }}>Loading...</span>}
+                            {loading && <span style={{ fontSize: '11px', color: 'var(--text-dim)' }}>Зареждане...</span>}
                         </div>
                     </div>
 
@@ -125,7 +121,7 @@ const PendingAnswers = () => {
                     {error ? (
                         <div className="data-table-wrapper">
                             <div className="empty-state">
-                                <div className="empty-state-title">Error loading suggestions</div>
+                                <div className="empty-state-title">Грешка при зареждане на предложенията</div>
                                 <div className="empty-state-text">{error}</div>
                             </div>
                         </div>
@@ -135,11 +131,11 @@ const PendingAnswers = () => {
                                 <svg className="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                                 </svg>
-                                <div className="empty-state-title">No pending suggestions</div>
+                                <div className="empty-state-title">Няма изчакващи предложения</div>
                                 <div className="empty-state-text">
                                     {cipherNameFilter || usernameFilter 
-                                        ? 'No results match your filters' 
-                                        : 'All community suggestions have been reviewed'}
+                                        ? 'Няма резултати, съответстващи на филтрите' 
+                                        : 'Всички предложения от общността са прегледани'}
                                 </div>
                             </div>
                         </div>
@@ -149,9 +145,9 @@ const PendingAnswers = () => {
                                 <thead>
                                     <tr>
                                         <th>ID</th>
-                                        <th>Cipher Name</th>
-                                        <th>Description</th>
-                                        <th>Submitted By</th>
+                                        <th>Шифър</th>
+                                        <th>Описание</th>
+                                        <th>Предложен от</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -167,13 +163,10 @@ const PendingAnswers = () => {
                                                     href={`/cipher/${answer.cipherId}`}
                                                     className="cipher-ref"
                                                     target="_blank"
-                                                    rel="noreferrer"
-                                                >
-                                                    {answer.cipherName || `Cipher #${answer.cipherId}`}
+                                                    rel="noreferrer">
+                                                
+                                                    {answer.cipherName || `Шифър #${answer.cipherId}`}
                                                 </a>
-                                                {/* <div style={{ marginTop: '2px' }}>
-                                                    <span className="badge badge-experimental">Experimental</span>
-                                                </div> */}
                                             </td>
 
                                             <td>
@@ -191,7 +184,7 @@ const PendingAnswers = () => {
                                                     to={`/admin/answer-review/${answer.id}`}
                                                     className="btn btn-primary btn-sm"
                                                 >
-                                                    Review →
+                                                    Прегледай →
                                                 </Link>
                                             </td>
                                         </tr>

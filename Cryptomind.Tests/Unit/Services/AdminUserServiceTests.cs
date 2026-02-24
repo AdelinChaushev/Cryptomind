@@ -214,7 +214,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var user = MakeUser("u1", "alice", "alice@test.com");
 			user.RegisteredAt = DateTime.UtcNow.AddHours(2).AddDays(-10);
 			user.Score = 500;
-			user.SolvedCount = 3;
+			//user.SolvedCount = 3;
 			SetupUsers(user);
 			userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
 						.ReturnsAsync(new List<string>());

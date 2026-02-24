@@ -30,7 +30,17 @@ namespace Cryptomind.Core.Services.OCR
 			if (imageFile == null || imageFile.Length == 0)
 				throw new CustomValidationException("Image file cannot be empty");
 
-			return await SendOCRRequestAsync(imageFile, "ocr/extract");
+			try
+			{
+				return await SendOCRRequestAsync(imageFile, "ocr/extract");
+			}
+			catch (Exception ex)
+			{
+				throw new Exception(
+					$"ML service is unavailable. Please ensure the Python ML API is running at {ocrApiUrl}",
+					ex
+				);
+			}
 		}
 		public async Task<OCRResultDTO> ExtractTextWithMultipleMethodsAsync(IFormFile imageFile)
 		{
