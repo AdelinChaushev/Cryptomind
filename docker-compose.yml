@@ -1,0 +1,76 @@
+services:
+
+  frontend:
+    build:
+      context: ./cryptomind.js
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - cryptomind-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Cryptomind/Dockerfile
+    ports:
+      - "5115:8080"
+    environment:
+    - ASPNETCORE_ENVIRONMENT=Production
+    - ASPNETCORE_URLS=http://+:8080
+    - LLMService__ApiKey=${OPENAI_API_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+      ml-server:
+        condition: service_started
+      ocr-server:
+        condition: service_started
+    networks:
+      - cryptomind-network
+
+  ml-server:
+    build:
+      context: ./Cryptomind.AI
+    ports:
+      - "5002:5002"
+    networks:
+      - cryptomind-network
+
+  ocr-server:
+    build:
+      context: ./Cryptomind.OCR
+    ports:
+      - "5001:5001"
+    volumes:
+      - ocr-uploads:/app/uploads
+    networks:
+      - cryptomind-network
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: CryptoM1nd#Dev
+      MSSQL_PID: Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - cryptomind-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P CryptoM1nd#Dev -Q 'SELECT 1' -No"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+networks:
+  cryptomind-network:
+    driver: bridge
+
+volumes:
+  sqlserver-data:
+  ocr-uploads:
