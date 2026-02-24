@@ -4,23 +4,23 @@ import StepNode from './StepNode';
 const steps = [
     {
         number: 1,
-        title: 'Browse Ciphers',
-        description: 'Explore our collection of classical ciphers. Filter by difficulty, type, or popularity to find your perfect challenge.'
+        title: 'Разгледай шифрите',
+        description: 'Разгледайте колекцията ни от класически шифри. Филтрирайте по трудност, вид или популярност, за да намерите идеалното предизвикателство.'
     },
     {
         number: 2,
-        title: 'Solve or Submit',
-        description: 'Crack existing ciphers or submit your own encrypted messages for others to solve. Every cipher is a new puzzle.'
+        title: 'Реши или предложи',
+        description: 'Разбийте съществуващи шифри или предложете свои криптирани послания за решаване от другите. Всеки шифър е нова загадка.'
     },
     {
         number: 3,
-        title: 'Earn Points',
-        description: 'Gain points for correct solutions and climb the leaderboard. The more challenging the cipher, the more points you earn.'
+        title: 'Спечели точки',
+        description: 'Натрупвайте точки за верни решения и се изкачвайте в класацията. Колкото по-трудни шифри решавате, толкова повече точки печелите.'
     },
     {
         number: 4,
-        title: 'Learn with AI',
-        description: 'Stuck? Get AI-powered hints or full solutions. Our ML system identifies cipher types and guides your learning.'
+        title: 'Учи с AI',
+        description: 'Затруднихте се? Получете AI-подсказки или пълни решения. Нашата ML система разпознава видовете шифри и насочва вашето обучение.'
     }
 ];
 
@@ -94,13 +94,13 @@ const useDecodeOnScroll = (ref, originalText) => {
 
 const HowItWorks = () => {
     const headerRef = useRef(null);
-    useDecodeOnScroll(headerRef, 'How It Works');
+    useDecodeOnScroll(headerRef, 'Как работи');
 
     return (
         <section className="how-it-works">
             <div className="section-header">
-                <h2 ref={headerRef}>How It Works</h2>
-                <p>Start solving in four simple steps</p>
+                <h2 ref={headerRef}>Как работи</h2>
+                <p>Започнете да решавате в четири прости стъпки</p>
             </div>
             <div className="steps-timeline">
                 {steps.map((step, index) => (

@@ -60,7 +60,7 @@ namespace Cryptomind.Tests.Unit.Services
 				HintsRequested = hintsRequested ?? new List<HintRequest>(),
 				CipherTags = new List<CipherTag>(),
 				CreatedByUserId = createdByUserId,
-				CreatedAt = DateTime.UtcNow,
+				CreatedAt = DateTime.UtcNow.AddHours(2),
 			};
 
 		private static ApplicationUser MakeUser(string id, int score = 0, int solvedCount = 0) => new()
@@ -143,9 +143,9 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task GetApprovedAsync_OrdersByNewest()
 		{
 			var old = MakeCipher(1, ChallengeType.Standard);
-			old.CreatedAt = DateTime.UtcNow.AddDays(-2);
+			old.CreatedAt = DateTime.UtcNow.AddHours(2).AddDays(-2);
 			var recent = MakeCipher(2, ChallengeType.Standard);
-			recent.CreatedAt = DateTime.UtcNow.AddDays(-1);
+			recent.CreatedAt = DateTime.UtcNow.AddHours(2).AddDays(-1);
 			SetupAttachedCiphers(old, recent);
 
 			var result = await service.GetApprovedAsync(new CipherFilter { OrderTerm = CipherOrderTerm.Newest }, "u1");
@@ -158,9 +158,9 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task GetApprovedAsync_OrdersByOldest()
 		{
 			var old = MakeCipher(1, ChallengeType.Standard);
-			old.CreatedAt = DateTime.UtcNow.AddDays(-2);
+			old.CreatedAt = DateTime.UtcNow.AddHours(2).AddDays(-2);
 			var recent = MakeCipher(2, ChallengeType.Standard);
-			recent.CreatedAt = DateTime.UtcNow.AddDays(-1);
+			recent.CreatedAt = DateTime.UtcNow.AddHours(2).AddDays(-1);
 			SetupAttachedCiphers(old, recent);
 
 			var result = await service.GetApprovedAsync(new CipherFilter { OrderTerm = CipherOrderTerm.Oldest }, "u1");

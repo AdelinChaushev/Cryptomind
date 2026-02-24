@@ -1,17 +1,8 @@
-// Props:
-//   resultsCount       — number, how many ciphers are shown
-//   activeFilters      — array of { label: string, onRemove: () => void }
-//                        each entry renders as a removable pill
-//   sortBy             — string, current sort value
-//   onSortChange       — (value: string) => void
-//   activeFilterCount  — number, shown as badge on the mobile filter button
-//   onMobileFilterToggle — () => void, opens/closes the sidebar on mobile
-
 const SORT_OPTIONS = [
-    { value: 0,          label: 'Newest' },
-    { value: 1,          label: 'Oldest' },
-    { value: 2,         label: 'Most Popular' },
-    {value : 3,label:'Least Solved'}
+    { value: 0, label: 'Най-нови' },
+    { value: 1, label: 'Най-стари' },
+    { value: 2, label: 'Най-популярни' },
+    { value: 3, label: 'Най-малко решавани' }
 ];
 
 const ContentTopbar = ({
@@ -26,7 +17,7 @@ const ContentTopbar = ({
         <>
             <div className="content-topbar">
                 <div className="results-info">
-                    Showing <span className="results-count">{resultsCount}</span> challenges
+                    Показване на <span className="results-count">{resultsCount}</span> предизвикателства
                     <span className="active-filters-row">
                         {activeFilters.map((filter, index) => (
                             <span className="active-filter-pill" key={index}>
@@ -42,7 +33,7 @@ const ContentTopbar = ({
                     </span>
                 </div>
                 <div className="sort-wrapper">
-                    <label className="sort-label" htmlFor="sortSelect">Sort by</label>
+                    <label className="sort-label" htmlFor="sortSelect">Сортирай по</label>
                     <select
                         className="sort-select"
                         id="sortSelect"
@@ -57,10 +48,9 @@ const ContentTopbar = ({
                     </select>
                 </div>
             </div>
-
-            {/* Mobile filter toggle — only visible below 768px via CSS */}
+            
             <button className="mobile-filter-btn" onClick={onMobileFilterToggle}>
-                <span>⚙ Filters</span>
+                <span>⚙ Филтри</span>
                 {activeFilterCount > 0 && (
                     <span className="mobile-filter-badge">{activeFilterCount}</span>
                 )}

@@ -52,7 +52,7 @@ namespace Cryptomind.Tests.Unit.Services
 				Message = $"Notification {id}",
 				Link = $"/link/{id}",
 				IsRead = isRead,
-				CreatedAt = createdAt ?? DateTime.UtcNow,
+				CreatedAt = createdAt ?? DateTime.UtcNow.AddHours(2),
 			};
 
 		private void SetupAttachedNotifications(params Notification[] notifications)
@@ -189,9 +189,9 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task GetUserNotifications_OrdersByCreatedAt_Descending()
 		{
-			var old = MakeNotification(1, "u1", createdAt: DateTime.UtcNow.AddDays(-2));
-			var recent = MakeNotification(2, "u1", createdAt: DateTime.UtcNow.AddDays(-1));
-			var newest = MakeNotification(3, "u1", createdAt: DateTime.UtcNow);
+			var old = MakeNotification(1, "u1", createdAt: DateTime.UtcNow.AddHours(2).AddDays(-2));
+			var recent = MakeNotification(2, "u1", createdAt: DateTime.UtcNow.AddHours(2).AddDays(-1));
+			var newest = MakeNotification(3, "u1", createdAt: DateTime.UtcNow.AddHours(2));
 			SetupAttachedNotifications(old, recent, newest);
 
 			var result = await service.GetUserNotifications("u1");
@@ -229,7 +229,7 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task GetUserNotifications_MapsFieldsCorrectly()
 		{
-			var createdAt = DateTime.UtcNow.AddHours(-2);
+			var createdAt = DateTime.UtcNow.AddHours(2).AddHours(-2);
 			SetupAttachedNotifications(
 				new Notification
 				{
@@ -269,21 +269,19 @@ namespace Cryptomind.Tests.Unit.Services
 		#region MarkAsRead
 
 		[Fact]
-		public async Task MarkAsRead_Throws_WhenNotificationNotFound()
+		public async Task MarkAsRead_DoesNothing_WhenUserHasNoNotifications()
 		{
 			SetupAttachedNotifications();
-
-			await Assert.ThrowsAsync<NotFoundException>(
-				() => service.MarkAsRead( "u1"));
+			await service.MarkAsRead("u1");
+			notificationRepoMock.Verify(r => r.UpdateAsync(It.IsAny<Notification>()), Times.Never);
 		}
 
 		[Fact]
-		public async Task MarkAsRead_Throws_WhenNotificationBelongsToOtherUser()
+		public async Task MarkAsRead_DoesNothing_WhenNotificationBelongsToOtherUser()
 		{
 			SetupAttachedNotifications(MakeNotification(1, "u2"));
-
-			await Assert.ThrowsAsync<NotFoundException>(
-				() => service.MarkAsRead("u1"));
+			await service.MarkAsRead("u1");
+			notificationRepoMock.Verify(r => r.UpdateAsync(It.IsAny<Notification>()), Times.Never);
 		}
 
 		[Fact]
@@ -303,7 +301,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var notification = MakeNotification(1, "u1", isRead: false);
 			SetupAttachedNotifications(notification);
 
-			await service.MarkAsRead( "u1");
+			await service.MarkAsRead("u1");
 
 			notificationRepoMock.Verify(r => r.UpdateAsync(notification), Times.Once);
 		}
@@ -314,7 +312,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var notification = MakeNotification(1, "u1", isRead: true);
 			SetupAttachedNotifications(notification);
 
-			await service.MarkAsRead( "u1");
+			await service.MarkAsRead("u1");
 
 			Assert.True(notification.IsRead);
 			notificationRepoMock.Verify(r => r.UpdateAsync(notification), Times.Once);
@@ -337,17 +335,16 @@ namespace Cryptomind.Tests.Unit.Services
 		}
 
 		[Fact]
-		public async Task MarkAsRead_Throws_OnFirstNotFound_AndStopsProcessing()
+		public async Task MarkAsRead_OnlyMarks_NotificationsBelongingToUser()
 		{
-			// Only notification 1 exists, 99 does not
 			var n1 = MakeNotification(1, "u1", isRead: false);
-			SetupAttachedNotifications(n1);
-
-			await Assert.ThrowsAsync<NotFoundException>(
-				() => service.MarkAsRead( "u1"));
-
-			// Since 99 was processed first and threw, n1 should not have been updated
-			notificationRepoMock.Verify(r => r.UpdateAsync(It.IsAny<Notification>()), Times.Never);
+			var n2 = MakeNotification(2, "u2", isRead: false);
+			SetupAttachedNotifications(n1, n2);
+			await service.MarkAsRead("u1");
+			Assert.True(n1.IsRead);
+			Assert.False(n2.IsRead);
+			notificationRepoMock.Verify(r => r.UpdateAsync(n1), Times.Once);
+			notificationRepoMock.Verify(r => r.UpdateAsync(n2), Times.Never);
 		}
 
 		#endregion

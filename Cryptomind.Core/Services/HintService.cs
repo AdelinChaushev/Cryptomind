@@ -59,7 +59,7 @@ namespace Cryptomind.Core.Services
 				UserId = userId,
 				CipherId = cipherId,
 				HintType = hintType,
-				RequestedAt = DateTime.UtcNow,
+				RequestedAt = DateTime.UtcNow.AddHours(2),
 				HintContent = hintContent,
 			};
 

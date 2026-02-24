@@ -7,9 +7,9 @@ const CipherSubmissionsList = ({ submissions = [], onViewCipher}) => {
         return (
             <EmptyState
                 icon="🔐"
-                title="No Cipher Submissions Yet"
-                subtitle="Submit your first cipher and it will appear here once reviewed."
-                ctaLabel="Submit a Cipher"
+                title="Няма предложени шифри"
+                subtitle="Предложете първия си шифър и той ще се появи тук след преглед."
+                ctaLabel="Предложи шифър"
                 ctaHref="/submit"
             />
         );
@@ -28,7 +28,6 @@ const CipherSubmissionsList = ({ submissions = [], onViewCipher}) => {
                     description={submission.cipherText}
                     rejectionReason={submission.rejectionReason}
                     onViewCipher={() => onViewCipher(submission.id)}
-                   
                 />
             ))}
         </div>

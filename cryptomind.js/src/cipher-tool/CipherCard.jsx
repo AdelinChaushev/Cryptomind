@@ -2,12 +2,12 @@ export default function CipherCard({ cipher, familyColor, isOpen, onToggle }) {
   const dc = diffColor(cipher.difficulty);
   const fc = cipher.color;
   const fb = fc + "15";
-   function diffColor(d) {
-  if (d==="Beginner")    return "#10b981";
-  if (d==="Intermediate")return "#fbbf24";
-  if (d==="Advanced")    return "#f43f5e";
-  return T3;
-   }
+  function diffColor(d) {
+    if (d === "Начинаещ")  return "#10b981";
+    if (d === "Среден")    return "#fbbf24";
+    if (d === "Напреднал") return "#f43f5e";
+    return "#ffffff";
+  }
   return (
     <div className="cl-cipher" id={cipher.id}
       style={{ "--fc": fc, "--fb": fb, "--dc": dc, "--db": dc + "15" }}>

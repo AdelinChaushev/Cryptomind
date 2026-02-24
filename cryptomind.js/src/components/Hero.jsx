@@ -6,13 +6,13 @@ const Hero = () => {
         <section className="hero">
             <HeroTypewriter />
             <p>
-                Challenge yourself with classical ciphers, learn from AI-powered hints,
-                and compete with cryptographers worldwide. From Caesar to Vigenere,
-                unlock the secrets of encryption.
+                Предизвикайте себе си с класически шифри, учете се от AI-подсказки
+                и се състезавайте с криптографи от цял свят. От Цезар до Виженер,
+                разкрийте тайните на криптирането.
             </p>
             <div className="hero-buttons">
                 <a href="/register" className="btn btn-primary btn-hero">
-                    Start Solving Now
+                    Започни да решаваш
                 </a>
             </div>
         </section>

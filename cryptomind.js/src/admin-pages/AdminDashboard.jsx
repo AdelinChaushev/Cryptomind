@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
 import StatCard from './StatCard';
@@ -7,20 +7,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useError } from "../ErrorContext";
 
-
-
-/* ───────────────────────────────────────────
-   AdminDashboard.jsx
-   Landing page for the admin area.
-   Shows summary stats + quick navigation links + recent activity.
-   All data should come from your C# API endpoints:
-     GET /api/cipherAdmin/pendingCiphers  → count pending
-     GET /api/cipherAdmin/approvedCiphers → count approved
-     GET /api/users                       → count users
-     GET /api/answers/pending             → count pending answers
-─────────────────────────────────────────── */
-
-const AdminDashboard = ({recentActivity = [] }) => {
+const AdminDashboard = ({ recentActivity = [] }) => {
     const { setError } = useError(null);
     const [stats, setStats] = useState({  
         pendingCiphersCount: 0,
@@ -42,62 +29,66 @@ const AdminDashboard = ({recentActivity = [] }) => {
                 deletedCiphersCount: res.data.deletedCiphersCount,
                 pendingCipherTitles: res.data.pendingCipherTitles
             });
-            console.log("DASHBOARD STATS:", res.data);
-        }).catch(err => { setError(err.response.data.message); console.error(err); });
-    },[]);
+            console.log("СТАТИСТИКА ЗА ТАБЛОТО:", res.data);
+        }).catch(err => { 
+            setError(err.response?.data?.message || "Грешка при зареждане на статистиката"); 
+            console.error(err); 
+        });
+    }, [setError]);
+
     return (
         <div className="admin-shell">
             <AdminSidebar activePage="dashboard" />
 
             <main className="admin-main">
-                <AdminTopbar breadcrumbs={[{ label: 'Dashboard' }]} />
+                <AdminTopbar breadcrumbs={[{ label: 'Табло за управление' }]} />
 
                 <div className="admin-content">
                     <div className="page-header">
-                        <h1 className="page-title">Dashboard</h1>
-                        <p className="page-subtitle">Overview of platform activity and quick access to admin tools</p>
+                        <h1 className="page-title">Табло за управление</h1>
+                        <p className="page-subtitle">Преглед на активността в платформата и бърз достъп до администраторски инструменти</p>
                     </div>
 
-                    {/* ─── Stats Row ─── */}
+                    {/* ─── Ред със статистики ─── */}
                     <div className="stats-grid">
                         <StatCard
-                            label="Pending Submissions"
+                            label="Изчакващи предложения"
                             value={stats.pendingCiphersCount ?? '—'}
-                            sub="Awaiting review"
+                            sub="Очакват преглед"
                             accent="yellow"
                         />
                         <StatCard
-                            label="Approved Ciphers"
+                            label="Одобрени шифри"
                             value={stats.approvedCiphersCount ?? '—'}
-                            sub="Live on platform"
+                            sub="Активни в платформата"
                             accent="emerald"
                         />
                         
                         <StatCard
-                            label="Pending Answers"
+                            label="Изчакващи отговори"
                             value={stats.pendingAnswersCount ?? '—'}
-                            sub="Community suggestions"
+                            sub="Предложения от общността"
                             accent="sky"
                         />
                         <StatCard
-                            label="Approved Answers"
+                            label="Одобрени отговори"
                             value={stats.approvedAnswersCount ?? '—'}
-                            sub="Total accounts"
+                            sub="Общо потвърдени"
                             accent="violet"
                         />
                         <StatCard
-                            label="Deleted Ciphers"
+                            label="Изтрити шифри"
                             value={stats.deletedCiphersCount ?? '—'}
-                            sub="All time"
+                            sub="За цялото време"
                             accent="rose"
                         />
                     </div>
 
                     <div className="dashboard-grid">
-                        {/* ─── Quick Actions ─── */}
+                        {/* ─── Бързи действия ─── */}
                         <div className="admin-card">
                             <div className="admin-card-header">
-                                <span className="admin-card-title">Quick Actions</span>
+                                <span className="admin-card-title">Бързи действия</span>
                             </div>
                             <div className="quick-actions">
                                 <Link to="/admin/pending-ciphers" className="quick-action-link">
@@ -108,8 +99,8 @@ const AdminDashboard = ({recentActivity = [] }) => {
                                             </svg>
                                         </div>
                                         <div>
-                                            <div className="qa-label">Review Pending Ciphers</div>
-                                            <div className="qa-count">{stats.pendingCiphersCount ?? 0} waiting</div>
+                                            <div className="qa-label">Преглед на изчакващи шифри</div>
+                                            <div className="qa-count">{stats.pendingCiphersCount ?? 0} чакащи</div>
                                         </div>
                                     </div>
                                     <span className="qa-arrow">→</span>
@@ -124,12 +115,13 @@ const AdminDashboard = ({recentActivity = [] }) => {
                                             </svg>
                                         </div>
                                         <div>
-                                            <div className="qa-label">Manage Approved Ciphers</div>
-                                            <div className="qa-count">{stats.approvedCiphersCount ?? 0} ciphers</div>
+                                            <div className="qa-label">Управление на одобрени шифри</div>
+                                            <div className="qa-count">{stats.approvedCiphersCount ?? 0} шифъра</div>
                                         </div>
                                     </div>
                                     <span className="qa-arrow">→</span>
                                 </Link>
+
                                 <Link to="/admin/deleted-ciphers" className="quick-action-link">
                                     <div className="qa-left">
                                         <div className="qa-icon rose">
@@ -138,12 +130,13 @@ const AdminDashboard = ({recentActivity = [] }) => {
                                             </svg>
                                         </div>
                                         <div>
-                                            <div className="qa-label">Deleted Ciphers</div>
-                                            <div className="qa-count">{stats.deletedCiphers ?? 0} deleted</div>
+                                            <div className="qa-label">Изтрити шифри</div>
+                                            <div className="qa-count">{stats.deletedCiphersCount ?? 0} изтрити</div>
                                         </div>
                                     </div>
                                     <span className="qa-arrow">→</span>
                                 </Link>
+
                                 <Link to="/admin/pending-answers" className="quick-action-link">
                                     <div className="qa-left">
                                         <div className="qa-icon sky">
@@ -152,8 +145,8 @@ const AdminDashboard = ({recentActivity = [] }) => {
                                             </svg>
                                         </div>
                                         <div>
-                                            <div className="qa-label">Review Pending Answers</div>
-                                            <div className="qa-count">{stats.pendingAnswersCount ?? 0} waiting</div>
+                                            <div className="qa-label">Преглед на изчакващи отговори</div>
+                                            <div className="qa-count">{stats.pendingAnswersCount ?? 0} чакащи</div>
                                         </div>
                                     </div>
                                     <span className="qa-arrow">→</span>
@@ -169,8 +162,7 @@ const AdminDashboard = ({recentActivity = [] }) => {
                                             </svg>
                                         </div>
                                         <div>
-                                            <div className="qa-label">Manage Users</div>
-                                            {/* <div className="qa-count">{stats.users ?? 0} accounts</div> */}
+                                            <div className="qa-label">Управление на потребители</div>
                                         </div>
                                     </div>
                                     <span className="qa-arrow">→</span>
@@ -178,25 +170,25 @@ const AdminDashboard = ({recentActivity = [] }) => {
                             </div>
                         </div>
 
-                        {/* ─── Recent Activity ─── */}
+                        {/* ─── Последни активности ─── */}
                         <div className="admin-card">
                             <div className="admin-card-header">
-                                <span className="admin-card-title">Recent Submissions</span>
-                                <a href="/admin/pending-ciphers" className="btn btn-ghost btn-sm">View All</a>
+                                <span className="admin-card-title">Последни предложения</span>
+                                <a href="/admin/pending-ciphers" className="btn btn-ghost btn-sm">Виж всички</a>
                             </div>
 
                             {stats.pendingCipherTitles.length === 0 ? (
                                 <div className="empty-state">
-                                    <span className="empty-state-title">No recent submissions</span>
+                                    <span className="empty-state-title">Няма скорошни предложения</span>
                                 </div>
                             ) : (
                                 <div className="data-table-wrapper" style={{ border: 'none' }}>
                                     <table className="data-table">
                                         <thead>
                                             <tr>
-                                                <th>Cipher Title</th>
-                                                <th>Submitted By</th>
-                                                <th>Submitted At</th>
+                                                <th>Заглавие на шифъра</th>
+                                                <th>Изпратено от</th>
+                                                <th>Дата на изпращане</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -206,11 +198,7 @@ const AdminDashboard = ({recentActivity = [] }) => {
                                                         <div className="activity-cipher-text">{item.title}</div>
                                                     </td>
                                                     <td className="mono">{item.createdBy}</td>
-                                                    <td>
-                                                      
-                                                            {item.submittedAt}
-                                                       
-                                                    </td>
+                                                    <td>{item.submittedAt}</td>
                                                 </tr>
                                             ))}
                                         </tbody>

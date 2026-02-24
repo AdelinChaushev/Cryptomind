@@ -52,7 +52,7 @@ namespace Cryptomind.Tests.Unit.Services
 				CipherId = cipherId,
 				DecryptedText = decryptedText,
 				Status = status,
-				UplodaedTime = DateTime.UtcNow,
+				UploadedTime = DateTime.UtcNow.AddHours(2),
 				Cipher = cipher,
 			};
 
@@ -203,7 +203,7 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task SubmittedAnswers_PopulatesPointsAndApprovedDate_WhenAnswerIsApproved()
 		{
-			var approvedDate = DateTime.UtcNow.AddDays(-1);
+			var approvedDate = DateTime.UtcNow.AddHours(2).AddDays(-1);
 			var cipher = MakeCipher(1, ChallengeType.Experimental);
 			var answer = MakeAnswer(1, "u1", 1, "answer", ApprovalStatus.Approved, cipher: cipher);
 			answer.PointsEarned = 150;
@@ -219,7 +219,7 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task SubmittedAnswers_PopulatesRejectionFields_WhenAnswerIsRejected()
 		{
-			var rejectionDate = DateTime.UtcNow.AddDays(-1);
+			var rejectionDate = DateTime.UtcNow.AddHours(2).AddDays(-1);
 			var cipher = MakeCipher(1, ChallengeType.Experimental);
 			var answer = MakeAnswer(1, "u1", 1, "wrong answer", ApprovalStatus.Rejected, cipher: cipher);
 			answer.RejectionReason = "incorrect";
@@ -235,7 +235,7 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task SubmittedAnswers_SetsStatusToCipherDeleted_WhenCipherIsDeleted()
 		{
-			var deletedAt = DateTime.UtcNow.AddDays(-2);
+			var deletedAt = DateTime.UtcNow.AddHours(2).AddDays(-2);
 			var cipher = MakeCipher(1, ChallengeType.Experimental);
 			cipher.IsDeleted = true;
 			cipher.DeletedAt = deletedAt;

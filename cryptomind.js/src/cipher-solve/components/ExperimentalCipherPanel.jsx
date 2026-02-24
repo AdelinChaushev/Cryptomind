@@ -16,31 +16,31 @@ function ExperimentalCipherPanel({ onSubmit }) {
 
     return (
         <div className="solve-form-panel">
-            <h3 className="panel-heading">Submit Your Answer</h3>
+            <h3 className="panel-heading">Изпрати своя отговор</h3>
 
             <div className="experimental-notice">
                 <span className="experimental-notice__icon">⚗</span>
                 <p className="experimental-notice__text">
-                    This is an <strong className="experimental-notice__highlight">experimental cipher</strong>.
-                    Submit your decrypted text and explanation — an admin will review your answer.
+                    Това е <strong className="experimental-notice__highlight">експериментален шифър</strong>.
+                    Изпратете декриптирания текст и обяснение — администратор ще прегледа вашия отговор.
                 </p>
             </div>
 
             <div className="experimental-field">
-                <p className="experimental-field__label">Decrypted Text</p>
+                <p className="experimental-field__label">Декриптиран текст</p>
                 <textarea
                     className="solve-input"
-                    placeholder="Enter what you think the decrypted message is..."
+                    placeholder="Въведи това, което смяташ за декриптирано съобщение..."
                     value={onSubmit.decryptedText}
                     onChange={(e) => onSubmit.onDecryptedTextChange(e.target.value)}
                 />
             </div>
 
             <div className="experimental-field">
-                <p className="experimental-field__label">Explanation</p>
+                <p className="experimental-field__label">Обяснение</p>
                 <textarea
                     className="solve-input"
-                    placeholder="Explain how you solved it — what cipher type, what key, what steps..."
+                    placeholder="Обясни как го реши — какъв е типът на шифъра, ключ, стъпки..."
                     value={onSubmit.description}
                     onChange={(e) => onSubmit.onDescriptionChange(e.target.value)}
                 />
@@ -48,21 +48,20 @@ function ExperimentalCipherPanel({ onSubmit }) {
 
             {submitted && (
                 <p className="experimental-success">
-                    ✓ Answer submitted. An admin will review your solution.
+                    ✓ Отговорът е изпратен. Администратор ще прегледа вашето решение.
                 </p>
             )}
 
             <div className="solve-form-footer">
                 <p className="attempt-info" style={{ fontSize: "11px" }}>
-                    Your submission will be reviewed by an admin
+                    Твоят отговор ще бъде прегледан от администратор
                 </p>
                 <button
                     className="btn-submit"
                     onClick={handleSubmit}
-                    // disabled={!onSubmit.decryptedText.trim() || !onSubmit.description.trim() || submitted}
                 >
                     <span>→</span>
-                    {submitted ? 'Submitted' : 'Submit for Review'}
+                    {submitted ? 'Изпратено' : 'Изпрати за преглед'}
                 </button>
             </div>
         </div>
