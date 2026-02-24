@@ -118,8 +118,11 @@ namespace Cryptomind.Core.Services
 
 			if (cipher.UserSolutions.FirstOrDefault(x => x.UserId == userId && x.IsCorrect) != null)
 				throw new ConflictException("Cannot solve the same cipher 2 times");
+
 			var userNow = await userManager.FindByIdAsync(userId);
-            userNow.AttemptedCiphers += 1;
+
+			if (!userNow.CipherAnswers.Any(x => x.CipherId == cipherId))
+				userNow.AttemptedCiphers += 1;
 			
 			string correctAnswer = cipher.DecryptedText;
 
@@ -166,7 +169,7 @@ namespace Cryptomind.Core.Services
 
 				await userManager.UpdateAsync(user);
 			}
-
+			await userManager.UpdateAsync(userNow);
 			await solutionRepo.AddAsync(userSolution);
 			return isCorrect;
 		}

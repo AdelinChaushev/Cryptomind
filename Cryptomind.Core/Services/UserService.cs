@@ -29,12 +29,16 @@ namespace Cryptomind.Core.Services
                 .ThenInclude(x => x.Badge)
                 .Include(x => x.CipherAnswers)			
 				.FirstOrDefaultAsync(x => x.Id == id);
+
             ICollection<BadgeViewModel> badges = new List<BadgeViewModel>();
 			int attemptedCiphersCount = user.CipherAnswers.DistinctBy(c => c.CipherId).Count();
+
             int rank = await userRepo.GetAllAttached()
-        .CountAsync(u => u.Score > user.Score && !u.IsDeactivated && !u.IsBanned) + 1;
+				.CountAsync(u => u.Score > user.Score && !u.IsDeactivated && !u.IsBanned) + 1;
+
             if (user == null)
 				throw new NotFoundException("User not found");
+
 			foreach (var badge in user.Badges)
 			{
 				string folderPath = Path.GetFullPath(Path.Combine(
@@ -62,17 +66,10 @@ namespace Cryptomind.Core.Services
 				Score = user.Score,
 				AttemptedCiphers = attemptedCiphersCount,
 				LeaderBoardPlace = rank,
-				SuccessRate = CalculateSuccessRate(user.SolvedCount, attemptedCiphersCount),
+				SuccessRate = user.SuccessRate,
 				Badges = badges,
 			};
 			return result;
 		}
-		// remove later
-        private double CalculateSuccessRate(int solvedCount, int attemptedCiphers)
-        {
-            if (attemptedCiphers == 0) return 0;
-
-            return ((double)solvedCount / attemptedCiphers) * 100;
-        }
     }
 }
