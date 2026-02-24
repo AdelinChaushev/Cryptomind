@@ -21,15 +21,13 @@ const DeletedCiphers = () => {
         cipherDefinition: 0,
         orderTerm: 0
     });
-    
-    // Rename modal state
+    const [restoreModal, setRestoreModal] = useState({ open: false, cipher: null });
     const [renameModal, setRenameModal] = useState({ 
         open: false, 
         cipher: null, 
         newTitle: '' 
     });
 
-    // Debounce search input
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearch(searchTerm);
@@ -37,13 +35,10 @@ const DeletedCiphers = () => {
         return () => clearTimeout(timer);
     }, [searchTerm]);
 
-    // Fetch deleted ciphers
     const fetchCiphers = useCallback(async () => {
         try {
             setLoading(true);
             const params = new URLSearchParams();
-            
-            // Add tags as multiple query params
             filters.tags.forEach(tag => params.append('Tags', tag));
             params.append('ChallengeType', filters.challengeType);
             params.append('CipherDefinition', filters.cipherDefinition);
@@ -56,7 +51,7 @@ const DeletedCiphers = () => {
         } catch (err) {
             console.error('Failed to fetch deleted ciphers:', err);
             setError(err.response?.data?.message || err.message);
-            setGlobalError('Failed to load deleted ciphers. Please try again later.');
+            setGlobalError('Неуспешно зареждане на изтритите шифри. Моля, опитайте отново.');
         } finally {
             setLoading(false);
         }
@@ -66,50 +61,44 @@ const DeletedCiphers = () => {
         fetchCiphers();
     }, [fetchCiphers]);
 
-    // Restore cipher
-    const handleRestore = useCallback(async (id, title) => {
-        if (!window.confirm(`Restore cipher "${title}"?`)) return;
+    const handleRestore = useCallback((id, title) => {
+        setRestoreModal({ open: true, cipher: { id, title } });
+    }, []);
 
+    const handleConfirmRestore = useCallback(async () => {
+        const { id, title } = restoreModal.cipher;
+        setRestoreModal({ open: false, cipher: null });
         try {
             await axios.put(`${API_BASE}/cipher/${id}/restore`);
-            alert('Cipher restored successfully!');
             fetchCiphers();
         } catch (err) {
             console.error('Restore error:', err);
             const errorMessage = err.response?.data?.message || err.message;
-            
-            // Check if error is due to duplicate title
-            if (err.response?.status === 400 || errorMessage.toLowerCase().includes('title') || errorMessage.toLowerCase().includes('name')) {
-                // Show rename modal
-                setRenameModal({
-                    open: true,
-                    cipher: { id, title },
-                    newTitle: title
-                });
+            if (err.response?.status === 409) {
+                setRenameModal({ open: true, cipher: { id, title }, newTitle: title });
             } else {
-               setGlobalError(errorMessage || 'Restore error:');
+                setGlobalError(errorMessage || 'Грешка при възстановяване');
             }
         }
-    }, [fetchCiphers]);
+    }, [restoreModal, fetchCiphers]);
 
-    // Restore with new title
     const handleRestoreWithNewTitle = useCallback(async () => {
         if (!renameModal.cipher) return;
         
         const newTitle = renameModal.newTitle.trim();
         if (!newTitle) {
-            alert('Please provide a new title');
+            alert('Моля, въведете ново заглавие');
             return;
         }
 
         try {
             await axios.put(`${API_BASE}/cipher/${renameModal.cipher.id}/restore?newTitle=${encodeURIComponent(newTitle)}`);
-            setGlobalError('Cipher restored successfully with new title!');
+            setGlobalError('Шифърът е възстановен успешно с ново заглавие!');
             setRenameModal({ open: false, cipher: null, newTitle: '' });
             fetchCiphers();
         } catch (err) {
             console.error('Restore with rename error:', err);
-            setGlobalError(`Failed to restore: ${err.response?.data?.message || err.message}`);
+            setGlobalError(`Неуспешно възстановяване: ${err.response?.data?.message || err.message}`);
         }
     }, [renameModal, fetchCiphers]);
 
@@ -132,13 +121,13 @@ const DeletedCiphers = () => {
             <AdminSidebar activePage="deleted-ciphers" />
 
             <main className="admin-main">
-                <AdminTopbar breadcrumbs={[{ label: 'Deleted Ciphers' }]} />
+                <AdminTopbar breadcrumbs={[{ label: 'Изтрити шифри' }]} />
 
                 <div className="admin-content">
                     <div className="page-header">
-                        <h1 className="page-title">Deleted Ciphers</h1>
+                        <h1 className="page-title">Изтрити шифри</h1>
                         <p className="page-subtitle">
-                            {ciphers.length} deleted cipher{ciphers.length !== 1 ? 's' : ''}
+                            {ciphers.length} изтрит{ciphers.length !== 1 ? 'и шифъра' : ' шифър'}
                         </p>
                     </div>
 
@@ -152,7 +141,7 @@ const DeletedCiphers = () => {
                                 <input
                                     type="text"
                                     className="form-input"
-                                    placeholder="Search by title, type..."
+                                    placeholder="Търсене по заглавие, вид..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
@@ -165,12 +154,12 @@ const DeletedCiphers = () => {
                                 value={filters.orderTerm}
                                 onChange={(e) => setFilters(prev => ({ ...prev, orderTerm: parseInt(e.target.value) }))}
                             >
-                                <option value="0">Newest First</option>
-                                <option value="1">Oldest First</option>
-                                <option value="2">Most Solved</option>
-                                <option value="3">Least Solved</option>
+                                <option value="0">Най-нови</option>
+                                <option value="1">Най-стари</option>
+                                <option value="2">Най-решавани</option>
+                                <option value="3">Най-малко решавани</option>
                             </select>
-                            {loading && <span style={{ fontSize: '11px', color: 'var(--text-dim)', marginLeft: '10px' }}>Loading...</span>}
+                            {loading && <span style={{ fontSize: '11px', color: 'var(--text-dim)', marginLeft: '10px' }}>Зареждане...</span>}
                         </div>
                     </div>
 
@@ -178,16 +167,16 @@ const DeletedCiphers = () => {
                     {error ? (
                         <div className="data-table-wrapper">
                             <div className="empty-state">
-                                <div className="empty-state-title">Error loading ciphers</div>
+                                <div className="empty-state-title">Грешка при зареждане на шифрите</div>
                                 <div className="empty-state-text">{error}</div>
                             </div>
                         </div>
                     ) : ciphers.length === 0 && !loading ? (
                         <div className="data-table-wrapper">
                             <div className="empty-state">
-                                <div className="empty-state-title">No deleted ciphers found</div>
+                                <div className="empty-state-title">Няма намерени изтрити шифри</div>
                                 <div className="empty-state-text">
-                                    {searchTerm ? 'No results match your search' : 'No ciphers have been deleted'}
+                                    {searchTerm ? 'Няма резултати, съответстващи на търсенето' : 'Няма изтрити шифри'}
                                 </div>
                             </div>
                         </div>
@@ -197,12 +186,12 @@ const DeletedCiphers = () => {
                                 <thead>
                                     <tr>
                                         <th>ID</th>
-                                        <th>Title</th>
-                                        <th>Type</th>
-                                        <th>ML Confidence</th>
-                                        <th>Submitted By</th>
-                                        <th>Date</th>
-                                        <th>Actions</th>
+                                        <th>Заглавие</th>
+                                        <th>Вид</th>
+                                        <th>ML увереност</th>
+                                        <th>Предложен от</th>
+                                        <th>Дата</th>
+                                        <th>Действия</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -214,7 +203,7 @@ const DeletedCiphers = () => {
 
                                             <td>
                                                 <div className="cipher-title-cell">
-                                                    {cipher.title || `Cipher #${cipher.id}`}
+                                                    {cipher.title || `Шифър #${cipher.id}`}
                                                 </div>
                                                 {cipher.isImage && (
                                                     <div className="image-tag" style={{ marginTop: '4px' }}>
@@ -223,7 +212,7 @@ const DeletedCiphers = () => {
                                                             <circle cx="5.5" cy="7.5" r="1.5"/>
                                                             <path d="M1 11.5l4-3 3 2.5 2.5-2.5L15 11.5"/>
                                                         </svg>
-                                                        IMAGE
+                                                        ИЗОБРАЖЕНИЕ
                                                     </div>
                                                 )}
                                             </td>
@@ -262,7 +251,7 @@ const DeletedCiphers = () => {
                                                         className="btn btn-success btn-sm"
                                                         onClick={() => handleRestore(cipher.id, cipher.title)}
                                                     >
-                                                        Restore
+                                                        Възстанови
                                                     </button>
                                                     {/* <button
                                                         className="btn btn-danger btn-sm"
@@ -281,42 +270,44 @@ const DeletedCiphers = () => {
                 </div>
             </main>
 
-            {/* Rename Modal - shown when title is already taken */}
+            {/* Restore Confirmation Modal */}
+            {restoreModal.open && (
+                <div className="modal-backdrop" onClick={() => setRestoreModal({ open: false, cipher: null })}>
+                    <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-title">Възстановяване на шифър?</div>
+                        <p style={{ fontSize: '13px', color: 'var(--text-tertiary)', lineHeight: '1.6' }}>
+                            Шифърът <strong style={{ color: 'var(--text-primary)' }}>"{restoreModal.cipher?.title}"</strong> ще бъде възстановен и ще стане видим отново.
+                        </p>
+                        <div className="modal-actions">
+                            <button onClick={() => setRestoreModal({ open: false, cipher: null })} className="btn btn-ghost">Отказ</button>
+                            <button onClick={handleConfirmRestore} className="btn btn-success">Възстанови</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Rename Modal (title conflict) */}
             {renameModal.open && (
                 <div className="modal-backdrop" onClick={() => setRenameModal({ open: false, cipher: null, newTitle: '' })}>
                     <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-title">Title Already Exists</div>
-                        
-                        <p style={{ fontSize: '13px', color: 'var(--text-tertiary)', lineHeight: '1.6', marginBottom: '16px' }}>
-                            A cipher with the title <strong style={{ color: 'var(--text-primary)' }}>"{renameModal.cipher?.title}"</strong> already exists. 
-                            Please provide a new title to restore this cipher.
+                        <div className="modal-title">Заглавието вече съществува</div>
+                        <p style={{ fontSize: '13px', color: 'var(--text-tertiary)', lineHeight: '1.6' }}>
+                            Шифър със заглавие <strong style={{ color: 'var(--text-primary)' }}>"{renameModal.cipher?.title}"</strong> вече съществува. Въведете ново заглавие за да го възстановите.
                         </p>
-
-                        <div className="form-group">
-                            <label className="form-label">New Title</label>
-                            <input 
-                                type="text" 
-                                className="form-input" 
+                        <div className="form-group" style={{ marginTop: '16px' }}>
+                            <label className="form-label">Ново заглавие</label>
+                            <input
+                                type="text"
+                                className="form-input"
                                 value={renameModal.newTitle}
                                 onChange={(e) => setRenameModal(prev => ({ ...prev, newTitle: e.target.value }))}
-                                placeholder="Enter a unique title..."
+                                placeholder="Въведете уникално заглавие..."
                                 autoFocus
                             />
                         </div>
-
                         <div className="modal-actions">
-                            <button 
-                                onClick={() => setRenameModal({ open: false, cipher: null, newTitle: '' })} 
-                                className="btn btn-ghost"
-                            >
-                                Cancel
-                            </button>
-                            <button 
-                                onClick={handleRestoreWithNewTitle} 
-                                className="btn btn-success"
-                            >
-                                Restore with New Title
-                            </button>
+                            <button onClick={() => setRenameModal({ open: false, cipher: null, newTitle: '' })} className="btn btn-ghost">Отказ</button>
+                            <button onClick={handleRestoreWithNewTitle} className="btn btn-success">Възстанови</button>
                         </div>
                     </div>
                 </div>

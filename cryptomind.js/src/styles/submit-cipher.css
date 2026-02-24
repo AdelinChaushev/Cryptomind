@@ -378,7 +378,7 @@
 }
 
 /* ─── OCR NOTICE ─── */
-/* class: .ocr-notice */
+/* classes: .ocr-notice  .ocr-notice--error  .ocr-loading  .ocr-review  .ocr-textarea */
 
 .ocr-notice {
     padding: 10px 13px;
@@ -390,6 +390,51 @@
     line-height: 1.5;
 }
 .ocr-notice strong { color: var(--cyan-400); }
+
+.ocr-notice--error {
+    background: rgba(244, 63, 94, 0.05);
+    border-color: rgba(244, 63, 94, 0.2);
+    color: var(--rose-500);
+}
+
+.ocr-loading {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--yellow-500);
+    padding: 10px 13px;
+    background: rgba(251, 191, 36, 0.05);
+    border: 1px solid rgba(251, 191, 36, 0.15);
+    border-radius: 7px;
+    animation: ocr-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes ocr-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.45; }
+}
+
+.ocr-review {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px;
+    background: rgba(34, 211, 238, 0.03);
+    border: 1px solid rgba(34, 211, 238, 0.12);
+    border-radius: 8px;
+}
+
+.ocr-textarea {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.7;
+    min-height: 120px;
+    border-color: rgba(34, 211, 238, 0.2);
+}
+.ocr-textarea:focus {
+    border-color: rgba(34, 211, 238, 0.5);
+    box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.05);
+}
 
 /* ─── SUBMIT CARD ─── */
 /* classes: .submit-card  .btn-submit  .btn-cancel  .submit-note */

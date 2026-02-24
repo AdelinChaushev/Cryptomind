@@ -17,32 +17,31 @@ function AccountInfo() {
     const [showModal, setShowModal]     = useState(false);
     const [deactivating, setDeactivating] = useState(false);
     const navigate = useNavigate();
-useEffect(() => {
-    const fetchUser = () => {
-        axios.get(`${API_BASE}/api/user/get-account-info`, {
-            withCredentials: true,
-        }).then(res => {
-            console.log('Fetched account info:', res.data);
-            setUser(res.data);
-        }).catch(err => {
-            setError("Error fetching account info:", err.response?.status);
-        }).finally(() => setLoading(false));
-    };         // ← closes fetchUser
 
-    fetchUser(); // ← now correctly outside fetchUser, inside useEffect
-}, []);
+    useEffect(() => {
+        const fetchUser = () => {
+            axios.get(`${API_BASE}/api/user/get-account-info`, {
+                withCredentials: true,
+            }).then(res => {
+                console.log('Fetched account info:', res.data);
+                setUser(res.data);
+            }).catch(err => {
+                setError("Грешка при зареждане на информацията за акаунта:", err.response?.status);
+            }).finally(() => setLoading(false));
+        };
+
+        fetchUser();
+    }, []);
 
     const handleDeactivate = async () => {
         setDeactivating(true);
         try {
-                await axios.post(`${API_BASE}/api/auth/deactivate`, {}, {
+            await axios.post(`${API_BASE}/api/auth/deactivate`, {}, {
                 withCredentials: true,
             });
-
-            // Redirect to login or home after deactivation
             navigate('/login');
         } catch (err) {
-            setError(`Failed to deactivate account: ${err.message}`);
+            setError(`Неуспешно деактивиране на акаунта: ${err.message}`);
         } finally {
             setDeactivating(false);
             setShowModal(false);
@@ -54,27 +53,25 @@ useEffect(() => {
             <div className="account-page">
                 <div className="account-loading">
                     <div className="loading-spinner" />
-                    <div className="loading-text">Loading account info...</div>
+                    <div className="loading-text">Зареждане на информацията за акаунта...</div>
                 </div>
             </div>
         );
     }
 
-    
-
     return (
         <div className="account-page">
             <div className="account-page-header">
                 <div className="account-breadcrumb">
-                    <span>Home</span>
+                    <span>Начало</span>
                     <span className="breadcrumb-sep">/</span>
-                    <span className="breadcrumb-current">Account</span>
+                    <span className="breadcrumb-current">Акаунт</span>
                 </div>
                 <h1 className="account-page-title">
-                    My <span>Account</span>
+                    Моят <span>Акаунт</span>
                 </h1>
                 <p className="account-page-subtitle">
-                    Manage your profile, track your progress, and view earned badges.
+                    Управлявайте профила си, следете напредъка си и преглеждайте спечелените значки.
                 </p>
             </div>
 

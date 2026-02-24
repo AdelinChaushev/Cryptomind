@@ -5,13 +5,13 @@ function DeactivateModal({ onConfirm, onCancel, loading }) {
         <div className="modal-overlay" onClick={onCancel}>
             <div className="modal-card" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-icon">⚠️</div>
-                <div className="modal-title">Deactivate Account</div>
+                <div className="modal-title">Деактивиране на акаунт</div>
                 <div className="modal-body">
-                    Are you sure you want to deactivate your account?
+                    Сигурни ли сте, че искате да деактивирате акаунта си?
                     <br />
-                    <strong>This action cannot be undone.</strong>
+                    <strong>Това действие не може да бъде отменено.</strong>
                     <br /><br />
-                    You will lose access to all your ciphers, submissions, and leaderboard progress.
+                    Ще загубите достъп до всичките си шифри, предложения и прогрес в класацията.
                 </div>
                 <div className="modal-actions">
                     <button
@@ -19,14 +19,14 @@ function DeactivateModal({ onConfirm, onCancel, loading }) {
                         onClick={onCancel}
                         disabled={loading}
                     >
-                        Cancel
+                        Отказ
                     </button>
                     <button
                         className="btn-modal-confirm"
                         onClick={onConfirm}
                         disabled={loading}
                     >
-                        {loading ? 'Deactivating...' : 'Yes, Deactivate'}
+                        {loading ? 'Деактивиране...' : 'Да, деактивирай'}
                     </button>
                 </div>
             </div>

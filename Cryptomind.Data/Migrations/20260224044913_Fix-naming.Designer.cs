@@ -4,6 +4,7 @@ using Cryptomind.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cryptomind.Data.Migrations
 {
     [DbContext(typeof(CryptomindDbContext))]
-    partial class CryptomindDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260224044913_Fix-naming")]
+    partial class Fixnaming
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -242,6 +245,9 @@ namespace Cryptomind.Data.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("SolvedCount")
+                        .HasColumnType("int");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -267,7 +273,7 @@ namespace Cryptomind.Data.Migrations
                             Id = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                             AccessFailedCount = 0,
                             AttemptedCiphers = 0,
-                            ConcurrencyStamp = "4ea6d7e9-c8ac-4f0a-83f6-e6db8cc7a966",
+                            ConcurrencyStamp = "138df409-428e-495d-8f80-6802d6604618",
                             Email = "admin@cryptomind.com",
                             EmailConfirmed = true,
                             IsBanned = false,
@@ -276,11 +282,12 @@ namespace Cryptomind.Data.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@CRYPTOMIND.COM",
                             NormalizedUserName = "ADMIN@CRYPTOMIND.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAELcqm2EYSfKDaZYv8we17H+KNVv7lLC+hyEocoEXX10SaQOgBC4t6cJszV5vYphjmA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAELQU/H9FBYfccBKf+VoQ04UWAn0sZyBdkFo7G9prxZhbgC3fRgm8qd3oxq4LiwTvzw==",
                             PhoneNumberConfirmed = false,
                             RegisteredAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Score = 0,
                             SecurityStamp = "a1a1a1a1-b2b2-c3c3-d4d4-e5e5e5e5e5e5",
+                            SolvedCount = 0,
                             TwoFactorEnabled = false,
                             UserName = "admin@cryptomind.com"
                         },
@@ -289,7 +296,7 @@ namespace Cryptomind.Data.Migrations
                             Id = "b2c3d4e5-f6a7-8901-bcde-f12345678901",
                             AccessFailedCount = 0,
                             AttemptedCiphers = 0,
-                            ConcurrencyStamp = "905fcd84-1eba-41af-9dc7-82370ab4b930",
+                            ConcurrencyStamp = "9f8f0f10-1b64-4f2a-822f-638f65f18221",
                             Email = "user@cryptomind.com",
                             EmailConfirmed = true,
                             IsBanned = false,
@@ -298,11 +305,12 @@ namespace Cryptomind.Data.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "USER@CRYPTOMIND.COM",
                             NormalizedUserName = "USER@CRYPTOMIND.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEPwco7b5ewsjup09QvVcRjX8j7TAqeMxR/plMrwVWA2I2VTRX2H62ZQ1kh1dj1jaxw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEF3mwZoDXYvOoKr4bQrxTCaVPbfYD4XfmuTO1J3AwJRo+KYWedkpcXWjwOzkupNMFg==",
                             PhoneNumberConfirmed = false,
                             RegisteredAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Score = 0,
                             SecurityStamp = "f6f6f6f6-e5e5-d4d4-c3c3-b2b2b2b2b2b2",
+                            SolvedCount = 0,
                             TwoFactorEnabled = false,
                             UserName = "user@cryptomind.com"
                         });
@@ -1045,7 +1053,7 @@ namespace Cryptomind.Data.Migrations
                             IsDeleted = false,
                             IsLLMRecommended = false,
                             IsPlaintextValid = true,
-                            MLPrediction = "{\"Family\":\"Substitution\",\"Type\":\"ROT13\",\"Confidence\":0.98,\"AllPredictions\":[{\"Family\":\"Substitution\",\"Type\":\"ROT13\",\"Confidence\":0.98},{\"Family\":\"Substitution\",\"Type\":\"Caesar\",\"Confidence\":0.04}]}",
+                            MLPrediction = "ROT13",
                             Points = 10,
                             Status = 1,
                             Title = "The ROT13 Challenge",
@@ -1066,7 +1074,7 @@ namespace Cryptomind.Data.Migrations
                             IsDeleted = false,
                             IsLLMRecommended = false,
                             IsPlaintextValid = true,
-                            MLPrediction = "{\"Family\":\"Substitution\",\"Type\":\"Caesar\",\"Confidence\":0.97,\"AllPredictions\":[{\"Family\":\"Substitution\",\"Type\":\"Caesar\",\"Confidence\":0.97},{\"Family\":\"Substitution\",\"Type\":\"ROT13\",\"Confidence\":0.06}]}",
+                            MLPrediction = "Caesar",
                             Points = 10,
                             Status = 1,
                             Title = "Caesar's Secret",
@@ -1087,7 +1095,7 @@ namespace Cryptomind.Data.Migrations
                             IsDeleted = false,
                             IsLLMRecommended = false,
                             IsPlaintextValid = true,
-                            MLPrediction = "{\"Family\":\"Substitution\",\"Type\":\"Atbash\",\"Confidence\":0.99,\"AllPredictions\":[{\"Family\":\"Substitution\",\"Type\":\"Atbash\",\"Confidence\":0.99},{\"Family\":\"Substitution\",\"Type\":\"SimpleSubstitution\",\"Confidence\":0.03}]}",
+                            MLPrediction = "Atbash",
                             Points = 15,
                             Status = 1,
                             Title = "Mirror of Letters",
@@ -1108,7 +1116,7 @@ namespace Cryptomind.Data.Migrations
                             IsDeleted = false,
                             IsLLMRecommended = false,
                             IsPlaintextValid = true,
-                            MLPrediction = "{\"Family\":\"Substitution\",\"Type\":\"SimpleSubstitution\",\"Confidence\":0.94,\"AllPredictions\":[{\"Family\":\"Substitution\",\"Type\":\"SimpleSubstitution\",\"Confidence\":0.94},{\"Family\":\"Substitution\",\"Type\":\"Atbash\",\"Confidence\":0.07}]}",
+                            MLPrediction = "SimpleSubstitution",
                             Points = 25,
                             Status = 1,
                             Title = "Scrambled Alphabet",
@@ -1129,7 +1137,7 @@ namespace Cryptomind.Data.Migrations
                             IsDeleted = false,
                             IsLLMRecommended = false,
                             IsPlaintextValid = true,
-                            MLPrediction = "{\"Family\":\"Polyalphabetic\",\"Type\":\"Vigenere\",\"Confidence\":0.96,\"AllPredictions\":[{\"Family\":\"Polyalphabetic\",\"Type\":\"Vigenere\",\"Confidence\":0.96},{\"Family\":\"Polyalphabetic\",\"Type\":\"Autokey\",\"Confidence\":0.05}]}",
+                            MLPrediction = "Vigenere",
                             Points = 30,
                             Status = 1,
                             Title = "The Vigenere Veil",
@@ -1150,7 +1158,7 @@ namespace Cryptomind.Data.Migrations
                             IsDeleted = false,
                             IsLLMRecommended = false,
                             IsPlaintextValid = true,
-                            MLPrediction = "{\"Family\":\"Polyalphabetic\",\"Type\":\"Autokey\",\"Confidence\":0.93,\"AllPredictions\":[{\"Family\":\"Polyalphabetic\",\"Type\":\"Autokey\",\"Confidence\":0.93},{\"Family\":\"Polyalphabetic\",\"Type\":\"Vigenere\",\"Confidence\":0.08}]}",
+                            MLPrediction = "Autokey",
                             Points = 35,
                             Status = 1,
                             Title = "Autokey Enigma",
@@ -1171,7 +1179,7 @@ namespace Cryptomind.Data.Migrations
                             IsDeleted = false,
                             IsLLMRecommended = false,
                             IsPlaintextValid = true,
-                            MLPrediction = "{\"Family\":\"Polyalphabetic\",\"Type\":\"Trithemius\",\"Confidence\":0.95,\"AllPredictions\":[{\"Family\":\"Polyalphabetic\",\"Type\":\"Trithemius\",\"Confidence\":0.95},{\"Family\":\"Polyalphabetic\",\"Type\":\"Vigenere\",\"Confidence\":0.06}]}",
+                            MLPrediction = "Trithemius",
                             Points = 30,
                             Status = 1,
                             Title = "The Trithemius Ladder",
@@ -1192,7 +1200,7 @@ namespace Cryptomind.Data.Migrations
                             IsDeleted = false,
                             IsLLMRecommended = false,
                             IsPlaintextValid = true,
-                            MLPrediction = "{\"Family\":\"Transposition\",\"Type\":\"RailFence\",\"Confidence\":0.92,\"AllPredictions\":[{\"Family\":\"Transposition\",\"Type\":\"RailFence\",\"Confidence\":0.92},{\"Family\":\"Transposition\",\"Type\":\"Columnar\",\"Confidence\":0.09}]}",
+                            MLPrediction = "RailFence",
                             Points = 20,
                             Status = 1,
                             Title = "The Rail Fence",
@@ -1213,7 +1221,7 @@ namespace Cryptomind.Data.Migrations
                             IsDeleted = false,
                             IsLLMRecommended = false,
                             IsPlaintextValid = true,
-                            MLPrediction = "{\"Family\":\"Transposition\",\"Type\":\"Columnar\",\"Confidence\":0.91,\"AllPredictions\":[{\"Family\":\"Transposition\",\"Type\":\"Columnar\",\"Confidence\":0.91},{\"Family\":\"Transposition\",\"Type\":\"RailFence\",\"Confidence\":0.11}]}",
+                            MLPrediction = "Columnar",
                             Points = 25,
                             Status = 1,
                             Title = "The Columnar Maze",
@@ -1234,7 +1242,7 @@ namespace Cryptomind.Data.Migrations
                             IsDeleted = false,
                             IsLLMRecommended = false,
                             IsPlaintextValid = true,
-                            MLPrediction = "{\"Family\":\"Encoding\",\"Type\":\"Base64\",\"Confidence\":0.99,\"AllPredictions\":[{\"Family\":\"Encoding\",\"Type\":\"Base64\",\"Confidence\":0.99},{\"Family\":\"Encoding\",\"Type\":\"Hex\",\"Confidence\":0.02}]}",
+                            MLPrediction = "Base64",
                             Points = 10,
                             Status = 1,
                             Title = "The Base64 Barrier",
@@ -1255,7 +1263,7 @@ namespace Cryptomind.Data.Migrations
                             IsDeleted = false,
                             IsLLMRecommended = false,
                             IsPlaintextValid = true,
-                            MLPrediction = "{\"Family\":\"Encoding\",\"Type\":\"Morse\",\"Confidence\":0.98,\"AllPredictions\":[{\"Family\":\"Encoding\",\"Type\":\"Morse\",\"Confidence\":0.98},{\"Family\":\"Encoding\",\"Type\":\"Binary\",\"Confidence\":0.03}]}",
+                            MLPrediction = "Morse",
                             Points = 10,
                             Status = 1,
                             Title = "Dots and Dashes",
@@ -1276,7 +1284,7 @@ namespace Cryptomind.Data.Migrations
                             IsDeleted = false,
                             IsLLMRecommended = false,
                             IsPlaintextValid = true,
-                            MLPrediction = "{\"Family\":\"Encoding\",\"Type\":\"Binary\",\"Confidence\":0.97,\"AllPredictions\":[{\"Family\":\"Encoding\",\"Type\":\"Binary\",\"Confidence\":0.97},{\"Family\":\"Encoding\",\"Type\":\"Hex\",\"Confidence\":0.04}]}",
+                            MLPrediction = "Binary",
                             Points = 10,
                             Status = 1,
                             Title = "The Binary Message",
@@ -1297,7 +1305,7 @@ namespace Cryptomind.Data.Migrations
                             IsDeleted = false,
                             IsLLMRecommended = false,
                             IsPlaintextValid = true,
-                            MLPrediction = "{\"Family\":\"Encoding\",\"Type\":\"Hex\",\"Confidence\":0.98,\"AllPredictions\":[{\"Family\":\"Encoding\",\"Type\":\"Hex\",\"Confidence\":0.98},{\"Family\":\"Encoding\",\"Type\":\"Base64\",\"Confidence\":0.03}]}",
+                            MLPrediction = "Hex",
                             Points = 10,
                             Status = 1,
                             Title = "Hex Decoded",
@@ -1318,7 +1326,7 @@ namespace Cryptomind.Data.Migrations
                             IsDeleted = false,
                             IsLLMRecommended = false,
                             IsPlaintextValid = true,
-                            MLPrediction = "{\"Family\":\"Substitution\",\"Type\":\"Caesar\",\"Confidence\":0.96,\"AllPredictions\":[{\"Family\":\"Substitution\",\"Type\":\"Caesar\",\"Confidence\":0.96},{\"Family\":\"Substitution\",\"Type\":\"ROT13\",\"Confidence\":0.05}]}",
+                            MLPrediction = "Caesar",
                             Points = 20,
                             Status = 1,
                             Title = "Julius's Whisper",
@@ -1338,7 +1346,7 @@ namespace Cryptomind.Data.Migrations
                             IsDeleted = false,
                             IsLLMRecommended = true,
                             IsPlaintextValid = false,
-                            MLPrediction = "{\"Family\":\"Polyalphabetic\",\"Type\":\"Vigenere\",\"Confidence\":0.89,\"AllPredictions\":[{\"Family\":\"Polyalphabetic\",\"Type\":\"Vigenere\",\"Confidence\":0.89},{\"Family\":\"Polyalphabetic\",\"Type\":\"Autokey\",\"Confidence\":0.14},{\"Family\":\"Substitution\",\"Type\":\"SimpleSubstitution\",\"Confidence\":0.07}]}",
+                            MLPrediction = "Vigenere",
                             Points = 50,
                             Status = 1,
                             Title = "The Unknown Veil"
