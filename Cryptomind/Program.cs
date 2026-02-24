@@ -1,6 +1,8 @@
 using Cryptomind.Core.Hubs;
 using Cryptomind.Core.Middlewares;
+using Cryptomind.Data;
 using Cryptomind.Web.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +40,12 @@ app.UseMiddleware<BanCheckMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHub<NotificationHub>("/notificationHub");
+
+using (var scope = app.Services.CreateScope())
+{
+	var db = scope.ServiceProvider.GetRequiredService<CryptomindDbContext>();
+	db.Database.Migrate();
+}
 
 app.Run();
 
