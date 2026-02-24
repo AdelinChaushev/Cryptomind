@@ -26,18 +26,31 @@ namespace Cryptomind.Core.Services
 		{
 			var user = await userRepo.GetAllAttached()
 				.Include(x => x.Badges)
-				.ThenInclude(x => x.Badge)
+                .ThenInclude(x => x.Badge)
+                .Include(x => x.CipherAnswers)			
 				.FirstOrDefaultAsync(x => x.Id == id);
-
-			if (user == null)
+            ICollection<BadgeViewModel> badges = new List<BadgeViewModel>();
+			int attemptedCiphersCount = user.CipherAnswers.DistinctBy(c => c.CipherId).Count();
+            int rank = await userRepo.GetAllAttached()
+        .CountAsync(u => u.Score > user.Score && !u.IsDeactivated && !u.IsBanned) + 1;
+            if (user == null)
 				throw new NotFoundException("User not found");
-
-			ICollection<BadgeViewModel> badges = user.Badges.Select(x => new BadgeViewModel
+			foreach (var badge in user.Badges)
 			{
-				Title = x.Badge.Title,
-				Description = x.Badge.Description,
-				EarnedBy = x.Badge.EarnedBy,
-			}).ToList();
+				string folderPath = Path.GetFullPath(Path.Combine(
+				AppContext.BaseDirectory, "..", "..", "..", "..", "Images/Badges", $"Badge_{badge.BadgeId.ToString()}.png"));
+				string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(folderPath))}";
+				var badgeViewModel = new BadgeViewModel()
+				{
+					BadgeImage = base64,
+					Title = badge.Badge.Title,
+					Description = badge.Badge.Description,
+					EarnedBy = badge.Badge.EarnedBy,
+
+				};
+				badges.Add(badgeViewModel);
+                
+            };
 
 			AccountViewModel result = new AccountViewModel()
 			{
@@ -47,12 +60,19 @@ namespace Cryptomind.Core.Services
 				RegisteredAt = user.RegisteredAt,
 				SolvedCount = user.SolvedCount,
 				Score = user.Score,
-				AttemptedCiphers = user.AttemptedCiphers,
-				LeaderBoardPlace = user.LeaderBoardPlace,
-				SuccessRate = user.SuccessRate,
+				AttemptedCiphers = attemptedCiphersCount,
+				LeaderBoardPlace = rank,
+				SuccessRate = CalculateSuccessRate(user.SolvedCount, attemptedCiphersCount),
 				Badges = badges,
 			};
 			return result;
 		}
-	}
+		// remove later
+        private double CalculateSuccessRate(int solvedCount, int attemptedCiphers)
+        {
+            if (attemptedCiphers == 0) return 0;
+
+            return ((double)solvedCount / attemptedCiphers) * 100;
+        }
+    }
 }

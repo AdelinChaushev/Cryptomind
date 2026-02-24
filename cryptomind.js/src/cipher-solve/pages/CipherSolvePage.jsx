@@ -23,12 +23,6 @@ function CipherSolvePage() {
     const [expDecryptedText, setExpDecryptedText] = useState("");
     const [expDescription,   setExpDescription]   = useState("");
     const { setError } = useError();
-    function handleSubmit() {
-        if (!answer.trim() || attempts >= MAX_ATTEMPTS) return;
-        setAttempts(prev => prev + 1);
-    
-        setResult(isCorrect ? "correct" : "incorrect");
-    }
     const [cipher,setCipher] = useState({
         allowsAnswer: false,
         allowsFullSolution: false,
@@ -91,32 +85,38 @@ function CipherSolvePage() {
        .finally()
     },[id])
     
-    handleSubmit = () => {
-        //http://localhost:5115/api/ciphers/cipher/1/solve
-        if (cipher.challengeTypeDisplay === "Standard") {  
-        axios.post(`http://localhost:5115/api/ciphers/cipher/${id}/solve`,{
-            UserSolution : answer
-        }, {withCredentials : true})
-        .then(c => {
-            setResult(c.data ? 'correct' : 'incorrect') 
-            console.log(c.data)})
-            .catch(e => setError(e.response.data.error || 'Failed to submit answer. Please try again.'))
-            
-        }
-        else if (cipher.challengeTypeDisplay === "Experimental") {
-            axios.post(`http://localhost:5115/api/ciphers/cipher/${id}/suggest-answer`,{
-                description : expDescription,
-                decryptedText : expDecryptedText
-            }, {withCredentials : true})
-            .then(c => {
-                console.log(c.data)})
-                .catch(e => (
-                     console.log(e),
-                     setError(e.response?.title|| e.response?.data?.error || 'Failed to submit answer. Please try again.')
-            ))
-        }
+   const handleSubmit = async () => {
+    if (cipher.challengeTypeDisplay === "Standard") {
+        if (!answer.trim()) return false;
 
+        try {
+            const res = await axios.post(`http://localhost:5115/api/ciphers/cipher/${id}/solve`, {
+                UserSolution: answer
+            }, { withCredentials: true });
+            
+            setResult(res.data ? 'correct' : 'incorrect');
+            return true; 
+        } catch (e) {
+            setError(e.response?.data?.error || 'Failed to submit answer.');
+            return false;
+        }
+    } 
+    else if (cipher.challengeTypeDisplay === "Experimental") {
+        try {
+            await axios.post(`http://localhost:5115/api/ciphers/cipher/${id}/suggest-answer`, {
+                description: expDescription,
+                decryptedText: expDecryptedText
+            }, { withCredentials: true });
+            
+            return true; // SUCCESS
+        } catch (e) {
+            console.log(e);
+            setError(e.response?.data?.error || e.response?.data?.title || 'Failed to submit answer.');
+            return false; // FAILURE
+        }
     }
+    return false;
+};
         const timeAgo = (dateValue) => {
         if (!dateValue) return "—";
         if (typeof dateValue === 'string' && dateValue.includes(':') && !dateValue.includes('-')) {
