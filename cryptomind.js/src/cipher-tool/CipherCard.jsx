@@ -87,7 +87,7 @@ export default function CipherCard({ cipher, familyColor, isOpen, onToggle }) {
         <div className="cl-cta-row">
           <a className="cl-cta cl-cta-primary"
             href={`/cipher-tool#${cipher.id}`}>
-            ▶ See it in action
+            ▶ Виж в действие
           </a>
         </div>
       </div>
