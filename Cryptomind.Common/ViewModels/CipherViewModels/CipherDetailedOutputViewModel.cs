@@ -30,7 +30,7 @@ namespace Cryptomind.Common.ViewModels.CipherViewModels
         public int SuccessfulSubmissions { get; set; }
         public List<CipherSolverViewModel> RecentSolvers { get; set; }
 		public List<HintData> PreviousHints { get; set; }
-		public List<Tag> Tags { get; set; }
+		public List<string> Tags { get; set; }
 	}
 
 	public class HintData

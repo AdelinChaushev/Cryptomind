@@ -80,6 +80,7 @@ const CipherReview = () => {
                 setAllowHint(res.data.allowTypeHint ?? false);
                 setAllowSolutionHint(res.data.allowsSolutionHint ?? false);
                 setAllowSolution(res.data.allowSolution ?? false);
+                setCipherType(res.data.setCipherType)
                 console.log('Fetched cipher:', res.data);
             }).catch(err => {
                 const status = err.response?.status;

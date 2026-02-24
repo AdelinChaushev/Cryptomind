@@ -5,6 +5,7 @@ import AdminTopbar from './AdminTopbar';
 import '../styles/users-management.css';
 const API_BASE = 'http://localhost:5115/api/admin';
 
+import {useError} from '../ErrorContext'
 axios.defaults.withCredentials = true;
 
 
@@ -13,6 +14,7 @@ const UsersManagement = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const {setError: setGlobalError} = useError()
     const [usernameFilter, setUsernameFilter] = useState('');
     const [debouncedUsername, setDebouncedUsername] = useState('');
     const [showBanned, setShowBanned] = useState(false);
@@ -54,15 +56,15 @@ const UsersManagement = () => {
 
     // Promote to admin
     const handlePromote = useCallback(async (userId, username) => {
-        if (!window.confirm(`Повишаване на ${username} до Администратор?`)) return;
+        
 
         try {
             await axios.put(`${API_BASE}/user/${userId}/admin`);
-            alert(`${username} вече е Администратор!`);
+           
             fetchUsers();
         } catch (err) {
             console.error('Promote error:', err);
-            alert(`Неуспешно повишаване: ${err.response?.data?.message || err.message}`);
+            setGlobalError(`Неуспешно повишаване: ${err.response?.data?.message || err.message}`);
         }
     }, [fetchUsers]);
 
@@ -89,7 +91,7 @@ const UsersManagement = () => {
     // Confirm ban with reason
     const handleConfirmBan = useCallback(async () => {
         if (!banReason.trim()) {
-            alert('Моля, въведете причина за блокирането на потребителя.');
+             setGlobalError('Моля, въведете причина за блокирането на потребителя.');
             return;
         }
 
@@ -113,7 +115,7 @@ const UsersManagement = () => {
             fetchUsers();
         } catch (err) {
             console.error('Ban error:', err);
-            alert(`Неуспешно блокиране: ${err.response?.data?.message || err.message}`);
+            setGlobalError(`Неуспешно блокиране: ${err.response?.data?.message || err.message}`);
         }
     }, [banModal.userId, banModal.username, banReason, fetchUsers]);
 
@@ -125,15 +127,14 @@ const UsersManagement = () => {
 
     // Unban user
     const handleUnban = useCallback(async (userId, username) => {
-        if (!window.confirm(`Деблокиране на ${username}?`)) return;
-        console.log(`Unbanning user ID: ${userId}, Username: ${username}`); 
+     
         try {
             await axios.put(`${API_BASE}/user/${userId}/unban`, { params: { id: banModal.userId } });
-            alert(`${username} беше деблокиран`);
+            
             fetchUsers();
         } catch (err) {
             console.error('Unban error:', err);
-            alert(`Неуспешно деблокиране: ${err.response?.data?.message || err.message}`);
+            setGlobalError(`Неуспешно деблокиране: ${err.response?.data?.message || err.message}`);
         }
     }, [fetchUsers]);
 
@@ -271,7 +272,7 @@ const UsersManagement = () => {
                                                         >
                                                             Деблокирай
                                                         </button>
-                                                    )}{!user.isAdmin && !(showBanned) && ( 
+                                                    )}{!user.isAdmin && !(showBanned) && !(showDeactivated) && ( 
                                                         <>
                                                             <button
                                                                 onClick={() => openBanModal(user.id, user.username)}

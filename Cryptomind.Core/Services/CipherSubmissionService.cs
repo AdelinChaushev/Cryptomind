@@ -113,6 +113,7 @@ namespace Cryptomind.Core.Services
 					OCRConfidence = ocrConfidence ?? 0,
 					CreatedAt = DateTime.UtcNow.AddHours(2)
 				};
+			
 			}
 
 			var mlResult = await cipherRecognizerService.ClassifyCipher(encryptedTextForAnalysis);
