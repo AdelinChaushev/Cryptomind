@@ -4,6 +4,7 @@ using Cryptomind.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cryptomind.Data.Migrations
 {
     [DbContext(typeof(CryptomindDbContext))]
-    partial class CryptomindDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260224000700_Made_Cihpher_Title_And_Cipher_Ecrypted_Text_Unique")]
+    partial class Made_Cihpher_Title_And_Cipher_Ecrypted_Text_Unique
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -32,32 +32,47 @@ const SubmitCipherPage = () => {
         else           setFields(prev => ({ ...prev, image: null }));
     };
 
-    const handleSubmit = () => {
-        const formData = new FormData();
-        formData.append("Title", fields.title);
-        formData.append("DecryptedText", fields.decryptedText || "");
-        formData.append("EncryptedText", fields.encryptedText); // required
-        formData.append("CipherType", fields.cipherType.toString());
-        formData.append("CipherDefinition", (fields.image != null ? 1 : 0).toString() );// integer or string matching enum
-        console.log(fields.image != null ? 1 : 0)
-        if (fields.image) {
-            formData.append("Image", fields.image); // file object
-        }
-        /* TODO: build FormData and POST to /api/ciphers/submit */
-        axios.post('http://localhost:5115/api/ciphers/submit',formData
-            ,{
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }}).then( c => setSubmitted(true) )
-        .catch(e => {
-            console.log('Submission error:', e);
-            console.log('Server Response Data:', e.response?.data);
+   // 1. REMOVE: import { response } from 'express'; 
 
-            setError(e.response?.data?.title ||  e.response.data.error)
+const handleSubmit = () => {
+    // Reset states at the start of a new attempt
+    setSubmitted(false);
+    setError(null);
 
-        });
-    };
+    const formData = new FormData();
+    formData.append("Title", fields.title);
+    formData.append("DecryptedText", fields.decryptedText || "");
+    formData.append("EncryptedText", fields.encryptedText);
+    formData.append("CipherType", fields.cipherType.toString());
+    formData.append("CipherDefinition", (fields.image != null ? 1 : 0).toString());
+
+    if (fields.image) {
+        formData.append("Image", fields.image);
+    }
+
+    axios.post('http://localhost:5115/api/ciphers/submit', formData, {
+        withCredentials: true,
+        headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    .then(() => {
+      
+        setSubmitted(true);
+        setTimeout(() => setSubmitted(false), 1200);
+    })
+    .catch(e => {
+        // triggers on 400, 401, 404, 500, etc.
+        setSubmitted(false); // Force hide the success message
+        
+        console.error('Submission error:', e.response?.data);
+
+        // Safe extraction
+        const errorMsg = e.response?.data?.error 
+                      || e.response?.data?.title 
+                      || "An unexpected error occurred.";
+        
+        setError(errorMsg);
+    });
+};
 
     const handleCancel = () => window.history.back();
 
