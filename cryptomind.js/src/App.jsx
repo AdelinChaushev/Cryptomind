@@ -82,7 +82,7 @@ function App() {
         <Route path="about" element={<About />} />
         <Route path="cipher-library" element={<CipherLibrary />} /> 
         <Route path="browse" element={<RequireAuth> <CipherBrowsePage /> </RequireAuth>} />   
-        <Route path="account" element={<RequireAuth> <AccountInfo /> </RequireAuth>} />   
+        <Route path="account-info" element={<RequireAuth> <AccountInfo /> </RequireAuth>} />   
         <Route path="notifications" element={<RequireAuth> <NotificationsPage /> </RequireAuth>} /> 
         <Route path="submit" element={<RequireAuth><SubmitCipherPage /></RequireAuth>} />  
         <Route path="cipher/:id" element={<RequireAuth><CipherSolvePage /></RequireAuth>} />

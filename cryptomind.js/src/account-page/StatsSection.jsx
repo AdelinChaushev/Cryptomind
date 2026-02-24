@@ -12,7 +12,7 @@ function StatCard({ value, label, accent, subtext }) {
 
 function StatsSection({ user }) {
     const successRate = user.successRate != null
-        ? `${(user.successRate * 100).toFixed(1)}%`
+        ? `${(user.successRate).toFixed(1)}%`
         : '0%';
 
     return (
