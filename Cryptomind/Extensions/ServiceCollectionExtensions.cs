@@ -61,7 +61,11 @@ public static class ServiceCollectionExtensions
 	{
 		var connectionString = configuration.GetConnectionString("DefaultConnection");
 		services.AddDbContext<CryptomindDbContext>(options =>
-			options.UseSqlServer(connectionString));
+			options.UseSqlServer(connectionString, sqlOptions =>
+				sqlOptions.EnableRetryOnFailure(
+					maxRetryCount: 5,
+					maxRetryDelay: TimeSpan.FromSeconds(10),
+					errorNumbersToAdd: null)));
 		return services;
 	}
 
@@ -128,10 +132,10 @@ public static class ServiceCollectionExtensions
 		{
 			c.AddPolicy("AllowAll", builder =>
 			{
-				builder.WithOrigins("http://localhost:5173")
-					   .AllowAnyHeader()
-					   .AllowAnyMethod()
-					   .AllowCredentials();
+				builder.WithOrigins("http://localhost:5173", "http://localhost:5174")
+						.AllowAnyHeader()
+						.AllowAnyMethod()
+						.AllowCredentials();
 			});
 		});
 
