@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom"
 import { useContext } from "react";
 import { AuthorizationContext } from "../App.jsx";
 import { useError } from '../ErrorContext.jsx';
+
 export default function Register() {
      const navigate = useNavigate();
     const [data,setData] = useState({username: '',email:'',password:'',confirmPassword:''})
@@ -17,7 +18,7 @@ export default function Register() {
     const handleSubmit = (e) =>{
         e.preventDefault();
          if(data.password != data.confirmPassword){
-          setError("Password and confirm password must be the same")
+          setError("Паролата и потвърждението на паролата трябва да съвпадат")
           return;
          }
          
@@ -30,7 +31,7 @@ export default function Register() {
           {console.log(e.data)
           navigate('/');
           setState({roles: ["User"], isLoggedIn: true})
-         }).catch(e => {setError(e.response?.data?.title)})        // Reload the page to reflect the new registration
+         }).catch(e => {setError(e.response?.data?.title)})
     }
     return (
         <>
@@ -60,7 +61,7 @@ export default function Register() {
                                 <h1 className="logo-text">CRYPTO<span>MIND</span></h1>
                             </div>
                         </a>
-                        <p className="auth-tagline">CLASSICAL CIPHER INTELLIGENCE PLATFORM</p>
+                        <p className="auth-tagline">ПЛАТФОРМА ЗА КЛАСИЧЕСКИ ШИФРИ С ИЗКУСТВЕН ИНТЕЛЕКТ</p>
                         <div className="cipher-divider" aria-hidden="true">
                             <span className="divider-line" />
                             <span className="divider-icon">⊕</span>
@@ -69,8 +70,8 @@ export default function Register() {
                     </header>
 
                     <div className="form-title-block">
-                        <h2 className="form-title">CREATE ACCOUNT</h2>
-                        <p className="form-subtitle">Join the intelligence network</p>
+                        <h2 className="form-title">СЪЗДАВАНЕ НА АКАУНТ</h2>
+                        <p className="form-subtitle">Присъединете се към разузнавателната мрежа</p>
                     </div>
 
                     <form className="auth-form" onSubmit={handleSubmit} noValidate>
@@ -78,51 +79,39 @@ export default function Register() {
                         <div className="form-group">
                             <label htmlFor="username" className="form-label">
                                 <span className="label-prefix">01</span>
-                                CODENAME
+                                ПСЕВДОНИМ
                             </label>
                             <div className="input-wrapper">
-                                {/* <span className="input-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="10" cy="7" r="4" stroke="currentColor" strokeWidth="1.5" />
-                                        <path d="M3 17c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                                    </svg>
-                                </span> */}
                                 <input
                                     type="text"
                                     id="username"
                                     name="username"
                                     className="form-input"
-                                    placeholder="Choose your username"
+                                    placeholder="Изберете потребителско име"
                                     autoComplete="username"
                                     minLength={3}
                                     maxLength={32}
                                     value={data.username}
-                                     onChange={handleChange}
+                                    onChange={handleChange}
                                     required
                                 />
                                 <span className="input-focus-bar" aria-hidden="true" />
                             </div>
-                            <span className="field-hint">3–32 characters. Letters, numbers, underscores.</span>
+                            <span className="field-hint">3–32 знака. Букви, цифри, долна черта.</span>
                         </div>
 
                         <div className="form-group">
                             <label htmlFor="email" className="form-label">
                                 <span className="label-prefix">02</span>
-                                TRANSMISSION ADDRESS
+                                АДРЕС ЗА ВРЪЗКА
                             </label>
                             <div className="input-wrapper">
-                                {/* <span className="input-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <rect x="2" y="5" width="16" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" />
-                                        <path d="M2 7l8 5 8-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                </span> */}
                                 <input
                                     type="email"
                                     id="email"
                                     name="email"
                                     className="form-input"
-                                    placeholder="your@email.com"
+                                    placeholder="вашият@имейл.com"
                                     autoComplete="email"
                                     value={data.email} 
                                     onChange={handleChange}
@@ -135,22 +124,15 @@ export default function Register() {
                         <div className="form-group">
                             <label htmlFor="password" className="form-label">
                                 <span className="label-prefix">03</span>
-                                ENCRYPTION KEY
+                                КЛЮЧ ЗА КРИПТИРАНЕ
                             </label>
                             <div className="input-wrapper">
-                                {/* <span className="input-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M5 10V7a5 5 0 0 1 10 0v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                                        <rect x="3" y="10" width="14" height="9" rx="2" stroke="currentColor" strokeWidth="1.5" />
-                                        <circle cx="10" cy="14.5" r="1.5" fill="currentColor" />
-                                    </svg>
-                                </span> */}
                                 <input
                                     type="password"
                                     id="password"
                                     name="password"
                                     className="form-input"
-                                    placeholder="Create a strong password"
+                                    placeholder="Създайте силна парола"
                                     autoComplete="new-password"
                                     minLength={8}
                                     value={data.password}
@@ -163,27 +145,22 @@ export default function Register() {
                                 <div className="strength-track">
                                     <div className="strength-fill" id="strength-fill" />
                                 </div>
-                                <span className="strength-label" id="strength-label">Min. 8 characters</span>
+                                <span className="strength-label" id="strength-label">Мин. 8 знака</span>
                             </div>
                         </div>
 
                         <div className="form-group">
                             <label htmlFor="confirmPassword" className="form-label">
                                 <span className="label-prefix">04</span>
-                                CONFIRM KEY
+                                ПОТВЪРДИ КЛЮЧА
                             </label>
                             <div className="input-wrapper">
-                                {/* <span className="input-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M4 10l5 5L17 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                </span> */}
                                 <input
                                     type="password"
                                     id="confirmPassword"
                                     name="confirmPassword"
                                     className="form-input"
-                                    placeholder="Re-enter your password"
+                                    placeholder="Въведете паролата отново"
                                     autoComplete="new-password"
                                     value={data.confirmPassword}
                                     onChange={handleChange}
@@ -193,21 +170,8 @@ export default function Register() {
                             </div>
                         </div>
 
-                        <div className="form-group terms-group">
-                            <label className="checkbox-label">
-                                <input type="checkbox" name="agreeTerms" className="checkbox-input" required />
-                                <span className="checkbox-custom" aria-hidden="true" />
-                                <span className="checkbox-text">
-                                    I accept the{' '}
-                                    <a href="/terms" className="terms-link">Terms of Service</a>
-                                    {' '}and{' '}
-                                    <a href="/privacy" className="terms-link">Privacy Policy</a>
-                                </span>
-                            </label>
-                        </div>
-
                         <button type="submit" className="btn-submit">
-                            <span className="btn-text">INITIALIZE ACCOUNT</span>
+                            <span className="btn-text">СЪЗДАЙ АКАУНТ</span>
                             <span className="btn-arrow" aria-hidden="true">→</span>
                             <span className="btn-glow" aria-hidden="true" />
                         </button>
@@ -216,8 +180,8 @@ export default function Register() {
 
                     <footer className="auth-card-footer">
                         <p className="footer-text">
-                            Already an operative?{' '}
-                            <a href="/login" className="footer-link">Sign in here</a>
+                            Вече имате акаунт?{' '}
+                            <a href="/login" className="footer-link">Влезте тук</a>
                         </p>
                     </footer>
 

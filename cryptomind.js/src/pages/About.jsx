@@ -183,9 +183,9 @@ function Mission() {
             <div className="about-container">
                 <div className="about-mission-layout">
                     <div>
-                        <SectionHeader tag="// МИСИЯ" title="Какво е CryptoMind?" />
+                        <SectionHeader tag="// МИСИЯ" title="Какво е Cryptomind?" />
                         <p className="about-body-text">
-                            CryptoMind е образователна уеб платформа, изградена около класическата
+                            Cryptomind е образователна уеб платформа, изградена около класическата
                             криптография. Потребителите взаимодействат с криптирани съобщения, опитват
                             се да ги разгадаят и научават как работят историческите шифри — всичко
                             подкрепено от ML класификатор и LLM асистент.

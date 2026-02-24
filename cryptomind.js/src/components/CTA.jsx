@@ -5,10 +5,10 @@ const CTA = () => {
         <section className="cta-section">
             <div className="cta-box">
                 <div className="cta-content">
-                    <h2>Ready to Begin?</h2>
-                    <p>Join 1,203 cryptographers solving ciphers today</p>
+                    <h2>Готови ли сте да започнете?</h2>
+                    <p>Присъединете се към 1,203 криптографи, решаващи шифри днес</p>
                     <a href="/register" className="btn btn-cta">
-                        Create Free Account
+                        Създайте безплатен акаунт
                     </a>
                 </div>
             </div>
