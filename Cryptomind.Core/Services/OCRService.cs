@@ -37,7 +37,7 @@ namespace Cryptomind.Core.Services.OCR
 			catch (Exception ex)
 			{
 				throw new Exception(
-					$"ML service is unavailable. Please ensure the Python ML API is running at {ocrApiUrl}",
+					$"OCR service is unavailable. Please ensure the Python OCR is running at {ocrApiUrl}",
 					ex
 				);
 			}
