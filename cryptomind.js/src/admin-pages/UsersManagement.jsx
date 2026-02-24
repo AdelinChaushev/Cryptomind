@@ -272,7 +272,7 @@ const UsersManagement = () => {
                                                         >
                                                             Деблокирай
                                                         </button>
-                                                    )}{!user.isAdmin && !(showBanned) && ( 
+                                                    )}{!user.isAdmin && !(showBanned) && !(showDeactivated) && ( 
                                                         <>
                                                             <button
                                                                 onClick={() => openBanModal(user.id, user.username)}

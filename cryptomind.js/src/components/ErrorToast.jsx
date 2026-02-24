@@ -84,7 +84,7 @@ export default function ErrorToast({ message, onDismiss, duration = TOAST_DURATI
                 </div>
 
                 <div className="error-toast__body">
-                    <span className="error-toast__title">Error</span>
+                    <span className="error-toast__title">Грешка</span>
                     <span className="error-toast__message">{message}</span>
                 </div>
 
