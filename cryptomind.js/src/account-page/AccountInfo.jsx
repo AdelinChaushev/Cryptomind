@@ -7,7 +7,8 @@ import ProfileCard    from './ProfileCard';
 import StatsSection   from './StatsSection';
 import BadgesSection  from './BadgesSection';
 import DeactivateModal from './DeactivateModal';
-
+import { useContext } from 'react';
+import { AuthorizationContext } from '../App';
 const API_BASE = 'http://localhost:5115';
 
 function AccountInfo() {
@@ -17,7 +18,7 @@ function AccountInfo() {
     const [showModal, setShowModal]     = useState(false);
     const [deactivating, setDeactivating] = useState(false);
     const navigate = useNavigate();
-
+    const {state,setState} = useContext(AuthorizationContext)
     useEffect(() => {
         const fetchUser = () => {
             axios.get(`${API_BASE}/api/user/get-account-info`, {
@@ -36,10 +37,16 @@ function AccountInfo() {
     const handleDeactivate = async () => {
         setDeactivating(true);
         try {
-            await axios.post(`${API_BASE}/api/auth/deactivate`, {}, {
+             axios.post(`${API_BASE}/api/auth/deactivate`, {}, {
                 withCredentials: true,
+            }).then( c =>{ 
+                 setState({ roles: [], isLoggedIn: false, isBanned: false });
+                 navigate("/") 
+                
+                
+         
             });
-            navigate('/');
+        
         } catch (err) {
             setError(`Неуспешно деактивиране на акаунта: ${err.message}`);
         } finally {
