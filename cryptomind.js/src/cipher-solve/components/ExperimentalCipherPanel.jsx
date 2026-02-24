@@ -4,9 +4,14 @@ import '../styles/experimental-cipher-panel.css';
 function ExperimentalCipherPanel({ onSubmit }) {
     const [submitted, setSubmitted] = useState(false);
 
-    const handleSubmit = () => {
-        onSubmit.onSubmit();
+    const handleSubmit = async () => {
+       const isSuccessful = await onSubmit.onSubmit(); 
+    
+    // 2. ONLY show the success message if the parent returned true
+    if (isSuccessful) {
         setSubmitted(true);
+        setTimeout(() => setSubmitted(false), 4000);
+    }
     };
 
     return (

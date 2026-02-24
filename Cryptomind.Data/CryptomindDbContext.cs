@@ -44,6 +44,15 @@ namespace Cryptomind.Data
 				.WithMany(u => u.UploadedCiphers)
 				.HasForeignKey(c => c.CreatedByUserId)
 				.OnDelete(DeleteBehavior.Restrict);
+            builder.Entity<Cipher>()
+           .HasIndex(c => c.Title)
+           .HasFilter("IsDeleted = 0")
+           .IsUnique();
+			builder.Entity<Cipher>()
+			.HasIndex(c => c.EncryptedText)
+			.IsUnique();
+				
+			
 
 			builder.Entity<Cipher>()
 				.HasIndex(c => c.Title)
