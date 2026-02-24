@@ -31,6 +31,8 @@ import NotificationsPage from './notifications/NotificationsPage.jsx';
 import { useNotifications } from './notifications/UseNotifications';
 import ToastContainer from './notifications/ToastContainer';
 import { ErrorProvider } from "./ErrorContext";
+
+import AccountInfo from './account-page/AccountInfo.jsx';
 export const AuthorizationContext = createContext({roles : [], isLoggedIn: false});
 export const NotificationContext = createContext(null);
 export const useNotificationContext = () => useContext(NotificationContext);
@@ -80,6 +82,7 @@ function App() {
         <Route path="about" element={<About />} />
         <Route path="cipher-library" element={<CipherLibrary />} /> 
         <Route path="browse" element={<RequireAuth> <CipherBrowsePage /> </RequireAuth>} />   
+        <Route path="account" element={<RequireAuth> <AccountInfo /> </RequireAuth>} />   
         <Route path="notifications" element={<RequireAuth> <NotificationsPage /> </RequireAuth>} /> 
         <Route path="submit" element={<RequireAuth><SubmitCipherPage /></RequireAuth>} />  
         <Route path="cipher/:id" element={<RequireAuth><CipherSolvePage /></RequireAuth>} />

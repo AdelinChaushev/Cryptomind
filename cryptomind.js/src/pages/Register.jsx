@@ -195,18 +195,7 @@ export default function Register() {
                             </div>
                         </div>
 
-                        <div className="form-group terms-group">
-                            <label className="checkbox-label">
-                                <input type="checkbox" name="agreeTerms" className="checkbox-input" required />
-                                <span className="checkbox-custom" aria-hidden="true" />
-                                <span className="checkbox-text">
-                                    I accept the{' '}
-                                    <a href="/terms" className="terms-link">Terms of Service</a>
-                                    {' '}and{' '}
-                                    <a href="/privacy" className="terms-link">Privacy Policy</a>
-                                </span>
-                            </label>
-                        </div>
+                       
 
                         <button type="submit" className="btn-submit">
                             <span className="btn-text">INITIALIZE ACCOUNT</span>
