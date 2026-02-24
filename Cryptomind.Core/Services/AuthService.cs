@@ -48,7 +48,7 @@ namespace Cryptomind.Core.Services
 			var token = new JwtSecurityToken(
 				issuer: configuration["JWT:ValidIssuer"],
 				audience: configuration["JWT:ValidAudience"],
-				expires: DateTime.UtcNow.AddHours(3),
+				expires: DateTime.UtcNow.AddHours(5),
 				claims: authClaims,
 				signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256));
 
@@ -63,12 +63,18 @@ namespace Cryptomind.Core.Services
 				throw new ConflictException("User with this email already exists");
 			}
 
+			if (userName.Length < 3 || userName.Length > 32)
+				throw new CustomValidationException("Keep the username constraints");
+
+			if (password.Length < 8)
+				throw new CustomValidationException("Keep the password constraints");
+
 			ApplicationUser user = new ApplicationUser()
 			{
 				UserName = userName,
 				Email = email,
 				EmailConfirmed = true,
-				RegisteredAt = DateTime.UtcNow,
+				RegisteredAt = DateTime.UtcNow.AddHours(2),
 			};
 
 			var result = await userManager.CreateAsync(user, password);
@@ -93,7 +99,7 @@ namespace Cryptomind.Core.Services
 				throw new ConflictException("Admins cannot deactivate their own account");
 
 			user.IsDeactivated = true;
-			user.DeactivatedAt = DateTime.UtcNow;
+			user.DeactivatedAt = DateTime.UtcNow.AddHours(2);
 			await userManager.UpdateAsync(user);
 		}
 	}

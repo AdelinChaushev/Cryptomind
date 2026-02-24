@@ -145,9 +145,9 @@ namespace Cryptomind.Tests.Unit.Services
 			var user = MakeUser("u1");
 			userManagerMock.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(new List<string>());
 
-			var before = DateTime.UtcNow.AddHours(3).AddSeconds(-5);
+			var before = DateTime.UtcNow.AddHours(2).AddHours(3).AddSeconds(-5);
 			var tokenString = await service.GenerateJSONWebToken(user);
-			var after = DateTime.UtcNow.AddHours(3).AddSeconds(5);
+			var after = DateTime.UtcNow.AddHours(2).AddHours(3).AddSeconds(5);
 
 			var decoded = new JwtSecurityTokenHandler().ReadJwtToken(tokenString);
 

@@ -130,8 +130,6 @@ namespace Cryptomind.Core.Services
                 case CipherOrderTerm.LeastPopular:
                     result = result.OrderBy(x => x.UserSolutions.Count).ToList();
                     break;
-
-
             }
 
 			return ToReviewOutputViewModelMany(result);
@@ -290,7 +288,7 @@ namespace Cryptomind.Core.Services
 			cipher.AllowSolution = model.AllowSolution;
 			cipher.AllowTypeHint = model.AllowTypeHint;
 			cipher.Status = ApprovalStatus.Approved;
-			cipher.ApprovedAt = DateTime.UtcNow;
+			cipher.ApprovedAt = DateTime.UtcNow.AddHours(2);
 			cipher.TypeOfCipher = model.TypeOfCipher;
 
 
@@ -328,7 +326,7 @@ namespace Cryptomind.Core.Services
 				throw new NotFoundException("User not found.");
 
 			cipher.Status = ApprovalStatus.Rejected;
-			cipher.RejectedAt = DateTime.UtcNow;
+			cipher.RejectedAt = DateTime.UtcNow.AddHours(2);
 			cipher.RejectionReason = reason;
 
 			await cipherRepo.UpdateAsync(cipher);
@@ -398,7 +396,7 @@ namespace Cryptomind.Core.Services
 			}
 
 			cipher.IsDeleted = true;
-			cipher.DeletedAt = DateTime.UtcNow;
+			cipher.DeletedAt = DateTime.UtcNow.AddHours(2);
 
 			await notificationService.CreateAndSendNotification(
 				cipher.CreatedByUserId, 
@@ -510,6 +508,10 @@ namespace Cryptomind.Core.Services
 					Id = cipher.Id,
 					Title = cipher.Title,
 					IsImage = cipher is ImageCipher,
+					IsTypeHintAllowed = cipher.AllowTypeHint,
+					IsHintAllowed = cipher.AllowHint,
+					IsSolutionAllowed = cipher.AllowSolution,
+					Tags = cipher.CipherTags.Select(x => x.Tag).ToList(),
 					SubmittedBy = cipher.CreatedByUser.UserName,
 					SubmittedAt = (int)cipher.Status == 1 ? cipher.ApprovedAt : (int)cipher.Status == 0 ? cipher.CreatedAt : cipher.RejectedAt,
 					MlPrediction = mlData.Type,
@@ -536,10 +538,6 @@ namespace Cryptomind.Core.Services
 				Id = cipher.Id,
 				Title = cipher.Title,
 				DecryptedText = cipher.DecryptedText,
-				IsTypeHintAllowed = cipher.AllowTypeHint,
-				IsHintAllowed = cipher.AllowHint,
-				IsSolutionAllowed = cipher.AllowSolution,
-				Tags = cipher.CipherTags.Select(x => x.Tag).ToList(),
 				Points = cipher.Points,
 				CipherText = cipher.EncryptedText,
 				SetCipherType = (int)cipher.TypeOfCipher,

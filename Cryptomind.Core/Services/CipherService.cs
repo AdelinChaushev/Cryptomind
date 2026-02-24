@@ -140,7 +140,7 @@ namespace Cryptomind.Core.Services
 			{
 				CipherId = cipherId,
 				UserId = userId,
-				TimeSolved = DateTime.UtcNow,
+				TimeSolved = DateTime.UtcNow.AddHours(2),
 				UsedTypeHint = usedTypeHint,
 				UsedSolutionHint = usedSolutionHint,
 				UsedFullSolution = usedFullSolution,
@@ -293,7 +293,7 @@ namespace Cryptomind.Core.Services
 		}
 		private TimeSpan GetTimeSpan(DateTime solvedAt)
 		{
-			return DateTime.UtcNow - solvedAt;
+			return DateTime.UtcNow.AddHours(2) - solvedAt;
 		}
 		#endregion
 	}
