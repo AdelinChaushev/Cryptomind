@@ -92,7 +92,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .ct-cb-tip::after{content:\'\';position:absolute;bottom:-5px;left:16px;width:8px;height:8px;background:#0a1525;border-right:1px solid var(--cc);border-bottom:1px solid var(--cc);transform:rotate(45deg)}
 .ct-cb-wrap:hover .ct-cb-tip{display:block}
 .ct-cb-footer{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid rgba(203,213,225,0.08)}
-.ct-learn{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:#475569;text-decoration:none;transition:.15s;cursor:pointer;background:none;border:none;padding:0}
+.ct-learn{
+    font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:#475569;text-decoration:none;transition:.15s;cursor:pointer;background:none;border:none;padding: 30px;
+}
 .ct-learn:hover{color:var(--cc)}
-.ct-done-tag{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;color:#10b981;margin-bottom:8px;text-transform:uppercase}
-.ct-done-txt{font-family:'Space Mono',monospace;font-size:clamp(11px,2vw,15px);color:#f8fafc;letter-spacing:2px;word-break:break-all}
+
+.ct-done-tag{
+    font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;color:#10b981;margin-bottom:8px;text-transform:uppercase
+}
+
+.ct-done-txt{
+    font-family:'Space Mono',monospace;font-size:clamp(11px,2vw,15px);color:#f8fafc;letter-spacing:2px;word-break:break-all
+}

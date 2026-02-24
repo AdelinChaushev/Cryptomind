@@ -39,7 +39,7 @@ function AccountInfo() {
             await axios.post(`${API_BASE}/api/auth/deactivate`, {}, {
                 withCredentials: true,
             });
-            navigate('/login');
+            navigate('/');
         } catch (err) {
             setError(`Неуспешно деактивиране на акаунта: ${err.message}`);
         } finally {

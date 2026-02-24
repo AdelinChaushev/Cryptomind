@@ -532,7 +532,7 @@ namespace Cryptomind.Core.Services
                 };
                 mlData = JsonSerializer.Deserialize<MlPredictionType>(cipher.MLPrediction, options);
             }
-
+			int cipherType = cipher.TypeOfCipher.HasValue ? (int)cipher.TypeOfCipher.Value : -1;
 			var model = new CipherDetailedReviewOutputViewModel()
 			{
 				Id = cipher.Id,
