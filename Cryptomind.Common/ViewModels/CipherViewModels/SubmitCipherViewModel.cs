@@ -8,6 +8,7 @@ namespace Cryptomind.Common.ViewModels.CipherViewModels
 	{
 		public string Title { get; set; }
 		public string? DecryptedText { get; set; }
+		public string? ReviewedText { get; set; }
 		public string? EncryptedText { get; set; }
 		public IFormFile? Image { get; set; }
 		public CipherType? CipherType { get; set; }

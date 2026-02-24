@@ -27,7 +27,16 @@ const GROUP_LABELS = {
     'Encoding':       'Кодиране',
 };
 
-const SubmitForm = ({ fields, useImage, onToggle, onFieldChange }) => {
+const SubmitForm = ({
+    fields,
+    useImage,
+    onToggle,
+    onFieldChange,
+    ocrText,
+    ocrLoading,
+    onOcrTextChange,
+    onImageChange,
+}) => {
     const { title, decryptedText, encryptedText, image, cipherType } = fields;
 
     const len = encryptedText.length;
@@ -39,9 +48,10 @@ const SubmitForm = ({ fields, useImage, onToggle, onFieldChange }) => {
     else                 { countNote = 'над оптималното'; }
 
     const handleZoneClick = () => document.getElementById('cipher-image-input').click();
+
     const handleFileChange = (e) => {
         const f = e.target.files[0];
-        if (f) onFieldChange('image', f);
+        if (f) onImageChange(f);
     };
 
     return (
@@ -77,7 +87,6 @@ const SubmitForm = ({ fields, useImage, onToggle, onFieldChange }) => {
                 </p>
             </div>
 
-           
             <div className="field">
                 <CipherInputToggle useImage={useImage} onToggle={onToggle} />
 
@@ -129,15 +138,43 @@ const SubmitForm = ({ fields, useImage, onToggle, onFieldChange }) => {
                             )}
                         </div>
 
-                        <p className="ocr-notice">
-                            <strong>OCR:</strong> Tesseract ще извлече текста от изображението.
-                            Можете да го прегледате и коригирате, преди шифърът да бъде публикуван.
-                        </p>
+                        {ocrLoading && (
+                            <p className="ocr-loading">Извличане на текст от изображението…</p>
+                        )}
+
+                        {!ocrLoading && ocrText && (
+                            <div className="ocr-review">
+                                <label className="field-label">
+                                    ИЗВЛЕЧЕН ТЕКСТ <span className="optional">ПРЕГЛЕДАЙТЕ И КОРИГИРАЙТЕ</span>
+                                </label>
+                                <textarea
+                                    className="field-textarea ocr-textarea"
+                                    value={ocrText}
+                                    onChange={e => onOcrTextChange(e.target.value)}
+                                    rows={6}
+                                />
+                                <p className="field-hint">
+                                    Tesseract извлече горния текст от изображението. Коригирайте евентуални грешки преди изпращане.
+                                </p>
+                            </div>
+                        )}
+
+                        {!ocrLoading && !ocrText && image && (
+                            <p className="ocr-notice ocr-notice--error">
+                                OCR не успя да извлече текст. Опитайте с по-ясно изображение.
+                            </p>
+                        )}
+
+                        {!image && (
+                            <p className="ocr-notice">
+                                <strong>OCR:</strong> Tesseract ще извлече текста от изображението.
+                                Можете да го прегледате и коригирате, преди шифърът да бъде публикуван.
+                            </p>
+                        )}
                     </>
                 )}
             </div>
 
-            
             <div className="field">
                 <label className="field-label">
                     ВИД НА ШИФЪРА <span className="optional">НЕЗАДЪЛЖИТЕЛНО</span>

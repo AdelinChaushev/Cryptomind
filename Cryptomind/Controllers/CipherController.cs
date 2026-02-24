@@ -1,6 +1,7 @@
 ﻿using Cryptomind.Common.DTOs;
 using Cryptomind.Common.ViewModels.CipherViewModels;
 using Cryptomind.Core.Contracts;
+using Cryptomind.Core.Services.OCR;
 using Cryptomind.Data.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +17,7 @@ namespace Cryptomind.Controllers
 		ICipherRecognizerService recognizerService,
 		IBadgeService badgeService,
 		IHintService hintService,
+		IOCRService ocrService,
 		ICipherSubmissionService cipherSubmissionService,
 		IAnswerSubmissionService answerService) : ControllerBase
 	{
@@ -55,6 +57,14 @@ namespace Cryptomind.Controllers
 
 			var cipher = await cipherSubmissionService.SubmitCipherAsync(model, userId);
 			return Ok("Your cipher was received and will be reviewed by admin");
+		}
+
+		[HttpPost("ocr-preview")]
+		[Consumes("multipart/form-data")]
+		public async Task<IActionResult> PreviewOCR([FromForm] IFormFile image)
+		{
+			var result = await ocrService.ExtractTextFromImageAsync(image);
+			return Ok(new { extractedText = result.ExtractedText, confidence = result.Confidence });
 		}
 
 		[HttpPost("cipher/{id}/suggest-answer")]

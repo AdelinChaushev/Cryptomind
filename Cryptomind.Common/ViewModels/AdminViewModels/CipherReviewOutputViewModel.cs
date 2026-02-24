@@ -15,6 +15,6 @@ namespace Cryptomind.Common.ViewModels.AdminViewModels
         public bool IsTypeHintAllowed { get; set; }
         public bool IsHintAllowed { get; set; }
         public bool IsSolutionAllowed { get; set; }
-        public List<Tag> Tags { get; set; }
+        public List<string> Tags { get; set; }
     }
 }

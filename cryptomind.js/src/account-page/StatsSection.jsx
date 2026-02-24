@@ -18,40 +18,39 @@ function StatsSection({ user }) {
     return (
         <div className="section-panel">
             <div className="section-panel-header">
-                <span className="section-panel-icon">📊</span>
-                <span className="section-panel-title">Performance Stats</span>
+                <span className="section-panel-title">Статистика</span>
             </div>
             <div className="section-panel-body">
                 <div className="stats-grid">
                     <StatCard
                         value={user.score ?? 0}
-                        label="Total Score"
+                        label="Общ резултат"
                         accent="yellow"
-                        subtext="points earned"
+                        subtext="спечелени точки"
                     />
                     <StatCard
                         value={user.solvedCount ?? 0}
-                        label="Ciphers Solved"
+                        label="Решени шифри"
                         accent="emerald"
                     />
                     <StatCard
                         value={user.attemptedCiphers ?? 0}
-                        label="Attempted"
+                        label="Опитани"
                         accent="cyan"
                     />
                     <StatCard
                         value={successRate}
-                        label="Success Rate"
+                        label="Процент на успех"
                         accent="violet"
                     />
                     <StatCard
                         value={user.badges?.length ?? 0}
-                        label="Badges"
+                        label="Значки"
                         accent="orange"
                     />
                     <StatCard
                         value={`#${user.leaderBoardPlace ?? '—'}`}
-                        label="Global Rank"
+                        label="Глобална класация"
                         accent="yellow"
                     />
                 </div>

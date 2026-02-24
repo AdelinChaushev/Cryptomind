@@ -67,7 +67,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			Id = id,
 			Score = score,
-			SolvedCount = solvedCount,
+			//SolvedCount = solvedCount,
 		};
 
 		private void SetupAttachedCiphers(params Cipher[] ciphers)
