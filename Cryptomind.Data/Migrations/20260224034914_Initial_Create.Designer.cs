@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cryptomind.Data.Migrations
 {
     [DbContext(typeof(CryptomindDbContext))]
-    [Migration("20260224015129_Initial_Create")]
+    [Migration("20260224034914_Initial_Create")]
     partial class Initial_Create
     {
         /// <inheritdoc />
@@ -273,7 +273,7 @@ namespace Cryptomind.Data.Migrations
                             Id = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                             AccessFailedCount = 0,
                             AttemptedCiphers = 0,
-                            ConcurrencyStamp = "f299abbc-2718-41f9-879c-e8a0ed7c4287",
+                            ConcurrencyStamp = "a6de731b-2258-4773-998f-115edcc37a43",
                             Email = "admin@cryptomind.com",
                             EmailConfirmed = true,
                             IsBanned = false,
@@ -282,7 +282,7 @@ namespace Cryptomind.Data.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@CRYPTOMIND.COM",
                             NormalizedUserName = "ADMIN@CRYPTOMIND.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEL0uZxT/Sr1G8eXKFV1uCrc4x85jN6fSgS99819Fs77TaWr9gWYdhMGHSRtX/7eSUQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEDljVwiXOjQ1i3lObm+Q6gepHa/3pY5LjM9c8pnfw7a3/EKKPj7LKr8hfKbcDfaxaQ==",
                             PhoneNumberConfirmed = false,
                             RegisteredAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Score = 0,
@@ -296,7 +296,7 @@ namespace Cryptomind.Data.Migrations
                             Id = "b2c3d4e5-f6a7-8901-bcde-f12345678901",
                             AccessFailedCount = 0,
                             AttemptedCiphers = 0,
-                            ConcurrencyStamp = "6105ecf1-3ed5-4a00-911a-01bf403bc200",
+                            ConcurrencyStamp = "8796aa41-091d-4d95-b256-e0e9d0b785bc",
                             Email = "user@cryptomind.com",
                             EmailConfirmed = true,
                             IsBanned = false,
@@ -305,7 +305,7 @@ namespace Cryptomind.Data.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "USER@CRYPTOMIND.COM",
                             NormalizedUserName = "USER@CRYPTOMIND.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEHp55MEeP28NmVCeCm5hscaT6py6TfwMxBguugamAOnTk/gU3Kt1rDQtqVf9a1VVmQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAELLnHUhDH0eMIU6bXaQaC88GHO3MTRi8DhlCotEHX5gy5KEIgjzTS79/pWCR3bikMQ==",
                             PhoneNumberConfirmed = false,
                             RegisteredAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Score = 0,
