@@ -54,7 +54,7 @@ const CipherCard = ({ cipher }) => {
 
             <div className="card-footer">
                 <a href={`/cipher/${cipher.id}`} className="btn btn-card">
-                    {cipher.alreadySolved ? 'View →' : 'Solve →'}
+                    {cipher.alreadySolved ? 'Виж →' : 'Реши →'}
                 </a>
             </div>
         </article>
