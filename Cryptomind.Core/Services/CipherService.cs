@@ -118,7 +118,9 @@ namespace Cryptomind.Core.Services
 
 			if (cipher.UserSolutions.FirstOrDefault(x => x.UserId == userId && x.IsCorrect) != null)
 				throw new ConflictException("Cannot solve the same cipher 2 times");
-
+			var userNow = await userManager.FindByIdAsync(userId);
+            userNow.AttemptedCiphers += 1;
+			
 			string correctAnswer = cipher.DecryptedText;
 
 			bool isCorrect = correctAnswer.Trim().Equals(input.Trim(), StringComparison.OrdinalIgnoreCase);

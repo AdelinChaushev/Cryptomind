@@ -4,6 +4,8 @@
 	{
 		public string Title { get; set; }
 		public string Description { get; set; }
-		public int EarnedBy { get; set; }
+
+        public string BadgeImage { get; set; }
+        public int EarnedBy { get; set; }
 	}
 }
