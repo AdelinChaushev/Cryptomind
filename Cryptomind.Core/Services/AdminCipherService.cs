@@ -90,6 +90,8 @@ namespace Cryptomind.Core.Services
 		public async Task<List<CipherReviewOutputViewModel>> AllApprovedCiphers(CipherFilter filter)
 		{
 			var result = await cipherRepo.GetAllAttached()
+				.Include(x => x.CipherTags)
+					.ThenInclude(x => x.Tag)
                 .Include(c => c.CreatedByUser)
 				.Include(c => c.UserSolutions)
                 .Where(c => c.Status == ApprovalStatus.Approved && !c.IsDeleted)
@@ -527,13 +529,18 @@ namespace Cryptomind.Core.Services
                 mlData = JsonSerializer.Deserialize<MlPredictionType>(cipher.MLPrediction, options);
             }
 
-            var model = new CipherDetailedReviewOutputViewModel()
+			var model = new CipherDetailedReviewOutputViewModel()
 			{
 				Id = cipher.Id,
 				Title = cipher.Title,
 				DecryptedText = cipher.DecryptedText,
+				IsTypeHintAllowed = cipher.AllowTypeHint,
+				IsHintAllowed = cipher.AllowHint,
+				IsSolutionAllowed = cipher.AllowSolution,
+				Tags = cipher.CipherTags.Select(x => x.Tag).ToList(),
 				Points = cipher.Points,
 				CipherText = cipher.EncryptedText,
+				SetCipherType = (int)cipher.TypeOfCipher,
 				CreatorUserName = cipher.CreatedByUser.UserName,
 				AllowType = cipher.AllowTypeHint,
 				AllowHint = cipher.AllowHint,
@@ -542,11 +549,11 @@ namespace Cryptomind.Core.Services
 				IsLLMRecommended = cipher.IsLLMRecommended,
 				ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
 				IsImage = cipher is ImageCipher,
-                SubmittedBy = cipher.CreatedByUser.UserName,
-                SubmittedAt = (int)cipher.Status == 1 ? cipher.ApprovedAt : (int)cipher.Status == 0 ? cipher.CreatedAt : cipher.RejectedAt,
-                MlPrediction = mlData.Family,
-                PercentageOfConfidence = (int)Math.Floor(mlData.Confidence * 100)
-            };
+				SubmittedBy = cipher.CreatedByUser.UserName,
+				SubmittedAt = (int)cipher.Status == 1 ? cipher.ApprovedAt : (int)cipher.Status == 0 ? cipher.CreatedAt : cipher.RejectedAt,
+				MlPrediction = mlData.Family,
+				PercentageOfConfidence = (int)Math.Floor(mlData.Confidence * 100)
+			};
 
 			if (cipher is ImageCipher)
 			{

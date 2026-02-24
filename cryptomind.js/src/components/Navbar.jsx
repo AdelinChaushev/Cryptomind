@@ -11,13 +11,7 @@ const Navbar = () => {
     
    const navigate = useNavigate();
    const {state , setState} = useContext(AuthorizationContext);
-//    console.log("Navbar render — full state:", state);
-//    console.log("isLoggedIn:", state.isLoggedIn);
-//    console.log("roles raw:", state.roles);
-//    console.log("is array?", Array.isArray(state.roles));
-//    console.log("includes Admin?", state.roles?.includes('Admin'));
-//    console.log("includes 'admin' lowercase?", state.roles?.includes('admin'));
-//    console.log("roles as JSON:", JSON.stringify(state.roles));
+
    const onLogout = () => {
     axios.post('/api/auth/logout')
       .then(response => {
@@ -31,40 +25,39 @@ const Navbar = () => {
       console.log(state)
       console.log('Navbar → isLoggedIn:', state.isLoggedIn, 'roles:', state.roles);
    }
+
     return (
         <nav className="navbar">
             <div className="navbar-container">
                 <div className="logo"><img src="/logo.png" alt="" /></div>
                 <ul className="nav-links">
                    
-                   { !state.isLoggedIn ? (<li><Link to="/">Home</Link></li>) :
-                    (<><li><Link to="/">Browse</Link></li>
-                    <li><Link to="/submit">Submit</Link></li>
-                   <li><Link to="/my_submissions"> My Submissions</Link></li>
-                  
-                   </>)
+                   { !state.isLoggedIn ? (<li><Link to="/">Начало</Link></li>) :
+                    (<><li><Link to="/">Преглед</Link></li>
+                    <li><Link to="/submit">Предложи</Link></li>
+                    <li><Link to="/my_submissions">Моите предложения</Link></li>
+                    </>)
                    }
-                    <li><Link to="/leaderboard">Leaderboard</Link></li>
-                    <li><Link to="/cipher-library">Learn about ciphers</Link></li>
-                    <li><Link to="/cipher-tool">Test ciphers</Link></li>
-                    <li><Link to="/about">About</Link></li>
-                    {/* { state.roles <li></li>} */}
+                    <li><Link to="/leaderboard">Класация</Link></li>
+                    <li><Link to="/cipher-library">Научи за шифрите</Link></li>
+                    <li><Link to="/cipher-tool">Тествай шифри</Link></li>
+                    <li><Link to="/about">За нас</Link></li>
 
                 </ul>
                 {Array.isArray(state.roles) && state.roles.includes('Admin') && 
                 (<><ul className="nav-links">
-                    <li><Link to="/admin">Admin Dashboard</Link></li>
+                    <li><Link to="/admin">Административен панел</Link></li>
                 </ul></>)}
                 {state.isLoggedIn ?(
                     <>
                       <NotificationBell />
-                    <button className="btn btn-secondary" onClick={onLogout}>Logout</button>
+                      <button className="btn btn-secondary" onClick={onLogout}>Изход</button>
                     </>
                 )
                     :               
                 (<div className="nav-buttons">
-                    <Link to="/login" className="btn btn-secondary">Login</Link>
-                    <Link to="/register" className="btn btn-primary">Get Started</Link>
+                    <Link to="/login" className="btn btn-secondary">Вход</Link>
+                    <Link to="/register" className="btn btn-primary">Започни</Link>
                 </div>)}
             </div>
         </nav>

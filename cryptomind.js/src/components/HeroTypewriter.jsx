@@ -5,7 +5,7 @@ const HeroTypewriter = () => {
     const [charIndex, setCharIndex] = useState(0);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const fullText = "Decode the Past,\nMaster Cryptography";
+    const fullText = "Декодирайте миналото, \nовладейте криптографията";
     const typingSpeed = 180;
     const deletingSpeed = 150;
     const pauseEnd = 100;

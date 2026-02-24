@@ -21,8 +21,6 @@ builder.Services.RegisterUserDefinedServices();
 
 var app = builder.Build();
 
-await app.SeedDatabaseAsync();
-
 if (app.Environment.IsDevelopment())
 {
 	app.UseSwagger();

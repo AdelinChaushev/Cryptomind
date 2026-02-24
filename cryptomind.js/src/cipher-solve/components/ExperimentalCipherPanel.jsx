@@ -16,13 +16,13 @@ function ExperimentalCipherPanel({ onSubmit }) {
             <div className="experimental-notice">
                 <span className="experimental-notice__icon">⚗</span>
                 <p className="experimental-notice__text">
-                    This is an <strong className="experimental-notice__highlight">experimental cipher</strong>.
-                    Submit your decrypted text and explanation — an admin will review your answer.
+                    Това е <strong className="experimental-notice__highlight">експериментален шифър</strong>.
+                    Изпратете декриптирания текст и обяснение — администратор ще прегледа вашия отговор.
                 </p>
             </div>
 
             <div className="experimental-field">
-                <p className="experimental-field__label">Decrypted Text</p>
+                <p className="experimental-field__label">Декриптиран текст</p>
                 <textarea
                     className="solve-input"
                     placeholder="Въведи това, което смяташ за декриптирано съобщение..."
@@ -32,7 +32,7 @@ function ExperimentalCipherPanel({ onSubmit }) {
             </div>
 
             <div className="experimental-field">
-                <p className="experimental-field__label">Explanation</p>
+                <p className="experimental-field__label">Обяснение</p>
                 <textarea
                     className="solve-input"
                     placeholder="Обясни как го реши — какъв е типът на шифъра, ключ, стъпки..."
@@ -43,7 +43,7 @@ function ExperimentalCipherPanel({ onSubmit }) {
 
             {submitted && (
                 <p className="experimental-success">
-                    ✓ Answer submitted. An admin will review your solution.
+                    ✓ Отговорът е изпратен. Администратор ще прегледа вашето решение.
                 </p>
             )}
 
@@ -54,10 +54,9 @@ function ExperimentalCipherPanel({ onSubmit }) {
                 <button
                     className="btn-submit"
                     onClick={handleSubmit}
-                    // disabled={!onSubmit.decryptedText.trim() || !onSubmit.description.trim() || submitted}
                 >
                     <span>→</span>
-                    {submitted ? 'Submitted' : 'Submit for Review'}
+                    {submitted ? 'Изпратено' : 'Изпрати за преглед'}
                 </button>
             </div>
         </div>
