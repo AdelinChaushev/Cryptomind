@@ -200,9 +200,10 @@ export function useNotifications() {
             prev.map(n => n.id === notificationId ? { ...n, isRead: true } : n)
         );
         setUnreadCount(prev => Math.max(0, prev - 1));
-
+        console.log(notificationId)
         try {
-            const res = await fetch(`${API_BASE}/mark-as-read`, {
+
+            const res = await fetch(`${API_BASE}/mark-as-read/${notificationId}`, {
                 method: 'PUT',
                 headers: authHeaders(),
                 credentials: 'include',

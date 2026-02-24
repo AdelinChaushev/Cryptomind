@@ -58,6 +58,10 @@ namespace Cryptomind.Controllers
 		public async Task<IActionResult> GetCipher([FromRoute] int id)
 		{
 			var cipher = await adminCipherService.GetCipherById(id);
+			if (cipher.Status != ApprovalStatus.Pending.ToString()) 
+			{
+                throw new NotFoundException("Cipher not found");
+            } 
 			return Ok(cipher);
 		}
 

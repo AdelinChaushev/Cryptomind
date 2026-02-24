@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@400;500;600&family=Orbitron:wght@700&display=swap');
  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0} */
-.ct{background:#020617;background-image:linear-gradient(rgba(251,191,36,.014) 1px,transparent 1px),linear-gradient(90deg,rgba(251,191,36,.014) 1px,transparent 1px);background-size:36px 36px;min-height:100vh;font-family:'Sora',sans-serif;color:#f8fafc;padding:28px 20px 64px}
+.ct{background:#020617;background-image:linear-gradient(rgba(251,191,36,.014) 1px,transparent 1px),linear-gradient(90deg,rgba(251,191,36,.014) 1px,transparent 1px);background-size:36px 36px;min-height:100vh;font-family:'Sora',sans-serif;color:#f8fafc;padding:28px 20px 120px ;margin-bottom: 80px;  padding: 32px;}
 .ct-hdr{text-align:center;margin-bottom:32px}
 .ct-hdr-tag{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;color:#fbbf24;margin-bottom:8px}
 .ct-hdr h1{font-family:'Orbitron',monospace;font-size:clamp(17px,3.5vw,28px);letter-spacing:2px}
@@ -93,7 +93,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 .ct-cb-wrap:hover .ct-cb-tip{display:block}
 .ct-cb-footer{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid rgba(203,213,225,0.08)}
 .ct-learn{
-    font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:#475569;text-decoration:none;transition:.15s;cursor:pointer;background:none;border:none;padding: 30px;
+    font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:#475569;text-decoration:none;transition:.15s;cursor:pointer;background:none;border:none;padding:0
 }
 .ct-learn:hover{color:var(--cc)}
 

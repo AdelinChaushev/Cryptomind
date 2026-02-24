@@ -68,9 +68,20 @@ namespace Cryptomind.Core.Services
 				await notificationRepo.UpdateAsync(notification);
 			}		
 		}
-		private static TimeSpan GetTimeSpan(DateTime createdAt)
-		{
-			return DateTime.UtcNow.AddHours(2) - createdAt;
-		}
-	}
+
+        public async Task MarkAsReadSingle(string userId, int notificationId)
+        {
+            var notification = await notificationRepo.GetAllAttached()
+                .FirstOrDefaultAsync(c => c.UserId == userId && c.Id == notificationId);
+            if (notification == null)
+                throw new NotFoundException("Notification not found");
+
+            notification.IsRead = true;
+            await notificationRepo.UpdateAsync(notification);
+        }
+        private static TimeSpan GetTimeSpan(DateTime createdAt)
+        {
+            return DateTime.UtcNow.AddHours(2) - createdAt;
+        }
+    }
 }
