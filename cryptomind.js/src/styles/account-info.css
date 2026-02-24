@@ -224,7 +224,7 @@
     flex-shrink: 0;
 }
 
-.meta-content {}
+
 
 .meta-label {
     font-size: 10px;
@@ -669,4 +669,9 @@
     .stats-grid {
         grid-template-columns: 1fr;
     }
+}
+.badge-icon-wrap img {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
 }
