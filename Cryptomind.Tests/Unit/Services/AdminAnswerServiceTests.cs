@@ -61,7 +61,7 @@ namespace Cryptomind.Tests.Unit.Services
 				CipherId = cipherId,
 				Status = status,
 				DecryptedText = text,
-				UplodaedTime = uploadedAt ?? DateTime.UtcNow,
+				UploadedTime = uploadedAt ?? DateTime.UtcNow.AddHours(2),
 				Cipher = new ConcreteCipher { Id = cipherId, Title = "Test Cipher" },
 				ApplicationUser = new ApplicationUser { Id = userId }
 			};
@@ -368,9 +368,9 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task ApproveAnswerAsync_GivesReducedPoints_ToOtherCorrectSubmitters()
 		{
 			var first = Answer(1, "u1", 1, ApprovalStatus.Pending, "hello",
-				DateTime.UtcNow.AddMinutes(-10));
+				DateTime.UtcNow.AddHours(2).AddMinutes(-10));
 			var second = Answer(2, "u2", 1, ApprovalStatus.Pending, "hello",
-				DateTime.UtcNow);
+				DateTime.UtcNow.AddHours(2));
 
 			var cipher = Cipher(1, ChallengeType.Experimental, null, 100);
 			var user1 = User("u1");
@@ -438,8 +438,8 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task ApproveAnswerAsync_ReturnsAllCorrectUserIds()
 		{
-			var first = Answer(1, "u1", 1, ApprovalStatus.Pending, "hello", DateTime.UtcNow.AddMinutes(-5));
-			var second = Answer(2, "u2", 1, ApprovalStatus.Pending, "hello", DateTime.UtcNow);
+			var first = Answer(1, "u1", 1, ApprovalStatus.Pending, "hello", DateTime.UtcNow.AddHours(2).AddMinutes(-5));
+			var second = Answer(2, "u2", 1, ApprovalStatus.Pending, "hello", DateTime.UtcNow.AddHours(2));
 
 			answerRepoMock.Setup(r => r.FirstOrDefaultAsync(It.IsAny<Expression<Func<AnswerSuggestion, bool>>>()))
 				.ReturnsAsync(first);

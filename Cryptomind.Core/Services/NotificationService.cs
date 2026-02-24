@@ -70,7 +70,7 @@ namespace Cryptomind.Core.Services
 		}
 		private static TimeSpan GetTimeSpan(DateTime createdAt)
 		{
-			return DateTime.UtcNow - createdAt;
+			return DateTime.UtcNow.AddHours(2) - createdAt;
 		}
 	}
 }

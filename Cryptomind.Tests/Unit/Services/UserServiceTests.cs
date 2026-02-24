@@ -43,7 +43,7 @@ namespace Cryptomind.Tests.Unit.Services
 				Email = email,
 				Score = score,
 				SolvedCount = solvedCount,
-				RegisteredAt = DateTime.UtcNow,
+				RegisteredAt = DateTime.UtcNow.AddHours(2),
 				Badges = badges ?? new List<UserBadge>(),
 			};
 

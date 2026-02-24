@@ -65,7 +65,7 @@ namespace Cryptomind.Tests.Unit.Services
 				TypeOfCipher = type,
 				Points = points,
 				Title = $"Cipher {id}",
-				CreatedAt = DateTime.UtcNow,
+				CreatedAt = DateTime.UtcNow.AddHours(2),
 				ChallengeType = ChallengeType.Standard,
 			};
 
@@ -212,7 +212,7 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task GetUser_ReturnsCorrectBasicFields()
 		{
 			var user = MakeUser("u1", "alice", "alice@test.com");
-			user.RegisteredAt = DateTime.UtcNow.AddDays(-10);
+			user.RegisteredAt = DateTime.UtcNow.AddHours(2).AddDays(-10);
 			user.Score = 500;
 			user.SolvedCount = 3;
 			SetupUsers(user);
@@ -284,7 +284,7 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task GetUser_ReturnsBanDetails_WhenUserIsBanned()
 		{
-			var bannedAt = DateTime.UtcNow.AddDays(-1);
+			var bannedAt = DateTime.UtcNow.AddHours(2).AddDays(-1);
 			var user = MakeUser("u1", isBanned: true);
 			user.BanReason = "cheating";
 			user.BannedAt = bannedAt;
@@ -429,7 +429,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var user = MakeUser("u1", isBanned: true);
 			user.BanReason = "old reason";
-			user.BannedAt = DateTime.UtcNow.AddDays(-5);
+			user.BannedAt = DateTime.UtcNow.AddHours(2).AddDays(-5);
 			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
 
 			await service.UnbanUserAsync("u1");

@@ -52,7 +52,7 @@ namespace Cryptomind.Tests.Unit.Services
 				Message = $"Notification {id}",
 				Link = $"/link/{id}",
 				IsRead = isRead,
-				CreatedAt = createdAt ?? DateTime.UtcNow,
+				CreatedAt = createdAt ?? DateTime.UtcNow.AddHours(2),
 			};
 
 		private void SetupAttachedNotifications(params Notification[] notifications)
@@ -189,9 +189,9 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task GetUserNotifications_OrdersByCreatedAt_Descending()
 		{
-			var old = MakeNotification(1, "u1", createdAt: DateTime.UtcNow.AddDays(-2));
-			var recent = MakeNotification(2, "u1", createdAt: DateTime.UtcNow.AddDays(-1));
-			var newest = MakeNotification(3, "u1", createdAt: DateTime.UtcNow);
+			var old = MakeNotification(1, "u1", createdAt: DateTime.UtcNow.AddHours(2).AddDays(-2));
+			var recent = MakeNotification(2, "u1", createdAt: DateTime.UtcNow.AddHours(2).AddDays(-1));
+			var newest = MakeNotification(3, "u1", createdAt: DateTime.UtcNow.AddHours(2));
 			SetupAttachedNotifications(old, recent, newest);
 
 			var result = await service.GetUserNotifications("u1");
@@ -229,7 +229,7 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task GetUserNotifications_MapsFieldsCorrectly()
 		{
-			var createdAt = DateTime.UtcNow.AddHours(-2);
+			var createdAt = DateTime.UtcNow.AddHours(2).AddHours(-2);
 			SetupAttachedNotifications(
 				new Notification
 				{

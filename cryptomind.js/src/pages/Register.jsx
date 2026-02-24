@@ -99,7 +99,7 @@ export default function Register() {
                                 />
                                 <span className="input-focus-bar" aria-hidden="true" />
                             </div>
-                            <span className="field-hint">3–32 знака. Букви, цифри, долна черта.</span>
+                            <span className="field-hint">3–32 символа.</span>
                         </div>
 
                         <div className="form-group">
@@ -147,7 +147,7 @@ export default function Register() {
                                 <div className="strength-track">
                                     <div className="strength-fill" id="strength-fill" />
                                 </div>
-                                <span className="strength-label" id="strength-label">Мин. 8 знака</span>
+                                <span className="strength-label" id="strength-label">Мин. 8 символа</span>
                             </div>
                         </div>
 
