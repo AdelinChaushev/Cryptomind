@@ -181,7 +181,7 @@ function CipherSolvePage() {
             .then(res => {
                 setAiText(res.data.hintContent);
                 console.log("Returned from the Back-End\r\n",res.data.hintContent);
-            }).catch((c) => { setAiText("Failed to reach the AI assistant. Please try again."); console.log(c)})
+            }).catch((err) => { setAiText(err.response.data.error); console.log(c)})
             .finally(() => setAiLoading(false));
             
            
