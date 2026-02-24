@@ -59,7 +59,6 @@ function StatusBar({ count, status }) {
 function EmptyState({ message }) {
   return (
     <div className="lb-empty">
-      <span className="lb-empty-icon">📡</span>
       {message}
     </div>
   );

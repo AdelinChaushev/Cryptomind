@@ -1,14 +1,7 @@
-// Props:
-//   currentPage  — number, 1-based
-//   totalPages   — number
-//   onPageChange — (page: number) => void
-
 const Pagination = ({ currentPage = 1, totalPages = 1, onPageChange }) => {
-    // Build the array of page numbers to display.
-    // Shows up to 5 page buttons centered around the current page.
     const getPageNumbers = () => {
         const pages = [];
-        const range = 2; // pages shown on each side of current
+        const range = 2;
         const start = Math.max(1, currentPage - range);
         const end = Math.min(totalPages, currentPage + range);
 
@@ -27,7 +20,7 @@ const Pagination = ({ currentPage = 1, totalPages = 1, onPageChange }) => {
                 disabled={currentPage === 1}
                 onClick={() => onPageChange && onPageChange(currentPage - 1)}
             >
-                ← Prev
+                ← Назад
             </button>
 
             <div className="page-numbers">
@@ -47,7 +40,7 @@ const Pagination = ({ currentPage = 1, totalPages = 1, onPageChange }) => {
                 disabled={currentPage === totalPages}
                 onClick={() => onPageChange && onPageChange(currentPage + 1)}
             >
-                Next →
+                Напред →
             </button>
         </div>
     );

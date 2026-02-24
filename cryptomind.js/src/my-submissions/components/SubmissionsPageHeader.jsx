@@ -4,16 +4,16 @@ const SubmissionsPageHeader = () => {
     return (
         <div className="page-header">
             <nav className="breadcrumb">
-                <a href="/">Home</a>
+                <a href="/">Начало</a>
                 <span className="breadcrumb-sep">/</span>
-                <span className="breadcrumb-current">My Submissions</span>
+                <span className="breadcrumb-current">Моите предложения</span>
             </nav>
 
             <h1 className="page-title">
-                My <span>Submissions</span>
+                Моите <span>Предложения</span>
             </h1>
             <p className="page-subtitle">
-                Track your cipher submissions and answer suggestions
+                Следете вашите предложени шифри и отговори
             </p>
         </div>
     );

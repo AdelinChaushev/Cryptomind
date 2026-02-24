@@ -1,14 +1,11 @@
-// Props:
-//   onReset — () => void, called when the user clicks "Clear filters"
-
 const EmptyState = ({ onReset }) => {
     return (
         <div className="empty-state">
             <div className="empty-icon">⊘</div>
-            <h3 className="empty-title">No ciphers found</h3>
-            <p className="empty-message">Try adjusting your filters or search term.</p>
+            <h3 className="empty-title">Няма намерени шифри</h3>
+            <p className="empty-message">Опитайте да промените филтрите или търсения израз.</p>
             <button className="btn btn-ghost" onClick={onReset}>
-                Clear filters
+                Изчисти филтрите
             </button>
         </div>
     );
