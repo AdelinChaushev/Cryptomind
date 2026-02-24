@@ -13,8 +13,8 @@ namespace Cryptomind.Data.Entities
             Badges = new List<UserBadge>();
         }
         public int Score { get; set; }
-        public int SolvedCount { get; set; }
-        public int AttemptedCiphers { get; set; }
+        public int SolvedCount => CipherAnswers.Count(x => x.UserId == Id && x.IsCorrect);
+		public int AttemptedCiphers { get; set; }
 		public bool IsBanned { get; set; }
         public bool IsDeactivated { get; set; }
 		public string? BanReason { get; set; }
@@ -27,7 +27,7 @@ namespace Cryptomind.Data.Entities
         public ICollection<UserSolution> CipherAnswers { get; set; }
         public ICollection<HintRequest> HintsRequested { get; set; }
         public ICollection<AnswerSuggestion> SuggestedAnswers { get; set; }
-        public ICollection <UserBadge> Badges { get; set; }
+        public ICollection<UserBadge> Badges { get; set; }
         public ICollection<Notification> Notifications { get; set; }
         private double CalculateSuccessRate()
         {

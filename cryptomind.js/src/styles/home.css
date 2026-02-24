@@ -104,6 +104,17 @@ body {
     display: flex;
     gap: 16px;
 }
+.nav-profile-icon {
+    color: #c9a84c;
+    display: flex;
+    align-items: center;
+    margin: 0 8px;
+    transition: color 0.2s;
+}
+
+.nav-profile-icon:hover {
+    color: #fff;
+}
 
 .btn {
     padding: 11px 24px;

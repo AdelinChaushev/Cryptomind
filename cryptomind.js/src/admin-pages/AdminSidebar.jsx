@@ -63,13 +63,12 @@ const AdminSidebar = ({ activePage }) => {
 
             <div className="sidebar-footer">
                 <div className="sidebar-user">
-                    <div className="sidebar-avatar">АД</div>
                     <div className="sidebar-user-info">
-                        <span className="sidebar-user-name">Администратор</span>
+                        <span className="sidebar-user-name">admin@cryptomind.com</span>
                         <span className="sidebar-user-role">АДМИН</span>
                     </div>
                 </div>
-                <nav className="sidebar-nav" style={{ marginTop: '4px' }}>
+                {/* <nav className="sidebar-nav" style={{ marginTop: '4px' }}>
                     <a href="/" className="sidebar-link">
                         <span className="link-icon"><HomeIcon /></span>
                         Към сайта
@@ -78,7 +77,7 @@ const AdminSidebar = ({ activePage }) => {
                         <span className="link-icon"><LogoutIcon /></span>
                         Изход
                     </Link>
-                </nav>
+                </nav> */}
             </div>
         </aside>
     );
