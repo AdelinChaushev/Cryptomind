@@ -68,7 +68,6 @@ const handleSubmit = () => {
     formData.append("EncryptedText", fields.encryptedText);
     formData.append("CipherType", fields.cipherType.toString());
     formData.append("CipherDefinition", (fields.image != null ? 1 : 0).toString());
-    formData.append("ReviewedText", ocrText);
 
     if (fields.image) {
         formData.append("Image", fields.image);
@@ -81,7 +80,7 @@ const handleSubmit = () => {
     .then(() => {
       
         setSubmitted(true);
-        setTimeout(() => setSubmitted(false), 1200);
+        setTimeout(() => setSubmitted(false), 4000);
     })
     .catch(e => {
         // triggers on 400, 401, 404, 500, etc.
