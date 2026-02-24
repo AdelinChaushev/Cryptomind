@@ -1,12 +1,5 @@
 import React from 'react';
 
-/* Props:
-   icon       : string  (emoji or text icon)
-   title      : string
-   subtitle   : string
-   ctaLabel   : string
-   ctaHref    : string
-*/
 const EmptyState = ({ icon = '📭', title, subtitle, ctaLabel, ctaHref }) => {
     return (
         <div className="empty-state">

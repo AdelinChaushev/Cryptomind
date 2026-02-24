@@ -34,7 +34,7 @@ export default function Login() {
         }
         console.log("Login error:", e.response?.data || e.message);
          setState({isLoggedIn: false, roles: []})
-         setError(e.response?.data?.title || 'Login failed. Please check your credentials and try again.');
+         setError(e.response?.data?.title || 'Влизането е неуспешно. Моля, проверете данните си и опитайте отново.');
          }
     );   
     
@@ -67,7 +67,7 @@ export default function Login() {
                                 <h1 className="logo-text">CRYPTO<span>MIND</span></h1>
                             </div>
                         </a>
-                        <p className="auth-tagline">CLASSICAL CIPHER INTELLIGENCE PLATFORM</p>
+                        <p className="auth-tagline">ПЛАТФОРМА ЗА КЛАСИЧЕСКИ ШИФРИ С ИЗКУСТВЕН ИНТЕЛЕКТ</p>
                         <div className="cipher-divider" aria-hidden="true">
                             <span className="divider-line" />
                             <span className="divider-icon">⊕</span>
@@ -76,8 +76,8 @@ export default function Login() {
                     </header>
 
                     <div className="form-title-block">
-                        <h2 className="form-title">AUTHENTICATE</h2>
-                        <p className="form-subtitle">Access your cipher dashboard</p>
+                        <h2 className="form-title">УДОСТОВЕРЯВАНЕ</h2>
+                        <p className="form-subtitle">Достъп до вашето табло за шифри</p>
                     </div>
 
                    <form className="auth-form" onSubmit={handleSubmit} noValidate>
@@ -85,21 +85,15 @@ export default function Login() {
                         <div className="form-group">
                             <label htmlFor="identifier" className="form-label">
                                 <span className="label-prefix">01</span>
-                                IDENTIFIER
+                                ИДЕНТИФИКАТОР
                             </label>
                             <div className="input-wrapper">
-                                {/* <span className="input-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="10" cy="7" r="4" stroke="currentColor" strokeWidth="1.5" />
-                                        <path d="M3 17c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                                    </svg>
-                                </span> */}
                                 <input
                                     type="text"
                                     id="identifier"
                                     name="email"
                                     className="form-input"
-                                    placeholder="Username or email address"
+                                    placeholder="Имейл адрес"
                                     autoComplete="username"
                                     value={data.email} 
                                     onChange={onChangeState}
@@ -112,22 +106,15 @@ export default function Login() {
                         <div className="form-group">
                             <label htmlFor="password" className="form-label">
                                 <span className="label-prefix">02</span>
-                                SECRET KEY
+                                ТАЕН КЛЮЧ
                             </label>
                             <div className="input-wrapper">
-                                {/* <span className="input-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M5 10V7a5 5 0 0 1 10 0v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                                        <rect x="3" y="10" width="14" height="9" rx="2" stroke="currentColor" strokeWidth="1.5" />
-                                        <circle cx="10" cy="14.5" r="1.5" fill="currentColor" />
-                                    </svg>
-                                </span> */}
                                 <input
                                     type="password"
                                     id="password"
                                     name="password"
                                     className="form-input"
-                                    placeholder="Enter your password"
+                                    placeholder="Въведете вашата парола"
                                     autoComplete="current-password"
                                     value={data.password} 
                                     onChange={onChangeState}
@@ -137,17 +124,8 @@ export default function Login() {
                             </div>
                         </div>
 
-                        {/* <div className="form-options">
-                            <label className="checkbox-label">
-                                <input type="checkbox" name="rememberMe" className="checkbox-input" />
-                                <span className="checkbox-custom" aria-hidden="true" />
-                                <span className="checkbox-text">Remember session</span>
-                            </label>
-                            <a href="/forgot-password" className="forgot-link">Forgot key?</a>
-                        </div> */}
-
                         <button type="submit" className="btn-submit">
-                            <span className="btn-text">DECRYPT &amp; ENTER</span>
+                            <span className="btn-text">ДЕШИФРИРАЙ &amp; ВЛЕЗ</span>
                             <span className="btn-arrow" aria-hidden="true">→</span>
                             <span className="btn-glow" aria-hidden="true" />
                         </button>
@@ -156,8 +134,8 @@ export default function Login() {
 
                     <footer className="auth-card-footer">
                         <p className="footer-text">
-                            No account yet?
-                            <Link to="/register" className="footer-link">Create one now</Link>
+                            Нямате акаунт?
+                            <Link to="/register" className="footer-link">Създайте един сега</Link>
                         </p>
                     </footer>
 

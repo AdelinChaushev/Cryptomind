@@ -1,18 +1,5 @@
 import React from 'react';
 
-/* Props:
-   cipherTitle     : string
-   status          : 'approved' | 'pending' | 'rejected' | 'cipher_removed'
-   suggestedAt     : string
-   deletedAt       : string | null    — when status === 'cipher_removed'
-   deletionReason  : string | null    — admin reason the cipher was removed
-   description     : string           — the user's suggested answer text
-   rejectionReason : string | null
-   pointsEarned    : number | null    — only meaningful when status === 'approved'
-   onViewCipher    : () => void
-   onViewDetails   : () => void
-*/
-
 const AnswerCard = ({
     cipherTitle,
     status,
@@ -31,13 +18,13 @@ const AnswerCard = ({
         status === 'approved'        ? 'badge-approved'  :
         status === 'pending'         ? 'badge-pending'   :
         status === 'rejected'        ? 'badge-rejected'  :
-        'badge-deleted';  // cipher_removed
+        'badge-deleted';
 
     const statusLabel =
-        status === 'approved'        ? 'Approved'        :
-        status === 'pending'         ? 'Pending Review'  :
-        status === 'rejected'        ? 'Rejected'        :
-        'Cipher Removed';
+        status === 'approved'        ? 'Одобрен'              :
+        status === 'pending'         ? 'Очаква преглед'        :
+        status === 'rejected'        ? 'Отхвърлен'            :
+        'Шифърът е премахнат';
 
     const descriptionBorderClass =
         status === 'approved'        ? 'border-emerald'  :
@@ -52,7 +39,7 @@ const AnswerCard = ({
             <div className="card-header">
                 <div className="card-title-group">
                     <span className={`card-title ${isCipherRemoved ? 'card-title--deleted' : ''}`}>
-                        Answer for: {cipherTitle}
+                        Отговор за: {cipherTitle}
                     </span>
                 </div>
                 <span className={`status-badge ${statusClass}`}>
@@ -63,19 +50,19 @@ const AnswerCard = ({
 
             {/* Meta */}
             <div className="card-meta">
-                <span className="meta-item">Suggested: {suggestedAt}</span>
+                <span className="meta-item">Предложен: {suggestedAt}</span>
 
                 {isCipherRemoved && deletedAt && (
                     <>
                         <span className="meta-dot" />
-                        <span className="meta-item">Cipher deleted: {deletedAt}</span>
+                        <span className="meta-item">Шифърът е изтрит: {deletedAt}</span>
                     </>
                 )}
 
                 {status === 'pending' && (
                     <>
                         <span className="meta-dot" />
-                        <span className="meta-item">Awaiting Review</span>
+                        <span className="meta-item">Очаква преглед</span>
                     </>
                 )}
             </div>
@@ -90,7 +77,7 @@ const AnswerCard = ({
                 <div className="rejection-notice">
                     <span className="rejection-icon">⚠</span>
                     <p className="rejection-text">
-                        <strong>Rejection reason: </strong>{rejectionReason}
+                        <strong>Причина за отхвърляне: </strong>{rejectionReason}
                     </p>
                 </div>
             )}
@@ -98,32 +85,32 @@ const AnswerCard = ({
             {/* Cipher removed notice */}
             {isCipherRemoved && (
                 <div className="deletion-notice">
-                    <span className="deletion-notice__label">Cipher removed by admin</span>
+                    <span className="deletion-notice__label">Шифърът е премахнат от администратор</span>
                     <p className="deletion-notice__reason">
                         {deletionReason
                             ? deletionReason
-                            : 'The cipher this answer was submitted for has been removed from the platform.'}
+                            : 'Шифърът, за който е бил изпратен този отговор, е премахнат от платформата.'}
                     </p>
                 </div>
             )}
 
-            {/* Footer — no actions for removed cipher cards */}
+            {/* Footer */}
             {!isCipherRemoved && (
                 <div className="card-footer">
                     <div className="card-footer-left">
                         {status === 'approved' && pointsEarned != null && (
-                            <span className="points-badge">+{pointsEarned} pts</span>
+                            <span className="points-badge">+{pointsEarned} т.</span>
                         )}
                     </div>
                     <div className="card-footer-right">
                         {status === 'approved' && (
                             <button className="btn-card-action" onClick={onViewCipher}>
-                                View Cipher
+                                Виж шифъра
                             </button>
                         )}
                         {status !== 'approved' && (
                             <button className="btn-card-action" onClick={onViewDetails}>
-                                View Details
+                                Виж детайли
                             </button>
                         )}
                     </div>

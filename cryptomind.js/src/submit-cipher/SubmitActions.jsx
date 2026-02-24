@@ -4,13 +4,13 @@ const SubmitActions = ({ onSubmit, onCancel }) => {
     return (
         <div className="submit-card">
             <button className="btn-submit" onClick={onSubmit}>
-                SUBMIT FOR REVIEW
+                ИЗПРАТИ ЗА ПРЕГЛЕД
             </button>
             <button className="btn-cancel" onClick={onCancel}>
-                Cancel
+                Отказ
             </button>
             <p className="submit-note">
-                Your submission enters a pending queue and is only visible to admins until approved.
+                Вашето предложение влиза в опашка за изчакване и е видимо само за администратори до одобрението му.
             </p>
         </div>
     );

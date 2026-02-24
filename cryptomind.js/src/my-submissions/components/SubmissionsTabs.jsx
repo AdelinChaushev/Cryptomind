@@ -1,11 +1,5 @@
 import React from 'react';
 
-/* Props:
-   activeTab         : 'ciphers' | 'answers'
-   onTabChange       : (tab: string) => void
-   cipherCount       : number
-   answerCount       : number
-*/
 const SubmissionsTabs = ({ activeTab, onTabChange, cipherCount = 0, answerCount = 0 }) => {
     return (
         <div className="tabs-nav">
@@ -13,7 +7,7 @@ const SubmissionsTabs = ({ activeTab, onTabChange, cipherCount = 0, answerCount 
                 className={`tab-btn ${activeTab === 'ciphers' ? 'active' : ''}`}
                 onClick={() => onTabChange('ciphers')}
             >
-                Cipher Submissions
+                Предложени шифри
                 <span className="tab-count">{cipherCount}</span>
             </button>
 
@@ -21,7 +15,7 @@ const SubmissionsTabs = ({ activeTab, onTabChange, cipherCount = 0, answerCount 
                 className={`tab-btn ${activeTab === 'answers' ? 'active' : ''}`}
                 onClick={() => onTabChange('answers')}
             >
-                Answer Suggestions
+                Предложени отговори
                 <span className="tab-count">{answerCount}</span>
             </button>
         </div>

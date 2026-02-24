@@ -63,7 +63,7 @@ namespace Cryptomind.Tests.Unit.Services
 				Title = title,
 				DecryptedText = decryptedText,
 				CreatedByUserId = createdByUserId,
-				CreatedAt = createdAt ?? DateTime.UtcNow,
+				CreatedAt = createdAt ?? DateTime.UtcNow.AddHours(2),
 				EncryptedText = "encrypted text",
 				AnswerSuggestions = answers ?? new List<AnswerSuggestion>(),
 				CipherTags = new List<CipherTag>(),
@@ -91,7 +91,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var ciphers = Enumerable.Range(1, 7)
 				.Select(i => MakeCipher(i, ApprovalStatus.Pending, title: $"Cipher {i}",
-					createdAt: DateTime.UtcNow.AddMinutes(i)))
+					createdAt: DateTime.UtcNow.AddHours(2).AddMinutes(i)))
 				.ToArray();
 
 			SetupAttachedCiphers(ciphers);
@@ -217,8 +217,8 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task AllPendingCiphers_ReturnsPendingNonDeleted_OrderedByCreatedAt()
 		{
 			SetupAttachedCiphers(
-				MakeCipher(1, ApprovalStatus.Pending, createdAt: DateTime.UtcNow.AddMinutes(2)),
-				MakeCipher(2, ApprovalStatus.Pending, createdAt: DateTime.UtcNow.AddMinutes(1)),
+				MakeCipher(1, ApprovalStatus.Pending, createdAt: DateTime.UtcNow.AddHours(2).AddMinutes(2)),
+				MakeCipher(2, ApprovalStatus.Pending, createdAt: DateTime.UtcNow.AddHours(2).AddMinutes(1)),
 				MakeCipher(3, ApprovalStatus.Approved),
 				MakeCipher(4, ApprovalStatus.Pending, isDeleted: true)
 			);
@@ -313,8 +313,8 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task AllApprovedCiphers_OrdersBy_Newest()
 		{
 			SetupAttachedCiphers(
-				MakeCipher(1, ApprovalStatus.Approved, createdAt: DateTime.UtcNow.AddDays(-2)),
-				MakeCipher(2, ApprovalStatus.Approved, createdAt: DateTime.UtcNow.AddDays(-1))
+				MakeCipher(1, ApprovalStatus.Approved, createdAt: DateTime.UtcNow.AddHours(2).AddDays(-2)),
+				MakeCipher(2, ApprovalStatus.Approved, createdAt: DateTime.UtcNow.AddHours(2).AddDays(-1))
 			);
 
 			var result = await service.AllApprovedCiphers(new CipherFilter { OrderTerm = CipherOrderTerm.Newest });
@@ -326,8 +326,8 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task AllApprovedCiphers_OrdersBy_Oldest()
 		{
 			SetupAttachedCiphers(
-				MakeCipher(1, ApprovalStatus.Approved, createdAt: DateTime.UtcNow.AddDays(-1)),
-				MakeCipher(2, ApprovalStatus.Approved, createdAt: DateTime.UtcNow.AddDays(-2))
+				MakeCipher(1, ApprovalStatus.Approved, createdAt: DateTime.UtcNow.AddHours(2).AddDays(-1)),
+				MakeCipher(2, ApprovalStatus.Approved, createdAt: DateTime.UtcNow.AddHours(2).AddDays(-2))
 			);
 
 			var result = await service.AllApprovedCiphers(new CipherFilter { OrderTerm = CipherOrderTerm.Oldest });
@@ -411,8 +411,8 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task AllDeletedCiphers_OrdersBy_Newest()
 		{
 			SetupAttachedCiphers(
-				MakeCipher(1, ApprovalStatus.Approved, isDeleted: true, createdAt: DateTime.UtcNow.AddDays(-2)),
-				MakeCipher(2, ApprovalStatus.Approved, isDeleted: true, createdAt: DateTime.UtcNow.AddDays(-1))
+				MakeCipher(1, ApprovalStatus.Approved, isDeleted: true, createdAt: DateTime.UtcNow.AddHours(2).AddDays(-2)),
+				MakeCipher(2, ApprovalStatus.Approved, isDeleted: true, createdAt: DateTime.UtcNow.AddHours(2).AddDays(-1))
 			);
 
 			var result = await service.AllDeletedCiphers(new CipherFilter { OrderTerm = CipherOrderTerm.Newest });
@@ -424,8 +424,8 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task AllDeletedCiphers_OrdersBy_Oldest()
 		{
 			SetupAttachedCiphers(
-				MakeCipher(1, ApprovalStatus.Approved, isDeleted: true, createdAt: DateTime.UtcNow.AddDays(-1)),
-				MakeCipher(2, ApprovalStatus.Approved, isDeleted: true, createdAt: DateTime.UtcNow.AddDays(-2))
+				MakeCipher(1, ApprovalStatus.Approved, isDeleted: true, createdAt: DateTime.UtcNow.AddHours(2).AddDays(-1)),
+				MakeCipher(2, ApprovalStatus.Approved, isDeleted: true, createdAt: DateTime.UtcNow.AddHours(2).AddDays(-2))
 			);
 
 			var result = await service.AllDeletedCiphers(new CipherFilter { OrderTerm = CipherOrderTerm.Oldest });
@@ -966,7 +966,7 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task RestoreCipher_SetsIsDeletedFalse_AndClearsDeletedAt()
 		{
 			var cipher = MakeCipher(1, ApprovalStatus.Approved, isDeleted: true);
-			cipher.DeletedAt = DateTime.UtcNow.AddDays(-1);
+			cipher.DeletedAt = DateTime.UtcNow.AddHours(2).AddDays(-1);
 			SetupAttachedCiphers(cipher);
 
 			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>());

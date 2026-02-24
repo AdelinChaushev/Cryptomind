@@ -6,20 +6,22 @@ import Sidebar       from './Sidebar';
 import '../styles/submit-cipher.css';
 import axios from 'axios';
 import { useError } from '../ErrorContext.jsx';
+import CipherTypesPanel from './CipherTypesPanel';
+
 const SubmitCipherPage = () => {
 
     const [useImage, setUseImage] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const { setError } = useError();
     const [fields, setFields] = useState({
-        title:         '',
-        decryptedText: '',
-        encryptedText: '',
-        image:         null,
-        cipherType:    '',
-        cipherDefinition:    '',
-        allowHints:    false,
-        allowAnswer:   false,
+        title:             '',
+        decryptedText:     '',
+        encryptedText:     '',
+        image:             null,
+        cipherType:        '',
+        cipherDefinition:  '',
+        allowHints:        false,
+        allowAnswer:       false,
     });
 
     const handleFieldChange = (name, value) => {
@@ -81,6 +83,7 @@ const handleSubmit = () => {
             <PageHeader />
 
             <div className="main-layout">
+                <CipherTypesPanel />
 
                 <SubmitForm
                     fields={fields}
@@ -92,13 +95,12 @@ const handleSubmit = () => {
                 <div className="sidebar">
                     {submitted && (
                         <p className="submit-success">
-                            ✓ Cipher submitted successfully. It will be reviewed by an admin.
+                            ✓ Шифърът е изпратен успешно. Ще бъде прегледан от администратор.
                         </p>
                     )}
                     <SubmitActions onSubmit={handleSubmit} onCancel={handleCancel} />
                     <Sidebar />
                 </div>
-
             </div>
         </>
     );

@@ -23,7 +23,7 @@ function CipherTextDisplay({ encryptedText, hasImage, imageUrl }) {
                     className={`btn-copy ${copied ? "copied" : ""}`}
                     onClick={handleCopy}
                 >
-                    {copied ? "✓ Copied" : "⎘ Copy"}
+                    {copied ? "✓ Копирано" : "⎘ Копирай"}
                 </button>
             </div>
 
@@ -31,19 +31,12 @@ function CipherTextDisplay({ encryptedText, hasImage, imageUrl }) {
                 {hasImage && imageUrl && (
                     <img
                         src={imageUrl}
-                        alt="Cipher"
-                        style={{
-                            maxWidth: "100%",
-                            borderRadius: "6px",
-                            marginBottom: encryptedText ? "16px" : "0",
-                            border: "1px solid var(--border-yellow)"
-                        }}
+                        alt="Шифър"
+                        style={{ maxWidth: "100%", borderRadius: "6px" }}
                     />
                 )}
                 {encryptedText && !hasImage && (
-                    <div className="ciphertext-content">
-                        {encryptedText}
-                    </div>
+                    <div className="ciphertext-content">{encryptedText}</div>
                 )}
             </div>
         </div>
