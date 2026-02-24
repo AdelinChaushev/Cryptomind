@@ -17,6 +17,6 @@ namespace Cryptomind.Data.Entities
 		[MaxLength(200)]
 		public string Link { get; set; } // URL to navigate to
 		public bool IsRead { get; set; } = false;
-		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+		public DateTime CreatedAt { get; set; } = DateTime.UtcNow.AddHours(2);
 	}
 }

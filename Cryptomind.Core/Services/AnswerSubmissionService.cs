@@ -48,7 +48,7 @@ namespace Cryptomind.Core.Services
 				CipherId = cipherId,
 				Description = dto.Description,
 				DecryptedText = dto.DecryptedText,
-				UplodaedTime = DateTime.UtcNow,
+				UploadedTime = DateTime.UtcNow.AddHours(2),
 				Status = ApprovalStatus.Pending,
 			};
 
@@ -69,7 +69,7 @@ namespace Cryptomind.Core.Services
 					CipherTitle = answer.Cipher.Title,
 					SuggestedAnswer = answer.DecryptedText,
 					Status = answer.Status.ToString(),
-					SubmittedAt = answer.UplodaedTime,
+					SubmittedAt = answer.UploadedTime,
 				};
 
 				if (answer.Status == ApprovalStatus.Approved)

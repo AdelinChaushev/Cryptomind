@@ -32,7 +32,7 @@ namespace Cryptomind.Core.Services
 				.Include(x => x.ApplicationUser)
 				.Include(x => x.Cipher)
 				.Where(x => x.Status == ApprovalStatus.Pending)
-				.OrderBy(x => x.UplodaedTime)
+				.OrderBy(x => x.UploadedTime)
 				.ToListAsync();
 
 			if (cipherName != null)
@@ -113,7 +113,7 @@ namespace Cryptomind.Core.Services
 			var firstCorrectAnswerSuggestion = (await answerRepo.GetAllAsync())
 				.Where(x => x.CipherId == selectedAnswer.CipherId)
 				.Where(x => x.DecryptedText.Trim().ToLower() == selectedAnswer.DecryptedText.Trim().ToLower())
-				.OrderBy(x => x.UplodaedTime)
+				.OrderBy(x => x.UploadedTime)
 				.First();
 
 			var cipher = await cipherRepo.FirstOrDefaultAsync(x => x.Id == firstCorrectAnswerSuggestion.CipherId);
@@ -150,7 +150,7 @@ namespace Cryptomind.Core.Services
 				CipherId = firstCorrectAnswerSuggestion.CipherId,
 				UserId = firstCorrectAnswerSuggestion.UserId,
 				PointsEarned = pointsGranted,
-				TimeSolved = DateTime.UtcNow,
+				TimeSolved = DateTime.UtcNow.AddHours(2).AddHours(2),
 				IsCorrect = true,
 			};
 
@@ -158,7 +158,7 @@ namespace Cryptomind.Core.Services
 			cipher.ChallengeType = ChallengeType.Standard;
 
 			firstCorrectAnswerSuggestion.Status = ApprovalStatus.Approved;
-			firstCorrectAnswerSuggestion.ApprovalDate = DateTime.UtcNow;
+			firstCorrectAnswerSuggestion.ApprovalDate = DateTime.UtcNow.AddHours(2);
 			firstCorrectAnswerSuggestion.PointsEarned = pointsGranted;
 
 			user.Score += pointsGranted;
@@ -180,14 +180,14 @@ namespace Cryptomind.Core.Services
 					CipherId = correctAnswer.CipherId,
 					UserId = correctAnswer.UserId,
 					PointsEarned = pointsGrantedForOtherCorrectSolutions,
-					TimeSolved = DateTime.UtcNow,
+					TimeSolved = DateTime.UtcNow.AddHours(2),
 					IsCorrect = true,
 				};
 				currentUser.Score += pointsGrantedForOtherCorrectSolutions;
 				userIds.Add(currentUser.Id);
 
 				correctAnswer.Status = ApprovalStatus.Approved;
-				correctAnswer.ApprovalDate = DateTime.UtcNow;
+				correctAnswer.ApprovalDate = DateTime.UtcNow.AddHours(2);
 				correctAnswer.PointsEarned = pointsGrantedForOtherCorrectSolutions;
 
 				await answerRepo.UpdateAsync(correctAnswer);
@@ -237,7 +237,7 @@ namespace Cryptomind.Core.Services
 			else if (answer.Status != ApprovalStatus.Pending) throw new ConflictException("Answer is already resolved");
 
 			answer.Status = ApprovalStatus.Rejected;
-			answer.RejectionDate = DateTime.UtcNow;
+			answer.RejectionDate = DateTime.UtcNow.AddHours(2);
 			answer.RejectionReason = reason;
 
 			if (await userManager.FindByIdAsync(answer.UserId) == null)

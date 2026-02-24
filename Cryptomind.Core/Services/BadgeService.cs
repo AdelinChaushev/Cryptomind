@@ -86,7 +86,7 @@ namespace Cryptomind.Core.Services
 			{
 				UserId = userId,
 				BadgeId = badgeId,
-				EarnedAt = DateTime.UtcNow
+				EarnedAt = DateTime.UtcNow.AddHours(2)
 			};
 			try
 			{

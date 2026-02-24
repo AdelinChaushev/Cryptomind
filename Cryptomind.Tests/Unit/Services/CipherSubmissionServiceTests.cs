@@ -423,7 +423,7 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task SubmittedCiphers_PopulatesApprovedFields_WhenCipherIsApproved()
 		{
-			var approvedAt = DateTime.UtcNow.AddDays(-1);
+			var approvedAt = DateTime.UtcNow.AddHours(2).AddDays(-1);
 			SetupAttachedCiphers(new TextCipher
 			{
 				CreatedByUserId = "u1",
@@ -449,7 +449,7 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task SubmittedCiphers_PopulatesRejectionFields_WhenCipherIsRejected()
 		{
-			var rejectedAt = DateTime.UtcNow.AddDays(-1);
+			var rejectedAt = DateTime.UtcNow.AddHours(2).AddDays(-1);
 			SetupAttachedCiphers(new TextCipher
 			{
 				CreatedByUserId = "u1",
@@ -469,7 +469,7 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task SubmittedCiphers_SetsStatusToCipherDeleted_WhenCipherIsDeleted()
 		{
-			var deletedAt = DateTime.UtcNow.AddDays(-2);
+			var deletedAt = DateTime.UtcNow.AddHours(2).AddDays(-2);
 			SetupAttachedCiphers(new TextCipher
 			{
 				CreatedByUserId = "u1",
