@@ -1,6 +1,5 @@
 import React from 'react';
 
-// status: 'pending' | 'approved' | 'rejected'
 const StatusBadge = ({ status }) => {
     const classMap = {
         Pending:  'badge-pending',
@@ -9,9 +8,9 @@ const StatusBadge = ({ status }) => {
     };
 
     const labelMap = {
-        Pending:  'Pending',
-        Approved: 'Approved',
-        Rejected: 'Rejected',
+        Pending:  'Очаква преглед',
+        Approved: 'Одобрен',
+        Rejected: 'Отхвърлен',
     };
 
     return (

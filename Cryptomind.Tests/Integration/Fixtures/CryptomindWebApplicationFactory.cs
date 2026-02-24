@@ -1,7 +1,10 @@
 ﻿using Cryptomind.Data;
 using Cryptomind.Data.Entities;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -49,6 +52,16 @@ namespace Cryptomind.Tests.Integration.Fixtures
 				services.AddDbContext<CryptomindDbContext>(options =>
 				{
 					options.UseInMemoryDatabase(_dbName);
+				});
+
+				services.Configure<CookiePolicyOptions>(options =>
+				{
+					options.MinimumSameSitePolicy = SameSiteMode.None;
+				});
+
+				services.PostConfigure<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme, options =>
+				{
+					options.Cookie.SecurePolicy = CookieSecurePolicy.None;
 				});
 
 				// Override the validation key to match whatever key the app is actually using

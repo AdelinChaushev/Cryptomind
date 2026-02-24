@@ -2,38 +2,42 @@ import React from 'react';
 import CipherInputToggle from './CipherInputToggle';
 
 const CIPHER_TYPES = [
-    { value: '0',  label: 'Caesar',              group: 'Substitution' },
-    { value: '1',  label: 'Atbash',              group: 'Substitution' },
-    { value: '2',  label: 'Simple Substitution', group: 'Substitution' },
-    { value: '3',  label: 'ROT13',               group: 'Substitution' },
-    { value: '4',  label: 'Vigenere',            group: 'Polyalphabetic' },
-    { value: '5',  label: 'Autokey',             group: 'Polyalphabetic' },
-    { value: '6',  label: 'Trithemius',          group: 'Polyalphabetic' },
-    { value: '7',  label: 'Rail Fence',          group: 'Transposition' },
-    { value: '8',  label: 'Columnar',            group: 'Transposition' },
-    { value: '9',  label: 'Route',               group: 'Transposition' },
-    { value: '10', label: 'Base64',              group: 'Encoding' },
-    { value: '11', label: 'Morse',               group: 'Encoding' },
-    { value: '12', label: 'Binary',              group: 'Encoding' },
-    { value: '13', label: 'Hex',                 group: 'Encoding' },
-    
+    { value: '0',  label: 'Цезар',               group: 'Substitution' },
+    { value: '1',  label: 'Атбаш',               group: 'Substitution' },
+    { value: '2',  label: 'Проста замяна',        group: 'Substitution' },
+    { value: '3',  label: 'ROT13',                group: 'Substitution' },
+    { value: '4',  label: 'Виженер',              group: 'Polyalphabetic' },
+    { value: '5',  label: 'Автоключ',             group: 'Polyalphabetic' },
+    { value: '6',  label: 'Тритемий',             group: 'Polyalphabetic' },
+    { value: '7',  label: 'Железопътна ограда',   group: 'Transposition' },
+    { value: '8',  label: 'Колонна',              group: 'Transposition' },
+    { value: '9',  label: 'Маршрут',              group: 'Transposition' },
+    { value: '10', label: 'Base64',               group: 'Encoding' },
+    { value: '11', label: 'Морзе',                group: 'Encoding' },
+    { value: '12', label: 'Двоичен',              group: 'Encoding' },
+    { value: '13', label: 'Шестнадесетичен',      group: 'Encoding' },
 ];
 
 const GROUPS = ['Substitution', 'Polyalphabetic', 'Transposition', 'Encoding'];
 
+const GROUP_LABELS = {
+    'Substitution':   'Заместване',
+    'Polyalphabetic': 'Полиазбучни',
+    'Transposition':  'Транспозиция',
+    'Encoding':       'Кодиране',
+};
+
 const SubmitForm = ({ fields, useImage, onToggle, onFieldChange }) => {
     const { title, decryptedText, encryptedText, image, cipherType } = fields;
 
-    /* Char counter state */
     const len = encryptedText.length;
     let countClass = 'char-count';
-    let countNote  = 'min. 150 for ML';
-    if (len === 0)       { countClass = 'char-count error'; countNote = 'required'; }
-    else if (len < 150)  { countClass = 'char-count warn';  countNote = `${150 - len} more needed`; }
-    else if (len <= 400) { countClass = 'char-count good';  countNote = 'good length'; }
-    else                 { countNote = 'above optimal'; }
+    let countNote  = 'мин. 150 за ML';
+    if (len === 0)       { countClass = 'char-count error'; countNote = 'задължително'; }
+    else if (len < 150)  { countClass = 'char-count warn';  countNote = `още ${150 - len} знака`; }
+    else if (len <= 400) { countClass = 'char-count good';  countNote = 'добра дължина'; }
+    else                 { countNote = 'над оптималното'; }
 
-    /* Image upload */
     const handleZoneClick = () => document.getElementById('cipher-image-input').click();
     const handleFileChange = (e) => {
         const f = e.target.files[0];
@@ -43,62 +47,56 @@ const SubmitForm = ({ fields, useImage, onToggle, onFieldChange }) => {
     return (
         <div className="card">
 
-            {/* 1. Title */}
             <div className="field">
                 <label className="field-label">
-                    TITLE
+                    ЗАГЛАВИЕ
                 </label>
                 <input
                     type="text"
                     className="field-input"
-                    placeholder="Give your cipher a name…"
+                    placeholder="Дайте име на вашия шифър…"
                     value={title}
                     onChange={e => onFieldChange('title', e.target.value)}
                     maxLength={100}
                 />
             </div>
 
-            {/* 2. Plaintext solution */}
             <div className="field">
                 <label className="field-label">
-                    PLAINTEXT SOLUTION <span className="optional">OPTIONAL</span>
+                    РЕШЕНИЕ НА ОТКРИТ ТЕКСТ <span className="optional">НЕЗАДЪЛЖИТЕЛНО</span>
                 </label>
                 <textarea
                     className="field-textarea"
-                    placeholder="The decrypted answer, if you know it…"
+                    placeholder="Декриптираният отговор, ако го знаете…"
                     value={decryptedText}
                     onChange={e => onFieldChange('decryptedText', e.target.value)}
                     rows={3}
                 />
                 <p className="field-hint">
-                    If you leave this blank the cipher will be marked Experimental — the community figures it out.
+                    Ако оставите това поле празно, шифърът ще бъде маркиран като Експериментален — общността ще го разгадае.
                 </p>
             </div>
 
            
             <div className="field">
-                
-
                 <CipherInputToggle useImage={useImage} onToggle={onToggle} />
 
-               
                 {!useImage && (
                     <>
                         <textarea
                             className="field-textarea"
-                            placeholder="Paste the encrypted text here…"
+                            placeholder="Поставете криптирания текст тук…"
                             value={encryptedText}
                             onChange={e => onFieldChange('encryptedText', e.target.value)}
                             rows={6}
                         />
                         <div className="counter-row">
-                            <span className="field-hint">150–400 characters is ideal for the ML classifier.</span>
+                            <span className="field-hint">150–400 знака е идеално за ML класификатора.</span>
                             <span className={countClass}>{len} — {countNote}</span>
                         </div>
                     </>
                 )}
 
-               
                 {useImage && (
                     <>
                         <div
@@ -114,14 +112,14 @@ const SubmitForm = ({ fields, useImage, onToggle, onFieldChange }) => {
 
                             {image ? (
                                 <>
-                                    <p className="upload-title">File selected</p>
+                                    <p className="upload-title">Файлът е избран</p>
                                     <p className="upload-filename">{image.name}</p>
-                                    <p className="upload-desc">Click to change</p>
+                                    <p className="upload-desc">Натиснете за смяна</p>
                                 </>
                             ) : (
                                 <>
-                                    <p className="upload-title">Click to upload</p>
-                                    <p className="upload-desc">Photo, screenshot or scanned document</p>
+                                    <p className="upload-title">Натиснете за качване</p>
+                                    <p className="upload-desc">Снимка, екранна снимка или сканиран документ</p>
                                     <div className="upload-formats">
                                         <span className="upload-format">JPG</span>
                                         <span className="upload-format">PNG</span>
@@ -132,8 +130,8 @@ const SubmitForm = ({ fields, useImage, onToggle, onFieldChange }) => {
                         </div>
 
                         <p className="ocr-notice">
-                            <strong>OCR:</strong> Tesseract will extract text from the image.
-                            You can review and correct it before the cipher goes live.
+                            <strong>OCR:</strong> Tesseract ще извлече текста от изображението.
+                            Можете да го прегледате и коригирате, преди шифърът да бъде публикуван.
                         </p>
                     </>
                 )}
@@ -142,16 +140,16 @@ const SubmitForm = ({ fields, useImage, onToggle, onFieldChange }) => {
             
             <div className="field">
                 <label className="field-label">
-                    CIPHER TYPE <span className="optional">OPTIONAL</span>
+                    ВИД НА ШИФЪРА <span className="optional">НЕЗАДЪЛЖИТЕЛНО</span>
                 </label>
                 <select
                     className="field-select"
                     value={cipherType}
                     onChange={e => onFieldChange('cipherType', e.target.value)}
                 >
-                    <option value="">Unknown — let the ML decide</option>
+                    <option value="">Неизвестен — нека ML реши</option>
                     {GROUPS.map(group => (
-                        <optgroup key={group} label={group}>
+                        <optgroup key={group} label={GROUP_LABELS[group]}>
                             {CIPHER_TYPES
                                 .filter(t => t.group === group)
                                 .map(t => (
@@ -162,7 +160,7 @@ const SubmitForm = ({ fields, useImage, onToggle, onFieldChange }) => {
                     ))}
                 </select>
                 <p className="field-hint">
-                    Leave blank if unsure — the ML classifier predicts this during admin review.
+                    Оставете празно ако не сте сигурни — ML класификаторът ще предвиди вида при прегледа от администратор.
                 </p>
             </div>
 

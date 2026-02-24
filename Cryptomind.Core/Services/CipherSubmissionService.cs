@@ -33,6 +33,9 @@ namespace Cryptomind.Core.Services
 			if (string.IsNullOrWhiteSpace(model.DecryptedText) && model.CipherType == null)
 				throw new ConflictException("Cannot submit cipher with unknown decrypted text and cipher type");
 
+			if (model.EncryptedText.Length >= 450)
+				throw new CustomValidationException("The maximal encrypted text length is 450 characters.");
+
 			Cipher? cipher = null;
 			string encryptedTextForAnalysis = model.EncryptedText;
 
@@ -50,7 +53,7 @@ namespace Cryptomind.Core.Services
 					CreatedByUserId = userId,
 					CipherTags = new List<CipherTag>(),
 					HintsRequested = new List<HintRequest>(),
-					CreatedAt = DateTime.UtcNow,
+					CreatedAt = DateTime.UtcNow.AddHours(2),
 				};
 			}
 			else if (model.CipherDefinition == CipherDefinition.ImageCipher)
@@ -96,7 +99,7 @@ namespace Cryptomind.Core.Services
 					HintsRequested = new List<HintRequest>(),
 					EncryptedText = result.ExtractedText,
 					OCRConfidence = result.Confidence,
-					CreatedAt = DateTime.UtcNow
+					CreatedAt = DateTime.UtcNow.AddHours(2)
 				};
 			}
 

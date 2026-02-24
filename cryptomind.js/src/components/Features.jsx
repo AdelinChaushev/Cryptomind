@@ -4,23 +4,23 @@ import FeatureCard from './FeatureCard';
 const features = [
     {
         icon: '🤖',
-        title: 'ML-Powered Classification',
-        description: "Our neural network identifies cipher types with 90% accuracy, helping you understand what you're dealing with."
+        title: 'ML класификация',
+        description: "Нашата невронна мрежа разпознава видовете шифри с 90% точност, помагайки ви да разберете с какво се сблъсквате."
     },
     {
         icon: '💡',
-        title: 'AI Hints & Solutions',
-        description: 'Get intelligent hints or complete step-by-step solutions powered by advanced language models.'
+        title: 'AI подсказки и решения',
+        description: 'Получете интелигентни подсказки или пълни стъпка по стъпка решения, задвижвани от напреднали езикови модели.'
     },
     {
         icon: '📚',
-        title: 'Educational Tools',
-        description: 'Learn how each cipher works with interactive examples and detailed explanations.'
+        title: 'Образователни инструменти',
+        description: 'Научете как работи всеки шифър с интерактивни примери и подробни обяснения.'
     },
     {
         icon: '🏆',
-        title: 'Competitive Leaderboard',
-        description: 'Compete with solvers worldwide. Track your rank, points, and success rate.'
+        title: 'Конкурентна класация',
+        description: 'Съревновавайте се с решавачи от цял свят. Следете класирането, точките и процента си на успех.'
     }
 ];
 
@@ -94,13 +94,13 @@ const useDecodeOnScroll = (ref, originalText) => {
 
 const Features = () => {
     const headerRef = useRef(null);
-    useDecodeOnScroll(headerRef, 'Powerful Features');
+    useDecodeOnScroll(headerRef, 'Мощни функции');
 
     return (
         <section className="features-section">
             <div className="section-header">
-                <h2 ref={headerRef}>Powerful Features</h2>
-                <p>Everything you need to master cryptography</p>
+                <h2 ref={headerRef}>Мощни функции</h2>
+                <p>Всичко необходимо, за да овладеете криптографията</p>
             </div>
             <div className="features-grid">
                 {features.map((feature, index) => (

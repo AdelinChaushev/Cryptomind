@@ -1,4 +1,6 @@
-﻿namespace Cryptomind.Common.ViewModels.AdminViewModels
+﻿using Cryptomind.Data.Entities;
+
+namespace Cryptomind.Common.ViewModels.AdminViewModels
 {
     public class CipherReviewOutputViewModel
     {
@@ -10,5 +12,9 @@
         public int PercentageOfConfidence { get; set; }
         public string? MlPrediction { get; set; }
         public bool IsLLMRecommended { get; set; }
+        public bool IsTypeHintAllowed { get; set; }
+        public bool IsHintAllowed { get; set; }
+        public bool IsSolutionAllowed { get; set; }
+        public List<Tag> Tags { get; set; }
     }
 }

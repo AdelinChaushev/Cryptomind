@@ -3,12 +3,12 @@ function SolveForm({ answer, onAnswerChange, onSubmit, attempts, maxAttempts, re
 
     return (
         <div className="solve-form-panel">
-            <h3 className="panel-heading">Your Answer</h3>
+            <h3 className="panel-heading">Твоят отговор</h3>
 
             <div className="solve-input-wrap">
                 <textarea
                     className="solve-input"
-                    placeholder="Type the decrypted plaintext here..."
+                    placeholder="Въведи разкодирания текст тук..."
                     value={answer}
                     onChange={(e) => onAnswerChange(e.target.value)}
                     disabled={result === "correct"}
@@ -16,29 +16,26 @@ function SolveForm({ answer, onAnswerChange, onSubmit, attempts, maxAttempts, re
             </div>
 
             <div className="solve-form-footer">
-                {/* <p className="attempt-info">
-                    <span>{attemptsLeft}</span> attempt{attemptsLeft !== 1 ? "s" : ""} remaining
-                </p> */}
                 <button
                     className="btn-submit"
                     onClick={onSubmit}
                     disabled={!answer.trim() || result === "correct" || attemptsLeft <= 0}
                 >
                     <span>→</span>
-                    Submit Answer
+                    Изпрати отговор
                 </button>
             </div>
 
             {result === "correct" && (
                 <div className="answer-result correct">
                     <span className="result-icon">✓</span>
-                    Correct! Well done.
+                    Вярно! Поздравления.
                 </div>
             )}
             {result === "incorrect" && (
                 <div className="answer-result incorrect">
                     <span className="result-icon">✗</span>
-                    Incorrect — try again.
+                    Грешно — опитай пак.
                 </div>
             )}
         </div>

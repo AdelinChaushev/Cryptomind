@@ -11,7 +11,6 @@ public abstract class Cipher
 		CipherTags = new List<CipherTag>();
 		HintsRequested = new List<HintRequest>();
 		AnswerSuggestions = new List<AnswerSuggestion>();
-		LLMData = new CipherLLMData();
 	}
 
 	[Key]
@@ -20,6 +19,7 @@ public abstract class Cipher
 	[MaxLength(50), MinLength(3)]
 	public string Title { get; set; }
 	public string? DecryptedText { get; set; }
+	[MaxLength(450)]
 	public string EncryptedText { get; set; }
 	public string MLPrediction { get; set; }
 	public CipherLLMData? LLMData { get; set; }

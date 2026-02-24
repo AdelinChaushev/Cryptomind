@@ -19,7 +19,7 @@ namespace Cryptomind.Data.Entities
 		public ApprovalStatus Status { get; set; }
 		public string? RejectionReason { get; set; }
 		public int PointsEarned { get; set; }
-		public DateTime UplodaedTime { get; set; }
+		public DateTime UploadedTime { get; set; }
 		public DateTime? ApprovalDate { get; set; }
 		public DateTime? RejectionDate { get; set; }
 	}

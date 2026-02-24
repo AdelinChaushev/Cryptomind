@@ -1,6 +1,7 @@
 ﻿using Cryptomind.Tests.Integration.Fixtures;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -75,20 +76,18 @@ namespace Cryptomind.Tests.Integration
 		private async Task<HttpClient> CreateAuthenticatedClientAsync(string email, string password)
 		{
 			var client = Factory.CreateSeededClient(DefaultOptions);
-
-			var response = await client.PostAsJsonAsync("/api/auth/login",
-				new { email, password });
-
-			var rawBody = await response.Content.ReadAsStringAsync();
-			Console.WriteLine("LOGIN RESPONSE: " + rawBody);
-
+			var response = await client.PostAsJsonAsync("/api/auth/login", new { email, password });
 			response.EnsureSuccessStatusCode();
 
-			var body = JsonSerializer.Deserialize<JsonElement>(rawBody, JsonOptions);
-			var token = body.GetProperty("token").GetString()
-				?? throw new InvalidOperationException("Token was null in login response");
-
-			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+			if (response.Headers.TryGetValues("Set-Cookie", out var cookies))
+			{
+				var tokenCookie = cookies.FirstOrDefault(c => c.StartsWith("token="));
+				if (tokenCookie != null)
+				{
+					var tokenValue = tokenCookie.Split(';')[0].Substring("token=".Length);
+					client.DefaultRequestHeaders.Add("Cookie", $"token={tokenValue}");
+				}
+			}
 
 			return client;
 		}
