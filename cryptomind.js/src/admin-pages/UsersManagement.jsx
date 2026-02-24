@@ -54,15 +54,15 @@ const UsersManagement = () => {
 
     // Promote to admin
     const handlePromote = useCallback(async (userId, username) => {
-        if (!window.confirm(`Promote ${username} to Admin?`)) return;
+        if (!window.confirm(`Повишаване на ${username} до Администратор?`)) return;
 
         try {
             await axios.put(`${API_BASE}/user/${userId}/admin`);
-            alert(`${username} is now an Admin!`);
+            alert(`${username} вече е Администратор!`);
             fetchUsers();
         } catch (err) {
             console.error('Promote error:', err);
-            alert(`Failed to promote: ${err.response?.data?.message || err.message}`);
+            alert(`Неуспешно повишаване: ${err.response?.data?.message || err.message}`);
         }
     }, [fetchUsers]);
 
@@ -89,7 +89,7 @@ const UsersManagement = () => {
     // Confirm ban with reason
     const handleConfirmBan = useCallback(async () => {
         if (!banReason.trim()) {
-            alert('Please provide a reason for banning this user.');
+            alert('Моля, въведете причина за блокирането на потребителя.');
             return;
         }
 
@@ -101,7 +101,6 @@ const UsersManagement = () => {
                 `http://localhost:5115/api/admin/user/${banModal.userId}/ban`,
                 formData,
                 {
-                     // query parameter
                     headers: {
                         "Content-Type": "multipart/form-data"
                     },
@@ -114,7 +113,7 @@ const UsersManagement = () => {
             fetchUsers();
         } catch (err) {
             console.error('Ban error:', err);
-            alert(`Failed to ban: ${err.response?.data?.message || err.message}`);
+            alert(`Неуспешно блокиране: ${err.response?.data?.message || err.message}`);
         }
     }, [banModal.userId, banModal.username, banReason, fetchUsers]);
 
@@ -126,15 +125,15 @@ const UsersManagement = () => {
 
     // Unban user
     const handleUnban = useCallback(async (userId, username) => {
-        if (!window.confirm(`Unban ${username}?`)) return;
+        if (!window.confirm(`Деблокиране на ${username}?`)) return;
         console.log(`Unbanning user ID: ${userId}, Username: ${username}`); 
         try {
-            await axios.put(`${API_BASE}/user/${userId}/unban`,  {params: { id: banModal.userId }},);
-            alert(`${username} has been unbanned`);
+            await axios.put(`${API_BASE}/user/${userId}/unban`, { params: { id: banModal.userId } });
+            alert(`${username} беше деблокиран`);
             fetchUsers();
         } catch (err) {
             console.error('Unban error:', err);
-            alert(`Failed to unban: ${err.response?.data?.message || err.message}`);
+            alert(`Неуспешно деблокиране: ${err.response?.data?.message || err.message}`);
         }
     }, [fetchUsers]);
 
@@ -143,13 +142,13 @@ const UsersManagement = () => {
             <AdminSidebar activePage="users" />
 
             <main className="admin-main">
-                <AdminTopbar breadcrumbs={[{ label: 'Users Management' }]} />
+                <AdminTopbar breadcrumbs={[{ label: 'Управление на потребители' }]} />
 
                 <div className="admin-content">
                     <div className="page-header">
-                        <h1 className="page-title">Users Management</h1>
+                        <h1 className="page-title">Управление на потребители</h1>
                         <p className="page-subtitle">
-                            {users.length} user{users.length !== 1 ? 's' : ''} on the platform
+                            {users.length} потребител{users.length !== 1 ? 'и' : ''} в платформата
                         </p>
                     </div>
 
@@ -164,7 +163,7 @@ const UsersManagement = () => {
                                         setShowDeactivated(false);
                                     }}
                                 >
-                                    Active
+                                    Активни
                                 </button>
                                 <button 
                                     className={`filter-tab${showBanned ? ' active' : ''}`}
@@ -173,7 +172,7 @@ const UsersManagement = () => {
                                         setShowDeactivated(false);
                                     }}
                                 >
-                                    Banned
+                                    Блокирани
                                 </button>
                                 <button 
                                     className={`filter-tab${showDeactivated ? ' active' : ''}`}
@@ -182,7 +181,7 @@ const UsersManagement = () => {
                                         setShowDeactivated(true);
                                     }}
                                 >
-                                    Deactivated
+                                    Деактивирани
                                 </button>
                             </div>
 
@@ -193,14 +192,14 @@ const UsersManagement = () => {
                                 <input
                                     type="text"
                                     className="form-input"
-                                    placeholder="Search by username..."
+                                    placeholder="Търсене по потребителско име..."
                                     value={usernameFilter}
                                     onChange={(e) => setUsernameFilter(e.target.value)}
                                 />
                             </div>
                         </div>
                         <div className="toolbar-right">
-                            {loading && <span style={{ fontSize: '11px', color: 'var(--text-dim)' }}>Loading...</span>}
+                            {loading && <span style={{ fontSize: '11px', color: 'var(--text-dim)' }}>Зареждане...</span>}
                         </div>
                     </div>
 
@@ -208,16 +207,16 @@ const UsersManagement = () => {
                     {error ? (
                         <div className="data-table-wrapper">
                             <div className="empty-state">
-                                <div className="empty-state-title">Error loading users</div>
+                                <div className="empty-state-title">Грешка при зареждане на потребителите</div>
                                 <div className="empty-state-text">{error}</div>
                             </div>
                         </div>
                     ) : users.length === 0 && !loading ? (
                         <div className="data-table-wrapper">
                             <div className="empty-state">
-                                <div className="empty-state-title">No users found</div>
+                                <div className="empty-state-title">Няма намерени потребители</div>
                                 <div className="empty-state-text">
-                                    {usernameFilter ? 'No users match your search' : 'No users registered yet'}
+                                    {usernameFilter ? 'Няма потребители, съответстващи на търсенето' : 'Няма регистрирани потребители'}
                                 </div>
                             </div>
                         </div>
@@ -226,11 +225,11 @@ const UsersManagement = () => {
                             <table className="data-table">
                                 <thead>
                                     <tr>
-                                        <th>Username</th>
-                                        <th>Email</th>
-                                        <th>Role</th>
-                                        <th>Pending Ciphers</th>
-                                        <th>Actions</th>
+                                        <th>Потребителско име</th>
+                                        <th>Имейл</th>
+                                        <th>Роля</th>
+                                        <th>Чакащи шифри</th>
+                                        <th>Действия</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -256,19 +255,12 @@ const UsersManagement = () => {
 
                                             <td>
                                                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                                                    {/* {user.isAdmin && (
-                                                        <button
-                                                            onClick={() => handleDemote(user.id, user.username)}
-                                                            className="btn btn-ghost btn-sm"
-                                                        >
-                                                            Demote to User
-                                                        </button>) }  */}
                                                     {!user.isAdmin && !(showBanned || showDeactivated) && (
                                                         <button
                                                             onClick={() => handlePromote(user.id, user.username)}
                                                             className="btn btn-primary btn-sm"
                                                         >
-                                                            Promote to Admin
+                                                            Повиши до Администратор
                                                         </button>
                                                     )}
 
@@ -277,19 +269,17 @@ const UsersManagement = () => {
                                                             onClick={() => handleUnban(user.id, user.username)}
                                                             className="btn btn-success btn-sm"
                                                         >
-                                                            Unban
+                                                            Деблокирай
                                                         </button>
-                                                    ) }{!user.isAdmin && !(showBanned) && ( 
-                                                           
+                                                    )}{!user.isAdmin && !(showBanned) && ( 
                                                         <>
-                                                         <button
-                                                            onClick={() => openBanModal(user.id, user.username)}
-                                                            className="btn btn-danger btn-sm"
-                                                        >
-                                                            Ban
-                                                        </button>
+                                                            <button
+                                                                onClick={() => openBanModal(user.id, user.username)}
+                                                                className="btn btn-danger btn-sm"
+                                                            >
+                                                                Блокирай
+                                                            </button>
                                                         </>                                                  
-                                                       
                                                     )}
                                                 </div>
                                             </td>
@@ -306,18 +296,18 @@ const UsersManagement = () => {
             {banModal.open && (
                 <div className="modal-backdrop" onClick={closeBanModal}>
                     <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-title">Ban User: {banModal.username}</div>
+                        <div className="modal-title">Блокиране на потребител: {banModal.username}</div>
                         <p style={{ fontSize: '13px', color: 'var(--text-tertiary)', lineHeight: '1.6', marginBottom: '12px' }}>
-                            This user will no longer be able to access the platform. Please provide a reason for this action.
+                            Потребителят няма да може да достъпва платформата. Моля, въведете причина за това действие.
                         </p>
 
                         <div className="form-group">
                             <label className="form-label">
-                                Ban Reason <span style={{ color: 'var(--rose-500)' }}>*</span>
+                                Причина за блокиране <span style={{ color: 'var(--rose-500)' }}>*</span>
                             </label>
                             <textarea
                                 className="form-textarea"
-                                placeholder="Explain why this user is being banned..."
+                                placeholder="Обяснете защо потребителят се блокира..."
                                 rows="4"
                                 value={banReason}
                                 onChange={(e) => setBanReason(e.target.value)}
@@ -326,8 +316,8 @@ const UsersManagement = () => {
                         </div>
 
                         <div className="modal-actions">
-                            <button onClick={closeBanModal} className="btn btn-ghost">Cancel</button>
-                            <button onClick={handleConfirmBan} className="btn btn-danger">Ban User</button>
+                            <button onClick={closeBanModal} className="btn btn-ghost">Отказ</button>
+                            <button onClick={handleConfirmBan} className="btn btn-danger">Блокирай потребителя</button>
                         </div>
                     </div>
                 </div>

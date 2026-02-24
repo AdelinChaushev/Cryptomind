@@ -1,8 +1,3 @@
-/* ======================================
-   account-info.css
-   CryptoMind — Account Info Page
-====================================== */
-
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Sora:wght@300;400;500;600;700&family=Orbitron:wght@700;900&display=swap');
 
 :root {
@@ -421,70 +416,100 @@
 /* ─── BADGES ─── */
 .badges-grid {
     display: flex;
-    flex-direction: column;
-    gap: 12px;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
 .badge-item {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 14px 16px;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-default);
-    border-radius: 8px;
-    transition: border-color var(--transition), transform var(--transition);
-}
-
-.badge-item:hover {
-    border-color: var(--border-yellow);
-    transform: translateX(3px);
+    justify-content: center;
 }
 
 .badge-icon-wrap {
-    width: 40px;
-    height: 40px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     background: var(--yellow-dim);
     border: 1px solid var(--border-yellow);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
-    flex-shrink: 0;
+    overflow: hidden;
 }
 
-.badge-info {
-    flex: 1;
-    min-width: 0;
+.badge-icon-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transform: scale(2.5); /* 🔑 THIS */
 }
 
-.badge-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 3px;
+.badge-item:hover .badge-icon-wrap {
+    border-color: var(--yellow-500);
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+    transform: translateY(-3px);
 }
 
-.badge-desc {
+/* ─── TOOLTIP ─── */
+.badge-tooltip {
+    position: fixed;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-yellow);
+    border-radius: 8px;
+    padding: 12px 14px;
+    width: 180px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--transition);
+    z-index: 9999;
+    bottom: auto;
+    left: auto;
+}
+
+.badge-item:hover .badge-tooltip {
+    opacity: 1;
+}
+
+.badge-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--border-yellow);
+}
+
+.badge-tooltip-title {
     font-size: 12px;
-    color: var(--text-tertiary);
-}
-
-.badge-earned {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--text-dim);
-    text-align: right;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-
-.badge-earned span {
-    display: block;
-    font-size: 14px;
     font-weight: 700;
     color: var(--yellow-500);
+    font-family: var(--font-mono);
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.badge-tooltip-desc {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+.badge-tooltip-earned {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+}
+
+.badge-tooltip-earned span {
+    color: var(--yellow-500);
+    font-weight: 700;
 }
 
 .no-badges {

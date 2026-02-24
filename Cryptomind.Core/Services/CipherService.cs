@@ -165,7 +165,6 @@ namespace Cryptomind.Core.Services
 				userSolution.IsCorrect = true;
 
 				user.Score += pointsEarned;
-				user.SolvedCount += 1;
 
 				await userManager.UpdateAsync(user);
 			}

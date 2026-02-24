@@ -23,7 +23,7 @@ const PendingAnswerApproval = () => {
     useEffect(() => {
         const fetchAnswer = async () => {
             if (!id || isNaN(id)) {
-                setError('Invalid answer ID');
+                setError('Невалидно ID на отговора');
                 setLoading(false);
                 return;
             }
@@ -66,10 +66,6 @@ const PendingAnswerApproval = () => {
 
     // Reject answer
     const handleReject = useCallback(async () => {
-        //  if (!rejectionReason.trim()) {
-        // alert('Please provide a reason...');
-        // return;
-        //  }
         console.log('Rejection reason:', rejectionReason);
        
         try {
@@ -93,7 +89,7 @@ const PendingAnswerApproval = () => {
                 <main className="admin-main">
                     <div className="admin-content">
                         <div className="empty-state">
-                            <div className="empty-state-title">Loading...</div>
+                            <div className="empty-state-title">Зареждане...</div>
                         </div>
                     </div>
                 </main>
@@ -108,9 +104,9 @@ const PendingAnswerApproval = () => {
                 <main className="admin-main">
                     <div className="admin-content">
                         <div className="empty-state">
-                            <div className="empty-state-title">{error || 'Answer suggestion not found'}</div>
+                            <div className="empty-state-title">{error || 'Предложеният отговор не е намерен'}</div>
                             <a href="/admin/pending-answers" className="btn btn-ghost btn-sm" style={{ marginTop: '12px' }}>
-                                ← Back to Pending Answers
+                                ← Обратно към чакащи отговори
                             </a>
                         </div>
                     </div>
@@ -126,21 +122,21 @@ const PendingAnswerApproval = () => {
             <main className="admin-main">
                 <AdminTopbar
                     breadcrumbs={[
-                        { label: 'Pending Answers', href: '/admin/pending-answers' },
-                        { label: `Suggestion #${answerSubmission.id}` }
+                        { label: 'Чакащи отговори', href: '/admin/pending-answers' },
+                        { label: `Предложение #${answerSubmission.id}` }
                     ]}
                 >
                     <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-dim)' }}>
-                        submitted by {answerSubmission.username}
+                        предложено от {answerSubmission.username}
                     </span>
                 </AdminTopbar>
 
                 <div className="admin-content">
                     <div className="page-header">
-                        <h1 className="page-title">Answer Suggestion Review</h1>
+                        <h1 className="page-title">Преглед на предложен отговор</h1>
                         <p className="page-subtitle">
-                            Suggestion for: <strong style={{ color: 'var(--text-secondary)' }}>
-                                {answerSubmission.cipherName || originalCipher?.title || `Cipher #${answerSubmission.cipherId}`}
+                            Предложение за: <strong style={{ color: 'var(--text-secondary)' }}>
+                                {answerSubmission.cipherName || originalCipher?.title || `Шифър #${answerSubmission.cipherId}`}
                             </strong>
                         </p>
                     </div>
@@ -150,14 +146,14 @@ const PendingAnswerApproval = () => {
                             {/* Original Cipher Context */}
                             <div className="admin-card">
                                 <div className="admin-card-header">
-                                    <span className="admin-card-title">Original Cipher</span>
+                                    <span className="admin-card-title">Оригинален шифър</span>
                                     <a
                                         href={`/cipher/${answerSubmission.cipherId}`}
                                         className="btn btn-ghost btn-sm"
                                         target="_blank"
                                         rel="noreferrer"
                                     >
-                                        View Cipher →
+                                        Виж шифъра →
                                     </a>
                                 </div>
 
@@ -169,21 +165,21 @@ const PendingAnswerApproval = () => {
 
                                 {originalCipher && (
                                     <>
-                                        <div className="form-label">Cipher Text</div>
+                                        <div className="form-label">Шифриран текст</div>
                                         <div className="original-cipher-block">
                                             {originalCipher.cipherText ?? '—'}
                                         </div>
 
                                         <div style={{ marginTop: '12px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                                             <div>
-                                                <div className="form-label">Type</div>
+                                                <div className="form-label">Вид</div>
                                                 <span className="mono" style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
                                                     {originalCipher.mlPrediction ?? '—'}
                                                 </span>
                                             </div>
                                             <div>
-                                                <div className="form-label">Status</div>
-                                                <span className="badge badge-experimental">Experimental</span>
+                                                <div className="form-label">Статус</div>
+                                                <span className="badge badge-experimental">Експериментален</span>
                                             </div>
                                         </div>
                                     </>
@@ -193,22 +189,22 @@ const PendingAnswerApproval = () => {
                             {/* The Suggested Answer */}
                             <div className="admin-card">
                                 <div className="admin-card-header">
-                                    <span className="admin-card-title">Submitted Suggestion</span>
+                                    <span className="admin-card-title">Предложен отговор</span>
                                     <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                                         <span className="mono" style={{ fontSize: '11px', color: 'var(--text-dim)' }}>
-                                            by {answerSubmission.username}
+                                            от {answerSubmission.username}
                                         </span>
                                     </div>
                                 </div>
 
-                                <div className="form-label">Suggested Decrypted Text</div>
+                                <div className="form-label">Предложен дешифриран текст</div>
                                 <div className="submitted-answer-box">
                                     {answerSubmission.decryptedText || '—'}
                                 </div>
 
                                 {answerSubmission.description && (
                                     <div style={{ marginTop: '14px' }}>
-                                        <div className="form-label">User's Explanation</div>
+                                        <div className="form-label">Обяснение на потребителя</div>
                                         <div className="explanation-box">
                                             {answerSubmission.description}
                                         </div>
@@ -221,7 +217,7 @@ const PendingAnswerApproval = () => {
                         <div className="answer-approval-sidebar">
                             <div className="admin-card">
                                 <div className="admin-card-header">
-                                    <span className="admin-card-title">Decision</span>
+                                    <span className="admin-card-title">Решение</span>
                                 </div>
 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -233,10 +229,10 @@ const PendingAnswerApproval = () => {
                                         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
                                             <path d="M2 8l4 4 8-8"/>
                                         </svg>
-                                        Approve Answer
+                                        Одобри отговора
                                     </button>
                                     <p style={{ fontSize: '11px', color: 'var(--text-dim)', lineHeight: '1.5' }}>
-                                        Approving will award points to {answerSubmission.username} and mark this cipher as solved.
+                                        Одобряването ще даде точки на {answerSubmission.username} и ще маркира шифъра като решен.
                                     </p>
 
                                     <div className="divider" />
@@ -250,18 +246,18 @@ const PendingAnswerApproval = () => {
                                             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
                                                 <path d="M3 3l10 10M13 3L3 13"/>
                                             </svg>
-                                            Reject Answer
+                                            Отхвърли отговора
                                         </button>
 
                                         {showRejectForm && (
                                             <div style={{ marginTop: '10px' }}>
                                                 <label className="form-label">
-                                                    Reason for Rejection <span style={{ color: 'var(--rose-500)' }}>*</span>
+                                                    Причина за отхвърляне <span style={{ color: 'var(--rose-500)' }}>*</span>
                                                 </label>
                                                <textarea
                                                     id="answer-reject-reason"
                                                     className="form-textarea"
-                                                    placeholder="Explain why this answer is incorrect..."
+                                                    placeholder="Обяснете защо отговорът е неверен..."
                                                     value={rejectionReason}
                                                     onChange={(e) => setRejectionReason(e.target.value)}
                                                     rows="3"
@@ -269,7 +265,7 @@ const PendingAnswerApproval = () => {
                                                 />
                                                 <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
                                                     <button onClick={handleReject} className="btn btn-danger btn-sm" style={{ flex: 1 }}>
-                                                        Confirm Reject
+                                                        Потвърди отхвърлянето
                                                     </button>
                                                     <button 
                                                         onClick={() => {
@@ -279,7 +275,7 @@ const PendingAnswerApproval = () => {
                                                         }}
                                                         className="btn btn-ghost btn-sm"
                                                     >
-                                                        Cancel
+                                                        Отказ
                                                     </button>
                                                 </div>
                                             </div>
@@ -289,7 +285,7 @@ const PendingAnswerApproval = () => {
                             </div>
 
                             <a href="/admin/pending-answers" className="btn btn-ghost" style={{ justifyContent: 'center' }}>
-                                ← Back to Queue
+                                ← Обратно към опашката
                             </a>
                         </div>
                     </div>

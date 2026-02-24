@@ -24,7 +24,7 @@ namespace Cryptomind.Core.Services
 			if (string.IsNullOrEmpty(model.Title))
 				throw new CustomValidationException("Title is required");
 
-			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.Title == model.Title))
+			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.Title == model.Title && !x.IsDeleted))
 				throw new ConflictException("There is already a cipher with this title");
 
 			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.EncryptedText == model.EncryptedText))
@@ -33,11 +33,11 @@ namespace Cryptomind.Core.Services
 			if (string.IsNullOrWhiteSpace(model.DecryptedText) && model.CipherType == null)
 				throw new ConflictException("Cannot submit cipher with unknown decrypted text and cipher type");
 
-			if (model.EncryptedText.Length >= 450)
+			if (model.EncryptedText != null && model.EncryptedText.Length >= 450)
 				throw new CustomValidationException("The maximal encrypted text length is 450 characters.");
 
 			Cipher? cipher = null;
-			string encryptedTextForAnalysis = model.EncryptedText;
+			string? encryptedTextForAnalysis = model.EncryptedText;
 
 			if (model.CipherDefinition == CipherDefinition.TextCipher)
 			{
@@ -59,12 +59,24 @@ namespace Cryptomind.Core.Services
 			else if (model.CipherDefinition == CipherDefinition.ImageCipher)
 			{
 				ValidateImageFile(model.Image);
-				var result = await ocrService.ExtractTextFromImageAsync(model.Image);
 
-				if (string.IsNullOrWhiteSpace(result.ExtractedText))
-					throw new CustomValidationException("OCR failed to extract any text from the image");
+				string finalText;
+				double? ocrConfidence = null;
 
-				encryptedTextForAnalysis = result.ExtractedText;
+				if (!string.IsNullOrWhiteSpace(model.ReviewedText))
+				{
+					finalText = model.ReviewedText;
+				}
+				else
+				{
+					var result = await ocrService.ExtractTextFromImageAsync(model.Image);
+					if (string.IsNullOrWhiteSpace(result.ExtractedText))
+						throw new CustomValidationException("OCR failed to extract any text from the image");
+					finalText = result.ExtractedText;
+					ocrConfidence = result.Confidence;
+				}
+
+				encryptedTextForAnalysis = finalText;
 
 				string imageFolderPath = Path.GetFullPath(Path.Combine(
 				AppContext.BaseDirectory, "..", "..", "..", "..", "Images/Ciphers"));
@@ -83,7 +95,7 @@ namespace Cryptomind.Core.Services
 
 				string relativePath = Path.Combine("Images/Ciphers", safeTitle + originalExtension);
 
-				if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.EncryptedText == result.ExtractedText) != null)
+				if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.EncryptedText == finalText) != null)
 					throw new ConflictException("There is already a cipher like this");
 
 				cipher = new ImageCipher()
@@ -97,8 +109,8 @@ namespace Cryptomind.Core.Services
 					CreatedByUserId = userId,
 					CipherTags = new List<CipherTag>(),
 					HintsRequested = new List<HintRequest>(),
-					EncryptedText = result.ExtractedText,
-					OCRConfidence = result.Confidence,
+					EncryptedText = finalText,
+					OCRConfidence = ocrConfidence ?? 0,
 					CreatedAt = DateTime.UtcNow.AddHours(2)
 				};
 			}
