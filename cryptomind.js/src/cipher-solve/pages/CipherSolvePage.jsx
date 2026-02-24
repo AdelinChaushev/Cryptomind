@@ -22,6 +22,7 @@ function CipherSolvePage() {
     const [aiLoading, setAiLoading] = useState(false);
     const [expDecryptedText, setExpDecryptedText] = useState("");
     const [expDescription,   setExpDescription]   = useState("");
+    const [tags,setTags] = useState([])
     const { setError } = useError();
     const [cipher,setCipher] = useState({
         allowsAnswer: false,
@@ -46,7 +47,8 @@ function CipherSolvePage() {
         solveCount: 0,
         successfulSubmissions: 0,
         recentSolvers: [],
-        challengeTypeDisplay : ""
+        challengeTypeDisplay : "",
+        tags : []
 
     });
     const { id } = useParams();
@@ -78,11 +80,14 @@ function CipherSolvePage() {
         successfulSubmissions : data.successfulSubmissions,
         totalAttempts : data.allSubmissions,
         recentSolvers : data.recentSolvers,
-        challengeTypeDisplay : data.challengeTypeDisplay
+        challengeTypeDisplay : data.challengeTypeDisplay,
+        tags : data.tags
+
       });
-      console.log("API response:", data); })
+       }
+    )
        .catch(c => navigation("*") )
-       .finally()
+       .finally(console.log(cipher))
     },[id])
     
    const handleSubmit = async () => {

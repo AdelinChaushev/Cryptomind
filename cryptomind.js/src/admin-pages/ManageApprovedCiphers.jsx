@@ -3,6 +3,7 @@ import axios from 'axios';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
 import '../styles/manage-ciphers.css';
+import { useError } from '../ErrorContext.jsx';
 const API_BASE = 'http://localhost:5115/api/admin';
 const AVAILABLE_TAGS = [
     { value: 0, label: 'Няма' },
@@ -15,7 +16,6 @@ const AVAILABLE_TAGS = [
     { value: 7, label: 'Труден' },
 ];
 axios.defaults.withCredentials = true;
-import { useError } from '../ErrorContext.jsx';
 
 const ManageApprovedCiphers = () => {
     const [ciphers, setCiphers] = useState([]);
@@ -55,6 +55,9 @@ const ManageApprovedCiphers = () => {
             const { data } = await axios.get(`${API_BASE}/approved-ciphers`, { params });
             setError(null);
             setCiphers(Array.isArray(data) ? data : []);
+            setEditAllowTypeHint(data.isTypeHintAllowed)
+            setEditAllowHint(data.isHintAllowed)
+            setEditAllowSolution(data.isSolutionAllowed)
         } catch (err) {
             console.error('Failed to fetch approved ciphers:', err);
             setError(err.response?.data?.message || err.message);
@@ -70,9 +73,9 @@ const ManageApprovedCiphers = () => {
     const openEditModal = useCallback((cipher) => {
         setEditModal({ open: true, cipher });
         setEditTitle(cipher.title || '');
-        setEditAllowTypeHint(cipher.allowType ?? false);
-        setEditAllowHint(cipher.allowHint ?? false);
-        setEditAllowSolution(cipher.allowFullSolution ?? false);
+        setEditAllowTypeHint(cipher.isTypeHintAllowed ?? false);
+        setEditAllowHint(cipher.isHintAllowed ?? false);
+        setEditAllowSolution(cipher.isSolutionAllowed ?? false);
         setEditSelectedTags([]);
     }, []);
 
@@ -263,7 +266,7 @@ const ManageApprovedCiphers = () => {
                                                         {cipher.mlPrediction}
                                                     </span>
                                                 ) : (
-                                                    <span style={{ color: 'var(--text-dim)', fontSize: '11px' }}>—</span>
+                                                    <span style={{ color: 'var(--text-dim)', fontSize: '11px' }} >—</span>
                                                 )}
                                             </td>
 
@@ -341,7 +344,8 @@ const ManageApprovedCiphers = () => {
                                         <input
                                             type="checkbox"
                                             checked={editAllowTypeHint}
-                                            onChange={(e) => setEditAllowTypeHint(e.target.checked)}
+                                            onChange={(e) => setEditAllowTypeHint(e.target.checked)} 
+                                                                              
                                         />
                                         <span>Позволи подсказки за вида</span>
                                     </label>
@@ -351,6 +355,7 @@ const ManageApprovedCiphers = () => {
                                             type="checkbox"
                                             checked={editAllowHint}
                                             onChange={(e) => setEditAllowHint(e.target.checked)}
+                                           
                                         />
                                         <span>Позволи подсказки</span>
                                     </label>
@@ -360,6 +365,7 @@ const ManageApprovedCiphers = () => {
                                             type="checkbox"
                                             checked={editAllowSolution}
                                             onChange={(e) => setEditAllowSolution(e.target.checked)}
+                                      
                                         />
                                         <span>Позволи пълното решение</span>
                                     </label>
