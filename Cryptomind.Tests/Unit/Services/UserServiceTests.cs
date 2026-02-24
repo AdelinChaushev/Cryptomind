@@ -42,7 +42,7 @@ namespace Cryptomind.Tests.Unit.Services
 				UserName = userName,
 				Email = email,
 				Score = score,
-				SolvedCount = solvedCount,
+				//SolvedCount = solvedCount,
 				RegisteredAt = DateTime.UtcNow.AddHours(2),
 				Badges = badges ?? new List<UserBadge>(),
 			};

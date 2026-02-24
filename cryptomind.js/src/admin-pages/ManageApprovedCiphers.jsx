@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import AdminSidebar from './AdminSidebar';
@@ -6,14 +5,14 @@ import AdminTopbar from './AdminTopbar';
 import '../styles/manage-ciphers.css';
 const API_BASE = 'http://localhost:5115/api/admin';
 const AVAILABLE_TAGS = [
-    { value: 0, label: 'None' },
-    { value: 1, label: 'Image' },
-    { value: 2, label: 'Puzzle' },
-    { value: 3, label: 'Historical' },
-    { value: 4, label: 'Short' },
-    { value: 5, label: 'Long' },
-    { value: 6, label: 'Beginner Friendly' },
-    { value: 7, label: 'Tricky' },
+    { value: 0, label: 'Няма' },
+    { value: 1, label: 'Изображение' },
+    { value: 2, label: 'Пъзел' },
+    { value: 3, label: 'Исторически' },
+    { value: 4, label: 'Кратък' },
+    { value: 5, label: 'Дълъг' },
+    { value: 6, label: 'Подходящ за начинаещи' },
+    { value: 7, label: 'Труден' },
 ];
 axios.defaults.withCredentials = true;
 import { useError } from '../ErrorContext.jsx';
@@ -29,7 +28,6 @@ const ManageApprovedCiphers = () => {
     const [tagsFilter, setTagsFilter] = useState(0);
     const [deleteModal, setDeleteModal] = useState({ open: false, id: null });
     const { setError: setGlobalError } = useError();
-    // Edit modal state
     const [editModal, setEditModal] = useState({ open: false, cipher: null });
     const [editTitle, setEditTitle] = useState('');
     const [editAllowTypeHint, setEditAllowTypeHint] = useState(false);
@@ -37,16 +35,13 @@ const ManageApprovedCiphers = () => {
     const [editAllowSolution, setEditAllowSolution] = useState(false);
     const [editSelectedTags, setEditSelectedTags] = useState([]);
 
-    // Debounce search input
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearch(searchTerm);
         }, 300);
-
         return () => clearTimeout(timer);
     }, [searchTerm]);
 
-    // Fetch ciphers
     const fetchCiphers = useCallback(async () => {
         try {
             setLoading(true);
@@ -59,7 +54,6 @@ const ManageApprovedCiphers = () => {
             };
             const { data } = await axios.get(`${API_BASE}/approved-ciphers`, { params });
             setError(null);
-           // console.log('Approved ciphers:', data);
             setCiphers(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error('Failed to fetch approved ciphers:', err);
@@ -73,17 +67,15 @@ const ManageApprovedCiphers = () => {
         fetchCiphers();
     }, [fetchCiphers]);
 
-    // Open edit modal
     const openEditModal = useCallback((cipher) => {
         setEditModal({ open: true, cipher });
         setEditTitle(cipher.title || '');
         setEditAllowTypeHint(cipher.allowType ?? false);
         setEditAllowHint(cipher.allowHint ?? false);
         setEditAllowSolution(cipher.allowFullSolution ?? false);
-        setEditSelectedTags([]); // TODO: Get existing tags from cipher if available
+        setEditSelectedTags([]);
     }, []);
 
-    // Close edit modal
     const closeEditModal = useCallback(() => {
         setEditModal({ open: false, cipher: null });
         setEditTitle('');
@@ -93,7 +85,6 @@ const ManageApprovedCiphers = () => {
         setEditSelectedTags([]);
     }, []);
 
-    // Toggle tag selection in edit modal
     const handleEditTagToggle = useCallback((tagId) => {
         setEditSelectedTags(prev => 
             prev.includes(tagId) 
@@ -102,10 +93,8 @@ const ManageApprovedCiphers = () => {
         );
     }, []);
 
-    // Save edit
     const handleSaveEdit = useCallback(async () => {
         if (!editModal.cipher?.id) return;
-
         try {
             await axios.put(`${API_BASE}/cipher/${editModal.cipher.id}/update`, {
                 title: editTitle,
@@ -114,36 +103,30 @@ const ManageApprovedCiphers = () => {
                 allowSolution: editAllowSolution,
                 tagIds: editSelectedTags
             });
-        //    alert('Cipher updated successfully');
             closeEditModal();
             fetchCiphers();
         } catch (err) {
-            setGlobalError(`Failed to update cipher: ${err.response?.data?.error || err.message}`);
+            setGlobalError(`Неуспешно обновяване на шифъра: ${err.response?.data?.error || err.message}`);
         }
     }, [editModal.cipher, editTitle, editAllowTypeHint, editAllowHint, editAllowSolution, editSelectedTags, closeEditModal, fetchCiphers]);
 
-    // Open delete modal
     const openDeleteModal = useCallback((id) => {
         setDeleteModal({ open: true, id });
     }, []);
 
-    // Close delete modal
     const closeDeleteModal = useCallback(() => {
         setDeleteModal({ open: false, id: null });
     }, []);
 
-    // Confirm delete
     const handleConfirmDelete = useCallback(async () => {
         if (!deleteModal.id) return;
-
         try {
             await axios.put(`${API_BASE}/cipher/${deleteModal.id}/delete`);
-         //   alert('Cipher deleted successfully');
             closeDeleteModal();
             fetchCiphers();
         } catch (err) {
             console.error('Delete error:', err);
-            alert(`Failed to delete: ${err.response?.data?.message || err.message}`);
+            alert(`Неуспешно изтриване: ${err.response?.data?.message || err.message}`);
         }
     }, [deleteModal.id, closeDeleteModal, fetchCiphers]);
 
@@ -152,33 +135,31 @@ const ManageApprovedCiphers = () => {
             <AdminSidebar activePage="approved-ciphers" />
 
             <main className="admin-main">
-                <AdminTopbar breadcrumbs={[{ label: 'Manage Ciphers' }]} />
+                <AdminTopbar breadcrumbs={[{ label: 'Управление на шифри' }]} />
 
                 <div className="admin-content">
                     <div className="page-header">
-                        <h1 className="page-title">Manage Ciphers</h1>
+                        <h1 className="page-title">Управление на шифри</h1>
                         <p className="page-subtitle">
-                            {ciphers.length} approved cipher{ciphers.length !== 1 ? 's' : ''} on the platform
+                            {ciphers.length} одобрен{ciphers.length !== 1 ? 'и шифъра' : ' шифър'} в платформата
                         </p>
                     </div>
 
                     {/* Toolbar */}
                     <div className="table-toolbar">
                         <div className="toolbar-left">
-                            {/* Challenge Type Filter */}
                             <div className="filter-tabs">
-                               
                                 <button 
                                     className={`filter-tab${challengeTypeFilter === 0 ? ' active' : ''}`}
                                     onClick={() => setChallengeTypeFilter(0)}
                                 >
-                                    Standard
+                                    Стандартен
                                 </button>
                                 <button 
                                     className={`filter-tab${challengeTypeFilter === 1 ? ' active' : ''}`}
                                     onClick={() => setChallengeTypeFilter(1)}
                                 >
-                                    Experimental
+                                    Експериментален
                                 </button>
                             </div>
 
@@ -189,25 +170,22 @@ const ManageApprovedCiphers = () => {
                                 <input
                                     type="text"
                                     className="form-input"
-                                    placeholder="Search by title, type..."
+                                    placeholder="Търсене по заглавие, вид..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                             </div>
                         </div>
                         <div className="toolbar-right">
-                            {/* Tags Filter Dropdown */}
                             <select 
                                 className="form-select" 
                                 style={{ width: '140px' }}
                                 value={tagsFilter}
                                 onChange={(e) => setTagsFilter(parseInt(e.target.value))}
                             >
-                                
                                 {AVAILABLE_TAGS.map((tag) => (
                                     <option key={tag.value} value={tag.value} onClick={e => setTagsFilter(tag.value)}>{tag.label}</option>)
                                 )}
-                                
                             </select>
 
                             <select 
@@ -216,12 +194,12 @@ const ManageApprovedCiphers = () => {
                                 value={orderTerm}
                                 onChange={(e) => setOrderTerm(parseInt(e.target.value))}
                             >
-                                <option value="0">Newest First</option>
-                                <option value="1">Oldest First</option>
-                                <option value="2">Most Solved</option>
-                                <option value="3">Least Solved</option>
+                                <option value="0">Най-нови</option>
+                                <option value="1">Най-стари</option>
+                                <option value="2">Най-решавани</option>
+                                <option value="3">Най-малко решавани</option>
                             </select>
-                            {loading && <span style={{ fontSize: '11px', color: 'var(--text-dim)', marginLeft: '10px' }}>Loading...</span>}
+                            {loading && <span style={{ fontSize: '11px', color: 'var(--text-dim)', marginLeft: '10px' }}>Зареждане...</span>}
                         </div>
                     </div>
 
@@ -229,16 +207,16 @@ const ManageApprovedCiphers = () => {
                     {error ? (
                         <div className="data-table-wrapper">
                             <div className="empty-state">
-                                <div className="empty-state-title">Error loading ciphers</div>
+                                <div className="empty-state-title">Грешка при зареждане на шифрите</div>
                                 <div className="empty-state-text">{error}</div>
                             </div>
                         </div>
                     ) : ciphers.length === 0 && !loading ? (
                         <div className="data-table-wrapper">
                             <div className="empty-state">
-                                <div className="empty-state-title">No approved ciphers found</div>
+                                <div className="empty-state-title">Няма намерени одобрени шифри</div>
                                 <div className="empty-state-text">
-                                    {searchTerm ? 'No results match your search' : 'No ciphers have been approved yet'}
+                                    {searchTerm ? 'Няма резултати, съответстващи на търсенето' : 'Все още няма одобрени шифри'}
                                 </div>
                             </div>
                         </div>
@@ -248,12 +226,12 @@ const ManageApprovedCiphers = () => {
                                 <thead>
                                     <tr>
                                         <th>ID</th>
-                                        <th>Title</th>
-                                        <th>Type</th>
-                                        <th>ML Confidence</th>
-                                        <th>Submitted By</th>
-                                        <th>Date</th>
-                                        <th>Actions</th>
+                                        <th>Заглавие</th>
+                                        <th>Вид</th>
+                                        <th>ML увереност</th>
+                                        <th>Предложен от</th>
+                                        <th>Дата</th>
+                                        <th>Действия</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -265,7 +243,7 @@ const ManageApprovedCiphers = () => {
 
                                             <td>
                                                 <div className="cipher-title-cell">
-                                                    {cipher.title || `Cipher #${cipher.id}`}
+                                                    {cipher.title || `Шифър #${cipher.id}`}
                                                 </div>
                                                 {cipher.isImage && (
                                                     <div className="image-tag" style={{ marginTop: '4px' }}>
@@ -274,7 +252,7 @@ const ManageApprovedCiphers = () => {
                                                             <circle cx="5.5" cy="7.5" r="1.5"/>
                                                             <path d="M1 11.5l4-3 3 2.5 2.5-2.5L15 11.5"/>
                                                         </svg>
-                                                        IMAGE
+                                                        ИЗОБРАЖЕНИЕ
                                                     </div>
                                                 )}
                                             </td>
@@ -311,7 +289,7 @@ const ManageApprovedCiphers = () => {
                                                 <div className="action-group">
                                                     <button
                                                         className="btn-icon"
-                                                        title="Edit"
+                                                        title="Редактирай"
                                                         onClick={() => openEditModal(cipher)}
                                                     >
                                                         <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -320,7 +298,7 @@ const ManageApprovedCiphers = () => {
                                                     </button>
                                                     <button
                                                         className="btn-icon"
-                                                        title="Delete"
+                                                        title="Изтрий"
                                                         onClick={() => openDeleteModal(cipher.id)}
                                                         style={{ color: 'var(--rose-500)', borderColor: 'rgba(244,63,94,0.2)' }}
                                                     >
@@ -343,12 +321,11 @@ const ManageApprovedCiphers = () => {
             {editModal.open && (
                 <div className="modal-backdrop" onClick={closeEditModal}>
                     <div className="modal-box modal-box-wide" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-title">Edit Cipher: {editModal.cipher?.title}</div>
+                        <div className="modal-title">Редактиране на шифър: {editModal.cipher?.title}</div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            {/* Title */}
                             <div className="form-group">
-                                <label className="form-label">Title</label>
+                                <label className="form-label">Заглавие</label>
                                 <input 
                                     type="text" 
                                     className="form-input" 
@@ -357,9 +334,8 @@ const ManageApprovedCiphers = () => {
                                 />
                             </div>
 
-                            {/* AI Assistance Permissions */}
                             <div className="form-group">
-                                <label className="form-label">AI Assistance Permissions</label>
+                                <label className="form-label">Разрешения за AI помощ</label>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
                                     <label className="edit-permission-toggle">
                                         <input
@@ -367,7 +343,7 @@ const ManageApprovedCiphers = () => {
                                             checked={editAllowTypeHint}
                                             onChange={(e) => setEditAllowTypeHint(e.target.checked)}
                                         />
-                                        <span>Allow Type Hint</span>
+                                        <span>Позволи подсказки за вида</span>
                                     </label>
 
                                     <label className="edit-permission-toggle">
@@ -376,7 +352,7 @@ const ManageApprovedCiphers = () => {
                                             checked={editAllowHint}
                                             onChange={(e) => setEditAllowHint(e.target.checked)}
                                         />
-                                        <span>Allow Hints</span>
+                                        <span>Позволи подсказки</span>
                                     </label>
 
                                     <label className="edit-permission-toggle">
@@ -385,14 +361,13 @@ const ManageApprovedCiphers = () => {
                                             checked={editAllowSolution}
                                             onChange={(e) => setEditAllowSolution(e.target.checked)}
                                         />
-                                        <span>Allow Full Solution</span>
+                                        <span>Позволи пълното решение</span>
                                     </label>
                                 </div>
                             </div>
 
-                            {/* Tags */}
                             <div className="form-group">
-                                <label className="form-label">Tags</label>
+                                <label className="form-label">Етикети</label>
                                 <div className="edit-tag-cloud" style={{ marginTop: '8px' }}>
                                     {AVAILABLE_TAGS.map((tag) => (
                                         <button
@@ -409,8 +384,8 @@ const ManageApprovedCiphers = () => {
                         </div>
 
                         <div className="modal-actions">
-                            <button onClick={closeEditModal} className="btn btn-ghost">Cancel</button>
-                            <button onClick={handleSaveEdit} className="btn btn-primary">Save Changes</button>
+                            <button onClick={closeEditModal} className="btn btn-ghost">Отказ</button>
+                            <button onClick={handleSaveEdit} className="btn btn-primary">Запази промените</button>
                         </div>
                     </div>
                 </div>
@@ -420,13 +395,13 @@ const ManageApprovedCiphers = () => {
             {deleteModal.open && (
                 <div className="modal-backdrop" onClick={closeDeleteModal}>
                     <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-title">Delete Cipher?</div>
+                        <div className="modal-title">Изтриване на шифър?</div>
                         <p style={{ fontSize: '13px', color: 'var(--text-tertiary)', lineHeight: '1.6' }}>
-                            This action is not permanent. The cipher and all associated solve history will be able to be restored in the future.
+                            Това действие не е постоянно. Шифърът и цялата свързана история на решения ще могат да бъдат възстановени в бъдеще.
                         </p>
                         <div className="modal-actions">
-                            <button onClick={closeDeleteModal} className="btn btn-ghost">Cancel</button>
-                            <button onClick={handleConfirmDelete} className="btn btn-danger">Delete</button>
+                            <button onClick={closeDeleteModal} className="btn btn-ghost">Отказ</button>
+                            <button onClick={handleConfirmDelete} className="btn btn-danger">Изтрий</button>
                         </div>
                     </div>
                 </div>

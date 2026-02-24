@@ -8,8 +8,8 @@ function ProfileCard({ user, onDeactivate, deactivating }) {
 
     const formatDate = (dateStr) => {
         const date = new Date(dateStr);
-        if (date.getFullYear() <= 1) return 'N/A';
-        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        if (date.getFullYear() <= 1) return 'Н/Д';
+        return date.toLocaleDateString('bg-BG', { year: 'numeric', month: 'long', day: 'numeric' });
     };
 
     const isAdmin = user.roles?.includes('Admin');
@@ -23,7 +23,7 @@ function ProfileCard({ user, onDeactivate, deactivating }) {
                 <div className="profile-name">{user.username}</div>
                 <div className={`profile-role-badge ${isAdmin ? 'admin' : 'user'}`}>
                     <span className="profile-role-dot" />
-                    {isAdmin ? 'Admin' : 'User'}
+                    {isAdmin ? 'Администратор' : 'Потребител'}
                 </div>
             </div>
 
@@ -31,21 +31,21 @@ function ProfileCard({ user, onDeactivate, deactivating }) {
                 <div className="meta-row">
                     <span className="meta-icon">✉</span>
                     <div className="meta-content">
-                        <div className="meta-label">Email</div>
+                        <div className="meta-label">Имейл</div>
                         <div className="meta-value">{user.email}</div>
                     </div>
                 </div>
-                <div className="meta-row">
+                {/* <div className="meta-row">
                     <span className="meta-icon">📅</span>
                     <div className="meta-content">
-                        <div className="meta-label">Member Since</div>
+                        <div className="meta-label">Член от</div>
                         <div className="meta-value">{formatDate(user.registeredAt)}</div>
                     </div>
-                </div>
+                </div> */}
                 <div className="meta-row">
                     <span className="meta-icon">🔐</span>
                     <div className="meta-content">
-                        <div className="meta-label">Roles</div>
+                        <div className="meta-label">Роли</div>
                         <div className="meta-value">{user.roles?.join(', ')}</div>
                     </div>
                 </div>
@@ -56,7 +56,7 @@ function ProfileCard({ user, onDeactivate, deactivating }) {
                 onClick={onDeactivate}
                 disabled={deactivating}
             >
-                ⚠ {deactivating ? 'Processing...' : 'Deactivate Account'}
+                ⚠ {deactivating ? 'Обработване...' : 'Деактивирай акаунт'}
             </button>
         </aside>
     );

@@ -36,6 +36,7 @@ public class ExceptionHandlingMiddleware
 		catch (Exception ex)
 		{
 			await WriteResponse(context, StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+			Console.WriteLine(ex.Message);
 		}
 	}
 
