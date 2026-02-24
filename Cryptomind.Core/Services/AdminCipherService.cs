@@ -183,7 +183,7 @@ namespace Cryptomind.Core.Services
 		{
 			Cipher? cipher = await cipherRepo.GetAllAttached()
 				.Include(x => x.CreatedByUser)
-				.FirstOrDefaultAsync(x => x.Id == id);
+				.FirstOrDefaultAsync(x => x.Id == id && x.Status == ApprovalStatus.Pending );
 
 			if (cipher == null)
 				throw new NotFoundException("Cipher not found");
@@ -532,7 +532,7 @@ namespace Cryptomind.Core.Services
                 };
                 mlData = JsonSerializer.Deserialize<MlPredictionType>(cipher.MLPrediction, options);
             }
-
+			int cipherType = cipher.TypeOfCipher.HasValue ? (int)cipher.TypeOfCipher.Value : -1;
 			var model = new CipherDetailedReviewOutputViewModel()
 			{
 				Id = cipher.Id,
