@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/account-info.css';
-
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useError } from '../ErrorContext';
 import ProfileCard    from './ProfileCard';
 import StatsSection   from './StatsSection';
 import BadgesSection  from './BadgesSection';
@@ -11,45 +13,36 @@ const API_BASE = 'http://localhost:5115';
 function AccountInfo() {
     const [user, setUser]               = useState(null);
     const [loading, setLoading]         = useState(true);
-    const [error, setError]             = useState(null);
+    const {setError} = useError();
     const [showModal, setShowModal]     = useState(false);
     const [deactivating, setDeactivating] = useState(false);
+    const navigate = useNavigate();
+useEffect(() => {
+    const fetchUser = () => {
+        axios.get(`${API_BASE}/api/user/get-account-info`, {
+            withCredentials: true,
+        }).then(res => {
+            console.log('Fetched account info:', res.data);
+            setUser(res.data);
+        }).catch(err => {
+            setError("Error fetching account info:", err.response?.status);
+        }).finally(() => setLoading(false));
+    };         // ← closes fetchUser
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const res = await fetch(`${API_BASE}/api/user/get-account-info`, {
-                    credentials: 'include',
-                });
-
-                if (!res.ok) throw new Error(`Error ${res.status}`);
-
-                const data = await res.json();
-                setUser(data);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchUser();
-    }, []);
+    fetchUser(); // ← now correctly outside fetchUser, inside useEffect
+}, []);
 
     const handleDeactivate = async () => {
         setDeactivating(true);
         try {
-            const res = await fetch(`${API_BASE}/api/auth/deactivate`, {
-                method: 'POST',
-                credentials: 'include',
+                await axios.post(`${API_BASE}/api/auth/deactivate`, {}, {
+                withCredentials: true,
             });
 
-            if (!res.ok) throw new Error(`Error ${res.status}`);
-
             // Redirect to login or home after deactivation
-            window.location.href = '/login';
+            navigate('/login');
         } catch (err) {
-            alert(`Failed to deactivate account: ${err.message}`);
+            setError(`Failed to deactivate account: ${err.message}`);
         } finally {
             setDeactivating(false);
             setShowModal(false);
@@ -67,16 +60,7 @@ function AccountInfo() {
         );
     }
 
-    if (error) {
-        return (
-            <div className="account-page">
-                <div className="account-error">
-                    <div className="error-icon">⚠</div>
-                    <div className="error-text">Failed to load account: {error}</div>
-                </div>
-            </div>
-        );
-    }
+    
 
     return (
         <div className="account-page">

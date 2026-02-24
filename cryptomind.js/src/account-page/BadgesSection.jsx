@@ -1,20 +1,13 @@
 import React from 'react';
 
-const BADGE_ICONS = {
-    'Cipher Creator':  '🔐',
-    'Helpful Mind':    '💡',
-    'First Solve':     '⚡',
-    'Speed Runner':    '🏃',
-    'Master Solver':   '🏆',
-    'Code Breaker':    '🔓',
-};
+
 
 function BadgeItem({ badge }) {
-    const icon = BADGE_ICONS[badge.title] || '🎖';
+    
 
     return (
         <div className="badge-item">
-            <div className="badge-icon-wrap">{icon}</div>
+            <div className="badge-icon-wrap"><img src={badge.badgeImage} alt="" /></div>
             <div className="badge-info">
                 <div className="badge-title">{badge.title}</div>
                 <div className="badge-desc">{badge.description}</div>
