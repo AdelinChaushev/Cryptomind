@@ -76,7 +76,7 @@ const CipherReview = () => {
                     setCipher(res.data);
                     setTitle(res.data.title || '');
                     setAllowHint(res.data.allowTypeHint ?? false);
-                    setAllowSolutionHint(res.data.allowHint ?? false);
+                    setAllowSolutionHint(res.data.allowsSolutionHint ?? false);
                     setAllowSolution(res.data.allowSolution ?? false);
                     console.log('Fetched cipher:', res.data);
                 }).catch(err => {
@@ -138,9 +138,9 @@ const CipherReview = () => {
     try {
         await axios.put(`${API_BASE}/cipher/${cipherId}/approve`, {
             title: title,
-            allowTypeHint: cipher.allowType,
-            allowHint: allowHint,
-            allowSolutionHint: allowSolutionHint,
+          
+            allowTypeHint: allowHint,
+            allowHint: allowSolutionHint,
             allowSolution: allowSolution,
             typeOfCipher: cipherType,
             tagIds: selectedTags
@@ -432,7 +432,7 @@ const CipherReview = () => {
                             {/* Challenge Type */}
                             <div className="admin-card">
                                 <div className="admin-card-header">
-                                    <span className="admin-card-title">Challenge Type</span>
+                                    <span className="admin-card-title">Cipher Type</span>
                                 </div>
 
                                 <div>

@@ -3,32 +3,37 @@ import axios from 'axios';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
 
+import { useError } from '../ErrorContext.jsx';
 const API_BASE = 'http://localhost:5115/api/admin';
 
 axios.defaults.withCredentials = true;
-const AVAILABLE_TAGS = [
-    { value: 0, label: 'None' },
-    { value: 1, label: 'Image' },
-    { value: 2, label: 'Puzzle' },
-    { value: 3, label: 'Historical' },
-    { value: 4, label: 'Short' },
-    { value: 5, label: 'Long' },
-    { value: 6, label: 'Beginner Friendly' },
-    { value: 7, label: 'Tricky' },
-];
+
 const DeletedCiphers = () => {
     const [ciphers, setCiphers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
-    const [orderTerm, setOrderTerm] = useState(0);
-    const [challengeTypeFilter, setChallengeTypeFilter] = useState(0);
-    const [tagsFilter, setTagsFilter] = useState(0);
+    const { setError: setGlobalError } = useError();
+    const [filters, setFilters] = useState({
+        tags: [0],
+        challengeType: 0,
+        cipherDefinition: 0,
+        orderTerm: 0
+    });
+    
+    // Rename modal state
+    const [renameModal, setRenameModal] = useState({ 
+        open: false, 
+        cipher: null, 
+        newTitle: '' 
+    });
 
     // Debounce search input
     useEffect(() => {
-        const timer = setTimeout(() => setDebouncedSearch(searchTerm), 300);
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchTerm);
+        }, 300);
         return () => clearTimeout(timer);
     }, [searchTerm]);
 
@@ -38,31 +43,28 @@ const DeletedCiphers = () => {
             setLoading(true);
             const params = new URLSearchParams();
             
-            // Fix: Check if tagsFilter is not 'None' (0) before appending
-            if (tagsFilter !== 0) params.append('Tags', tagsFilter);
-            
-            params.append('ChallengeType', challengeTypeFilter);
-            params.append('OrderTerm', orderTerm);
-            
+            // Add tags as multiple query params
+            filters.tags.forEach(tag => params.append('Tags', tag));
+            params.append('ChallengeType', filters.challengeType);
+            params.append('CipherDefinition', filters.cipherDefinition);
+            params.append('OrderTerm', filters.orderTerm);
             if (debouncedSearch) params.append('SearchTerm', debouncedSearch);
 
-            // Using axios params config is cleaner than manual string concatenation
-            const { data } = await axios.get(`${API_BASE}/deleted-ciphers`, { params });
-            
+            const { data } = await axios.get(`${API_BASE}/deleted-ciphers?${params.toString()}`);
+            console.log('Deleted ciphers:', data);
             setCiphers(Array.isArray(data) ? data : []);
-            setError(null);
         } catch (err) {
-            console.error('Fetch error:', err);
+            console.error('Failed to fetch deleted ciphers:', err);
             setError(err.response?.data?.message || err.message);
+            setGlobalError('Failed to load deleted ciphers. Please try again later.');
         } finally {
             setLoading(false);
         }
-    }, [debouncedSearch, orderTerm, challengeTypeFilter, tagsFilter]); // All dependencies included
+    }, [debouncedSearch, filters]);
 
     useEffect(() => {
         fetchCiphers();
     }, [fetchCiphers]);
-
 
     // Restore cipher
     const handleRestore = useCallback(async (id, title) => {
@@ -74,19 +76,51 @@ const DeletedCiphers = () => {
             fetchCiphers();
         } catch (err) {
             console.error('Restore error:', err);
-            alert(`Failed to restore: ${err.response?.data?.message || err.message}`);
+            const errorMessage = err.response?.data?.message || err.message;
+            
+            // Check if error is due to duplicate title
+            if (err.response?.status === 400 || errorMessage.toLowerCase().includes('title') || errorMessage.toLowerCase().includes('name')) {
+                // Show rename modal
+                setRenameModal({
+                    open: true,
+                    cipher: { id, title },
+                    newTitle: title
+                });
+            } else {
+               setGlobalError(errorMessage || 'Restore error:');
+            }
         }
     }, [fetchCiphers]);
+
+    // Restore with new title
+    const handleRestoreWithNewTitle = useCallback(async () => {
+        if (!renameModal.cipher) return;
+        
+        const newTitle = renameModal.newTitle.trim();
+        if (!newTitle) {
+            alert('Please provide a new title');
+            return;
+        }
+
+        try {
+            await axios.put(`${API_BASE}/cipher/${renameModal.cipher.id}/restore?newTitle=${encodeURIComponent(newTitle)}`);
+            setGlobalError('Cipher restored successfully with new title!');
+            setRenameModal({ open: false, cipher: null, newTitle: '' });
+            fetchCiphers();
+        } catch (err) {
+            console.error('Restore with rename error:', err);
+            setGlobalError(`Failed to restore: ${err.response?.data?.message || err.message}`);
+        }
+    }, [renameModal, fetchCiphers]);
 
     // Permanently delete
     // const handlePermanentDelete = useCallback(async (id, title) => {
     //     if (!window.confirm(`PERMANENTLY delete cipher "${title}"? This action cannot be undone!`)) return;
 
     //     try {
-    //         await axios.put(`${API_BASE}/cipher/${id}/delete`);
+    //         await axios.delete(`${API_BASE}/cipher/${id}/permanent`);
     //         alert('Cipher permanently deleted');
     //         fetchCiphers();
-
     //     } catch (err) {
     //         console.error('Permanent delete error:', err);
     //         alert(`Failed to delete: ${err.response?.data?.message || err.message}`);
@@ -111,23 +145,6 @@ const DeletedCiphers = () => {
                     {/* Toolbar */}
                     <div className="table-toolbar">
                         <div className="toolbar-left">
-                            {/* Challenge Type Filter */}
-                            <div className="filter-tabs">
-                               
-                                <button 
-                                    className={`filter-tab${challengeTypeFilter === 0 ? ' active' : ''}`}
-                                    onClick={() => setChallengeTypeFilter(0)}
-                                >
-                                    Standard
-                                </button>
-                                <button 
-                                    className={`filter-tab${challengeTypeFilter === 1 ? ' active' : ''}`}
-                                    onClick={() => setChallengeTypeFilter(1)}
-                                >
-                                    Experimental
-                                </button>
-                            </div>
-
                             <div className="search-input-wrap">
                                 <svg className="search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                                     <circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/>
@@ -142,25 +159,11 @@ const DeletedCiphers = () => {
                             </div>
                         </div>
                         <div className="toolbar-right">
-                            {/* Tags Filter Dropdown */}
                             <select 
                                 className="form-select" 
                                 style={{ width: '140px' }}
-                                value={tagsFilter}
-                                onChange={(e) => setTagsFilter(parseInt(e.target.value))}
-                            >
-                                
-                                {AVAILABLE_TAGS.map((tag) => (
-                                    <option key={tag.value} value={tag.value} onClick={e => setFilters(tag.value)}>{tag.label}</option>)
-                                )}
-                                
-                            </select>
-
-                            <select 
-                                className="form-select" 
-                                style={{ width: '140px' }}
-                                value={orderTerm}
-                                onChange={(e) => setOrderTerm(parseInt(e.target.value))}
+                                value={filters.orderTerm}
+                                onChange={(e) => setFilters(prev => ({ ...prev, orderTerm: parseInt(e.target.value) }))}
                             >
                                 <option value="0">Newest First</option>
                                 <option value="1">Oldest First</option>
@@ -277,6 +280,47 @@ const DeletedCiphers = () => {
                     )}
                 </div>
             </main>
+
+            {/* Rename Modal - shown when title is already taken */}
+            {renameModal.open && (
+                <div className="modal-backdrop" onClick={() => setRenameModal({ open: false, cipher: null, newTitle: '' })}>
+                    <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-title">Title Already Exists</div>
+                        
+                        <p style={{ fontSize: '13px', color: 'var(--text-tertiary)', lineHeight: '1.6', marginBottom: '16px' }}>
+                            A cipher with the title <strong style={{ color: 'var(--text-primary)' }}>"{renameModal.cipher?.title}"</strong> already exists. 
+                            Please provide a new title to restore this cipher.
+                        </p>
+
+                        <div className="form-group">
+                            <label className="form-label">New Title</label>
+                            <input 
+                                type="text" 
+                                className="form-input" 
+                                value={renameModal.newTitle}
+                                onChange={(e) => setRenameModal(prev => ({ ...prev, newTitle: e.target.value }))}
+                                placeholder="Enter a unique title..."
+                                autoFocus
+                            />
+                        </div>
+
+                        <div className="modal-actions">
+                            <button 
+                                onClick={() => setRenameModal({ open: false, cipher: null, newTitle: '' })} 
+                                className="btn btn-ghost"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={handleRestoreWithNewTitle} 
+                                className="btn btn-success"
+                            >
+                                Restore with New Title
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
