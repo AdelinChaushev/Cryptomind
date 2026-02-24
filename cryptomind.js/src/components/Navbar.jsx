@@ -41,7 +41,7 @@ const Navbar = () => {
                     (<><li><Link to="/">Browse</Link></li>
                     <li><Link to="/submit">Submit</Link></li>
                    <li><Link to="/my_submissions"> My Submissions</Link></li>
-                  
+                  <li><Link to="/account-info"> My Account</Link></li>
                    </>)
                    }
                     <li><Link to="/leaderboard">Leaderboard</Link></li>
