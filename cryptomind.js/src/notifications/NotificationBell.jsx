@@ -8,7 +8,7 @@ const PREVIEW_COUNT = 5;
 const NotificationBell = () => {
     const [isOpen, setIsOpen]     = useState(false);
     const [didShake, setDidShake] = useState(false);
-    const prevCountRef            = useRef(0);
+    const prevCountRef = useRef(0);
 
     const {
         notifications,
@@ -33,9 +33,9 @@ const NotificationBell = () => {
     const toggle = () => setIsOpen(prev => !prev);
     const close  = () => setIsOpen(false);
 
-    const handleItemClick = (notification) => {
-        close();
+    const handleItemClick = async (notification) => {
         handleNotificationClick(notification);
+        close();
     };
 
     const badgeCount = unreadCount > 99 ? 99 : unreadCount;
