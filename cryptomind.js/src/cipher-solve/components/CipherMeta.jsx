@@ -1,12 +1,13 @@
 function CipherMeta({ cipher, timeAgo }) {
   return (
+    
     <div className="cipher-meta-panel">
       <div className="meta-header">
         <p className="meta-header-title">Инфо за шифъра</p>
       </div>
 
       <div className="meta-body">
-        {cipher.challengeTypeDisplay === "Standard" && (
+       
           <div className="points-display">
             <div className="points-value">{cipher.points ?? 100}</div>
 
@@ -56,7 +57,7 @@ function CipherMeta({ cipher, timeAgo }) {
               </div>
             </div>
           </div>
-        )}
+        
       </div>
     </div>
   );

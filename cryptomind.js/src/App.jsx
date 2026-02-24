@@ -33,7 +33,7 @@ import ToastContainer from './notifications/ToastContainer';
 import { ErrorProvider } from "./ErrorContext";
 
 import AccountInfo from './account-page/AccountInfo.jsx';
-export const AuthorizationContext = createContext({roles : [], isLoggedIn: false});
+export const AuthorizationContext = createContext({roles : [], isLoggedIn: false , isBanned : false , bannedMessage : ""});
 export const NotificationContext = createContext(null);
 export const useNotificationContext = () => useContext(NotificationContext);
 function App() {
@@ -55,7 +55,7 @@ function App() {
     }).catch(error => {
       console.log("Error fetching user roles:", error.response?.status);
      if (error.response?.status === 403) {
-    setState({ roles: [], isLoggedIn: false, isBanned: true });
+    setState({ roles: [], isLoggedIn: false, isBanned: true , bannedMessage : error.response?.data.message});
   } else {
     setState({ roles: [], isLoggedIn: false, isBanned: false });
   }

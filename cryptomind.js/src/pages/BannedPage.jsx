@@ -1,5 +1,6 @@
 import "../styles/banned.css";
-
+import { useContext } from "react";
+import { AuthorizationContext } from "../App";
 // ─── Background ───────────────────────────────────────────────────────────────
 function BannedBackground() {
     return (
@@ -62,6 +63,7 @@ function BannedInfoRow({ label, value, valueStyle }) {
 // ─── Info Card ────────────────────────────────────────────────────────────────
 // Shows account status details in a terminal-style card.
 function BannedInfoCard() {
+    const { state,setState} = useContext(AuthorizationContext)
     return (
         <div className="banned-card">
             <div className="banned-card__header">
@@ -83,7 +85,7 @@ function BannedInfoCard() {
                 />
                 <BannedInfoRow
                     label="ПРИЧИНА"
-                    value="Нарушение на правилата"
+                    value={state.bannedMessage}
                 />
                 <BannedInfoRow
                     label="ОБЖАЛВАНЕ"
@@ -130,6 +132,7 @@ function BannedFooterNote() {
 
 // ─── Page Root ────────────────────────────────────────────────────────────────
 export default function BannedPage() {
+
     return (
         <div className="banned-page">
             <BannedBackground />
