@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 
 namespace Cryptomind.Data
 {
-
-
     public class CryptomindDbContextFactory : IDesignTimeDbContextFactory<CryptomindDbContext>
     {
         public CryptomindDbContext CreateDbContext(string[] args)
