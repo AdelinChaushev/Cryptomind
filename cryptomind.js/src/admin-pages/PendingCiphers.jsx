@@ -15,16 +15,13 @@ const PendingCiphers = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
 
-    // Debounce search input
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearch(searchTerm);
         }, 300);
-
         return () => clearTimeout(timer);
     }, [searchTerm]);
 
-    // Fetch ciphers
     const fetchCiphers = useCallback(async () => {
         try {
             setLoading(true);
@@ -43,14 +40,12 @@ const PendingCiphers = () => {
         fetchCiphers();
     }, [fetchCiphers]);
 
-    // Confidence bar color
     const getConfidenceClass = (pct) => {
         if (pct >= 85) return 'confidence-high';
         if (pct >= 65) return 'confidence-mid';
         return 'confidence-low';
     };
 
-    // Refresh button handler
     useEffect(() => {
         const refreshBtn = document.getElementById('btn-refresh-pending');
         if (refreshBtn) {
@@ -66,17 +61,17 @@ const PendingCiphers = () => {
             <AdminSidebar activePage="pending-ciphers" />
 
             <main className="admin-main">
-                <AdminTopbar breadcrumbs={[{ label: 'Pending Submissions' }]}>
+                <AdminTopbar breadcrumbs={[{ label: 'Изчакващи предложения' }]}>
                     <button className="btn btn-ghost btn-sm" id="btn-refresh-pending">
-                        Refresh
+                        Опресни
                     </button>
                 </AdminTopbar>
 
                 <div className="admin-content">
                     <div className="page-header">
-                        <h1 className="page-title">Pending Submissions</h1>
+                        <h1 className="page-title">Изчакващи предложения</h1>
                         <p className="page-subtitle">
-                            {ciphers.length} submission{ciphers.length !== 1 ? 's' : ''} awaiting review
+                            {ciphers.length} предложени{ciphers.length !== 1 ? 'я' : 'е'} изчакват преглед
                         </p>
                     </div>
 
@@ -90,14 +85,14 @@ const PendingCiphers = () => {
                                 <input
                                     type="text"
                                     className="form-input"
-                                    placeholder="Search by title, user, type..."
+                                    placeholder="Търсене по заглавие, потребител, вид..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                             </div>
                         </div>
                         <div className="toolbar-right">
-                            {loading && <span style={{ fontSize: '11px', color: 'var(--text-dim)' }}>Loading...</span>}
+                            {loading && <span style={{ fontSize: '11px', color: 'var(--text-dim)' }}>Зареждане...</span>}
                         </div>
                     </div>
 
@@ -105,7 +100,7 @@ const PendingCiphers = () => {
                     {error ? (
                         <div className="data-table-wrapper">
                             <div className="empty-state">
-                                <div className="empty-state-title">Error loading ciphers</div>
+                                <div className="empty-state-title">Грешка при зареждане на шифрите</div>
                                 <div className="empty-state-text">{error}</div>
                             </div>
                         </div>
@@ -115,9 +110,9 @@ const PendingCiphers = () => {
                                 <svg className="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                                     <circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/>
                                 </svg>
-                                <div className="empty-state-title">No pending submissions</div>
+                                <div className="empty-state-title">Няма изчакващи предложения</div>
                                 <div className="empty-state-text">
-                                    {searchTerm ? 'No results match your search' : 'All caught up!'}
+                                    {searchTerm ? 'Няма резултати, съответстващи на търсенето' : 'Всичко е прегледано!'}
                                 </div>
                             </div>
                         </div>
@@ -127,12 +122,12 @@ const PendingCiphers = () => {
                                 <thead>
                                     <tr>
                                         <th>ID</th>
-                                        <th>Title</th>
-                                        <th>Type</th>
-                                        <th>ML Confidence</th>
-                                        <th>LLM Required</th>
-                                        <th>Submitted By</th>
-                                        <th>Date</th>
+                                        <th>Заглавие</th>
+                                        <th>Вид</th>
+                                        <th>ML увереност</th>
+                                        <th>LLM необходим</th>
+                                        <th>Предложен от</th>
+                                        <th>Дата</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -148,7 +143,7 @@ const PendingCiphers = () => {
 
                                                 <td>
                                                     <div style={{ fontWeight: 500, fontSize: '13px', color: 'var(--text-primary)' }}>
-                                                        {cipher.title || <span style={{ color: 'var(--text-dim)', fontStyle: 'italic' }}>Untitled</span>}
+                                                        {cipher.title || <span style={{ color: 'var(--text-dim)', fontStyle: 'italic' }}>Без заглавие</span>}
                                                     </div>
                                                     {cipher.isImage && (
                                                         <div className="image-tag" style={{ marginTop: '4px' }}>
@@ -157,7 +152,7 @@ const PendingCiphers = () => {
                                                                 <circle cx="5.5" cy="7.5" r="1.5"/>
                                                                 <path d="M1 11.5l4-3 3 2.5 2.5-2.5L15 11.5"/>
                                                             </svg>
-                                                            IMAGE
+                                                            ИЗОБРАЖЕНИЕ
                                                         </div>
                                                     )}
                                                 </td>
@@ -168,7 +163,7 @@ const PendingCiphers = () => {
                                                             {cipher.mlPrediction}
                                                         </span>
                                                     ) : (
-                                                        <span style={{ color: 'var(--text-dim)', fontSize: '11px' }}>Not classified</span>
+                                                        <span style={{ color: 'var(--text-dim)', fontSize: '11px' }}>Некласифициран</span>
                                                     )}
                                                 </td>
 
@@ -192,7 +187,7 @@ const PendingCiphers = () => {
 
                                                 <td>
                                                     <span className={`badge ${cipher.isLLMRecommended ? 'badge-pending' : 'badge-approved'}`}>
-                                                        {cipher.isLLMRecommended ? 'Yes' : 'No'}
+                                                        {cipher.isLLMRecommended ? 'Да' : 'Не'}
                                                     </span>
                                                 </td>
 
@@ -209,7 +204,7 @@ const PendingCiphers = () => {
                                                         href={`/admin/cipher-review/${cipher.id}`}
                                                         className="btn btn-primary btn-sm"
                                                     >
-                                                        Review →
+                                                        Прегледай →
                                                     </a>
                                                 </td>
                                             </tr>
