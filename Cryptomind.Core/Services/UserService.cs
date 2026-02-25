@@ -41,8 +41,17 @@ namespace Cryptomind.Core.Services
 
 			foreach (var badge in user.Badges)
 			{
-				string folderPath = Path.GetFullPath(Path.Combine(
-				AppContext.BaseDirectory, "..", "..", "..", "..", "Images/Badges", $"Badge_{badge.BadgeId.ToString()}.png"));
+				string folderPath;
+				if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
+				{
+					folderPath = Path.Combine(AppContext.BaseDirectory, "Images", "Badges", $"Badge_{badge.BadgeId}.png");
+				}
+				else
+				{
+					folderPath = Path.GetFullPath(Path.Combine(
+						AppContext.BaseDirectory, "..", "..", "..", "..", "Images/Badges", $"Badge_{badge.BadgeId}.png"));
+				}
+
 				string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(folderPath))}";
 				var badgeViewModel = new BadgeViewModel()
 				{
