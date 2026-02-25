@@ -244,11 +244,12 @@ function CipherSolvePage() {
                             allowSolution={cipher.allowsFullSolution}
                         />}
                     </div>
-
+                    { cipher.challengeTypeDisplay === "Standard" &&
                     <aside className="solve-sidebar">
                         <CipherMeta cipher={cipher} timeAgo={timeAgo}/>
                         <ActivityLog solvers={cipher.recentSolvers} timeAgo={timeAgo} />
                     </aside>
+                    }
                 </div>
             </main>
         </>

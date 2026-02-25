@@ -14,7 +14,7 @@ namespace Cryptomind.Common.ViewModels.CipherViewModels
 		public int Points { get; set; }
 		public int SolvedUsersCount { get; set; }
 		public int TimesSolved { get; set; }
-		public DateTime DateSubmitted { get; set; }
+		public string DateSubmitted { get; set; }
 		public double SuccessRate { get; set; }
 		public bool AllowsAnswer { get; set; }
 		public bool AllowsHint { get; set; }

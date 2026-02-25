@@ -240,7 +240,7 @@ namespace Cryptomind.Core.Services
 				AllowsTypeHint = cipher.AllowTypeHint,
 				AllowsSolutionHint = cipher.AllowHint,
 				AllowsFullSolution = cipher.AllowSolution,
-				DateSubmitted = cipher.CreatedAt,
+				DateSubmitted =  cipher.CreatedAt.ToString("ddd, dd MMM yyyy h:mm"),
 				RecentSolvers = recentSolvers,
 				TimesSolved = cipher.UserSolutions.Count,
 				TypeHintUsed = userHints.Any(x => x.HintType == HintType.Type),
