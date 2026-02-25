@@ -62,7 +62,7 @@ const PendingAnswerApproval = () => {
         console.log('Rejection reason:', rejectionReason);
        
         try {
-            await axios.put(`${API_BASE}/answer/${id}/reject`,  JSON.stringify(rejectionReason),{
+            await axios.put(`${API_BASE}/answer/${id}/reject`, JSON.stringify( rejectionReason),{
                 headers: {
                 "Content-Type": "application/json"
                 }
@@ -73,7 +73,7 @@ const PendingAnswerApproval = () => {
             console.error('Reject error:', err);
             setGlobalError(err.response?.data?.message || err.message);
         }
-    }, [id]);
+    }, [id,rejectionReason]);
 
     if (loading) {
         return (
@@ -252,7 +252,11 @@ const PendingAnswerApproval = () => {
                                                     className="form-textarea"
                                                     placeholder="Обяснете защо отговорът е неверен..."
                                                     value={rejectionReason}
-                                                    onChange={(e) => setRejectionReason(e.target.value)}
+                                                    onChange={(e) => {
+                                                        console.log(e.target.value)
+                                                        setRejectionReason(e.target.value)
+                                                        console.log(rejectionReason)
+                                                    }}
                                                     rows="3"
                                                     required
                                                 />
