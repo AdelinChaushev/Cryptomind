@@ -1,4 +1,5 @@
-﻿using Cryptomind.Common.ViewModels.AuthenticationViewModels;
+﻿using Cryptomind.Common.Exceptions;
+using Cryptomind.Common.ViewModels.AuthenticationViewModels;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -35,6 +36,10 @@ namespace Cryptomind.Controllers
 			ApplicationUser user = await authService.Authenticate(model.Email, model.Password);
 			string token = await authService.GenerateJSONWebToken(user);
 			AddCookie(token);
+			if (user.IsBanned)
+			{
+				throw new BannedException(user.BanReason);
+			}
 			return Ok(await userService.GetRolesUsers(user.Id));
 		}
 

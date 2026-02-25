@@ -17,6 +17,10 @@ public class ExceptionHandlingMiddleware
 		{
 			await _next(context);
 		}
+		catch(BannedException ex)
+		{
+            await WriteResponse(context, StatusCodes.Status403Forbidden, ex.Message);
+        }
 		catch (NotFoundException ex)
 		{
 			await WriteResponse(context, StatusCodes.Status404NotFound, ex.Message);

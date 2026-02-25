@@ -32,19 +32,19 @@ const CipherCard = ({ cipher }) => {
                 <div className="card-badges">
                     {typeBadgeClass && (
                         <span className={`badge ${typeBadgeClass}`}>
-                            {cipher.challengeTypeDisplay?? 'Unknown Type'}
+                            {cipher.challengeTypeDisplay === "Standard" ? "Стандартен" : "Експериментален" }
                         </span>
                     )}
 
                     {cipher.isImage && (
                         <span className="badge badge-image">
-                            <ImageIcon /> Image
+                            <ImageIcon /> Изображение
                         </span>
                     )}
 
                     {cipher.alreadySolved && (
                         <span className="badge badge-solved">
-                            <CheckIcon /> Solved
+                            <CheckIcon /> Решен
                         </span>
                     )}
                 </div>
