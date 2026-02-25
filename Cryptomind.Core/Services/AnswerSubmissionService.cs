@@ -66,6 +66,7 @@ namespace Cryptomind.Core.Services
 			{
 				var model = new AnswerSubmissionViewModel()
 				{
+					CipherId = answer.CipherId,
 					CipherTitle = answer.Cipher.Title,
 					SuggestedAnswer = answer.DecryptedText,
 					Status = answer.Status.ToString(),

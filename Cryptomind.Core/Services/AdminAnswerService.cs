@@ -1,4 +1,5 @@
 ﻿using Cryptomind.Common.Exceptions;
+using Cryptomind.Common.Helpers;
 using Cryptomind.Common.ViewModels.AdminViewModels;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
@@ -94,7 +95,7 @@ namespace Cryptomind.Core.Services
 				throw new Exception($"Data integrity error: user {answer.UserId} not found for answer {answer.Id}.");
 
 			var userName = user.UserName;
-		
+
 			var model = new AnswerSuggestionReviewViewModel
 			{
 				CipherId = answer.CipherId,
@@ -103,10 +104,13 @@ namespace Cryptomind.Core.Services
 				Username = userName,
 				CipherEncryptedText = answer.Cipher.EncryptedText,
 				CipherName = answer.Cipher.Title,
-                Type = answer.Cipher.TypeOfCipher.ToString()
-            };
-
-			return model;
+				
+			};
+            if (answer.Cipher.TypeOfCipher is { } typeOfCipher)
+            {
+                model.Type = CipherTypeMapperHelper.ToDisplayName(typeOfCipher);
+            }
+            return model;
 		}
 		public async Task<List<string>> ApproveAnswerAsync(int id)
 		{
