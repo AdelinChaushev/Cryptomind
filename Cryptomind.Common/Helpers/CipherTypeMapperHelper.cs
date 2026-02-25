@@ -22,7 +22,7 @@ namespace Cryptomind.Common.Helpers
 			{ CipherType.Columnar, "Колонна" },
 			{ CipherType.Route, "Маршрут" },
 			{ CipherType.Base64, "Base64" },
-			{ CipherType.Morse, "Морзе" },
+			{ CipherType.Morse, "Морзов" },
 			{ CipherType.Binary, "Двоичен" },
 			{ CipherType.Hex, "Шестнадесетичен" },
 		};

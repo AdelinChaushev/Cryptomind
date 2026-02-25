@@ -62,9 +62,6 @@ const PendingCiphers = () => {
 
             <main className="admin-main">
                 <AdminTopbar breadcrumbs={[{ label: 'Изчакващи предложения' }]}>
-                    <button className="btn btn-ghost btn-sm" id="btn-refresh-pending">
-                        Опресни
-                    </button>
                 </AdminTopbar>
 
                 <div className="admin-content">
@@ -158,9 +155,9 @@ const PendingCiphers = () => {
                                                 </td>
 
                                                 <td>
-                                                    {cipher.mlPrediction ? (
+                                                    {cipher.cipherType ? (
                                                         <span className="mono" style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                                                            {cipher.mlPrediction}
+                                                            {cipher.cipherType}
                                                         </span>
                                                     ) : (
                                                         <span style={{ color: 'var(--text-dim)', fontSize: '11px' }}>Некласифициран</span>
