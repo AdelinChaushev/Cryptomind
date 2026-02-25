@@ -5,6 +5,6 @@
 		public string DecryptedText { get; set; }
 		public string CipherEncryptedText { get; set; }
 
-        public string Family { get; set; }
+        public string Type { get; set; }
     }
 }
