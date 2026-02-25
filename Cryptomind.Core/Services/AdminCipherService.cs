@@ -552,8 +552,8 @@ namespace Cryptomind.Core.Services
 			if (cipher is ImageCipher)
 			{
 				ImageCipher cipherImage = cipher as ImageCipher;
-				string imageFolderPath = Path.Combine(PathHelper.GetImagesBasePath(), "Ciphers");
-				string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imageFolderPath))}";
+				string imagePath = Path.Combine(PathHelper.GetImagesBasePath(), cipherImage.ImagePath);
+				string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imagePath))}";
 				model.ImageBase64 = base64;
 			}
 
