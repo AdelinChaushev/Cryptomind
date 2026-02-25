@@ -39,8 +39,7 @@ function AccountInfo() {
         try {
              axios.post(`${API_BASE}/api/auth/deactivate`, {}, {
                 withCredentials: true,
-            }).then( c =>{ 
-                 setState({ roles: [], isLoggedIn: false, isBanned: false });
+            }).then( c =>{              
                  window.location.href = "/"; 
                 
                 

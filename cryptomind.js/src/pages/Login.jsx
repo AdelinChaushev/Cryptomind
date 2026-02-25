@@ -29,7 +29,7 @@ export default function Login() {
           }, 0); 
     } ).catch(e =>{ 
         if(e.response.status == 403) {
-        setState({isLoggedIn: false, roles: [], isBanned: true})
+        setState({isLoggedIn: false, roles: [], isBanned: true , bannedMessage :error.response?.data.message })
         
         }
         console.log("Login error:", e.response?.data || e.message);
