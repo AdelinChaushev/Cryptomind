@@ -172,26 +172,26 @@ namespace Cryptomind.Core.Services
                     Id = cipher.Id,
                     Title = cipher.Title,
 					CipherText = cipher.EncryptedText,
-					SubmittedTime = cipher.CreatedAt,
+					SubmittedTime = cipher.CreatedAt.ToString("ddd, dd MMM yyyy h:mm"),
 					Status = cipher.Status.ToString(),
 				};
 
 				if (cipher.IsDeleted)
 				{
 					model.Status = "CipherDeleted";
-					model.DeletedTime = cipher.DeletedAt;
+					model.DeletedTime = cipher.DeletedAt?.ToString("ddd, dd MMM yyyy h:mm");
 				}
 				else if (cipher.Status == ApprovalStatus.Approved)
 				{
-					model.ApprovedTime = cipher.ApprovedAt;
-					model.ApprovedAs = cipher.ChallengeType.ToString();
+					model.ApprovedTime = cipher.ApprovedAt?.ToString("ddd, dd MMM yyyy h:mm");
+                    model.ApprovedAs = cipher.ChallengeType.ToString();
 					model.AssignedTags = cipher.CipherTags.Select(x => x.Tag).ToList();
 					model.SolvedByCount = cipher.UserSolutions.Count(x => x.IsCorrect);
 					
 				}
 				else if (cipher.Status == ApprovalStatus.Rejected)
 				{
-					model.RejectionTime = cipher.RejectedAt;
+					model.RejectionTime = cipher.RejectedAt?.ToString("ddd, dd MMM yyyy h:mm");
 					model.RejectionReason = cipher.RejectionReason;
 				}
 

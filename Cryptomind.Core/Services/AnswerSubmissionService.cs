@@ -69,24 +69,24 @@ namespace Cryptomind.Core.Services
 					CipherTitle = answer.Cipher.Title,
 					SuggestedAnswer = answer.DecryptedText,
 					Status = answer.Status.ToString(),
-					SubmittedAt = answer.UploadedTime,
+					SubmittedAt = answer.UploadedTime.ToString("ddd, dd MMM yyyy h:mm"),
 				};
 
 				if (answer.Status == ApprovalStatus.Approved)
 				{
 					model.PointsEarned = answer.PointsEarned;
-					model.ApprovedDate = answer.ApprovalDate;
+					model.ApprovedDate = answer.ApprovalDate?.ToString("ddd, dd MMM yyyy h:mm");
 					model.CipherId = answer.CipherId;
 				}
 				else if (answer.Status == ApprovalStatus.Rejected)
 				{
 					model.RejectionReason = answer.RejectionReason;
-					model.RejectionDate = answer.RejectionDate;
+					model.RejectionDate = answer.RejectionDate?.ToString("ddd, dd MMM yyyy h:mm");
 				}
 				if (answer.Cipher.IsDeleted)
 				{
 					model.Status = "CipherDeleted";
-					model.CipherDeletedAt = answer.Cipher.DeletedAt;
+					model.CipherDeletedAt = answer.Cipher.DeletedAt?.ToString("ddd, dd MMM yyyy h:mm");
 				}
 
 				models.Add(model);
