@@ -14,7 +14,6 @@ namespace Cryptomind.Controllers
 	[ApiController]
 	public class CipherController(
 		ICipherService cipherService,
-		ICipherRecognizerService recognizerService,
 		IBadgeService badgeService,
 		IHintService hintService,
 		IOCRService ocrService,
@@ -81,17 +80,9 @@ namespace Cryptomind.Controllers
 		{
 			string? userId = GetUserId();
 
-			string hintContent = await hintService.RequestHintAsync(userId, id, request.HintType);
-			return Ok(new { hintContent });
+			var hintResult = await hintService.RequestHintAsync(userId, id, request.HintType);
+			return Ok(new { hintResult });
 		}
-
-		//[HttpGet("ml-health")]
-		//public async Task<IActionResult> CheckMLHealth()
-		//{
-		//	var isHealthy = await recognizerService.IsServiceHealthyAsync();
-		//	return Ok(new { isHealthy });
-		//}
-
 		#region Private methods
 		private string? GetUserId()
 			=> User.FindFirstValue(ClaimTypes.NameIdentifier);
