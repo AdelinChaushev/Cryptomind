@@ -2,7 +2,7 @@ import React from 'react';
 import CipherInputToggle from './CipherInputToggle';
 
 const CIPHER_TYPES = [
-    { value: '0',  label: 'Цезар',               group: 'Substitution' },
+    { value: '0',  label: 'Цезар (Caesar)',               group: 'Substitution' },
     { value: '1',  label: 'Атбаш',               group: 'Substitution' },
     { value: '2',  label: 'Проста замяна',        group: 'Substitution' },
     { value: '3',  label: 'ROT13',                group: 'Substitution' },
