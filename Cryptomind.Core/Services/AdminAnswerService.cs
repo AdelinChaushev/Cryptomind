@@ -215,7 +215,11 @@ namespace Cryptomind.Core.Services
 
 			foreach(var wrongAnswer in wrongAnswerSuggestions)
 			{
-				if (otherCorrectAnswerSuggestions.Any(x => x.UserId == wrongAnswer.UserId))
+				bool userAlsoHadCorrectAnswer =
+					firstCorrectAnswerSuggestion.UserId == wrongAnswer.UserId ||
+					otherCorrectAnswerSuggestions.Any(x => x.UserId == wrongAnswer.UserId);
+
+				if (userAlsoHadCorrectAnswer)
 					await RejectAnswer("Your other answer was approved", wrongAnswer);
 				else
 					await RejectAnswer("Another answer was approved for this cipher", wrongAnswer);
