@@ -10,7 +10,7 @@ namespace Cryptomind.Common.ViewModels.AdminViewModels
         public string SubmittedBy { get; set; }
         public string? SubmittedAt { get; set; }
         public int PercentageOfConfidence { get; set; }
-        public string? MlPrediction { get; set; }
+        public string CipherType { get; set; }
         public bool IsLLMRecommended { get; set; }
         public bool IsTypeHintAllowed { get; set; }
         public bool IsHintAllowed { get; set; }
