@@ -121,53 +121,62 @@ function CipherSolvePage() {
     return false;
 };
         const timeAgo = (dateValue) => {
-        if (!dateValue) return "—";
-        if (typeof dateValue === 'string' && dateValue.includes(':') && !dateValue.includes('-')) {
-            const parts = dateValue.split(':');
-            if (parts.length === 3) {
-                const hours = parseInt(parts[0], 10);
-                const minutes = parseInt(parts[1], 10);
-                const seconds = Math.floor(parseFloat(parts[2]));
-                
-                const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
-                if (hours > 0) return rtf.format(-hours, "hour");
-                if (minutes > 0) return rtf.format(-minutes, "minute");
-                return rtf.format(-seconds, "second");
-            }
+    if (!dateValue) return "—";
+
+    const rtf = new Intl.RelativeTimeFormat("bg", { numeric: "auto" });
+
+    // 1. Handle duration format (HH:mm:ss)
+    if (
+        typeof dateValue === "string" &&
+        dateValue.includes(":") &&
+        !dateValue.includes("-")
+    ) {
+        const parts = dateValue.split(":");
+
+        if (parts.length === 3) {
+            const hours = parseInt(parts[0], 10);
+            const minutes = parseInt(parts[1], 10);
+            const seconds = Math.floor(parseFloat(parts[2]));
+
+            if (hours > 0) return rtf.format(-hours, "hour");
+            if (minutes > 0) return rtf.format(-minutes, "minute");
+            return rtf.format(-seconds, "second");
         }
-        
-        // 2. Handle standard Date/Timestamp
-        let date = dateValue instanceof Date ? dateValue : new Date(dateValue);
-        
-        if (isNaN(date.getTime())) {
-            console.warn("Invalid date:", dateValue);
-            return "—";
-        }
-        
-        const seconds = Math.floor((new Date() - date) / 1000);
-        if (seconds < 5) return "just now";
-        
-        const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
-        
-        const intervals = [
-            { label: 'year', seconds: 31536000 },
-            { label: 'month', seconds: 2592000 },
-            { label: 'week', seconds: 604800 },
-            { label: 'day', seconds: 86400 },
-            { label: 'hour', seconds: 3600 },
-            { label: 'minute', seconds: 60 },
-            { label: 'second', seconds: 1 }
-        ];
-        
-        for (const interval of intervals) {
-            const count = Math.floor(seconds / interval.seconds);
-            if (count >= 1) {
-            return rtf.format(-count, interval.label);
-            }
-        }
-        
+    }
+
+    // 2. Handle Date / timestamp
+    const date = dateValue instanceof Date
+        ? dateValue
+        : new Date(dateValue);
+
+    if (isNaN(date.getTime())) {
+        console.warn("Invalid date:", dateValue);
         return "—";
+    }
+
+    const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+
+    if (seconds < 5) return "току-що";
+
+    const intervals = [
+        { label: "year", seconds: 31536000 },
+        { label: "month", seconds: 2592000 },
+        { label: "week", seconds: 604800 },
+        { label: "day", seconds: 86400 },
+        { label: "hour", seconds: 3600 },
+        { label: "minute", seconds: 60 },
+        { label: "second", seconds: 1 }
+    ];
+
+    for (const interval of intervals) {
+        const count = Math.floor(seconds / interval.seconds);
+        if (count >= 1) {
+            return rtf.format(-count, interval.label);
         }
+    }
+
+    return "—";
+};
     async function requestAI(mode) {
         setAiMode(mode);
         setAiLoading(true);
