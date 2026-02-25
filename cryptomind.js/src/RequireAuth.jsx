@@ -6,6 +6,9 @@ export default function RequireAuth({ allowedRoles = [], mustNotBeLogged = false
   const { state } = useContext(AuthorizationContext);
   const { isLoggedIn, roles } = state;
  console.log("isLoggedIn:", isLoggedIn, "roles:", roles, "allowedRoles:", allowedRoles);
+  // if (!allowedRoles.length && roles.length) {
+  //    return <Navigate to="/admin" replace />;
+  //  }
   if (mustNotBeLogged && isLoggedIn) {
     return <Navigate to="/" replace />;
 
@@ -20,9 +23,8 @@ export default function RequireAuth({ allowedRoles = [], mustNotBeLogged = false
    
     return <Navigate to="/login" replace />;
   }
-  // if (allowedRoles.length === 0 && roles.length != 0) {
-  //   return <Navigate to="/admin" replace />;
-  // }
+  console.log("roles" , roles.length)
+  
   const hasAccess = roles.some(role => allowedRoles.includes(role));
   if (hasAccess) {
     return children;

@@ -55,16 +55,15 @@ namespace Cryptomind.Controllers
 		}
 
 		[HttpGet("cipher/{id}")]
-		public async Task<IActionResult> GetCipher([FromRoute] int id)
+		public async Task<IActionResult> GetCipherPending([FromRoute] int id)
 		{
 			var cipher = await adminCipherService.GetCipherById(id);
-			if (cipher.Status != ApprovalStatus.Pending.ToString()) 
+			if (cipher.Status != ApprovalStatus.Pending.ToString())
 			{
-                throw new NotFoundException("Cipher not found");
-            } 
+				throw new ConflictException("Шифърът не очаква одобрение");
+			}
 			return Ok(cipher);
 		}
-
 		[HttpGet("cipher/{id}/analyze")]
 		public async Task<IActionResult> AnalyzeCipher([FromRoute] int id)
 		{
@@ -93,6 +92,7 @@ namespace Cryptomind.Controllers
 			await adminCipherService.UpdateApprovedCipher(id, model);
 			return Ok();
 		}
+
 
 		[HttpPut("cipher/{id}/delete")]
 		public async Task<IActionResult> DeleteCipher([FromRoute] int id)

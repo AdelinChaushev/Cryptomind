@@ -6,7 +6,6 @@ import '../styles/manage-ciphers.css';
 import { useError } from '../ErrorContext.jsx';
 const API_BASE = 'http://localhost:5115/api/admin';
 const AVAILABLE_TAGS = [          
-    { value: 0, label: 'Няма' ,mapValue : ''},
     { value: 1, label: 'Изображение',mapValue : 'Image'},
     { value: 2, label: 'Пъзел', mapValue : 'Puzzle' },
     { value: 3, label: 'Исторически',mapValue : 'Historical'},
@@ -79,7 +78,7 @@ const ManageApprovedCiphers = () => {
         const tags = []
         cipher.tags.forEach(c =>
         {
-             console.log(c)
+            console.log(c)
            const tag = AVAILABLE_TAGS.find(t => t.mapValue == c)
            if(tag){
             tags.push(tag.value)

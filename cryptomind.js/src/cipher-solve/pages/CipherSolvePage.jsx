@@ -47,7 +47,6 @@ function CipherSolvePage() {
         solveCount: 0,
         successfulSubmissions: 0,
         recentSolvers: [],
-        challengeTypeDisplay : "",
         tags : []
 
     });
@@ -64,7 +63,6 @@ function CipherSolvePage() {
         allowsSolutionHint: data.allowsSolutionHint,
         allowsTypeHint: data.allowsTypeHint,
         alreadySolved: data.alreadySolved,
-        challengeTypeDisplay: data.challengeTypeDisplay,
         cipherText: data.cipherText,
         fullSolutionUsed: data.fullSolutionUsed,
         imageBase64: data.imageBase64,
