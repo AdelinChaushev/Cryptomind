@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function CipherCard({ cipher, familyColor, isOpen, onToggle }) {
   const dc = diffColor(cipher.difficulty);
   const fc = cipher.color;
@@ -85,10 +87,10 @@ export default function CipherCard({ cipher, familyColor, isOpen, onToggle }) {
 
         {/* CTAs */}
         <div className="cl-cta-row">
-          <a className="cl-cta cl-cta-primary"
-            href={`/cipher-tool#${cipher.id}`}>
+          <Link className="cl-cta cl-cta-primary"
+            to={`/cipher-tool`}>
             ▶ Виж в действие
-          </a>
+          </Link>
         </div>
       </div>
     </div>

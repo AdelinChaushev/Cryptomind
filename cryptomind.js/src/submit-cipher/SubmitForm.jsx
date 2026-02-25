@@ -2,20 +2,20 @@ import React from 'react';
 import CipherInputToggle from './CipherInputToggle';
 
 const CIPHER_TYPES = [
-    { value: '0',  label: 'Цезар',               group: 'Substitution' },
-    { value: '1',  label: 'Атбаш',               group: 'Substitution' },
-    { value: '2',  label: 'Проста замяна',        group: 'Substitution' },
-    { value: '3',  label: 'ROT13',                group: 'Substitution' },
-    { value: '4',  label: 'Виженер',              group: 'Polyalphabetic' },
-    { value: '5',  label: 'Автоключ',             group: 'Polyalphabetic' },
-    { value: '6',  label: 'Тритемий',             group: 'Polyalphabetic' },
-    { value: '7',  label: 'Железопътна ограда',   group: 'Transposition' },
-    { value: '8',  label: 'Колонна',              group: 'Transposition' },
-    { value: '9',  label: 'Маршрут',              group: 'Transposition' },
-    { value: '10', label: 'Base64',               group: 'Encoding' },
-    { value: '11', label: 'Морзе',                group: 'Encoding' },
-    { value: '12', label: 'Двоичен',              group: 'Encoding' },
-    { value: '13', label: 'Шестнадесетичен',      group: 'Encoding' },
+    { value: '0',  label: 'Цезар (Caesar)',               group: 'Substitution' },
+    { value: '1',  label: 'Атбаш (Atbash)',               group: 'Substitution' },
+    { value: '2',  label: 'Проста замяна (SimpleSubstitution)',        group: 'Substitution' },
+    { value: '3',  label: 'ROT13 (ROT13)',                group: 'Substitution' },
+    { value: '4',  label: 'Виженер (Vigenere)',              group: 'Polyalphabetic' },
+    { value: '5',  label: 'Автоключ (Autokey)',             group: 'Polyalphabetic' },
+    { value: '6',  label: 'Тритемий (Trithemius)',             group: 'Polyalphabetic' },
+    { value: '7',  label: 'Железопътна ограда (RailFence)',   group: 'Transposition' },
+    { value: '8',  label: 'Колонна (Columnar)',              group: 'Transposition' },
+    { value: '9',  label: 'Маршрут (Route)',              group: 'Transposition' },
+    { value: '10', label: 'Base64 (Base64)',               group: 'Encoding' },
+    { value: '11', label: 'Морзов (Morse)',                group: 'Encoding' },
+    { value: '12', label: 'Двоичен (Binary)',              group: 'Encoding' },
+    { value: '13', label: 'Шестнадесетичен (Hex)',      group: 'Encoding' },
 ];
 
 const GROUPS = ['Substitution', 'Polyalphabetic', 'Transposition', 'Encoding'];
