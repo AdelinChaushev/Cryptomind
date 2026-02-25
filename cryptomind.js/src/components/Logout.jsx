@@ -19,7 +19,6 @@ export default function useLogout() {
 
             console.log("Logged out successfully");
 
-            setState({ isLoggedIn: false, roles: [] })
             window.location.href = "/";
 
         } catch (error) {
