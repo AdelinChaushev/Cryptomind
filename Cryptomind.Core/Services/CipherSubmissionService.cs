@@ -1,5 +1,6 @@
 ﻿using Cryptomind.Common.Enums;
 using Cryptomind.Common.Exceptions;
+using Cryptomind.Common.Helpers;
 using Cryptomind.Common.ViewModels.CipherSubmissionViewModels;
 using Cryptomind.Common.ViewModels.CipherViewModels;
 using Cryptomind.Core.Contracts;
@@ -78,8 +79,7 @@ namespace Cryptomind.Core.Services
 
 				encryptedTextForAnalysis = finalText;
 
-				string imageFolderPath = Path.GetFullPath(Path.Combine(
-				AppContext.BaseDirectory, "..", "..", "..", "..", "Images/Ciphers"));
+				string imageFolderPath = Path.Combine(PathHelper.GetImagesBasePath(), "Ciphers");
 				Directory.CreateDirectory(imageFolderPath);
 				string originalExtension = Path.GetExtension(model.Image.FileName).ToLowerInvariant();
 				string safeTitle = MakeSafeFilename(model.Title);
@@ -93,7 +93,7 @@ namespace Cryptomind.Core.Services
 					}
 				}
 
-				string relativePath = Path.Combine("Images/Ciphers", safeTitle + originalExtension);
+				string relativePath = Path.Combine("Ciphers", safeTitle + originalExtension);
 
 				if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.EncryptedText == finalText) != null)
 					throw new ConflictException("There is already a cipher like this");
