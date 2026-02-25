@@ -259,7 +259,7 @@ namespace Cryptomind.Core.Services
 			await notificationService.CreateAndSendNotification(
 				answer.UserId, 
 				NotificationType.AnswerRejected, 
-				reason,
+				$"Вашият отговор беше отхвърлен: {reason}",
                 "my_submissions");
 		}
         
