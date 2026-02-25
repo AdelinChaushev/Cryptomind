@@ -58,6 +58,7 @@ services:
       - "1433:1433"
     volumes:
       - sqlserver-data:/var/opt/mssql
+      - cipher-images:/app/Images
     networks:
       - cryptomind-network
     healthcheck:
@@ -74,3 +75,4 @@ networks:
 volumes:
   sqlserver-data:
   ocr-uploads:
+  cipher-images:
