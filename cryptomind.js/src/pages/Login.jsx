@@ -25,18 +25,17 @@ export default function Login() {
     }).then(res => {
       setState({isLoggedIn: true,roles: res.data});
      setTimeout(() => {
-            navigate('/');
+            navigate('/banned');
           }, 0); 
-    } ).catch(e =>{ 
-        if(e.response.status == 403) {
-        setState({isLoggedIn: false, roles: [], isBanned: true , bannedMessage :error.response?.data.message })
-        
-        }
-        console.log("Login error:", e.response?.data || e.message);
-         setState({isLoggedIn: false, roles: []})
-         setError(e.response?.data?.title || 'Влизането е неуспешно. Моля, проверете данните си и опитайте отново.');
-         }
-    );   
+    } ).catch(error => {  
+    if (error.response?.status === 403) {
+        setState({ isLoggedIn: false, roles: [], isBanned: true, bannedMessage: error.response?.data?.error });
+        navigate("/banned");
+        return;
+    }
+    setState({ isLoggedIn: false, roles: [] });
+    setError(error.response?.data?.title || 'Влизането е неуспешно. Моля, проверете данните си и опитайте отново.');
+});
     
    }
     return (
