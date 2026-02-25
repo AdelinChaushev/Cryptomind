@@ -73,7 +73,7 @@ function App() {
     <NotificationContext.Provider value={notifications}>
     <Routes >
       <Route path="/banned" element={<RequireNotBanned><BannedPage/></RequireNotBanned>} />
-      
+      <Route path="*" element={<NotFoundPage />} />
       <Route path="/" element={<RequireNotBanned mustNotBeBanned={true}><Layout /></RequireNotBanned>}>
         <Route path="login" element={<RequireAuth mustNotBeLogged={true} ><Login /></RequireAuth>} />
         <Route path="register" element={<RequireAuth mustNotBeLogged={true}><Register /></RequireAuth>} />    
@@ -96,7 +96,7 @@ function App() {
         <Route path="admin/users" element={<RequireAuth allowedRoles="Admin" ><UsersManagement /></RequireAuth>} />
         <Route path="admin/deleted-ciphers" element={<RequireAuth allowedRoles="Admin" ><DeletedCiphers /></RequireAuth>} />
         {!state.isLoggedIn ?(<Route index element={<Home/>} />) : (<Route index element={<RequireAuth ><CipherBrowsePage/></RequireAuth>}  />)}  
-        <Route path="*" element={<NotFoundPage />} />
+        
         
       </Route>
     </Routes>

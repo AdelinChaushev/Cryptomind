@@ -148,6 +148,7 @@ const PendingAnswers = () => {
                                         <th>Шифър</th>
                                         <th>Описание</th>
                                         <th>Предложен от</th>
+                                        <th>Дата</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -159,14 +160,15 @@ const PendingAnswers = () => {
                                             </td>
 
                                             <td>
-                                                <a
-                                                    href={`/cipher/${answer.cipherId}`}
-                                                    className="cipher-ref"
-                                                    target="_blank"
-                                                    rel="noreferrer">
+                                                <p
+                                                    // href={`/cipher/${answer.cipherId}`}
+                                                    // className="cipher-ref"
+                                                    // target="_blank"
+                                                    // rel="noreferrer"
+                                                >
                                                 
                                                     {answer.cipherName || `Шифър #${answer.cipherId}`}
-                                                </a>
+                                                </p>
                                             </td>
 
                                             <td>
@@ -178,7 +180,9 @@ const PendingAnswers = () => {
                                             <td className="mono" style={{ fontSize: '12px' }}>
                                                 {answer.username}
                                             </td>
-
+                                             <td className="mono" style={{ fontSize: '12px' }}>
+                                                 {answer.submittedAt}
+                                             </td>
                                             <td>
                                                 <Link
                                                     to={`/admin/answer-review/${answer.id}`}
