@@ -17,3 +17,4 @@ COPY --from=build /app/publish .
 COPY --from=build /app/Images ./Images
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "Cryptomind.dll"]
+RUN mkdir -p Images/Ciphers Images/Badges
