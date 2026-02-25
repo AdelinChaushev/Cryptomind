@@ -6,6 +6,7 @@ using Cryptomind.Common.ViewModels.UserViewModels;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
+using Cryptomind.Common.Helpers;
 using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -17,10 +18,6 @@ namespace Cryptomind.Core.Services
 		IRepository<UserSolution, int> solutionRepo,
 		UserManager<ApplicationUser> userManager) : ICipherService
 	{
-		private const double TypeHintPenalty = 0.20;
-		private const double SolutionHintPenalty = 0.30;
-		private const double FullSolutionHintPenalty = 0.40;
-
 		public async Task<List<CipherOutputViewModel>> GetApprovedAsync(CipherFilter filter, string userId)
 		{
 			IQueryable<Cipher> query = cipherRepo.GetAllAttached()
@@ -152,7 +149,7 @@ namespace Cryptomind.Core.Services
 
 			if (isCorrect) // The answer is correct
 			{
-				int pointsEarned = CalculatePointsWithPenalty(
+				int pointsEarned = CalculatePointsHelper.CalculateAvailablePointsWithPenalty(
 					cipher.Points,
 					usedTypeHint,
 					usedSolutionHint,
@@ -224,6 +221,16 @@ namespace Cryptomind.Core.Services
 				recentSolvers.Add(cipherSolver);
 			}
 
+			bool usedTypeHint = userHints.Any(h => h.HintType == HintType.Type);
+			bool usedSolutionHint = userHints.Any(h => h.HintType == HintType.Hint);
+			bool usedFullSolution = userHints.Any(h => h.HintType == HintType.FullSolution);
+
+			var availablePoints = CalculatePointsHelper.CalculateAvailablePointsWithPenalty(
+					cipher.Points,
+					usedTypeHint,
+					usedSolutionHint,
+					usedFullSolution);
+
 			var model = new CipherDetailedOutputViewModel
 			{
 				Id = cipher.Id,
@@ -231,7 +238,7 @@ namespace Cryptomind.Core.Services
 				CipherText = cipher.EncryptedText,
 				SolvedUsersCount = cipher.UserSolutions.Count,
 				AlreadySolved = cipher.UserSolutions.FirstOrDefault(x => x.UserId == userId) != null,
-				Points = cipher.Points,
+				Points = availablePoints,
 				IsImage = cipher is ImageCipher,
 				SuccessRate = successRate,
 				AllowsAnswer = cipher.AllowSolution,
@@ -265,25 +272,6 @@ namespace Cryptomind.Core.Services
 				model.ImageBase64 = base64;
 			}
 			return model;
-		}
-		private int CalculatePointsWithPenalty(
-			int basePoints,
-			bool usedTypeHint,
-			bool usedSolutionHint,
-			bool usedFullSolution)
-		{
-			double multiplier = 1.0;
-
-			if (usedTypeHint)
-				multiplier -= TypeHintPenalty; //-20%
-
-			if (usedSolutionHint)
-				multiplier -= SolutionHintPenalty; //-30%
-
-			if (usedFullSolution)
-				multiplier -= FullSolutionHintPenalty; //-40%
-
-			return (int)Math.Max(0, basePoints * multiplier);
 		}
 		private TimeSpan GetTimeSpan(DateTime solvedAt)
 		{

@@ -1,4 +1,6 @@
-﻿using Cryptomind.Common.Exceptions;
+﻿using Cryptomind.Common.DTOs;
+using Cryptomind.Common.Exceptions;
+using Cryptomind.Common.Helpers;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
@@ -13,7 +15,10 @@ namespace Cryptomind.Core.Services
 		ILLMService llmService
 		) : IHintService
 	{
-		public async Task<string> RequestHintAsync(string userId, int cipherId, HintType hintType)
+		private const double TypeHintPenalty = 0.20;
+		private const double SolutionHintPenalty = 0.30;
+		private const double FullSolutionHintPenalty = 0.40;
+		public async Task<HintResultDTO> RequestHintAsync(string userId, int cipherId, HintType hintType)
 		{
 			var cipher = await cipherRepo.GetAllAttached()
 				.Include(x => x.HintsRequested)
@@ -23,6 +28,23 @@ namespace Cryptomind.Core.Services
 
 			if (cipher == null)
 				throw new NotFoundException("Cipher not found");
+
+			var userHints = cipher.HintsRequested
+					.Where(x => x.UserId == userId)
+					.OrderBy(x => x.HintType)
+					.ToList();
+
+			string hintContent = string.Empty;
+			bool usedTypeHint = userHints.Any(h => h.HintType == HintType.Type);
+			bool usedSolutionHint = userHints.Any(h => h.HintType == HintType.Hint);
+			bool usedFullSolution = userHints.Any(h => h.HintType == HintType.FullSolution);
+
+			var availablePoints = CalculatePointsHelper.CalculateAvailablePointsWithPenalty(
+					cipher.Points,
+					usedTypeHint,
+					usedSolutionHint,
+					usedFullSolution);
+
 
 			if (cipher.CreatedByUserId == userId)
 				throw new ConflictException("You cannot request hints for your own cipher");
@@ -44,15 +66,23 @@ namespace Cryptomind.Core.Services
 			var existingHint = cipher.HintsRequested
 					.FirstOrDefault(hr => hr.UserId == userId && hr.HintType == hintType);
 
-			if (existingHint != null) // User already requested this hint before - return the same content
-				return existingHint.HintContent;
-
+			if (existingHint != null)
+			{
+				return new HintResultDTO
+				{
+					HintContent = existingHint.HintContent,
+					AvailablePoints = availablePoints
+				};
+			}
 			string cachedHint = GetCachedHint(cipher, hintType);
 
 			if (!string.IsNullOrEmpty(cachedHint))
-				return cachedHint;
-
-			string hintContent = await llmService.GetHint(cipher, hintType);
+				hintContent = cachedHint;
+			else
+			{
+				hintContent = await llmService.GetHint(cipher, hintType);
+				SetCachedHint(cipher, hintType, hintContent);
+			}
 
 			var hintRequest = new HintRequest
 			{
@@ -63,11 +93,16 @@ namespace Cryptomind.Core.Services
 				HintContent = hintContent,
 			};
 
-			SetCachedHint(cipher, hintType, hintContent);
+
+			availablePoints = CalculateNewPointsWithPenalty(availablePoints, hintType);
 
 			await hintRequestRepo.AddAsync(hintRequest);
 			await cipherRepo.UpdateAsync(cipher);
-			return hintContent;
+			return new HintResultDTO
+			{
+				HintContent = hintContent,
+				AvailablePoints = availablePoints
+			};
 		}
 
 		#region Private methods
@@ -78,7 +113,17 @@ namespace Cryptomind.Core.Services
 			HintType.FullSolution => cipher.LLMData.CachedSolution,
 			_ => null
 		};
-
+		private int CalculateNewPointsWithPenalty(int basePoints, HintType hintType)
+		{
+			double penalty = hintType switch
+			{
+				HintType.Type => TypeHintPenalty,
+				HintType.Hint => SolutionHintPenalty,
+				HintType.FullSolution => FullSolutionHintPenalty,
+				_ => 0
+			};
+			return (int)Math.Max(0, basePoints * (1.0 - penalty));
+		}
 		private void SetCachedHint(Cipher cipher, HintType hintType, string content)
 		{
 			switch (hintType)
