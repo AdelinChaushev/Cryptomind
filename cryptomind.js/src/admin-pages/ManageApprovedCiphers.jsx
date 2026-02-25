@@ -5,15 +5,15 @@ import AdminTopbar from './AdminTopbar';
 import '../styles/manage-ciphers.css';
 import { useError } from '../ErrorContext.jsx';
 const API_BASE = 'http://localhost:5115/api/admin';
-const AVAILABLE_TAGS = [
-    { value: 0, label: 'Няма' },
-    { value: 1, label: 'Изображение' },
-    { value: 2, label: 'Пъзел' },
-    { value: 3, label: 'Исторически' },
-    { value: 4, label: 'Кратък' },
-    { value: 5, label: 'Дълъг' },
-    { value: 6, label: 'Подходящ за начинаещи' },
-    { value: 7, label: 'Труден' },
+const AVAILABLE_TAGS = [          
+    { value: 0, label: 'Няма' ,mapValue : ''},
+    { value: 1, label: 'Изображение',mapValue : 'Image'},
+    { value: 2, label: 'Пъзел', mapValue : 'Puzzle' },
+    { value: 3, label: 'Исторически',mapValue : 'Historical'},
+    { value: 4, label: 'Кратък',mapValue : 'Short'},
+    { value: 5, label: 'Дълъг' ,mapValue : 'Long'},
+    { value: 6, label: 'Подходящ за начинаещи' , mapValue : 'Beginner_Friendly'},
+    { value: 7, label: 'Труден', mapValue : 'Tricky'},
 ];
 axios.defaults.withCredentials = true;
 
@@ -76,7 +76,18 @@ const ManageApprovedCiphers = () => {
         setEditAllowTypeHint(cipher.isTypeHintAllowed ?? false);
         setEditAllowHint(cipher.isHintAllowed ?? false);
         setEditAllowSolution(cipher.isSolutionAllowed ?? false);
-        setEditSelectedTags([]);
+        const tags = []
+        cipher.tags.forEach(c =>
+        {
+             console.log(c)
+           const tag = AVAILABLE_TAGS.find(t => t.mapValue == c)
+           if(tag){
+            tags.push(tag.value)
+           }
+        }
+        )
+        console.log(tags)
+        setEditSelectedTags(tags);
     }, []);
 
     const closeEditModal = useCallback(() => {
