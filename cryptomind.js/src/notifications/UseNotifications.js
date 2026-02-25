@@ -78,7 +78,7 @@ function resolveLink(notification) {
         case 8: // AnswerCipherRestored
             return '/my-submissions';
         case 9: // BadgeEarned
-            return '/profile#badges';
+            return '/profile';
         default:
             return null;
     }
