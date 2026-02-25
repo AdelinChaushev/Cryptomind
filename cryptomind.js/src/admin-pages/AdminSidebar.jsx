@@ -68,16 +68,12 @@ const AdminSidebar = ({ activePage }) => {
                         <span className="sidebar-user-role">АДМИН</span>
                     </div>
                 </div>
-                {/* <nav className="sidebar-nav" style={{ marginTop: '4px' }}>
-                    <a href="/" className="sidebar-link">
-                        <span className="link-icon"><HomeIcon /></span>
-                        Към сайта
-                    </a>
+                {
                     <Link to="/logout" className="sidebar-link">
                         <span className="link-icon"><LogoutIcon /></span>
                         Изход
                     </Link>
-                </nav> */}
+                }
             </div>
         </aside>
     );

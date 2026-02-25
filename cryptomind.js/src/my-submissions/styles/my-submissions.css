@@ -390,6 +390,8 @@ body {
     border: 1px solid var(--border-default);
     border-left: 2px solid var(--border-default);
     border-radius: 0 7px 7px 0;
+    word-break: break-all; /* Important for long Base64 strings */
+    overflow-wrap: break-word;
 }
 .card-description.border-emerald { border-left-color: rgba(16, 185, 129, 0.5); }
 .card-description.border-yellow  { border-left-color: rgba(251, 191, 36, 0.5); }
