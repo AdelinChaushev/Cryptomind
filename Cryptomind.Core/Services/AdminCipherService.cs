@@ -465,8 +465,7 @@ namespace Cryptomind.Core.Services
 		private async Task DefineTagsAsync (Cipher cipher, List<int> tagIds)
 		{
 			List<Tag> assignedExistingTags = (await tagRepo.GetAllAsync())
-				.Where(x => tagIds.Contains(x.Id) 
-				&& !x.CipherTags.Select(c => c.TagId).ToList().Contains(x.Id))
+				.Where(x => tagIds.Contains(x.Id))
 				.ToList();
 
 			//ADD THIS IN PRODUCTION!!! - Check it first.
