@@ -10,7 +10,7 @@ const AnswerCard = ({
     rejectionReason,
     pointsEarned,
     onViewCipher,
-    onViewDetails,
+    
 }) => {
     const isCipherRemoved = status === 'cipher_removed';
      
@@ -103,14 +103,9 @@ const AnswerCard = ({
                         )}
                     </div>
                     <div className="card-footer-right">
-                        {status === 'approved' && (
-                            <button className="btn-card-action" onClick={onViewCipher}>
+                        {status === 'approved' || status === 'rejected' || status == 'pending' && (
+                            <button className="btn-card-action" onClick={ onViewCipher}>
                                 Виж шифъра
-                            </button>
-                        )}
-                        {status !== 'approved' && (
-                            <button className="btn-card-action" onClick={onViewDetails}>
-                                Виж детайли
                             </button>
                         )}
                     </div>

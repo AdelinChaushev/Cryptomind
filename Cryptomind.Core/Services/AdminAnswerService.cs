@@ -6,6 +6,8 @@ using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text.Json;
 
 namespace Cryptomind.Core.Services
 {
@@ -92,7 +94,7 @@ namespace Cryptomind.Core.Services
 				throw new Exception($"Data integrity error: user {answer.UserId} not found for answer {answer.Id}.");
 
 			var userName = user.UserName;
-
+			var mlData = Deserialize(answer.Cipher.MLPrediction);
 			var model = new AnswerSuggestionReviewViewModel
 			{
 				CipherId = answer.CipherId,
@@ -101,7 +103,8 @@ namespace Cryptomind.Core.Services
 				Username = userName,
 				CipherEncryptedText = answer.Cipher.EncryptedText,
 				CipherName = answer.Cipher.Title,
-			};
+                Type = mlData.Type
+            };
 
 			return model;
 		}
@@ -255,6 +258,19 @@ namespace Cryptomind.Core.Services
 				reason,
                 "my_submissions");
 		}
-		#endregion
-	}
+        private MlPredictionType Deserialize(string mlPrediction)
+        {
+            MlPredictionType mlData = new MlPredictionType();
+            if (!mlPrediction.IsNullOrEmpty())
+            {
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                mlData = JsonSerializer.Deserialize<MlPredictionType>(mlPrediction, options);
+            }
+            return mlData;
+        }
+        #endregion
+    }
 }
