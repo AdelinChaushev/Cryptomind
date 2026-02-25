@@ -55,7 +55,7 @@ namespace Cryptomind.Controllers
 		}
 
 		[HttpGet("cipher/{id}")]
-		public async Task<IActionResult> GetCipherPending([FromRoute] int id)
+		public async Task<IActionResult> GetCipher([FromRoute] int id)
 		{
 			var cipher = await adminCipherService.GetCipherById(id);
 			if (cipher.Status != ApprovalStatus.Pending.ToString())

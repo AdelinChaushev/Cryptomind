@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import '../styles/notifications-page.css';
 
-import { useNotifications, NotificationType } from './UseNotifications';
+import { NotificationType } from './UseNotifications';
+import { useNotificationContext } from '../App.jsx';
 import NotificationItem from './NotificationItem';
 
 const FILTERS = [
@@ -17,6 +18,7 @@ const CIPHER_TYPES = new Set([
     NotificationType.CipherRejected,
     NotificationType.CipherDeleted,
     NotificationType.CipherRestored,
+    NotificationType.CipherUpdated
 ]);
 
 const ANSWER_TYPES = new Set([
@@ -88,14 +90,13 @@ const Skeleton = () => (
 
 const NotificationsPage = () => {
     const [activeFilter, setActiveFilter] = useState('all');
-
     const {
         notifications,
         unreadCount,
         isLoading,
         markAllAsRead,
         handleNotificationClick,
-    } = useNotifications();
+    } = useNotificationContext();
 
     const filtered = notifications.filter(n => matchesFilter(n, activeFilter));
     const groups   = groupNotifications(filtered);

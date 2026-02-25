@@ -490,17 +490,7 @@ namespace Cryptomind.Core.Services
 			List<CipherReviewOutputViewModel> output = new List<CipherReviewOutputViewModel>();
 			foreach (var cipher in result)
 			{
-				MlPredictionType mlData = new MlPredictionType();
-
-				if (!cipher.MLPrediction.IsNullOrEmpty())
-				{
-                    var options = new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    };
-                    mlData = JsonSerializer.Deserialize<MlPredictionType>(cipher.MLPrediction, options);
-                }
-
+                MlPredictionType mlData = Deserialize(cipher.MLPrediction);
                 string challengeType = !cipher.IsDeleted ? cipher.ChallengeType.ToString() : "CipherDeleted";
 
 				if (cipher.CreatedByUser == null)
@@ -517,7 +507,7 @@ namespace Cryptomind.Core.Services
 					Tags = cipher.CipherTags.Select(x => x.Tag.Type.ToString()).ToList(),
 					SubmittedBy = cipher.CreatedByUser.UserName,
 					SubmittedAt = (int)cipher.Status == 1 ? (cipher.ApprovedAt?.ToString("ddd, dd MMM yyyy h:mm")):(int)cipher.Status == 0 ? cipher.CreatedAt.ToString("ddd, dd MMM yyyy h:mm") : cipher.DeletedAt?.ToString("ddd, dd MMM yyyy h:mm"),
-					MlPrediction = mlData.Type,
+                    MlPrediction = mlData.Type,
                     PercentageOfConfidence = (int)Math.Floor(mlData.Confidence * 100),
 					IsLLMRecommended = cipher.IsLLMRecommended,                   
                 });
@@ -526,15 +516,8 @@ namespace Cryptomind.Core.Services
 		}
 		private async Task<CipherDetailedReviewOutputViewModel> ToDetailedReviewOutputViewModel(Cipher cipher)
         {
-            MlPredictionType mlData = new MlPredictionType();
-            if (!cipher.MLPrediction.IsNullOrEmpty())
-            {
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                };
-                mlData = JsonSerializer.Deserialize<MlPredictionType>(cipher.MLPrediction, options);
-            }
+            MlPredictionType mlData = Deserialize(cipher.MLPrediction);
+           
 			int cipherType = cipher.TypeOfCipher.HasValue ? (int)cipher.TypeOfCipher.Value : -1;
 			var model = new CipherDetailedReviewOutputViewModel()
 			{
@@ -554,7 +537,7 @@ namespace Cryptomind.Core.Services
 				IsImage = cipher is ImageCipher,
 				SubmittedBy = cipher.CreatedByUser.UserName,
 				SubmittedAt = (int)cipher.Status == 1 ? (cipher.ApprovedAt?.ToString("ddd, dd MMM yyyy h:mm")) : (int)cipher.Status == 0 ? cipher.CreatedAt.ToString("ddd, dd MMM yyyy h:mm") : cipher.DeletedAt?.ToString("ddd, dd MMM yyyy h:mm"),
-				MlPrediction = mlData.Family,
+				MlPrediction = mlData.Type,
 				PercentageOfConfidence = (int)Math.Floor(mlData.Confidence * 100)
 			};
 
@@ -569,6 +552,19 @@ namespace Cryptomind.Core.Services
 			return model;
 		}
         #endregion
+		private MlPredictionType Deserialize(string mlPrediction)
+		{
+            MlPredictionType mlData = new MlPredictionType();
+            if (!mlPrediction.IsNullOrEmpty())
+            {
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                mlData = JsonSerializer.Deserialize<MlPredictionType>(mlPrediction, options);
+            }
+			return mlData;
+        }
         public class MlPredictionType
         {
             public string Family { get; set; }
