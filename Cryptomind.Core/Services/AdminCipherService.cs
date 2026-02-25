@@ -1,6 +1,7 @@
 ﻿using Cryptomind.Common.DTOs;
 using Cryptomind.Common.Enums;
 using Cryptomind.Common.Exceptions;
+using Cryptomind.Common.Helpers;
 using Cryptomind.Common.ViewModels.AdminViewModels;
 using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
 using Cryptomind.Core.Contracts;
@@ -86,7 +87,7 @@ namespace Cryptomind.Core.Services
 			if (!result.Any())
 				return new List<CipherReviewOutputViewModel>();
 
-			return ToReviewOutputViewModelMany(result);
+			return ToReviewOutputViewModelMany(result, true);
 		}
 		public async Task<List<CipherReviewOutputViewModel>> AllApprovedCiphers(CipherFilter filter)
 		{
@@ -133,7 +134,7 @@ namespace Cryptomind.Core.Services
                     break;
             }
 
-			return ToReviewOutputViewModelMany(result);
+			return ToReviewOutputViewModelMany(result, false);
         }
 		public async Task<List<CipherReviewOutputViewModel>> AllDeletedCiphers(CipherFilter filter)
 		{
@@ -178,7 +179,7 @@ namespace Cryptomind.Core.Services
                     break;
             }
 
-			return ToReviewOutputViewModelMany(result);
+			return ToReviewOutputViewModelMany(result, false);
 		}
 		public async Task<CipherDetailedReviewOutputViewModel> GetCipherById(int id) 
 		{
@@ -200,6 +201,9 @@ namespace Cryptomind.Core.Services
 
 			if (cipher == null)
 				throw new NotFoundException("Ciper not found");
+
+			if (cipher.Status != ApprovalStatus.Pending)
+				throw new ConflictException("You can only analyze ciphers which are in pending state");
 
 			if (cipher.IsDeleted)
 				throw new ConflictException("This cipher is deleted.");
@@ -259,8 +263,8 @@ namespace Cryptomind.Core.Services
 				throw new NotFoundException("Cipher not found");
 			else if (cipher.IsDeleted)
 				throw new ConflictException("Cipher is deleted");
-			else if (cipher.Status == ApprovalStatus.Approved)
-				throw new ConflictException("Cipher is already approved");
+			else if (cipher.Status != ApprovalStatus.Pending)
+				throw new ConflictException("Can approve only pending ciphers");
 
 			string userId = cipher.CreatedByUserId;
 
@@ -485,7 +489,7 @@ namespace Cryptomind.Core.Services
 				});
 			}
 		}
-		private List<CipherReviewOutputViewModel> ToReviewOutputViewModelMany(List<Cipher> result)
+		private List<CipherReviewOutputViewModel> ToReviewOutputViewModelMany(List<Cipher> result, bool useMlPrediction = false)
 		{
 			List<CipherReviewOutputViewModel> output = new List<CipherReviewOutputViewModel>();
 			foreach (var cipher in result)
@@ -495,6 +499,10 @@ namespace Cryptomind.Core.Services
 
 				if (cipher.CreatedByUser == null)
 					throw new Exception($"Data integrity error: user {cipher.CreatedByUserId} not found for cipher {cipher.Id}.");
+
+				CipherType? cipherType = useMlPrediction
+					? Enum.Parse<CipherType>(mlData.Type)
+					: cipher.TypeOfCipher;
 
 				output.Add(new CipherReviewOutputViewModel
 				{
@@ -507,7 +515,7 @@ namespace Cryptomind.Core.Services
 					Tags = cipher.CipherTags.Select(x => x.Tag.Type.ToString()).ToList(),
 					SubmittedBy = cipher.CreatedByUser.UserName,
 					SubmittedAt = (int)cipher.Status == 1 ? (cipher.ApprovedAt?.ToString("ddd, dd MMM yyyy h:mm")):(int)cipher.Status == 0 ? cipher.CreatedAt.ToString("ddd, dd MMM yyyy h:mm") : cipher.DeletedAt?.ToString("ddd, dd MMM yyyy h:mm"),
-                    MlPrediction = mlData.Type,
+					CipherType = cipherType.HasValue ? CipherTypeMapperHelper.ToDisplayName(cipherType.Value) : null,
                     PercentageOfConfidence = (int)Math.Floor(mlData.Confidence * 100),
 					IsLLMRecommended = cipher.IsLLMRecommended,                   
                 });
@@ -537,14 +545,14 @@ namespace Cryptomind.Core.Services
 				IsImage = cipher is ImageCipher,
 				SubmittedBy = cipher.CreatedByUser.UserName,
 				SubmittedAt = (int)cipher.Status == 1 ? (cipher.ApprovedAt?.ToString("ddd, dd MMM yyyy h:mm")) : (int)cipher.Status == 0 ? cipher.CreatedAt.ToString("ddd, dd MMM yyyy h:mm") : cipher.DeletedAt?.ToString("ddd, dd MMM yyyy h:mm"),
-				MlPrediction = mlData.Type,
+				CipherType = CipherTypeMapperHelper.ToDisplayName(Enum.Parse<CipherType>(mlData.Type)),
 				PercentageOfConfidence = (int)Math.Floor(mlData.Confidence * 100)
 			};
 
 			if (cipher is ImageCipher)
 			{
 				ImageCipher cipherImage = cipher as ImageCipher;
-				string imageFolderPath = Path.Combine(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..")), cipherImage.ImagePath);
+				string imageFolderPath = Path.Combine(PathHelper.GetImagesBasePath(), "Ciphers");
 				string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imageFolderPath))}";
 				model.ImageBase64 = base64;
 			}
