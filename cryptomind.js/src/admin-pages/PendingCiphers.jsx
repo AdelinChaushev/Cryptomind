@@ -62,9 +62,6 @@ const PendingCiphers = () => {
 
             <main className="admin-main">
                 <AdminTopbar breadcrumbs={[{ label: 'Изчакващи предложения' }]}>
-                    <button className="btn btn-ghost btn-sm" id="btn-refresh-pending">
-                        Опресни
-                    </button>
                 </AdminTopbar>
 
                 <div className="admin-content">
