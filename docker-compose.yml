@@ -16,6 +16,8 @@ services:
       dockerfile: Cryptomind/Dockerfile
     ports:
       - "5115:8080"
+    volumes:
+      - cipher-images:/app/Images
     environment:
     - ASPNETCORE_ENVIRONMENT=Production
     - ASPNETCORE_URLS=http://+:8080
@@ -58,7 +60,6 @@ services:
       - "1433:1433"
     volumes:
       - sqlserver-data:/var/opt/mssql
-      - cipher-images:/app/Images
     networks:
       - cryptomind-network
     healthcheck:
