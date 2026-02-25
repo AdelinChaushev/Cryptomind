@@ -25,8 +25,8 @@ const AnswerSuggestionsList = ({ answers = [], onViewCipher, onViewDetails }) =>
                     suggestedAt={answer.submittedAt}
                     description={answer.suggestedAnswer}
                     pointsEarned={answer.pointsEarned}
-                    onViewCipher={() => onViewCipher(answer.id)}
-                    onViewDetails={() => onViewDetails(answer.id)}
+                    onViewCipher={() => onViewCipher(answer.cipherId)}
+                    onViewDetails={() => onViewDetails(answer.cipherId)}
                 />
             ))}
         </div>

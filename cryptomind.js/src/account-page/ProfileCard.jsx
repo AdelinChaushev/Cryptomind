@@ -21,7 +21,7 @@ function ProfileCard({ user, onDeactivate, deactivating }) {
                     {getInitial(user.username)}
                 </div>
                 <div className="profile-name">{user.username}</div>
-                <div className={`profile-role-badge ${isAdmin ? 'admin' : 'user'}`}>
+                <div className={`profile-role-badge ${isAdmin ? 'Администратор' : 'Потребител'}`}>
                     <span className="profile-role-dot" />
                     {isAdmin ? 'Администратор' : 'Потребител'}
                 </div>
@@ -45,8 +45,8 @@ function ProfileCard({ user, onDeactivate, deactivating }) {
                 <div className="meta-row">
                     <span className="meta-icon">🔐</span>
                     <div className="meta-content">
-                        <div className="meta-label">Роли</div>
-                        <div className="meta-value">{user.roles?.join(', ')}</div>
+                        <div className="meta-label">Роля</div>
+                        <div className="meta-value">{isAdmin ? "Администратор" : "Потребител"}</div>
                     </div>
                 </div>
             </div>
