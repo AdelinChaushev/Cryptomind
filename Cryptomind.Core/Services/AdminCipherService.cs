@@ -10,6 +10,7 @@ using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Text.Json;
 using static Cryptomind.Core.Services.LLMService;
 
@@ -52,7 +53,7 @@ namespace Cryptomind.Core.Services
 					Id = x.Id,
 					CreatedBy = x.CreatedByUser.UserName,
 					Title = x.Title,
-					SubmittedAt = x.CreatedAt,
+					SubmittedAt = x.CreatedAt.ToString("ddd, dd MMM yyyy h:mm"),
 				})
 				.ToListAsync();
 		}
@@ -183,7 +184,7 @@ namespace Cryptomind.Core.Services
 		{
 			Cipher? cipher = await cipherRepo.GetAllAttached()
 				.Include(x => x.CreatedByUser)
-				.FirstOrDefaultAsync(x => x.Id == id && x.Status == ApprovalStatus.Pending );
+				.FirstOrDefaultAsync(x => x.Id == id );
 
 			if (cipher == null)
 				throw new NotFoundException("Cipher not found");
@@ -338,7 +339,9 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task UpdateApprovedCipher(int id, UpdateCipherViewModel model)
 		{
-			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
+			Cipher? cipher = await cipherRepo.GetAllAttached()
+				.Include(c => c.CipherTags)
+				.FirstOrDefaultAsync(c => c.Id == id);
 
 			if (cipher == null) 
 				throw new NotFoundException("Cipher not found");
@@ -462,7 +465,8 @@ namespace Cryptomind.Core.Services
 		private async Task DefineTagsAsync (Cipher cipher, List<int> tagIds)
 		{
 			List<Tag> assignedExistingTags = (await tagRepo.GetAllAsync())
-				.Where(x => tagIds.Contains(x.Id))
+				.Where(x => tagIds.Contains(x.Id) 
+				&& !x.CipherTags.Select(c => c.TagId).ToList().Contains(x.Id))
 				.ToList();
 
 			//ADD THIS IN PRODUCTION!!! - Check it first.
@@ -513,7 +517,7 @@ namespace Cryptomind.Core.Services
 					IsSolutionAllowed = cipher.AllowSolution,
 					Tags = cipher.CipherTags.Select(x => x.Tag.Type.ToString()).ToList(),
 					SubmittedBy = cipher.CreatedByUser.UserName,
-					SubmittedAt = (int)cipher.Status == 1 ? cipher.ApprovedAt : (int)cipher.Status == 0 ? cipher.CreatedAt : cipher.RejectedAt,
+					SubmittedAt = (int)cipher.Status == 1 ? (cipher.ApprovedAt?.ToString("ddd, dd MMM yyyy h:mm")):(int)cipher.Status == 0 ? cipher.CreatedAt.ToString("ddd, dd MMM yyyy h:mm") : cipher.DeletedAt?.ToString("ddd, dd MMM yyyy h:mm"),
 					MlPrediction = mlData.Type,
                     PercentageOfConfidence = (int)Math.Floor(mlData.Confidence * 100),
 					IsLLMRecommended = cipher.IsLLMRecommended,                   
@@ -550,7 +554,7 @@ namespace Cryptomind.Core.Services
 				ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
 				IsImage = cipher is ImageCipher,
 				SubmittedBy = cipher.CreatedByUser.UserName,
-				SubmittedAt = (int)cipher.Status == 1 ? cipher.ApprovedAt : (int)cipher.Status == 0 ? cipher.CreatedAt : cipher.RejectedAt,
+				SubmittedAt = (int)cipher.Status == 1 ? (cipher.ApprovedAt?.ToString("ddd, dd MMM yyyy h:mm")) : (int)cipher.Status == 0 ? cipher.CreatedAt.ToString("ddd, dd MMM yyyy h:mm") : cipher.DeletedAt?.ToString("ddd, dd MMM yyyy h:mm"),
 				MlPrediction = mlData.Family,
 				PercentageOfConfidence = (int)Math.Floor(mlData.Confidence * 100)
 			};

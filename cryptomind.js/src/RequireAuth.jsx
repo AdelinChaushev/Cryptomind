@@ -10,17 +10,19 @@ export default function RequireAuth({ allowedRoles = [], mustNotBeLogged = false
     return <Navigate to="/" replace />;
 
   }
-  else if (mustNotBeLogged && !isLoggedIn && allowedRoles.length === 0) {
+  else if (mustNotBeLogged && !isLoggedIn) {
     return children;
+  }
+  else if(!mustNotBeLogged && isLoggedIn && allowedRoles.length === 0 ){
+    return children
   }
   if (!isLoggedIn) {
    
     return <Navigate to="/login" replace />;
   }
-  if (allowedRoles.length === 0) {
-    return children;
-  }
-  
+  // if (allowedRoles.length === 0 && roles.length != 0) {
+  //   return <Navigate to="/admin" replace />;
+  // }
   const hasAccess = roles.some(role => allowedRoles.includes(role));
   if (hasAccess) {
     return children;

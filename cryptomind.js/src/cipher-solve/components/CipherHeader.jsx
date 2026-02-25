@@ -1,11 +1,11 @@
 const TAGS = [
-    { value: "Image", label: 'Изображение' },
-    { value: "Puzzle", label: 'Пъзел' },
-    { value: "Historical", label: 'Исторически' },
-    { value: "Short", label: 'Кратък' },
-    { value: "Long", label: 'Дълъг' },
-    { value: "Beginner_Friendly", label: 'Подходящ за начинаещи' },
-    { value: "Tricky", label: 'Труден' },
+    { value: "Image",              label: 'Изображение' },
+    { value: "Puzzle",             label: 'Пъзел' },
+    { value: "Historical",         label: 'Исторически' },
+    { value: "Short",              label: 'Кратък' },
+    { value: "Long",               label: 'Дълъг' },
+    { value: "Beginner_Friendly",  label: 'Подходящ за начинаещи' },
+    { value: "Tricky",             label: 'Труден' },
 ];
 
 function resolveTagLabel(raw) {

@@ -5,6 +5,7 @@ const NotificationDropdown = ({
     notifications,
     unreadCount,
     isLoading,
+    onMarkAsRead,
     onMarkAllRead,
     onItemClick,
 }) => {
