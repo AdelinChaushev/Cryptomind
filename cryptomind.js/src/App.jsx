@@ -63,7 +63,7 @@ function App() {
    },[]);
    
     if(loading) {
-      return <h1></h1>
+     return <div style={{ background: '#020617', width: '100vw', height: '100vh' }} />;
 
     }
     return (    
