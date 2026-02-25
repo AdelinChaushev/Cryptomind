@@ -181,22 +181,21 @@ function CipherSolvePage() {
         setAiMode(mode);
         setAiLoading(true);
         const endPoint = `http://localhost:5115/api/ciphers/cipher/${id}/hint`;
-        try {
+        
             axios.post(endPoint, {
                 hintType : mode
             }, {withCredentials : true})
             .then(res => {
-                setAiText(res.data.hintContent);
-                console.log("Returned from the Back-End\r\n",res.data.hintContent);
-            }).catch((err) => { setAiText(err.response.data.error); console.log(c)})
+                console.log(res.data)
+                setAiText(res.data.hintResult.hintContent);
+                console.log(res.data.hintResult.availablePoints)
+                   setCipher(prev => ({
+                ...prev,
+                points: res.data.hintResult.availablePoints
+              }));
+                console.log("Returned from the Back-End\r\n",res.data.hintResult.hintContent);
+            }).catch((err) => { setAiText(err.response?.data.error); console.log(err)})
             .finally(() => setAiLoading(false));
-            
-           
-        } catch {
-            setAiText("Failed to reach the AI assistant. Please try again.");
-        } finally {
-            setAiLoading(false);
-        }
     }
 
     return (
