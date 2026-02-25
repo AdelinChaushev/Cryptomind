@@ -146,7 +146,13 @@ body {
     gap: 1px;
     padding: 0 10px;
 }
-
+button.sidebar-link {
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+}
 .sidebar-link {
     display: flex;
     align-items: center;

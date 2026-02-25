@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
+import useLogout from '../components/Logout';
 const AdminSidebar = ({ activePage }) => {
+    const logout = useLogout()
     const navItems = [
         {
             section: 'Общ преглед',
@@ -69,10 +70,10 @@ const AdminSidebar = ({ activePage }) => {
                     </div>
                 </div>
                 {
-                    <Link to="/logout" className="sidebar-link">
+                    <button className="sidebar-link" onClick={logout}>
                         <span className="link-icon"><LogoutIcon /></span>
                         Изход
-                    </Link>
+                    </button>
                 }
             </div>
         </aside>

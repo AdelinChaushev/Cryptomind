@@ -13,6 +13,7 @@ const SubmitCipherPage = () => {
     const [useImage, setUseImage] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [ocrText, setOcrText] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [ocrLoading, setOcrLoading] = useState(false);
     const { setError } = useError();
     const [fields, setFields] = useState({
@@ -61,7 +62,7 @@ const handleSubmit = () => {
     // Reset states at the start of a new attempt
     setSubmitted(false);
     setError(null);
-
+    setIsSubmitting(true); 
     const formData = new FormData();
     formData.append("Title", fields.title);
     formData.append("DecryptedText", fields.decryptedText || "");
@@ -78,9 +79,17 @@ const handleSubmit = () => {
         headers: { 'Content-Type': 'multipart/form-data' }
     })
     .then(() => {
-      
+        setFields({ title:             '',
+        decryptedText:     '',
+        encryptedText:     '',
+        image:             null,
+        cipherType:        '',
+        cipherDefinition:  '',
+        allowHints:        false,
+        allowAnswer:       false,
+    });
         setSubmitted(true);
-        setTimeout(() => setSubmitted(false), 4000);
+        setTimeout(() => setIsSubmitting(false), 4000);
     })
     .catch(e => {
         // triggers on 400, 401, 404, 500, etc.
@@ -94,7 +103,7 @@ const handleSubmit = () => {
                       || "An unexpected error occurred.";
         
         setError(errorMsg);
-    });
+    }).finally(c => setIsSubmitting(false));
 };
 
     const handleCancel = () => window.history.back();
@@ -118,7 +127,13 @@ const handleSubmit = () => {
                 />
 
                 <div className="sidebar">
-                    {submitted && (
+                {isSubmitting && (
+                    <div className="submit-pending">
+                        <div className="submit-pending__spinner" />
+                        <span className="submit-pending__text">Изпращане и анализиране</span>
+                    </div>
+                )}
+                    {submitted && !isSubmitting && (
                         <p className="submit-success">
                             ✓ Шифърът е изпратен успешно. Ще бъде прегледан от администратор.
                         </p>
