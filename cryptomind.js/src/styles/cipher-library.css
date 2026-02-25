@@ -86,7 +86,7 @@ html{scroll-behavior:smooth} */
 .cl-cta-secondary:hover{border-color:rgba(203,213,225,0.15);color:#cbd5e1}
 
 /* ─── FOOTER SPACER ─── */
-.cl-bottom{height:80px}
+.cl-bottom{height:140px}
 
 /* ─── SCROLL PROGRESS ─── */
 .cl-scroll-bar{position:fixed;top:0;left:0;height:2px;background:#fbbf24;z-index:100;transition:width .1s linear;box-shadow:0 0 8px rgba(251,191,36,.6)}
