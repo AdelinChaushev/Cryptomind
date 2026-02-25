@@ -48,7 +48,7 @@ namespace Cryptomind.Controllers
 		}
 
 		[HttpGet("deleted-ciphers")]
-		public async Task<IActionResult> GetDeletediphers([FromQuery] CipherFilter filter)
+		public async Task<IActionResult> GetDeletedCiphers([FromQuery] CipherFilter filter)
 		{
 			var result = await adminCipherService.AllDeletedCiphers(filter);
 			return Ok(result);
