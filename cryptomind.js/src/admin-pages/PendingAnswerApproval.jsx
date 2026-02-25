@@ -166,9 +166,9 @@ const PendingAnswerApproval = () => {
                                         <div style={{ marginTop: '12px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                                             <div>
                                                 <div className="form-label">Вид</div>
-                                                {/* <span className="mono" style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                                                    {originalCipher.family ?? '—'}
-                                                </span> */}
+                                                 <span className="mono" style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                                                    {answerSubmission.type ?? '—'}
+                                                </span> 
                                             </div>
                                             <div>
                                                 <div className="form-label">Статус</div>
