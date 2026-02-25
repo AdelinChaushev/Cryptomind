@@ -5,26 +5,14 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthorizationContext } from '../App.jsx'; 
 import NotificationBell from '../notifications/NotificationBell.jsx';
-
+import useLogout from "./Logout.jsx"
 
 const Navbar = () => {
     
-   const navigate = useNavigate();
+   
    const {state , setState} = useContext(AuthorizationContext);
-
-   const onLogout = () => {
-    axios.post('/api/auth/logout')
-      .then(response => {
-        console.log("Logged out successfully");
-        setState({ isLoggedIn: false, roles: [] }); 
-        navigate('/') 
-      })
-      .catch(error => {
-        console.error("Error logging out:", error);
-      });
-      console.log(state)
-      console.log('Navbar → isLoggedIn:', state.isLoggedIn, 'roles:', state.roles);
-   }
+   const onLogout = useLogout();
+   
 
     return (
         <nav className="navbar">

@@ -722,3 +722,48 @@ body { overflow-x: hidden; }
     border-radius: 8px;
     background: rgba(16, 185, 129, 0.08);
 }
+
+.submit-pending {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid rgba(251, 191, 36, 0.25);
+    border-radius: 8px;
+    background: rgba(251, 191, 36, 0.06);
+    margin-bottom: 12px;
+}
+
+.submit-pending__spinner {
+    width: 15px;
+    height: 15px;
+    border: 2px solid rgba(251, 191, 36, 0.2);
+    border-top-color: #fbbf24;
+    border-radius: 50%;
+    animation: submitSpin 0.65s linear infinite;
+    flex-shrink: 0;
+}
+
+.submit-pending__text {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fbbf24;
+}
+
+.submit-pending__text::after {
+    content: '';
+    animation: loadingDots 1.2s steps(3, end) infinite;
+}
+
+@keyframes submitSpin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes loadingDots {
+    0%   { content: ''; }
+    33%  { content: '.'; }
+    66%  { content: '..'; }
+    100% { content: '...'; }
+}

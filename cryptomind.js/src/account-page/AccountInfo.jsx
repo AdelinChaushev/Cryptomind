@@ -41,7 +41,7 @@ function AccountInfo() {
                 withCredentials: true,
             }).then( c =>{ 
                  setState({ roles: [], isLoggedIn: false, isBanned: false });
-                 navigate("/") 
+                 window.location.href = "/"; 
                 
                 
          
