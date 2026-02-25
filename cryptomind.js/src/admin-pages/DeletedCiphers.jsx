@@ -72,8 +72,7 @@ const DeletedCiphers = () => {
             await axios.put(`${API_BASE}/cipher/${id}/restore`);
             fetchCiphers();
         } catch (err) {
-            console.error('Restore error:', err);
-            const errorMessage = err.response?.data?.message || err.message;
+            const errorMessage = err.response?.data?.error || err.error;
             if (err.response?.status === 409) {
                 setRenameModal({ open: true, cipher: { id, title }, newTitle: title });
             } else {
@@ -93,7 +92,6 @@ const DeletedCiphers = () => {
 
         try {
             await axios.put(`${API_BASE}/cipher/${renameModal.cipher.id}/restore?newTitle=${encodeURIComponent(newTitle)}`);
-            setGlobalError('Шифърът е възстановен успешно с ново заглавие!');
             setRenameModal({ open: false, cipher: null, newTitle: '' });
             fetchCiphers();
         } catch (err) {

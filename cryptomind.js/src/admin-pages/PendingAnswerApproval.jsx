@@ -11,7 +11,7 @@ axios.defaults.withCredentials = true;
 
 const PendingAnswerApproval = () => {
     const [answerSubmission, setAnswerSubmission] = useState(null);
-    const [originalCipher, setOriginalCipher] = useState(null);
+    
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showRejectForm, setShowRejectForm] = useState(false);
@@ -33,13 +33,6 @@ const PendingAnswerApproval = () => {
                 const { data } = await axios.get(`${API_BASE}/answer/${id}`);
                 console.log('Answer suggestion:', data);
                 setAnswerSubmission(data);
-
-                // Fetch the original cipher details
-                if (data.cipherId) {
-                    const cipherData = await axios.get(`${API_BASE}/cipher/${data.cipherId}`);
-                    console.log('Original cipher:', cipherData.data);
-                    setOriginalCipher(cipherData.data);
-                }
             } catch (err) {
                 console.error('Failed to fetch answer:', err);
                 setGlobalError(err.response?.data?.message || err.message);
@@ -136,7 +129,7 @@ const PendingAnswerApproval = () => {
                         <h1 className="page-title">Преглед на предложен отговор</h1>
                         <p className="page-subtitle">
                             Предложение за: <strong style={{ color: 'var(--text-secondary)' }}>
-                                {answerSubmission.cipherName || originalCipher?.title || `Шифър #${answerSubmission.cipherId}`}
+                                {answerSubmission.cipherName  || `Шифър #${answerSubmission.cipherId}`}
                             </strong>
                         </p>
                     </div>
@@ -145,7 +138,7 @@ const PendingAnswerApproval = () => {
                         <div className="answer-approval-main">
                             {/* Original Cipher Context */}
                             <div className="admin-card">
-                                <div className="admin-card-header">
+                                {/* <div className="admin-card-header">
                                     <span className="admin-card-title">Оригинален шифър</span>
                                     <a
                                         href={`/cipher/${answerSubmission.cipherId}`}
@@ -155,27 +148,27 @@ const PendingAnswerApproval = () => {
                                     >
                                         Виж шифъра →
                                     </a>
-                                </div>
+                                </div> */}
 
-                                {(answerSubmission.cipherName || originalCipher?.title) && (
+                                {(answerSubmission.cipherName) && (
                                     <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)', marginBottom: '8px' }}>
-                                        {answerSubmission.cipherName || originalCipher.title}
+                                        {answerSubmission.cipherName}
                                     </div>
                                 )}
 
-                                {originalCipher && (
+                                
                                     <>
                                         <div className="form-label">Шифриран текст</div>
                                         <div className="original-cipher-block">
-                                            {originalCipher.cipherText ?? '—'}
+                                            {answerSubmission.cipherEncryptedText}
                                         </div>
 
                                         <div style={{ marginTop: '12px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                                             <div>
                                                 <div className="form-label">Вид</div>
-                                                <span className="mono" style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                                                    {originalCipher.mlPrediction ?? '—'}
-                                                </span>
+                                                 <span className="mono" style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                                                    {answerSubmission.type ?? '—'}
+                                                </span> 
                                             </div>
                                             <div>
                                                 <div className="form-label">Статус</div>
@@ -183,7 +176,7 @@ const PendingAnswerApproval = () => {
                                             </div>
                                         </div>
                                     </>
-                                )}
+                                
                             </div>
 
                             {/* The Suggested Answer */}

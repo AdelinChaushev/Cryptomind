@@ -469,8 +469,7 @@ namespace Cryptomind.Core.Services
 		private async Task DefineTagsAsync (Cipher cipher, List<int> tagIds)
 		{
 			List<Tag> assignedExistingTags = (await tagRepo.GetAllAsync())
-				.Where(x => tagIds.Contains(x.Id) 
-				&& !x.CipherTags.Select(c => c.TagId).ToList().Contains(x.Id))
+				.Where(x => tagIds.Contains(x.Id))
 				.ToList();
 
 			//ADD THIS IN PRODUCTION!!! - Check it first.
@@ -495,17 +494,7 @@ namespace Cryptomind.Core.Services
 			List<CipherReviewOutputViewModel> output = new List<CipherReviewOutputViewModel>();
 			foreach (var cipher in result)
 			{
-				MlPredictionType mlData = new MlPredictionType();
-
-				if (!cipher.MLPrediction.IsNullOrEmpty())
-				{
-                    var options = new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    };
-                    mlData = JsonSerializer.Deserialize<MlPredictionType>(cipher.MLPrediction, options);
-                }
-
+                MlPredictionType mlData = Deserialize(cipher.MLPrediction);
                 string challengeType = !cipher.IsDeleted ? cipher.ChallengeType.ToString() : "CipherDeleted";
 
 				if (cipher.CreatedByUser == null)
@@ -535,15 +524,8 @@ namespace Cryptomind.Core.Services
 		}
 		private async Task<CipherDetailedReviewOutputViewModel> ToDetailedReviewOutputViewModel(Cipher cipher)
         {
-            MlPredictionType mlData = new MlPredictionType();
-            if (!cipher.MLPrediction.IsNullOrEmpty())
-            {
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                };
-                mlData = JsonSerializer.Deserialize<MlPredictionType>(cipher.MLPrediction, options);
-            }
+            MlPredictionType mlData = Deserialize(cipher.MLPrediction);
+           
 			int cipherType = cipher.TypeOfCipher.HasValue ? (int)cipher.TypeOfCipher.Value : -1;
 			var model = new CipherDetailedReviewOutputViewModel()
 			{
@@ -578,19 +560,19 @@ namespace Cryptomind.Core.Services
 			return model;
 		}
         #endregion
-        public class MlPredictionType
-        {
-            public string Family { get; set; }
-            public string Type { get; set; }
-            public double Confidence { get; set; }
-            public Prediction[] AllPredictions { get; set; }
+		private MlPredictionType Deserialize(string mlPrediction)
+		{
+            MlPredictionType mlData = new MlPredictionType();
+            if (!mlPrediction.IsNullOrEmpty())
+            {
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                mlData = JsonSerializer.Deserialize<MlPredictionType>(mlPrediction, options);
+            }
+			return mlData;
         }
 
-        public class Prediction
-        {
-            public string Family { get; set; }
-            public string Type { get; set; }
-            public double Confidence { get; set; }
-        }
     }
 }
