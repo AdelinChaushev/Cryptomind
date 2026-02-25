@@ -76,7 +76,9 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<AnswerSuggestionReviewViewModel> GetAnswerById(int id)
 		{
-			var answer = await answerRepo.GetByIdAsync(id);
+			var answer = await answerRepo.GetAllAttached()
+				.Include(x => x.Cipher)
+				.FirstOrDefaultAsync(x => x.Id == id);
 			if (answer == null)
 				throw new NotFoundException("Answer not found");
 
@@ -96,6 +98,8 @@ namespace Cryptomind.Core.Services
 				Description = answer.Description,
 				DecryptedText = answer.DecryptedText,
 				Username = userName,
+				CipherEncryptedText = answer.Cipher.EncryptedText,
+				CipherName = answer.Cipher.Title,
 			};
 
 			return model;
