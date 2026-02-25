@@ -103,11 +103,11 @@ const AnswerCard = ({
                         )}
                     </div>
                     <div className="card-footer-right">
-                        {status === 'approved' || status === 'rejected' || status == 'pending' && (
+                        
                             <button className="btn-card-action" onClick={ onViewCipher}>
                                 Виж шифъра
                             </button>
-                        )}
+                        
                     </div>
                 </div>
             )}
