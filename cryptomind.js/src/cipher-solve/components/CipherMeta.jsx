@@ -27,7 +27,7 @@ function CipherMeta({ cipher, timeAgo }) {
                   <span className="meta-stat-icon">📊</span>
                   Успеваемост
                 </span>
-                <span className="meta-stat-value yellow">{cipher.successRate}%</span>
+                <span className="meta-stat-value yellow">{Math.round((cipher.successRate ?? 0) * 100) /100}%</span>
               </div>
 
               <div className="meta-stat">
@@ -52,8 +52,8 @@ function CipherMeta({ cipher, timeAgo }) {
               <div className="progress-bar">
                 <div
                   className="progress-fill"
-                  style={{ width: `${cipher.successRate ?? 0}%` }}
-                />
+                  style={{ width: `${Math.round((cipher.successRate ?? 0) * 100) /100}%` }}
+               />
               </div>
             </div>
           </div>
