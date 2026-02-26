@@ -23,9 +23,6 @@ namespace Cryptomind.Core.Services
 			if (cipher == null)
 				throw new NotFoundException("Cipher not found");
 
-			if (cipher.Status != ApprovalStatus.Approved)
-				throw new ConflictException("Can suggest answers only on approved ciphers");
-
 			if (!string.IsNullOrWhiteSpace(cipher.DecryptedText))
 				throw new ConflictException("Cipher already has an answer");
 
