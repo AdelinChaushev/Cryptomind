@@ -6,94 +6,99 @@ using Cryptomind.Data.Repositories;
 using Cryptomind.Common.ViewModels.AnswerSubmissionViewModels;
 using Microsoft.EntityFrameworkCore;
 using Cryptomind.Common.Exceptions;
+using Cryptomind.Common.Constants;
 
 namespace Cryptomind.Core.Services
 {
-	public class AnswerSubmissionService (
-		IRepository<Cipher, int> cipherRepo,
-		IRepository<AnswerSuggestion, int> answerRepo) : IAnswerSubmissionService
-	{
-		public async Task SuggestAnswerAsync(SuggestAnswerDTO dto, string userId, int cipherId)
-		{
-			Cipher? cipher = await cipherRepo.GetAllAttached()
-				.Include(x => x.AnswerSuggestions)
-				.Where(x => x.Status == ApprovalStatus.Approved)
-				.FirstOrDefaultAsync(x => x.Id == cipherId);
+    public class AnswerSubmissionService(
+        IRepository<Cipher, int> cipherRepo,
+        IRepository<AnswerSuggestion, int> answerRepo) : IAnswerSubmissionService
+    {
+        private const string DateFormat = "ddd, dd MMM yyyy h:mm";
 
-			if (cipher == null)
-				throw new NotFoundException("Cipher not found");
+        public async Task SuggestAnswerAsync(SuggestAnswerDTO dto, string userId, int cipherId)
+        {
+            Cipher? cipher = await cipherRepo.GetAllAttached()
+                .Include(x => x.AnswerSuggestions)
+                .Where(x => x.Status == ApprovalStatus.Approved)
+                .FirstOrDefaultAsync(x => x.Id == cipherId);
 
-			if (cipher.Status != ApprovalStatus.Approved)
-				throw new ConflictException("Can suggest answers only on approved ciphers");
+            if (cipher == null)
+                throw new NotFoundException(CipherErrorConstants.CipherNotFoundMessage);
 
-			if (!string.IsNullOrWhiteSpace(cipher.DecryptedText))
-				throw new ConflictException("Cipher already has an answer");
+            if (cipher.Status != ApprovalStatus.Approved)
+                throw new ConflictException(CipherErrorConstants.ApprovedOnlySuggestion);
 
-			if (cipher.ChallengeType == ChallengeType.Standard)
-				throw new ConflictException("Cannot suggest answer on standard cipher");
+            if (!string.IsNullOrWhiteSpace(cipher.DecryptedText))
+                throw new ConflictException(CipherErrorConstants.AlreadyHasAnswer);
 
-			if (string.IsNullOrWhiteSpace(dto.DecryptedText))
-				throw new ConflictException("You cannot suggest empty answer");
+            if (cipher.ChallengeType == ChallengeType.Standard)
+                throw new ConflictException(CipherErrorConstants.StandardCipherSuggestionConflict);
 
-			if (cipher.CreatedByUserId == userId)
-				throw new ConflictException("You cannot suggest answers on ciphers created by you.");
+            if (string.IsNullOrWhiteSpace(dto.DecryptedText))
+                throw new ConflictException(CipherErrorConstants.EmptyAnswerSuggestion);
 
-			if (cipher.AnswerSuggestions.Any(x => x.UserId == userId && 
-				x.DecryptedText.Trim().ToLower() == dto.DecryptedText.Trim().ToLower()))
-				throw new ConflictException("You cannot suggest the same answer twice.");
+            if (cipher.CreatedByUserId == userId)
+                throw new ConflictException(CipherErrorConstants.OwnCipherSuggestionConflict);
 
-			AnswerSuggestion answer = new AnswerSuggestion
-			{
-				UserId = userId,
-				CipherId = cipherId,
-				Description = dto.Description,
-				DecryptedText = dto.DecryptedText,
-				UploadedTime = DateTime.UtcNow.AddHours(2),
-				Status = ApprovalStatus.Pending,
-			};
+            if (cipher.AnswerSuggestions.Any(x => x.UserId == userId &&
+                x.DecryptedText.Trim().ToLower() == dto.DecryptedText.Trim().ToLower()))
+                throw new ConflictException(CipherErrorConstants.DuplicateSuggestion);
 
-			await answerRepo.AddAsync(answer);
-		}
-		public async Task<List<AnswerSubmissionViewModel>> SubmittedAnswers(string userId)
-		{
-			var answers = await answerRepo.GetAllAttached()
-				.Include(x => x.Cipher)
-				.Where(x => x.UserId == userId)
-				.ToListAsync();
+            AnswerSuggestion answer = new AnswerSuggestion
+            {
+                UserId = userId,
+                CipherId = cipherId,
+                Description = dto.Description,
+                DecryptedText = dto.DecryptedText,
+                UploadedTime = DateTime.UtcNow.AddHours(2),
+                Status = ApprovalStatus.Pending,
+            };
 
-			var models = new List<AnswerSubmissionViewModel>();
-			foreach (var answer in answers)
-			{
-				var model = new AnswerSubmissionViewModel()
-				{
-					CipherId = answer.CipherId,
-					CipherTitle = answer.Cipher.Title,
-					SuggestedAnswer = answer.DecryptedText,
-					Status = answer.Status.ToString(),
-					SubmittedAt = answer.UploadedTime.ToString("ddd, dd MMM yyyy h:mm"),
-				};
+            await answerRepo.AddAsync(answer);
+        }
 
-				if (answer.Status == ApprovalStatus.Approved)
-				{
-					model.PointsEarned = answer.PointsEarned;
-					model.ApprovedDate = answer.ApprovalDate?.ToString("ddd, dd MMM yyyy h:mm");
-					model.CipherId = answer.CipherId;
-				}
-				else if (answer.Status == ApprovalStatus.Rejected)
-				{
-					model.RejectionReason = answer.RejectionReason;
-					model.RejectionDate = answer.RejectionDate?.ToString("ddd, dd MMM yyyy h:mm");
-				}
-				if (answer.Cipher.IsDeleted)
-				{
-					model.Status = "CipherDeleted";
-					model.CipherDeletedAt = answer.Cipher.DeletedAt?.ToString("ddd, dd MMM yyyy h:mm");
-				}
+        public async Task<List<AnswerSubmissionViewModel>> SubmittedAnswers(string userId)
+        {
+            var answers = await answerRepo.GetAllAttached()
+                .Include(x => x.Cipher)
+                .Where(x => x.UserId == userId)
+                .ToListAsync();
 
-				models.Add(model);
-			}
+            var models = new List<AnswerSubmissionViewModel>();
+            foreach (var answer in answers)
+            {
+                var model = new AnswerSubmissionViewModel()
+                {
+                    CipherId = answer.CipherId,
+                    CipherTitle = answer.Cipher.Title,
+                    SuggestedAnswer = answer.DecryptedText,
+                    Status = answer.Status.ToString(),
+                    SubmittedAt = answer.UploadedTime.ToString(DateFormat),
+                };
 
-			return models;
-		}
-	}
+                if (answer.Status == ApprovalStatus.Approved)
+                {
+                    model.PointsEarned = answer.PointsEarned;
+                    model.ApprovedDate = answer.ApprovalDate?.ToString(DateFormat);
+                    model.CipherId = answer.CipherId;
+                }
+                else if (answer.Status == ApprovalStatus.Rejected)
+                {
+                    model.RejectionReason = answer.RejectionReason;
+                    model.RejectionDate = answer.RejectionDate?.ToString(DateFormat);
+                }
+
+                if (answer.Cipher.IsDeleted)
+                {
+                    model.Status = "CipherDeleted";
+                    model.CipherDeletedAt = answer.Cipher.DeletedAt?.ToString(DateFormat);
+                }
+
+                models.Add(model);
+            }
+
+            return models;
+        }
+    }
 }

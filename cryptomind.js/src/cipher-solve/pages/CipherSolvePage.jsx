@@ -57,7 +57,7 @@ function CipherSolvePage() {
       })
       .then((c) => {
         const data = c.data;
-
+        console.log(data)
         setCipher({
           allowsAnswer: data.allowsAnswer,
           allowsFullSolution: data.allowsFullSolution,
@@ -117,6 +117,7 @@ function CipherSolvePage() {
           },
           { withCredentials: true }
         );
+        
 
         return true; // SUCCESS
       } catch (e) {
@@ -219,17 +220,12 @@ function CipherSolvePage() {
         { withCredentials: true }
       )
       .then((res) => {
-        console.log(res.data);
+        
         setAiText(res.data.hintResult.hintContent);
-        console.log(res.data.hintResult.availablePoints);
         setCipher((prev) => ({
           ...prev,
           points: res.data.hintResult.availablePoints,
         }));
-        console.log(
-          "Returned from the Back-End\r\n",
-          res.data.hintResult.hintContent
-        );
       })
       .catch((err) => {
         setAiText(err.response?.data.error);
