@@ -86,14 +86,13 @@
 
 /* ---- Podium Section ---- */
 .leaderboard-page .lb-podium {
-    display: grid;
-    grid-template-columns: 1fr 1.1fr 1fr;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
     gap: 14px;
     margin-bottom: 40px;
-    align-items: end;
     animation: lb-fade-up 0.5s 0.15s ease both;
 }
-
 /* ---- Podium Card ---- */
 .leaderboard-page .lb-podium-card {
     background: var(--bg-surface, #0c1428);
@@ -102,6 +101,8 @@
     padding: 22px 14px 18px;
     text-align: center;
     position: relative;
+    width: 220px;
+    flex-shrink: 0;
     overflow: hidden;
     transition: transform 0.2s ease, border-color 0.2s ease;
 }
@@ -122,6 +123,7 @@
 .leaderboard-page .lb-podium-card.rank-1 {
     border-color: rgba(251, 191, 36, 0.35);
     box-shadow: 0 0 24px rgba(251, 191, 36, 0.1);
+    width: 240px;
 }
 .leaderboard-page .lb-podium-card.rank-1::before { background: var(--yellow-500, #fbbf24); }
 .leaderboard-page .lb-podium-card.rank-1 .lb-podium-rank-num,

@@ -7,7 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.ComponentModel.DataAnnotations;
 using Cryptomind.Common.Exceptions;
-
+using Cryptomind.Common.Constants;
 namespace Cryptomind.Core.Services.OCR
 {
 	public class OCRService : IOCRService
@@ -28,8 +28,7 @@ namespace Cryptomind.Core.Services.OCR
 		public async Task<OCRResultDTO> ExtractTextFromImageAsync(IFormFile imageFile)
 		{
 			if (imageFile == null || imageFile.Length == 0)
-				throw new CustomValidationException("Image file cannot be empty");
-
+				throw new CustomValidationException(CipherErrorConstants.ImageRequired);
 			try
 			{
 				return await SendOCRRequestAsync(imageFile, "ocr/extract");
@@ -37,7 +36,7 @@ namespace Cryptomind.Core.Services.OCR
 			catch (Exception ex)
 			{
 				throw new Exception(
-					$"OCR service is unavailable. Please ensure the Python OCR is running at {ocrApiUrl}",
+					$"Услугата за OCR не е налична. Моля, уверете се, че Python OCR работи на {ocrApiUrl}",
 					ex
 				);
 			}
@@ -45,7 +44,7 @@ namespace Cryptomind.Core.Services.OCR
 		public async Task<OCRResultDTO> ExtractTextWithMultipleMethodsAsync(IFormFile imageFile)
 		{
 			if (imageFile == null || imageFile.Length == 0)
-				throw new CustomValidationException("Image file cannot be empty");
+				throw new CustomValidationException(CipherErrorConstants.ImageRequired);
 
 			return await SendOCRRequestAsync(imageFile, "ocr/extract-multiple");
 		}
@@ -108,17 +107,17 @@ namespace Cryptomind.Core.Services.OCR
 			if (!response.IsSuccessStatusCode)
 			{
 				var errorContent = await response.Content.ReadAsStringAsync();
-				throw new Exception($"OCR API returned error (Status {response.StatusCode}): {errorContent}");
+				throw new Exception($"OCR API върна грешка (Статус {response.StatusCode}): {errorContent}");
 			}
 
 			var responseJson = await response.Content.ReadAsStringAsync();
 			var pythonResponse = JsonSerializer.Deserialize<PythonOCRResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
 			if (pythonResponse == null)
-				throw new Exception("Failed to parse OCR API response");
+				throw new Exception("Неуспешен анализ на отговора на OCR API");
 
 			if (!pythonResponse.Success)
-				throw new Exception($"OCR extraction failed: {pythonResponse.Error ?? "Unknown error"}");
+				throw new Exception($"OCR извличането е неуспешно: {pythonResponse.Error ?? "Неизвестна грешка"}");
 
 			return ConvertToDTO(pythonResponse);
 		}
