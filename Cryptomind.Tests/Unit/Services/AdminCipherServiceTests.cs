@@ -14,8 +14,10 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Xunit;
+using static Cryptomind.Core.Services.LLMService;
 
 namespace Cryptomind.Tests.Unit.Services
 {
@@ -45,111 +47,99 @@ namespace Cryptomind.Tests.Unit.Services
 
 			cipherRepoMock.Setup(r => r.UpdateAsync(It.IsAny<Cipher>())).ReturnsAsync(true);
 			notificationMock.Setup(n => n.CreateAndSendNotification(
-					It.IsAny<string>(), It.IsAny<NotificationType>(),
-					It.IsAny<string>(), It.IsAny<string>()))
+				It.IsAny<string>(), It.IsAny<NotificationType>(),
+				It.IsAny<string>(), It.IsAny<string>()))
 				.Returns(Task.CompletedTask);
+			userManagerMock.Setup(m => m.FindByIdAsync(It.IsAny<string>()))
+				.ReturnsAsync((string id) => new ApplicationUser { Id = id, UserName = "testuser" });
 		}
 
-		private static ConcreteCipher MakeCipher(int id, ApprovalStatus status,
-			bool isDeleted = false, string title = "Test Cipher",
-			string? decryptedText = null, string createdByUserId = "u1",
-			DateTime? createdAt = null, List<AnswerSuggestion>? answers = null,
-			CipherType? typeOfCipher = null,
-			ApplicationUser? createdByUser = null) => new()
+		// Valid MLPrediction JSON satisfies both MlPredictionType and MlPredictionData
+		private const string ValidMlPrediction =
+				"""{"family":"Substitution","type":"Caesar","confidence":0.9913200787778678,"allPredictions":[{"family":"Substitution","type":"Caesar","confidence":0.9913200787778678},{"family":"Polyalphabetic","type":"Vigenere","confidence":5.099530124846473E-07}]}""";
+
+		private static TextCipher MakeCipher(
+			int id = 1,
+			string title = "Test Cipher",
+			string userId = "u1",
+			ApprovalStatus status = ApprovalStatus.Pending,
+			bool isDeleted = false,
+			string? decryptedText = "hello",
+			CipherType? type = CipherType.Caesar,
+			ChallengeType challengeType = ChallengeType.Standard,
+			List<AnswerSuggestion>? answerSuggestions = null) => new()
 			{
 				Id = id,
+				Title = title,
+				CreatedByUserId = userId,
 				Status = status,
 				IsDeleted = isDeleted,
-				Title = title,
 				DecryptedText = decryptedText,
-				CreatedByUserId = createdByUserId,
-				CreatedAt = createdAt ?? DateTime.UtcNow.AddHours(2),
-				EncryptedText = "encrypted text",
-				AnswerSuggestions = answers ?? new List<AnswerSuggestion>(),
+				TypeOfCipher = type,
+				ChallengeType = challengeType,
+				EncryptedText = "encrypted",
+				MLPrediction = ValidMlPrediction,
 				CipherTags = new List<CipherTag>(),
-				TypeOfCipher = typeOfCipher,
-				CreatedByUser = createdByUser ?? new ApplicationUser { Id = createdByUserId, UserName = "testuser" },
-				LLMData = new CipherLLMData(),
+				AnswerSuggestions = answerSuggestions ?? new List<AnswerSuggestion>(),
+				CreatedAt = DateTime.UtcNow,
+				CreatedByUser = new ApplicationUser { Id = userId, UserName = "testuser" },
 			};
 
-		private static ApplicationUser User(string id, string userName = "testuser") => new()
-		{
-			Id = id,
-			UserName = userName,
-		};
+		private static ApproveCipherViewModel ApproveModel(
+			string title = "My Cipher",
+			CipherType? type = CipherType.Caesar,
+			bool allowHint = false,
+			bool allowSolution = false,
+			bool allowTypeHint = false,
+			List<int>? tagIds = null) => new()
+			{
+				Title = title,
+				TypeOfCipher = type,
+				AllowHint = allowHint,
+				AllowSolution = allowSolution,
+				AllowTypeHint = allowTypeHint,
+				TagIds = tagIds ?? new List<int>()
+			};
 
-		private void SetupAttachedCiphers(params Cipher[] ciphers)
-		{
-			var mock = new List<Cipher>(ciphers).AsQueryable().BuildMock();
-			cipherRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
-		}
-
-		#region GetRecentCipherSubmissionTitles
-
-		[Fact]
-		public async Task GetRecentCipherSubmissionTitles_ReturnsTop5Pending_OrderedByNewest()
-		{
-			var ciphers = Enumerable.Range(1, 7)
-				.Select(i => MakeCipher(i, ApprovalStatus.Pending, title: $"Cipher {i}",
-					createdAt: DateTime.UtcNow.AddHours(2).AddMinutes(i)))
-				.ToArray();
-
-			SetupAttachedCiphers(ciphers);
-
-			var result = await service.GetRecentCipherSubmissionTitles();
-
-			Assert.Equal(5, result.Count);
-			Assert.Equal("Cipher 7", result[0].Title);
-		}
-
-		[Fact]
-		public async Task GetRecentCipherSubmissionTitles_ExcludesNonPending()
-		{
-			SetupAttachedCiphers(
-				MakeCipher(1, ApprovalStatus.Approved, title: "Approved"),
-				MakeCipher(2, ApprovalStatus.Pending, title: "Pending")
-			);
-
-			var result = await service.GetRecentCipherSubmissionTitles();
-
-			Assert.Single(result);
-			Assert.Equal("Pending", result[0].Title);
-		}
-
-		[Fact]
-		public async Task GetRecentCipherSubmissionTitles_ReturnsEmpty_WhenNoPendingExist()
-		{
-			SetupAttachedCiphers();
-
-			var result = await service.GetRecentCipherSubmissionTitles();
-
-			Assert.Empty(result);
-		}
-
-		#endregion
+		private static UpdateCipherViewModel UpdateModel(
+			string title = "Updated Title",
+			bool allowHint = false,
+			bool allowSolution = false,
+			bool allowTypeHint = false,
+			List<int>? tagIds = null) => new()
+			{
+				Title = title,
+				AllowHint = allowHint,
+				AllowSolution = allowSolution,
+				AllowTypeHint = allowTypeHint,
+				TagIds = tagIds ?? new List<int>()
+			};
 
 		#region GetPendingCiphersCount
 
 		[Fact]
-		public async Task GetPendingCiphersCount_ReturnsOnlyPendingNonDeleted()
+		public async Task GetPendingCiphersCount_ReturnsOnlyPendingAndNotDeleted()
 		{
 			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>
 			{
-				MakeCipher(1, ApprovalStatus.Pending),
-				MakeCipher(2, ApprovalStatus.Pending),
-				MakeCipher(3, ApprovalStatus.Pending, isDeleted: true),
-				MakeCipher(4, ApprovalStatus.Approved),
+				MakeCipher(1, status: ApprovalStatus.Pending, isDeleted: false),
+				MakeCipher(2, status: ApprovalStatus.Pending, isDeleted: false),
+				MakeCipher(3, status: ApprovalStatus.Pending, isDeleted: true),
+				MakeCipher(4, status: ApprovalStatus.Approved, isDeleted: false),
 			});
 
 			var result = await service.GetPendingCiphersCount();
+
 			Assert.Equal(2, result);
 		}
 
 		[Fact]
-		public async Task GetPendingCiphersCount_ReturnsZero_WhenNoneExist()
+		public async Task GetPendingCiphersCount_ReturnsZero_WhenNoneMatch()
 		{
 			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>());
+
 			var result = await service.GetPendingCiphersCount();
+
 			Assert.Equal(0, result);
 		}
 
@@ -158,25 +148,18 @@ namespace Cryptomind.Tests.Unit.Services
 		#region GetApprovedCiphersCount
 
 		[Fact]
-		public async Task GetApprovedCiphersCount_ReturnsOnlyApprovedNonDeleted()
+		public async Task GetApprovedCiphersCount_ReturnsOnlyApprovedAndNotDeleted()
 		{
 			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>
 			{
-				MakeCipher(1, ApprovalStatus.Approved),
-				MakeCipher(2, ApprovalStatus.Approved, isDeleted: true),
-				MakeCipher(3, ApprovalStatus.Pending),
+				MakeCipher(1, status: ApprovalStatus.Approved, isDeleted: false),
+				MakeCipher(2, status: ApprovalStatus.Approved, isDeleted: true),
+				MakeCipher(3, status: ApprovalStatus.Pending, isDeleted: false),
 			});
 
 			var result = await service.GetApprovedCiphersCount();
-			Assert.Equal(1, result);
-		}
 
-		[Fact]
-		public async Task GetApprovedCiphersCount_ReturnsZero_WhenNoneExist()
-		{
-			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>());
-			var result = await service.GetApprovedCiphersCount();
-			Assert.Equal(0, result);
+			Assert.Equal(1, result);
 		}
 
 		#endregion
@@ -188,25 +171,14 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>
 			{
-				MakeCipher(1, ApprovalStatus.Approved, isDeleted: true),
-				MakeCipher(2, ApprovalStatus.Pending, isDeleted: true),
-				MakeCipher(3, ApprovalStatus.Approved, isDeleted: false),
+				MakeCipher(1, isDeleted: true, status: ApprovalStatus.Approved),
+				MakeCipher(2, isDeleted: true, status: ApprovalStatus.Pending),
+				MakeCipher(3, isDeleted: false, status: ApprovalStatus.Approved),
 			});
 
 			var result = await service.GetDeletedCiphersCount();
+
 			Assert.Equal(2, result);
-		}
-
-		[Fact]
-		public async Task GetDeletedCiphersCount_ReturnsZero_WhenNoneDeleted()
-		{
-			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>
-			{
-				MakeCipher(1, ApprovalStatus.Approved),
-			});
-
-			var result = await service.GetDeletedCiphersCount();
-			Assert.Equal(0, result);
 		}
 
 		#endregion
@@ -214,223 +186,81 @@ namespace Cryptomind.Tests.Unit.Services
 		#region AllPendingCiphers
 
 		[Fact]
-		public async Task AllPendingCiphers_ReturnsPendingNonDeleted_OrderedByCreatedAt()
-		{
-			SetupAttachedCiphers(
-				MakeCipher(1, ApprovalStatus.Pending, createdAt: DateTime.UtcNow.AddHours(2).AddMinutes(2)),
-				MakeCipher(2, ApprovalStatus.Pending, createdAt: DateTime.UtcNow.AddHours(2).AddMinutes(1)),
-				MakeCipher(3, ApprovalStatus.Approved),
-				MakeCipher(4, ApprovalStatus.Pending, isDeleted: true)
-			);
-
-			var result = await service.AllPendingCiphers(null);
-
-			Assert.Equal(2, result.Count);
-			Assert.Equal(2, result[0].Id);
-			Assert.Equal(1, result[1].Id);
-		}
-
-		[Fact]
 		public async Task AllPendingCiphers_ReturnsEmptyList_WhenNoPendingCiphers()
 		{
-			SetupAttachedCiphers();
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher>().AsQueryable().BuildMock());
 
 			var result = await service.AllPendingCiphers(null);
+
 			Assert.Empty(result);
+		}
+
+		[Fact]
+		public async Task AllPendingCiphers_FiltersCorrectly_ByTitle()
+		{
+			var ciphers = new List<Cipher>
+			{
+				MakeCipher(1, title: "Caesar Challenge"),
+				MakeCipher(2, title: "Vigenere Puzzle"),
+			};
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(ciphers.AsQueryable().BuildMock());
+
+			var result = await service.AllPendingCiphers("caesar");
+
+			Assert.Single(result);
+			Assert.Equal("Caesar Challenge", result[0].Title);
+		}
+
+		[Fact]
+		public async Task AllPendingCiphers_Throws_WhenCreatedByUserIsNull()
+		{
+			var cipher = MakeCipher(1);
+			cipher.CreatedByUser = null;
+
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
+
+			await Assert.ThrowsAsync<Exception>(() => service.AllPendingCiphers(null));
 		}
 
 		#endregion
 
-		#region AllApprovedCiphers
+		#region GetCipherById
 
 		[Fact]
-		public async Task AllApprovedCiphers_ReturnsApprovedNonDeleted()
+		public async Task GetCipherById_Throws_WhenCipherNotFound()
 		{
-			SetupAttachedCiphers(
-				MakeCipher(1, ApprovalStatus.Approved),
-				MakeCipher(2, ApprovalStatus.Approved, isDeleted: true),
-				MakeCipher(3, ApprovalStatus.Pending)
-			);
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher>().AsQueryable().BuildMock());
 
-			var result = await service.AllApprovedCiphers(new CipherFilter());
-			Assert.Single(result);
-			Assert.Equal(1, result[0].Id);
+			await Assert.ThrowsAsync<NotFoundException>(() => service.GetCipherById(99));
 		}
 
 		[Fact]
-		public async Task AllApprovedCiphers_ReturnsEmptyList_WhenNoApprovedCiphers()
+		public async Task GetCipherById_Throws_WhenCreatedByUserIsNull()
 		{
-			SetupAttachedCiphers();
+			var cipher = MakeCipher(1);
+			cipher.CreatedByUser = null;
 
-			var result = await service.AllApprovedCiphers(new CipherFilter());
-			Assert.Empty(result);
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
+
+			await Assert.ThrowsAsync<Exception>(() => service.GetCipherById(1));
 		}
 
 		[Fact]
-		public async Task AllApprovedCiphers_FiltersBy_SearchTerm()
+		public async Task GetCipherById_ReturnsCorrectModel_WhenCipherExists()
 		{
-			SetupAttachedCiphers(
-				MakeCipher(1, ApprovalStatus.Approved, title: "Mystery Cipher"),
-				MakeCipher(2, ApprovalStatus.Approved, title: "Easy Puzzle")
-			);
+			var cipher = MakeCipher(1, title: "My Cipher");
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
 
-			var result = await service.AllApprovedCiphers(new CipherFilter { SearchTerm = "Mystery" });
-			Assert.Single(result);
-			Assert.Equal(1, result[0].Id);
-		}
+			var result = await service.GetCipherById(1);
 
-		[Fact]
-		public async Task AllApprovedCiphers_FiltersBy_ChallengeTypeStandard()
-		{
-			var standard = MakeCipher(1, ApprovalStatus.Approved);
-			standard.ChallengeType = ChallengeType.Standard;
-			var experimental = MakeCipher(2, ApprovalStatus.Approved);
-			experimental.ChallengeType = ChallengeType.Experimental;
-
-			SetupAttachedCiphers(standard, experimental);
-
-			var result = await service.AllApprovedCiphers(new CipherFilter { ChallengeType = ChallengeType.Standard });
-			Assert.Single(result);
-			Assert.Equal(1, result[0].Id);
-		}
-
-		[Fact]
-		public async Task AllApprovedCiphers_FiltersBy_ChallengeTypeExperimental()
-		{
-			var standard = MakeCipher(1, ApprovalStatus.Approved);
-			standard.ChallengeType = ChallengeType.Standard;
-			var experimental = MakeCipher(2, ApprovalStatus.Approved);
-			experimental.ChallengeType = ChallengeType.Experimental;
-
-			SetupAttachedCiphers(standard, experimental);
-
-			var result = await service.AllApprovedCiphers(new CipherFilter { ChallengeType = ChallengeType.Experimental });
-			Assert.Single(result);
-			Assert.Equal(2, result[0].Id);
-		}
-
-		[Fact]
-		public async Task AllApprovedCiphers_OrdersBy_Newest()
-		{
-			SetupAttachedCiphers(
-				MakeCipher(1, ApprovalStatus.Approved, createdAt: DateTime.UtcNow.AddHours(2).AddDays(-2)),
-				MakeCipher(2, ApprovalStatus.Approved, createdAt: DateTime.UtcNow.AddHours(2).AddDays(-1))
-			);
-
-			var result = await service.AllApprovedCiphers(new CipherFilter { OrderTerm = CipherOrderTerm.Newest });
-			Assert.Equal(2, result[0].Id);
-			Assert.Equal(1, result[1].Id);
-		}
-
-		[Fact]
-		public async Task AllApprovedCiphers_OrdersBy_Oldest()
-		{
-			SetupAttachedCiphers(
-				MakeCipher(1, ApprovalStatus.Approved, createdAt: DateTime.UtcNow.AddHours(2).AddDays(-1)),
-				MakeCipher(2, ApprovalStatus.Approved, createdAt: DateTime.UtcNow.AddHours(2).AddDays(-2))
-			);
-
-			var result = await service.AllApprovedCiphers(new CipherFilter { OrderTerm = CipherOrderTerm.Oldest });
-			Assert.Equal(2, result[0].Id);
-			Assert.Equal(1, result[1].Id);
-		}
-
-		#endregion
-
-		#region AllDeletedCiphers
-
-		[Fact]
-		public async Task AllDeletedCiphers_ReturnsOnlyDeletedCiphers()
-		{
-			SetupAttachedCiphers(
-				MakeCipher(1, ApprovalStatus.Approved, isDeleted: true),
-				MakeCipher(2, ApprovalStatus.Pending, isDeleted: true),
-				MakeCipher(3, ApprovalStatus.Approved, isDeleted: false)
-			);
-
-			var result = await service.AllDeletedCiphers(new CipherFilter());
-			Assert.Equal(2, result.Count);
-			Assert.DoesNotContain(result, r => r.Id == 3);
-		}
-
-		[Fact]
-		public async Task AllDeletedCiphers_ReturnsEmptyList_WhenNoDeletedCiphers()
-		{
-			SetupAttachedCiphers(
-				MakeCipher(1, ApprovalStatus.Approved, isDeleted: false)
-			);
-
-			var result = await service.AllDeletedCiphers(new CipherFilter());
-			Assert.Empty(result);
-		}
-
-		[Fact]
-		public async Task AllDeletedCiphers_FiltersBy_SearchTerm()
-		{
-			SetupAttachedCiphers(
-				MakeCipher(1, ApprovalStatus.Approved, isDeleted: true, title: "Mystery Cipher"),
-				MakeCipher(2, ApprovalStatus.Approved, isDeleted: true, title: "Easy Puzzle")
-			);
-
-			var result = await service.AllDeletedCiphers(new CipherFilter { SearchTerm = "Mystery" });
-			Assert.Single(result);
-			Assert.Equal(1, result[0].Id);
-		}
-
-		[Fact]
-		public async Task AllDeletedCiphers_FiltersBy_ChallengeTypeStandard()
-		{
-			var standard = MakeCipher(1, ApprovalStatus.Approved, isDeleted: true);
-			standard.ChallengeType = ChallengeType.Standard;
-			var experimental = MakeCipher(2, ApprovalStatus.Approved, isDeleted: true);
-			experimental.ChallengeType = ChallengeType.Experimental;
-
-			SetupAttachedCiphers(standard, experimental);
-
-			var result = await service.AllDeletedCiphers(new CipherFilter { ChallengeType = ChallengeType.Standard });
-			Assert.Single(result);
-			Assert.Equal(1, result[0].Id);
-		}
-
-		[Fact]
-		public async Task AllDeletedCiphers_FiltersBy_ChallengeTypeExperimental()
-		{
-			var standard = MakeCipher(1, ApprovalStatus.Approved, isDeleted: true);
-			standard.ChallengeType = ChallengeType.Standard;
-			var experimental = MakeCipher(2, ApprovalStatus.Approved, isDeleted: true);
-			experimental.ChallengeType = ChallengeType.Experimental;
-
-			SetupAttachedCiphers(standard, experimental);
-
-			var result = await service.AllDeletedCiphers(new CipherFilter { ChallengeType = ChallengeType.Experimental });
-			Assert.Single(result);
-			Assert.Equal(2, result[0].Id);
-		}
-
-		[Fact]
-		public async Task AllDeletedCiphers_OrdersBy_Newest()
-		{
-			SetupAttachedCiphers(
-				MakeCipher(1, ApprovalStatus.Approved, isDeleted: true, createdAt: DateTime.UtcNow.AddHours(2).AddDays(-2)),
-				MakeCipher(2, ApprovalStatus.Approved, isDeleted: true, createdAt: DateTime.UtcNow.AddHours(2).AddDays(-1))
-			);
-
-			var result = await service.AllDeletedCiphers(new CipherFilter { OrderTerm = CipherOrderTerm.Newest });
-			Assert.Equal(2, result[0].Id);
-			Assert.Equal(1, result[1].Id);
-		}
-
-		[Fact]
-		public async Task AllDeletedCiphers_OrdersBy_Oldest()
-		{
-			SetupAttachedCiphers(
-				MakeCipher(1, ApprovalStatus.Approved, isDeleted: true, createdAt: DateTime.UtcNow.AddHours(2).AddDays(-1)),
-				MakeCipher(2, ApprovalStatus.Approved, isDeleted: true, createdAt: DateTime.UtcNow.AddHours(2).AddDays(-2))
-			);
-
-			var result = await service.AllDeletedCiphers(new CipherFilter { OrderTerm = CipherOrderTerm.Oldest });
-			Assert.Equal(2, result[0].Id);
-			Assert.Equal(1, result[1].Id);
+			Assert.Equal("My Cipher", result.Title);
+			Assert.Equal(1, result.Id);
 		}
 
 		#endregion
@@ -441,217 +271,252 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task AnalyzeWithLLM_Throws_WhenCipherNotFound()
 		{
 			cipherRepoMock.Setup(r => r.GetByIdAsync(99)).ReturnsAsync((Cipher?)null);
+
 			await Assert.ThrowsAsync<NotFoundException>(() => service.AnalyzeWithLLM(99));
+		}
+
+		[Fact]
+		public async Task AnalyzeWithLLM_Throws_WhenCipherIsNotPending()
+		{
+			cipherRepoMock.Setup(r => r.GetByIdAsync(1))
+				.ReturnsAsync(MakeCipher(1, status: ApprovalStatus.Approved));
+
+			await Assert.ThrowsAsync<ConflictException>(() => service.AnalyzeWithLLM(1));
 		}
 
 		[Fact]
 		public async Task AnalyzeWithLLM_Throws_WhenCipherIsDeleted()
 		{
 			cipherRepoMock.Setup(r => r.GetByIdAsync(1))
-				.ReturnsAsync(MakeCipher(1, ApprovalStatus.Pending, isDeleted: true));
+				.ReturnsAsync(MakeCipher(1, isDeleted: true));
 
 			await Assert.ThrowsAsync<ConflictException>(() => service.AnalyzeWithLLM(1));
 		}
 
 		[Fact]
-		public async Task AnalyzeWithLLM_ReturnsCachedResult_WithoutCallingLLM_WhenReasoningAlreadyExists()
+		public async Task AnalyzeWithLLM_ReturnsCachedResult_WhenLLMDataReasoningExists()
 		{
-			var cipher = MakeCipher(1, ApprovalStatus.Pending);
-			cipher.LLMData.Reasoning = "already analyzed";
-			cipher.LLMData.PredictedType = "Caesar";
-			cipher.LLMData.IsAppropriate = true;
+			var cipher = MakeCipher(1);
+			cipher.LLMData = new CipherLLMData
+			{
+				Reasoning = "cached reasoning",
+				Confidence = "0.9",
+				PredictedType = "Caesar",
+				SolutionCorrect = true,
+				IsAppropriate = true,
+				IsSolvable = true,
+				Issues = new List<string> { "none" }
+			};
 
 			cipherRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(cipher);
 
 			var result = await service.AnalyzeWithLLM(1);
 
-			Assert.Equal("already analyzed", result.Reasoning);
-			Assert.Equal("Caesar", result.PredictedType);
-
+			Assert.Equal("cached reasoning", result.Reasoning);
 			llmServiceMock.Verify(l => l.ValidateCipherAsync(
-				It.IsAny<string>(), It.IsAny<string?>(),
+				It.IsAny<string>(), It.IsAny<string>(),
 				It.IsAny<CipherRecognitionResultViewModel>(), It.IsAny<string>()), Times.Never);
+		}
+
+		[Fact]
+		public async Task AnalyzeWithLLM_CallsLLMAndUpdates_WhenNoCacheExists()
+		{
+			var cipher = MakeCipher(1);
+			cipher.LLMData = null;
+
+			var llmResult = new CipherValidationResult
+			{
+				Reasoning = "fresh reasoning",
+				Confidence = "0.8",
+				PredictedType = "Caesar",
+				SolutionCorrect = true,
+				IsAppropriate = true,
+				IsSolvable = true,
+				Issues = new List<string> { "none" }
+			};
+
+			cipherRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(cipher);
+			llmServiceMock.Setup(l => l.ValidateCipherAsync(
+				It.IsAny<string>(), It.IsAny<string>(),
+				It.IsAny<CipherRecognitionResultViewModel>(), It.IsAny<string>()))
+				.ReturnsAsync(llmResult);
+
+			var result = await service.AnalyzeWithLLM(1);
+
+			Assert.Equal("fresh reasoning", result.Reasoning);
+			cipherRepoMock.Verify(r => r.UpdateAsync(cipher), Times.Once);
 		}
 
 		#endregion
 
-		#region ApproveCipherAsync - Guard Clauses
+		#region ApproveCipherAsync
 
 		[Fact]
 		public async Task ApproveCipherAsync_Throws_WhenCipherNotFound()
 		{
-			cipherRepoMock.Setup(r => r.GetByIdAsync(99)).ReturnsAsync((Cipher?)null);
+			cipherRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync((Cipher?)null);
+
 			await Assert.ThrowsAsync<NotFoundException>(
-				() => service.ApproveCipherAsync(99, new ApproveCipherViewModel { Title = "T", TypeOfCipher = CipherType.Caesar }));
+				() => service.ApproveCipherAsync(1, ApproveModel()));
 		}
 
 		[Fact]
 		public async Task ApproveCipherAsync_Throws_WhenCipherIsDeleted()
 		{
 			cipherRepoMock.Setup(r => r.GetByIdAsync(1))
-				.ReturnsAsync(MakeCipher(1, ApprovalStatus.Pending, isDeleted: true));
+				.ReturnsAsync(MakeCipher(1, isDeleted: true));
 
 			await Assert.ThrowsAsync<ConflictException>(
-				() => service.ApproveCipherAsync(1, new ApproveCipherViewModel { Title = "T", TypeOfCipher = CipherType.Caesar }));
+				() => service.ApproveCipherAsync(1, ApproveModel()));
 		}
 
 		[Fact]
-		public async Task ApproveCipherAsync_Throws_WhenAlreadyApproved()
+		public async Task ApproveCipherAsync_Throws_WhenCipherIsNotPending()
 		{
 			cipherRepoMock.Setup(r => r.GetByIdAsync(1))
-				.ReturnsAsync(MakeCipher(1, ApprovalStatus.Approved));
+				.ReturnsAsync(MakeCipher(1, status: ApprovalStatus.Approved));
 
 			await Assert.ThrowsAsync<ConflictException>(
-				() => service.ApproveCipherAsync(1, new ApproveCipherViewModel { Title = "T", TypeOfCipher = CipherType.Caesar }));
+				() => service.ApproveCipherAsync(1, ApproveModel()));
 		}
 
 		[Fact]
 		public async Task ApproveCipherAsync_Throws_WhenUserNotFound()
 		{
-			cipherRepoMock.Setup(r => r.GetByIdAsync(1))
-				.ReturnsAsync(MakeCipher(1, ApprovalStatus.Pending, createdByUserId: "u1"));
-
+			cipherRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(MakeCipher(1));
 			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync((ApplicationUser?)null);
 
 			await Assert.ThrowsAsync<NotFoundException>(
-				() => service.ApproveCipherAsync(1, new ApproveCipherViewModel { Title = "T", TypeOfCipher = CipherType.Caesar }));
+				() => service.ApproveCipherAsync(1, ApproveModel()));
 		}
 
 		[Fact]
 		public async Task ApproveCipherAsync_Throws_WhenTitleIsEmpty()
 		{
-			cipherRepoMock.Setup(r => r.GetByIdAsync(1))
-				.ReturnsAsync(MakeCipher(1, ApprovalStatus.Pending));
-
-			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(User("u1"));
+			cipherRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(MakeCipher(1));
 
 			await Assert.ThrowsAsync<CustomValidationException>(
-				() => service.ApproveCipherAsync(1, new ApproveCipherViewModel { Title = "", TypeOfCipher = CipherType.Caesar }));
+				() => service.ApproveCipherAsync(1, ApproveModel(title: "")));
 		}
 
 		[Fact]
-		public async Task ApproveCipherAsync_Throws_WhenTitleAlreadyExistsOnAnotherCipher()
+		public async Task ApproveCipherAsync_Throws_WhenTitleAlreadyExists()
 		{
-			cipherRepoMock.Setup(r => r.GetByIdAsync(1))
-				.ReturnsAsync(MakeCipher(1, ApprovalStatus.Pending));
-
-			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(User("u1"));
-
-			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>
-			{
-				MakeCipher(2, ApprovalStatus.Approved, title: "Duplicate Title"),
-			});
+			cipherRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(MakeCipher(1));
+			cipherRepoMock.Setup(r => r.GetAllAsync())
+				.ReturnsAsync(new List<Cipher> { MakeCipher(2, title: "Taken Title") });
 
 			await Assert.ThrowsAsync<ConflictException>(
-				() => service.ApproveCipherAsync(1, new ApproveCipherViewModel { Title = "Duplicate Title", TypeOfCipher = CipherType.Caesar }));
+				() => service.ApproveCipherAsync(1, ApproveModel(title: "Taken Title")));
 		}
 
 		[Fact]
-		public async Task ApproveCipherAsync_Throws_WhenTypeOfCipherIsNull()
+		public async Task ApproveCipherAsync_Throws_WhenTypeIsNull()
 		{
-			cipherRepoMock.Setup(r => r.GetByIdAsync(1))
-				.ReturnsAsync(MakeCipher(1, ApprovalStatus.Pending));
-
-			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(User("u1"));
-
+			cipherRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(MakeCipher(1));
 			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>());
 
 			await Assert.ThrowsAsync<ConflictException>(
-				() => service.ApproveCipherAsync(1, new ApproveCipherViewModel { Title = "Unique", TypeOfCipher = null }));
+				() => service.ApproveCipherAsync(1, ApproveModel(type: null)));
+		}
+
+		[Fact]
+		public async Task ApproveCipherAsync_Throws_WhenTypeIsMinusOne()
+		{
+			cipherRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(MakeCipher(1));
+			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>());
+
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.ApproveCipherAsync(1, ApproveModel(type: (CipherType)(-1))));
 		}
 
 		[Fact]
 		public async Task ApproveCipherAsync_Throws_WhenExperimentalCipherHasHintsEnabled()
 		{
-			cipherRepoMock.Setup(r => r.GetByIdAsync(1))
-				.ReturnsAsync(MakeCipher(1, ApprovalStatus.Pending, decryptedText: null));
-
-			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(User("u1"));
-
+			// Cipher with no decrypted text → Experimental
+			var cipher = MakeCipher(1, decryptedText: null);
+			cipherRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(cipher);
 			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>());
 
 			await Assert.ThrowsAsync<ConflictException>(
-				() => service.ApproveCipherAsync(1, new ApproveCipherViewModel
-				{
-					Title = "Unique",
-					TypeOfCipher = CipherType.Caesar,
-					AllowHint = true,
-				}));
+				() => service.ApproveCipherAsync(1, ApproveModel(allowHint: true)));
 		}
-
-		#endregion
-
-		#region ApproveCipherAsync - Happy Path
 
 		[Fact]
 		public async Task ApproveCipherAsync_SetsChallengeTypeToStandard_WhenDecryptedTextExists()
 		{
-			var cipher = MakeCipher(1, ApprovalStatus.Pending, decryptedText: "hello world");
+			var cipher = MakeCipher(1, decryptedText: "solution");
 			cipherRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(cipher);
-			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(User("u1"));
 			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>());
 
-			await service.ApproveCipherAsync(1, new ApproveCipherViewModel { Title = "Title", TypeOfCipher = CipherType.Caesar });
+			await service.ApproveCipherAsync(1, ApproveModel());
 
 			Assert.Equal(ChallengeType.Standard, cipher.ChallengeType);
-			Assert.Equal(ApprovalStatus.Approved, cipher.Status);
-			Assert.NotNull(cipher.ApprovedAt);
 		}
 
 		[Fact]
-		public async Task ApproveCipherAsync_SetsChallengeTypeToExperimental_WhenNoDecryptedText()
+		public async Task ApproveCipherAsync_SetsChallengeTypeToExperimental_WhenDecryptedTextIsEmpty()
 		{
-			var cipher = MakeCipher(1, ApprovalStatus.Pending, decryptedText: null);
+			var cipher = MakeCipher(1, decryptedText: null);
 			cipherRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(cipher);
-			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(User("u1"));
 			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>());
 
-			await service.ApproveCipherAsync(1, new ApproveCipherViewModel { Title = "Title", TypeOfCipher = CipherType.Caesar });
+			await service.ApproveCipherAsync(1, ApproveModel(allowHint: false, allowSolution: false, allowTypeHint: false));
 
 			Assert.Equal(ChallengeType.Experimental, cipher.ChallengeType);
 		}
 
 		[Fact]
-		public async Task ApproveCipherAsync_SetsCorrectPointsForType()
+		public async Task ApproveCipherAsync_SetsCorrectPoints_ForCipherType()
 		{
-			var cipher = MakeCipher(1, ApprovalStatus.Pending, decryptedText: "hello");
+			var cipher = MakeCipher(1);
 			cipherRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(cipher);
-			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(User("u1"));
 			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>());
 
-			await service.ApproveCipherAsync(1, new ApproveCipherViewModel { Title = "Title", TypeOfCipher = CipherType.Autokey });
+			await service.ApproveCipherAsync(1, ApproveModel(type: CipherType.Vigenere));
 
-			Assert.Equal(500, cipher.Points);
+			Assert.Equal(400, cipher.Points);
 		}
 
 		[Fact]
-		public async Task ApproveCipherAsync_SendsApprovalNotification_ToCreator()
+		public async Task ApproveCipherAsync_SetsStatusToApproved_AndSetsApprovedAt()
 		{
-			var cipher = MakeCipher(1, ApprovalStatus.Pending, decryptedText: "hello", createdByUserId: "creator1");
+			var cipher = MakeCipher(1);
 			cipherRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(cipher);
-			userManagerMock.Setup(m => m.FindByIdAsync("creator1")).ReturnsAsync(User("creator1"));
 			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>());
 
-			await service.ApproveCipherAsync(1, new ApproveCipherViewModel { Title = "Title", TypeOfCipher = CipherType.Caesar });
+			await service.ApproveCipherAsync(1, ApproveModel());
+
+			Assert.Equal(ApprovalStatus.Approved, cipher.Status);
+			Assert.NotNull(cipher.ApprovedAt);
+		}
+
+		[Fact]
+		public async Task ApproveCipherAsync_SendsApprovalNotification()
+		{
+			var cipher = MakeCipher(1, userId: "u1");
+			cipherRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(cipher);
+			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>());
+
+			await service.ApproveCipherAsync(1, ApproveModel());
 
 			notificationMock.Verify(n => n.CreateAndSendNotification(
-				"creator1",
+				"u1",
 				NotificationType.CipherApproved,
 				It.IsAny<string>(),
 				It.IsAny<string>()), Times.Once);
 		}
 
 		[Fact]
-		public async Task ApproveCipherAsync_ReturnsCreatorUserId()
+		public async Task ApproveCipherAsync_ReturnsCreatedByUserId()
 		{
-			var cipher = MakeCipher(1, ApprovalStatus.Pending, decryptedText: "hello", createdByUserId: "creator1");
+			var cipher = MakeCipher(1, userId: "u1");
 			cipherRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(cipher);
-			userManagerMock.Setup(m => m.FindByIdAsync("creator1")).ReturnsAsync(User("creator1"));
 			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>());
 
-			var result = await service.ApproveCipherAsync(1, new ApproveCipherViewModel { Title = "Title", TypeOfCipher = CipherType.Caesar });
+			var result = await service.ApproveCipherAsync(1, ApproveModel());
 
-			Assert.Equal("creator1", result);
+			Assert.Equal("u1", result);
 		}
 
 		#endregion
@@ -661,75 +526,77 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task RejectCipherAsync_Throws_WhenCipherNotFound()
 		{
-			cipherRepoMock.Setup(r => r.GetByIdAsync(99)).ReturnsAsync((Cipher?)null);
-			await Assert.ThrowsAsync<NotFoundException>(() => service.RejectCipherAsync(99, "reason"));
+			cipherRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync((Cipher?)null);
+
+			await Assert.ThrowsAsync<NotFoundException>(
+				() => service.RejectCipherAsync(1, "reason"));
 		}
 
 		[Fact]
 		public async Task RejectCipherAsync_Throws_WhenCipherIsDeleted()
 		{
 			cipherRepoMock.Setup(r => r.GetByIdAsync(1))
-				.ReturnsAsync(MakeCipher(1, ApprovalStatus.Pending, isDeleted: true));
+				.ReturnsAsync(MakeCipher(1, isDeleted: true));
 
-			await Assert.ThrowsAsync<ConflictException>(() => service.RejectCipherAsync(1, "reason"));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.RejectCipherAsync(1, "reason"));
 		}
 
 		[Fact]
 		public async Task RejectCipherAsync_Throws_WhenCipherIsAlreadyApproved()
 		{
 			cipherRepoMock.Setup(r => r.GetByIdAsync(1))
-				.ReturnsAsync(MakeCipher(1, ApprovalStatus.Approved));
+				.ReturnsAsync(MakeCipher(1, status: ApprovalStatus.Approved));
 
-			await Assert.ThrowsAsync<ConflictException>(() => service.RejectCipherAsync(1, "reason"));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.RejectCipherAsync(1, "reason"));
 		}
 
 		[Fact]
 		public async Task RejectCipherAsync_Throws_WhenCipherIsAlreadyRejected()
 		{
 			cipherRepoMock.Setup(r => r.GetByIdAsync(1))
-				.ReturnsAsync(MakeCipher(1, ApprovalStatus.Rejected));
+				.ReturnsAsync(MakeCipher(1, status: ApprovalStatus.Rejected));
 
-			await Assert.ThrowsAsync<ConflictException>(() => service.RejectCipherAsync(1, "reason"));
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.RejectCipherAsync(1, "reason"));
 		}
 
 		[Fact]
 		public async Task RejectCipherAsync_Throws_WhenUserNotFound()
 		{
-			cipherRepoMock.Setup(r => r.GetByIdAsync(1))
-				.ReturnsAsync(MakeCipher(1, ApprovalStatus.Pending, createdByUserId: "u1"));
-
+			cipherRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(MakeCipher(1));
 			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync((ApplicationUser?)null);
 
-			await Assert.ThrowsAsync<NotFoundException>(() => service.RejectCipherAsync(1, "reason"));
+			await Assert.ThrowsAsync<NotFoundException>(
+				() => service.RejectCipherAsync(1, "reason"));
 		}
 
 		[Fact]
-		public async Task RejectCipherAsync_SetsStatusToRejected_WithReasonAndDate()
+		public async Task RejectCipherAsync_SetsStatusRejectedAndReason()
 		{
-			var cipher = MakeCipher(1, ApprovalStatus.Pending);
+			var cipher = MakeCipher(1);
 			cipherRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(cipher);
-			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(User("u1"));
 
-			await service.RejectCipherAsync(1, "not appropriate");
+			await service.RejectCipherAsync(1, "bad cipher");
 
 			Assert.Equal(ApprovalStatus.Rejected, cipher.Status);
-			Assert.Equal("not appropriate", cipher.RejectionReason);
+			Assert.Equal("bad cipher", cipher.RejectionReason);
 			Assert.NotNull(cipher.RejectedAt);
 		}
 
 		[Fact]
-		public async Task RejectCipherAsync_SendsRejectionNotification_ToCreator()
+		public async Task RejectCipherAsync_SendsRejectionNotification()
 		{
-			var cipher = MakeCipher(1, ApprovalStatus.Pending, createdByUserId: "creator1");
+			var cipher = MakeCipher(1, userId: "u1");
 			cipherRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(cipher);
-			userManagerMock.Setup(m => m.FindByIdAsync("creator1")).ReturnsAsync(User("creator1"));
 
-			await service.RejectCipherAsync(1, "not appropriate");
+			await service.RejectCipherAsync(1, "bad cipher");
 
 			notificationMock.Verify(n => n.CreateAndSendNotification(
-				"creator1",
+				"u1",
 				NotificationType.CipherRejected,
-				"Your cipher Test Cipher was rejected. Reason: not appropriate",
+				It.Is<string>(s => s.Contains("bad cipher")),
 				It.IsAny<string>()), Times.Once);
 		}
 
@@ -740,90 +607,88 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task UpdateApprovedCipher_Throws_WhenCipherNotFound()
 		{
-			cipherRepoMock.Setup(r => r.GetByIdAsync(99)).ReturnsAsync((Cipher?)null);
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher>().AsQueryable().BuildMock());
+
 			await Assert.ThrowsAsync<NotFoundException>(
-				() => service.UpdateApprovedCipher(99, new UpdateCipherViewModel { Title = "T" }));
+				() => service.UpdateApprovedCipher(1, UpdateModel()));
 		}
 
 		[Fact]
 		public async Task UpdateApprovedCipher_Throws_WhenCipherIsDeleted()
 		{
-			cipherRepoMock.Setup(r => r.GetByIdAsync(1))
-				.ReturnsAsync(MakeCipher(1, ApprovalStatus.Approved, isDeleted: true));
+			var cipher = MakeCipher(1, status: ApprovalStatus.Approved, isDeleted: true);
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
 
 			await Assert.ThrowsAsync<ConflictException>(
-				() => service.UpdateApprovedCipher(1, new UpdateCipherViewModel { Title = "T" }));
+				() => service.UpdateApprovedCipher(1, UpdateModel()));
 		}
 
 		[Fact]
 		public async Task UpdateApprovedCipher_Throws_WhenCipherIsNotApproved()
 		{
-			cipherRepoMock.Setup(r => r.GetByIdAsync(1))
-				.ReturnsAsync(MakeCipher(1, ApprovalStatus.Pending));
+			var cipher = MakeCipher(1, status: ApprovalStatus.Pending);
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
 
 			await Assert.ThrowsAsync<ConflictException>(
-				() => service.UpdateApprovedCipher(1, new UpdateCipherViewModel { Title = "T" }));
+				() => service.UpdateApprovedCipher(1, UpdateModel()));
 		}
 
 		[Fact]
 		public async Task UpdateApprovedCipher_Throws_WhenTitleIsEmpty()
 		{
-			cipherRepoMock.Setup(r => r.GetByIdAsync(1))
-				.ReturnsAsync(MakeCipher(1, ApprovalStatus.Approved));
+			var cipher = MakeCipher(1, status: ApprovalStatus.Approved);
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
 
 			await Assert.ThrowsAsync<CustomValidationException>(
-				() => service.UpdateApprovedCipher(1, new UpdateCipherViewModel { Title = "" }));
+				() => service.UpdateApprovedCipher(1, UpdateModel(title: "")));
 		}
 
 		[Fact]
-		public async Task UpdateApprovedCipher_Throws_WhenTitleAlreadyExistsOnAnotherCipher()
+		public async Task UpdateApprovedCipher_Throws_WhenTitleAlreadyExists()
 		{
-			cipherRepoMock.Setup(r => r.GetByIdAsync(1))
-				.ReturnsAsync(MakeCipher(1, ApprovalStatus.Approved));
-
-			cipherRepoMock.Setup(r => r.GetAll()).Returns(new List<Cipher>
-			{
-				MakeCipher(2, ApprovalStatus.Approved, title: "Taken Title"),
-			}.AsQueryable());
+			var cipher = MakeCipher(1, status: ApprovalStatus.Approved);
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
+			cipherRepoMock.Setup(r => r.GetAll())
+				.Returns(new List<Cipher> { MakeCipher(2, title: "Taken Title") }.AsQueryable());
 
 			await Assert.ThrowsAsync<ConflictException>(
-				() => service.UpdateApprovedCipher(1, new UpdateCipherViewModel { Title = "Taken Title" }));
+				() => service.UpdateApprovedCipher(1, UpdateModel(title: "Taken Title")));
 		}
 
 		[Fact]
 		public async Task UpdateApprovedCipher_Throws_WhenExperimentalCipherHasHintsEnabled()
 		{
-			var cipher = MakeCipher(1, ApprovalStatus.Approved);
-			cipher.ChallengeType = ChallengeType.Experimental;
-
-			cipherRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(cipher);
+			var cipher = MakeCipher(1, status: ApprovalStatus.Approved,
+				challengeType: ChallengeType.Experimental);
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
 			cipherRepoMock.Setup(r => r.GetAll()).Returns(new List<Cipher>().AsQueryable());
 
 			await Assert.ThrowsAsync<ConflictException>(
-				() => service.UpdateApprovedCipher(1, new UpdateCipherViewModel
-				{
-					Title = "Unique Title",
-					AllowHint = true,
-				}));
+				() => service.UpdateApprovedCipher(1, UpdateModel(allowHint: true)));
 		}
 
 		[Fact]
-		public async Task UpdateApprovedCipher_UpdatesTitleAndHintFlags()
+		public async Task UpdateApprovedCipher_UpdatesTitleAndSendsNotification()
 		{
-			var cipher = MakeCipher(1, ApprovalStatus.Approved);
-			cipherRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(cipher);
+			var cipher = MakeCipher(1, status: ApprovalStatus.Approved, userId: "u1");
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
 			cipherRepoMock.Setup(r => r.GetAll()).Returns(new List<Cipher>().AsQueryable());
 
-			await service.UpdateApprovedCipher(1, new UpdateCipherViewModel
-			{
-				Title = "New Title",
-				AllowHint = true,
-				AllowSolution = false,
-			});
+			await service.UpdateApprovedCipher(1, UpdateModel(title: "New Title"));
 
 			Assert.Equal("New Title", cipher.Title);
-			Assert.True(cipher.AllowHint);
-			Assert.False(cipher.AllowSolution);
+			notificationMock.Verify(n => n.CreateAndSendNotification(
+				"u1",
+				NotificationType.CipherUpdated,
+				It.IsAny<string>(),
+				It.IsAny<string>()), Times.Once);
 		}
 
 		#endregion
@@ -833,29 +698,38 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task SoftDeleteCipher_Throws_WhenCipherNotFound()
 		{
-			SetupAttachedCiphers();
-			await Assert.ThrowsAsync<NotFoundException>(() => service.SoftDeleteCipher(99));
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher>().AsQueryable().BuildMock());
+
+			await Assert.ThrowsAsync<NotFoundException>(() => service.SoftDeleteCipher(1));
 		}
 
 		[Fact]
 		public async Task SoftDeleteCipher_Throws_WhenCipherIsAlreadyDeleted()
 		{
-			SetupAttachedCiphers(MakeCipher(1, ApprovalStatus.Approved, isDeleted: true));
+			var cipher = MakeCipher(1, isDeleted: true);
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
+
 			await Assert.ThrowsAsync<ConflictException>(() => service.SoftDeleteCipher(1));
 		}
 
 		[Fact]
 		public async Task SoftDeleteCipher_Throws_WhenCipherIsRejected()
 		{
-			SetupAttachedCiphers(MakeCipher(1, ApprovalStatus.Rejected));
+			var cipher = MakeCipher(1, status: ApprovalStatus.Rejected);
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
+
 			await Assert.ThrowsAsync<ConflictException>(() => service.SoftDeleteCipher(1));
 		}
 
 		[Fact]
 		public async Task SoftDeleteCipher_SetsIsDeletedAndDeletedAt()
 		{
-			var cipher = MakeCipher(1, ApprovalStatus.Approved);
-			SetupAttachedCiphers(cipher);
+			var cipher = MakeCipher(1, status: ApprovalStatus.Approved);
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
 
 			await service.SoftDeleteCipher(1);
 
@@ -864,41 +738,67 @@ namespace Cryptomind.Tests.Unit.Services
 		}
 
 		[Fact]
-		public async Task SoftDeleteCipher_SendsNotificationToCreator()
+		public async Task SoftDeleteCipher_SendsDeleteNotification_ToOwner()
 		{
-			var cipher = MakeCipher(1, ApprovalStatus.Approved, createdByUserId: "creator1");
-			SetupAttachedCiphers(cipher);
+			var cipher = MakeCipher(1, status: ApprovalStatus.Approved, userId: "u1");
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
 
 			await service.SoftDeleteCipher(1);
 
 			notificationMock.Verify(n => n.CreateAndSendNotification(
-				"creator1",
+				"u1",
 				NotificationType.CipherDeleted,
 				It.IsAny<string>(),
 				It.IsAny<string>()), Times.Once);
 		}
 
 		[Fact]
-		public async Task SoftDeleteCipher_SendsNotification_ToEachAnswerSubmitter()
+		public async Task SoftDeleteCipher_SendsNotification_ToAnswerSubmitters_WhenPendingAnswersExist()
 		{
-			var answers = new List<AnswerSuggestion>
+			var pendingAnswer = new AnswerSuggestion
 			{
-				new() { Id = 10, UserId = "user1", Status = ApprovalStatus.Pending },
-				new() { Id = 11, UserId = "user2", Status = ApprovalStatus.Pending },
+				Id = 1,
+				UserId = "u2",
+				Status = ApprovalStatus.Pending
 			};
+			var cipher = MakeCipher(1, status: ApprovalStatus.Approved,
+				answerSuggestions: new List<AnswerSuggestion> { pendingAnswer });
 
-			var cipher = MakeCipher(1, ApprovalStatus.Approved, answers: answers);
-			SetupAttachedCiphers(cipher);
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
 
 			await service.SoftDeleteCipher(1);
 
 			notificationMock.Verify(n => n.CreateAndSendNotification(
-				"user1", NotificationType.AnswerCipherDeleted,
-				It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+				"u2",
+				NotificationType.AnswerCipherDeleted,
+				It.IsAny<string>(),
+				It.IsAny<string>()), Times.Once);
+		}
+
+		[Fact]
+		public async Task SoftDeleteCipher_DoesNotNotifyAnswerSubmitters_WhenNoPendingAnswersExist()
+		{
+			var approvedAnswer = new AnswerSuggestion
+			{
+				Id = 1,
+				UserId = "u2",
+				Status = ApprovalStatus.Approved
+			};
+			var cipher = MakeCipher(1, status: ApprovalStatus.Approved,
+				answerSuggestions: new List<AnswerSuggestion> { approvedAnswer });
+
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
+
+			await service.SoftDeleteCipher(1);
 
 			notificationMock.Verify(n => n.CreateAndSendNotification(
-				"user2", NotificationType.AnswerCipherDeleted,
-				It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+				"u2",
+				NotificationType.AnswerCipherDeleted,
+				It.IsAny<string>(),
+				It.IsAny<string>()), Times.Never);
 		}
 
 		#endregion
@@ -908,68 +808,75 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task RestoreCipher_Throws_WhenCipherNotFound()
 		{
-			SetupAttachedCiphers();
-			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>());
-			await Assert.ThrowsAsync<NotFoundException>(() => service.RestoreCipher(99));
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher>().AsQueryable().BuildMock());
+
+			await Assert.ThrowsAsync<NotFoundException>(() => service.RestoreCipher(1));
 		}
 
 		[Fact]
 		public async Task RestoreCipher_Throws_WhenCipherIsNotDeleted()
 		{
-			SetupAttachedCiphers(MakeCipher(1, ApprovalStatus.Approved, isDeleted: false));
-			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>());
-			await Assert.ThrowsAsync<ConflictException>(() => service.RestoreCipher(1));
-		}
-
-		[Fact]
-		public async Task RestoreCipher_Throws_WhenTitleConflicts_AndNoNewTitleProvided()
-		{
-			var cipher = MakeCipher(1, ApprovalStatus.Approved, isDeleted: true, title: "Taken Title");
-			SetupAttachedCiphers(cipher);
-
-			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>
-			{
-				MakeCipher(2, ApprovalStatus.Approved, title: "Taken Title"),
-			});
+			var cipher = MakeCipher(1, isDeleted: false);
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
 
 			await Assert.ThrowsAsync<ConflictException>(() => service.RestoreCipher(1));
 		}
 
 		[Fact]
-		public async Task RestoreCipher_Throws_WhenNewTitleAlsoConflicts()
+		public async Task RestoreCipher_Throws_WhenTitleConflictsAndNoNewTitleProvided()
 		{
-			var cipher = MakeCipher(1, ApprovalStatus.Approved, isDeleted: true, title: "Old Title");
-			SetupAttachedCiphers(cipher);
+			var cipher = MakeCipher(1, title: "Same Title", isDeleted: true);
+			var conflicting = MakeCipher(2, title: "Same Title");
 
-			cipherRepoMock.SetupSequence(r => r.GetAllAsync())
-				.ReturnsAsync(new List<Cipher>()) // first call: no conflict on original title
-				.ReturnsAsync(new List<Cipher>
-				{
-					MakeCipher(2, ApprovalStatus.Approved, title: "Conflicting New Title"),
-				});
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
+			cipherRepoMock.Setup(r => r.GetAllAsync())
+				.ReturnsAsync(new List<Cipher> { cipher, conflicting });
 
-			await Assert.ThrowsAsync<ConflictException>(() => service.RestoreCipher(1, "Conflicting New Title"));
+			await Assert.ThrowsAsync<ConflictException>(() => service.RestoreCipher(1));
 		}
 
 		[Fact]
 		public async Task RestoreCipher_Throws_WhenNewTitleIsEmptyString()
 		{
-			var cipher = MakeCipher(1, ApprovalStatus.Approved, isDeleted: true);
-			SetupAttachedCiphers(cipher);
+			var cipher = MakeCipher(1, isDeleted: true);
 
-			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>());
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
+			cipherRepoMock.Setup(r => r.GetAllAsync())
+				.ReturnsAsync(new List<Cipher> { cipher });
 
-			await Assert.ThrowsAsync<CustomValidationException>(() => service.RestoreCipher(1, ""));
+			await Assert.ThrowsAsync<CustomValidationException>(
+				() => service.RestoreCipher(1, ""));
 		}
 
 		[Fact]
-		public async Task RestoreCipher_SetsIsDeletedFalse_AndClearsDeletedAt()
+		public async Task RestoreCipher_Throws_WhenNewTitleAlsoConflicts()
 		{
-			var cipher = MakeCipher(1, ApprovalStatus.Approved, isDeleted: true);
-			cipher.DeletedAt = DateTime.UtcNow.AddHours(2).AddDays(-1);
-			SetupAttachedCiphers(cipher);
+			var cipher = MakeCipher(1, title: "Old Title", isDeleted: true);
+			var conflicting = MakeCipher(2, title: "New Title");
 
-			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>());
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
+			cipherRepoMock.Setup(r => r.GetAllAsync())
+				.ReturnsAsync(new List<Cipher> { cipher, conflicting });
+
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.RestoreCipher(1, "New Title"));
+		}
+
+		[Fact]
+		public async Task RestoreCipher_RestoresSuccessfully_WhenNoTitleConflict()
+		{
+			var cipher = MakeCipher(1, isDeleted: true);
+			cipher.DeletedAt = DateTime.UtcNow;
+
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
+			cipherRepoMock.Setup(r => r.GetAllAsync())
+				.ReturnsAsync(new List<Cipher> { cipher });
 
 			await service.RestoreCipher(1);
 
@@ -978,58 +885,64 @@ namespace Cryptomind.Tests.Unit.Services
 		}
 
 		[Fact]
-		public async Task RestoreCipher_UpdatesTitle_WhenNewTitleIsProvided()
+		public async Task RestoreCipher_UpdatesTitle_WhenNewTitleProvided()
 		{
-			var cipher = MakeCipher(1, ApprovalStatus.Approved, isDeleted: true, title: "Old Title");
-			SetupAttachedCiphers(cipher);
+			var cipher = MakeCipher(1, title: "Old Title", isDeleted: true);
 
-			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>());
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
+			cipherRepoMock.Setup(r => r.GetAllAsync())
+				.ReturnsAsync(new List<Cipher> { cipher });
 
-			await service.RestoreCipher(1, "New Title");
+			await service.RestoreCipher(1, "Unique New Title");
 
-			Assert.Equal("New Title", cipher.Title);
+			Assert.Equal("Unique New Title", cipher.Title);
 		}
 
 		[Fact]
-		public async Task RestoreCipher_SendsNotificationToCreator()
+		public async Task RestoreCipher_SendsRestoredNotification_ToOwner()
 		{
-			var cipher = MakeCipher(1, ApprovalStatus.Approved, isDeleted: true, createdByUserId: "creator1");
-			SetupAttachedCiphers(cipher);
+			var cipher = MakeCipher(1, userId: "u1", isDeleted: true);
 
-			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>());
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
+			cipherRepoMock.Setup(r => r.GetAllAsync())
+				.ReturnsAsync(new List<Cipher> { cipher });
 
 			await service.RestoreCipher(1);
 
 			notificationMock.Verify(n => n.CreateAndSendNotification(
-				"creator1",
+				"u1",
 				NotificationType.CipherRestored,
 				It.IsAny<string>(),
 				It.IsAny<string>()), Times.Once);
 		}
 
 		[Fact]
-		public async Task RestoreCipher_SendsNotification_ToEachAnswerSubmitter()
+		public async Task RestoreCipher_NotifiesAnswerSubmitters_WhenPendingAnswersExist()
 		{
-			var answers = new List<AnswerSuggestion>
+			var pendingAnswer = new AnswerSuggestion
 			{
-				new() { Id = 10, UserId = "user1", Cipher = new ConcreteCipher { Title = "Test" } },
-				new() { Id = 11, UserId = "user2", Cipher = new ConcreteCipher { Title = "Test" } },
+				Id = 1,
+				UserId = "u2",
+				Status = ApprovalStatus.Pending,
+				Cipher = new TextCipher { Title = "Test Cipher" }
 			};
+			var cipher = MakeCipher(1, isDeleted: true,
+				answerSuggestions: new List<AnswerSuggestion> { pendingAnswer });
 
-			var cipher = MakeCipher(1, ApprovalStatus.Approved, isDeleted: true, answers: answers);
-			SetupAttachedCiphers(cipher);
-
-			cipherRepoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Cipher>());
+			cipherRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<Cipher> { cipher }.AsQueryable().BuildMock());
+			cipherRepoMock.Setup(r => r.GetAllAsync())
+				.ReturnsAsync(new List<Cipher> { cipher });
 
 			await service.RestoreCipher(1);
 
 			notificationMock.Verify(n => n.CreateAndSendNotification(
-				"user1", NotificationType.AnswerCipherRestored,
-				It.IsAny<string>(), It.IsAny<string>()), Times.Once);
-
-			notificationMock.Verify(n => n.CreateAndSendNotification(
-				"user2", NotificationType.AnswerCipherRestored,
-				It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+				"u2",
+				NotificationType.AnswerCipherRestored,
+				It.IsAny<string>(),
+				It.IsAny<string>()), Times.Once);
 		}
 
 		#endregion

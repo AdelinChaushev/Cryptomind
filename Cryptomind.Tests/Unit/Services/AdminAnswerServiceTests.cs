@@ -179,10 +179,13 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task GetAnswerById_ReturnsViewModel_WhenAnswerIsPending()
 		{
-			answerRepoMock.Setup(r => r.GetByIdAsync(1))
-				.ReturnsAsync(Answer(1, "u1", 5, ApprovalStatus.Pending, "decrypted text"));
-			userManagerMock.Setup(m => m.FindByIdAsync("u1"))
-				.ReturnsAsync(User("u1", "bob"));
+			var answers = new List<AnswerSuggestion>
+			{
+				Answer(1, "u1", 5, ApprovalStatus.Pending, "decrypted text"),
+			};
+
+			answerRepoMock.Setup(r => r.GetAllAttached()).Returns(answers.AsQueryable().BuildMock());
+			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(User("u1", "bob"));
 
 			var result = await service.GetAnswerById(1);
 
@@ -194,8 +197,8 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task GetAnswerById_Throws_WhenAnswerNotFound()
 		{
-			answerRepoMock.Setup(r => r.GetByIdAsync(99))
-				.ReturnsAsync((AnswerSuggestion?)null);
+			answerRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(new List<AnswerSuggestion>().AsQueryable().BuildMock());
 
 			await Assert.ThrowsAsync<NotFoundException>(
 				() => service.GetAnswerById(99));
@@ -204,8 +207,12 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task GetAnswerById_Throws_WhenAnswerIsAlreadyApproved()
 		{
-			answerRepoMock.Setup(r => r.GetByIdAsync(1))
-				.ReturnsAsync(Answer(1, "u1", 1, ApprovalStatus.Approved));
+			var answers = new List<AnswerSuggestion>
+			{
+				Answer(1, "u1", 1, ApprovalStatus.Approved),
+			};
+
+			answerRepoMock.Setup(r => r.GetAllAttached()).Returns(answers.AsQueryable().BuildMock());
 
 			await Assert.ThrowsAsync<ConflictException>(
 				() => service.GetAnswerById(1));
@@ -214,8 +221,12 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task GetAnswerById_Throws_WhenAnswerIsAlreadyRejected()
 		{
-			answerRepoMock.Setup(r => r.GetByIdAsync(1))
-				.ReturnsAsync(Answer(1, "u1", 1, ApprovalStatus.Rejected));
+			var answers = new List<AnswerSuggestion>
+			{
+				Answer(1, "u1", 1, ApprovalStatus.Rejected),
+			};
+
+			answerRepoMock.Setup(r => r.GetAllAttached()).Returns(answers.AsQueryable().BuildMock());
 
 			await Assert.ThrowsAsync<ConflictException>(
 				() => service.GetAnswerById(1));
@@ -224,10 +235,13 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task GetAnswerById_Throws_WhenUserNotFound()
 		{
-			answerRepoMock.Setup(r => r.GetByIdAsync(1))
-				.ReturnsAsync(Answer(1, "u1", 1, ApprovalStatus.Pending));
-			userManagerMock.Setup(m => m.FindByIdAsync("u1"))
-				.ReturnsAsync((ApplicationUser?)null);
+			var answers = new List<AnswerSuggestion>
+			{
+				Answer(1, "u1", 1, ApprovalStatus.Pending),
+			};
+
+			answerRepoMock.Setup(r => r.GetAllAttached()).Returns(answers.AsQueryable().BuildMock());
+			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync((ApplicationUser?)null);
 
 			await Assert.ThrowsAsync<Exception>(
 				() => service.GetAnswerById(1));
@@ -506,7 +520,7 @@ namespace Cryptomind.Tests.Unit.Services
 			notificationMock.Verify(n => n.CreateAndSendNotification(
 				"u1",
 				NotificationType.AnswerRejected,
-				"not good enough",
+				"Вашият отговор беше отхвърлен: not good enough",
 				It.IsAny<string>()), Times.Once);
 		}
 
