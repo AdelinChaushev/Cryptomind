@@ -90,7 +90,7 @@
 
 .cipher-types-panel {
     position: relative;
-    top: calc(var(--navbar-height, 60px) + 20px);
+    top: calc(var(--navbar-height, 60px) - 62px);
 }
 
 @media (max-width: 1024px) {
