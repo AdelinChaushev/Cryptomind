@@ -6,6 +6,7 @@ using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Cryptomind.Common.Constants;
 
 namespace Cryptomind.Core.Services
 {
@@ -27,7 +28,7 @@ namespace Cryptomind.Core.Services
 				.FirstOrDefaultAsync(x => x.Id == cipherId);
 
 			if (cipher == null)
-				throw new NotFoundException("Cipher not found");
+				throw new NotFoundException(CipherErrorConstants.CipherNotFoundMessage);
 
 			var userHints = cipher.HintsRequested
 					.Where(x => x.UserId == userId)
@@ -47,10 +48,10 @@ namespace Cryptomind.Core.Services
 
 
 			if (cipher.CreatedByUserId == userId)
-				throw new ConflictException("You cannot request hints for your own cipher");
+				throw new ConflictException("Не можете да искате подсказки за вашия собствен шифър");
 
 			if (cipher.UserSolutions.Any(x => x.UserId == userId && x.IsCorrect))
-				throw new ConflictException("You have already solved this cipher");
+				throw new ConflictException(CipherErrorConstants.AlreadySolvedConflict);
 
 			bool isAllowed = hintType switch
 			{
@@ -61,7 +62,7 @@ namespace Cryptomind.Core.Services
 			};
 
 			if (!isAllowed)
-				throw new ConflictException("This hint type is not available for this cipher");
+				throw new ConflictException("Този тип подсказка не е налична за този шифър.");
 
 			var existingHint = cipher.HintsRequested
 					.FirstOrDefault(hr => hr.UserId == userId && hr.HintType == hintType);
