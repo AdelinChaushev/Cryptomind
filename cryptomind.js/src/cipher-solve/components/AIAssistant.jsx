@@ -12,7 +12,7 @@ function AIAssistant({ onTypeHint, onSolutionHint, onSolution, aiMode, aiText, a
                     onClick={onTypeHint}
                     disabled={aiLoading}>
                     <span className="btn-ai-left">
-                        <span className="btn-ai-icon">🔍</span>
+                        
                         Тип подсказка
                     </span>
                     <span className="btn-ai-right">
