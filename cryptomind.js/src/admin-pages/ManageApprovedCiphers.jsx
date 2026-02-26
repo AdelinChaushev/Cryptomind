@@ -153,9 +153,6 @@ const ManageApprovedCiphers = () => {
                 <div className="admin-content">
                     <div className="page-header">
                         <h1 className="page-title">Управление на шифри</h1>
-                        <p className="page-subtitle">
-                            {ciphers.length} одобрен{ciphers.length !== 1 ? 'и шифъра' : ' шифър'} в платформата
-                        </p>
                     </div>
 
                     {/* Toolbar */}

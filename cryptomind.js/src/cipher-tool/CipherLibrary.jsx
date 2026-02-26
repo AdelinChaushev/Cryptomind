@@ -12,7 +12,7 @@ const FAMILIES = [
     ciphers: [
       {
         id: "caesar",
-        label: "Цезар",
+        label: "Цезар (Caesar)",
         color: "#fbbf24",
         era: "Древен Рим, ~60 г. пр. Хр.",
         difficulty: "Начинаещ",
@@ -26,7 +26,7 @@ const FAMILIES = [
       },
       {
         id: "rot13",
-        label: "ROT13",
+        label: "ROT13 (ROT13)",
         color: "#22d3ee",
         era: "Ранен интернет, 1980-те",
         difficulty: "Начинаещ",
@@ -40,7 +40,7 @@ const FAMILIES = [
       },
       {
         id: "atbash",
-        label: "Атбаш",
+        label: "Атбаш (Atbash)",
         color: "#a78bfa",
         era: "Древна иврит, ~600 г. пр. Хр.",
         difficulty: "Начинаещ",
@@ -54,7 +54,7 @@ const FAMILIES = [
       },
       {
         id: "simpleSubstitution",
-        label: "Проста замяна",
+        label: "Проста замяна (SimpleSubstitution)",
         color: "#fb923c",
         era: "Средновековна Европа",
         difficulty: "Среден",
@@ -77,7 +77,7 @@ const FAMILIES = [
     ciphers: [
       {
         id: "vigenere",
-        label: "Виженер",
+        label: "Виженер (Vigenere)",
         color: "#10b981",
         era: "16 век, Блез дьо Виженер",
         difficulty: "Среден",
@@ -91,7 +91,7 @@ const FAMILIES = [
       },
       {
         id: "autokey",
-        label: "Автоключ",
+        label: "Автоключ (Autokey)",
         color: "#34d399",
         era: "16 век, Блез дьо Виженер",
         difficulty: "Напреднал",
@@ -105,7 +105,7 @@ const FAMILIES = [
       },
       {
         id: "trithemius",
-        label: "Тритемий",
+        label: "Тритемий (Trithemius)",
         color: "#6ee7b7",
         era: "1508, Йоханес Тритемий",
         difficulty: "Среден",
@@ -121,14 +121,14 @@ const FAMILIES = [
   },
   {
     id: "transposition",
-    label: "Шифри на транспозиция",
+    label: "Транспозиционни",
     color: "#60a5fa",
     tagline: "Разбъркват позициите на буквите, без да ги променят",
     description: "Шифрите на транспозиция не променят какви букви се използват — те променят къде се появяват. Всички оригинални букви присъстват в шифрирания текст, само в различен ред. Това означава, че честотният анализ на буквите не разкрива нищо полезно. Статистическият подпис на транспозиционния шифър е идентичен с открития текст: индексът на съвпадение остава ~0.065.",
     ciphers: [
       {
         id: "railFence",
-        label: "Железопътна ограда",
+        label: "Железопътна ограда (RailFence)",
         color: "#60a5fa",
         era: "19 век (Американска гражданска война)",
         difficulty: "Начинаещ",
@@ -142,7 +142,7 @@ const FAMILIES = [
       },
       {
         id: "columnar",
-        label: "Колонна",
+        label: "Колонна (Columnar)",
         color: "#818cf8",
         era: "Първа и Втора световна война",
         difficulty: "Среден",
@@ -156,7 +156,7 @@ const FAMILIES = [
       },
       {
         id: "route",
-        label: "Маршрут",
+        label: "Маршрут (Route)",
         color: "#c084fc",
         era: "19 век",
         difficulty: "Среден",
@@ -179,7 +179,7 @@ const FAMILIES = [
     ciphers: [
       {
         id: "morse",
-        label: "Азбука на Морз",
+        label: "Морзов (Morse)",
         color: "#f472b6",
         era: "1837, Самюел Морз",
         difficulty: "Начинаещ",
@@ -193,7 +193,7 @@ const FAMILIES = [
       },
       {
         id: "binary",
-        label: "Двоичен",
+        label: "Двоичен (Binary)",
         color: "#fb7185",
         era: "Основа на изчисленията",
         difficulty: "Начинаещ",
@@ -207,7 +207,7 @@ const FAMILIES = [
       },
       {
         id: "hex",
-        label: "Шестнадесетичен",
+        label: "Шестнадесетичен (Hex)",
         color: "#fda4af",
         era: "Основа на изчисленията",
         difficulty: "Начинаещ",
@@ -221,7 +221,7 @@ const FAMILIES = [
       },
       {
         id: "base64",
-        label: "Base64",
+        label: "Base64 (Base64)",
         color: "#fca5a5",
         era: "1987, стандарт за MIME имейл",
         difficulty: "Среден",

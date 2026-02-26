@@ -15,9 +15,9 @@ namespace Cryptomind.Core.Services
 		ILLMService llmService
 		) : IHintService
 	{
-		private const double TypeHintPenalty = 0.20;
-		private const double SolutionHintPenalty = 0.30;
-		private const double FullSolutionHintPenalty = 0.40;
+		private const double TypeHintPenalty = 0.30;
+		private const double SolutionHintPenalty = 0.50;
+		private const double FullSolutionHintPenalty = 0.95;
 		public async Task<HintResultDTO> RequestHintAsync(string userId, int cipherId, HintType hintType)
 		{
 			var cipher = await cipherRepo.GetAllAttached()
@@ -93,7 +93,6 @@ namespace Cryptomind.Core.Services
 				HintContent = hintContent,
 			};
 
-
 			availablePoints = CalculateNewPointsWithPenalty(availablePoints, hintType);
 
 			await hintRequestRepo.AddAsync(hintRequest);
@@ -122,7 +121,12 @@ namespace Cryptomind.Core.Services
 				HintType.FullSolution => FullSolutionHintPenalty,
 				_ => 0
 			};
-			return (int)Math.Max(0, basePoints * (1.0 - penalty));
+
+			double multiplier = 1.0 - penalty;
+			if (multiplier < 0.05)
+				multiplier = 0.05;
+
+			return (int)Math.Max(0, basePoints * multiplier);
 		}
 		private void SetCachedHint(Cipher cipher, HintType hintType, string content)
 		{

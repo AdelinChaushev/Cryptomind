@@ -46,7 +46,6 @@ const AdminDashboard = ({ recentActivity = [] }) => {
                 <div className="admin-content">
                     <div className="page-header">
                         <h1 className="page-title">Табло за управление</h1>
-                        <p className="page-subtitle">Преглед на активността в платформата и бърз достъп до администраторски инструменти</p>
                     </div>
 
                     {/* ─── Ред със статистики ─── */}

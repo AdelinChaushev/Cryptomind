@@ -82,7 +82,7 @@ const PendingCiphers = () => {
                                 <input
                                     type="text"
                                     className="form-input"
-                                    placeholder="Търсене по заглавие, потребител, вид..."
+                                    placeholder="Търсене по заглавие"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
