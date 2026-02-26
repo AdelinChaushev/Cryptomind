@@ -75,7 +75,7 @@ namespace Cryptomind.Core.Services
 				Score = user.Score,
 				AttemptedCiphers = attemptedCiphersCount,
 				LeaderBoardPlace = rank,
-				SuccessRate = user.SuccessRate,
+				SuccessRate = (int)Math.Round((decimal)(user.SolvedCount / attemptedCiphersCount)* 100),
 				Badges = badges,
 			};
 			return result;
