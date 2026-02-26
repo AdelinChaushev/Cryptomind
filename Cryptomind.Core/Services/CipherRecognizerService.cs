@@ -28,7 +28,7 @@ namespace Cryptomind.Core.Services
 		{
 			if (string.IsNullOrWhiteSpace(inputText))
 			{
-				throw new CustomValidationException("Input text cannot be empty");
+				throw new CustomValidationException("Въведеният текст не може да бъде празен");
 			}
 
 			try
@@ -47,7 +47,7 @@ namespace Cryptomind.Core.Services
 				if (!response.IsSuccessStatusCode)
 				{
 					var errorContent = await response.Content.ReadAsStringAsync();
-					throw new Exception($"ML API returned error (Status {response.StatusCode}): {errorContent}");
+					throw new Exception($"ML API върна грешка(Статус{ response.StatusCode}): {errorContent}");
 				}
 
 				var responseJson = await response.Content.ReadAsStringAsync();
@@ -62,12 +62,12 @@ namespace Cryptomind.Core.Services
 
 				if (pythonResponse == null)
 				{
-					throw new Exception("Failed to parse ML API response");
+					throw new Exception("Неуспешно анализиране на отговора на ML API");
 				}
 
 				if (pythonResponse.TopPrediction == null)
 				{
-					throw new Exception("Invalid response from ML API - missing top prediction");
+					throw new Exception("Невалиден отговор от ML API - липсва най-добрата прогноза");
 				}
 
 				var result = new CipherRecognitionResultViewModel
@@ -83,21 +83,21 @@ namespace Cryptomind.Core.Services
 			catch (HttpRequestException ex)
 			{
 				throw new Exception(
-					$"ML service is unavailable. Please ensure the Python ML API is running at {mlApiUrl}",
+					$"Услугата за машинно обучение не е налична. Моля, уверете се, че Python ML API работи на {mlApiUrl}",
 					ex
 				);
 			}
 			catch (TaskCanceledException ex)
 			{
 				throw new Exception(
-					$"ML service request timed out after {ApiTimeoutSeconds} seconds",
+					$"ML услугата не отговори в рамките на {ApiTimeoutSeconds} секунди",
 					ex
 				);
 			}
 			catch (JsonException ex)
 			{
 				throw new Exception(
-					"Failed to parse response from ML service. The service may be returning invalid data.",
+                    "Неуспешно анализиране на отговора от услугата за машинно обучение. Възможно е услугата да връща невалидни данни.",
 					ex
 				);
 			}
