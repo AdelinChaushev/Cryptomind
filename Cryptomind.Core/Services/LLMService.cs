@@ -75,7 +75,7 @@ namespace Cryptomind.Core.Services
 				);
 
 				if (result == null)
-					throw new Exception("Failed to deserialize validation result");
+					throw new Exception("Десериализирането на резултата от валидирането не бе успешно");
 
 				return result;
 			}
@@ -99,7 +99,7 @@ namespace Cryptomind.Core.Services
 			string decryptedText = cipher.DecryptedText;
 
 			if (cipher.TypeOfCipher == null)
-				throw new ConflictException("Cannot generate hint for cipher without a type");
+				throw new ConflictException("Не може да се генерира подсказка за шифър без тип");
 
 			string actualType = cipher.TypeOfCipher.ToString();
 
@@ -523,7 +523,7 @@ namespace Cryptomind.Core.Services
 			{
 				var errorContent = await response.Content.ReadAsStringAsync();
 
-				throw new Exception($"LLM API returned error (Status {response.StatusCode}): {errorContent}");
+				throw new Exception($"LLM API върна грешка (Статус{response.StatusCode}): {errorContent}");
 			}
 
 			var responseJson = await response.Content.ReadAsStringAsync();
@@ -532,7 +532,7 @@ namespace Cryptomind.Core.Services
 				new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
 			if (llmResponse?.Choices == null || llmResponse.Choices.Count == 0)
-				throw new Exception("LLM API returned empty response");
+				throw new Exception("LLM API върна празен отговор");
 
 
 			return llmResponse.Choices[0].Message.Content;
