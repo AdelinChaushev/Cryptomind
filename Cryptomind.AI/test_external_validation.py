@@ -101,7 +101,7 @@ if len(test_sentences) < 110:
     print("   Some cipher types may get fewer samples")
 
 # Initialize
-print("\n🔧 Loading models...")
+print("\nLoading models...")
 cipher_gen = CipherGenerator()
 predictor = CipherPredictor()
 print("Models loaded\n")
