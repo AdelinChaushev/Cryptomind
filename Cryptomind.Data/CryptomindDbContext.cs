@@ -45,14 +45,13 @@ namespace Cryptomind.Data
 				.HasForeignKey(c => c.CreatedByUserId)
 				.OnDelete(DeleteBehavior.Restrict);
             builder.Entity<Cipher>()
-           .HasIndex(c => c.Title)
-           .HasFilter("IsDeleted = 0")
-           .IsUnique();
+				.HasIndex(c => c.Title)
+				.HasFilter("IsDeleted = 0")
+				.IsUnique();
+
 			builder.Entity<Cipher>()
 			.HasIndex(c => c.EncryptedText)
 			.IsUnique();
-				
-			
 
 			builder.Entity<Cipher>()
 				.HasIndex(c => c.Title)
@@ -119,7 +118,7 @@ namespace Cryptomind.Data
 			var admin = new ApplicationUser
 			{
 				Id = adminId,
-				UserName = "admin@cryptomind.com",
+				UserName = "Admin",
 				NormalizedUserName = "ADMIN@CRYPTOMIND.COM",
 				Email = "admin@cryptomind.com",
 				NormalizedEmail = "ADMIN@CRYPTOMIND.COM",
@@ -131,7 +130,7 @@ namespace Cryptomind.Data
 			var regularUser = new ApplicationUser
 			{
 				Id = userId,
-				UserName = "user@cryptomind.com",
+				UserName = "User",
 				NormalizedUserName = "USER@CRYPTOMIND.COM",
 				Email = "user@cryptomind.com",
 				NormalizedEmail = "USER@CRYPTOMIND.COM",

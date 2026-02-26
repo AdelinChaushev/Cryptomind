@@ -205,9 +205,9 @@ namespace Cryptomind.Tests.Unit.Services
 				"KHOOR", "HELLO", mlResult, "Caesar");
 
 			Assert.NotNull(result);
-			Assert.Equal("manual_review", result.Recommendation);
+			Assert.Equal("reject", result.Recommendation);
 			Assert.Single(result.Issues);
-			Assert.Contains("LLM response parsing failed", result.Issues[0]);
+			Assert.Contains("Неуспешно разчитане на отговора от LLM — необходим е ръчен преглед.", result.Issues[0]);
 		}
 
 		[Fact]
