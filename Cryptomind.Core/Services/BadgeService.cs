@@ -70,17 +70,17 @@ namespace Cryptomind.Core.Services
 				.FirstOrDefaultAsync(x => x.Id == userId);
 
 			if (user == null)
-				throw new Exception($"Data integrity error: user not found for answer awarding badge {badgeId}.");
+				throw new Exception($"Грешка в целостта на данните: потребителят не е намерен за отговора, присъждащ значка{badgeId}.");
 
 			if (user.Badges.Any(x => x.BadgeId == badgeId)) //Second time checking
-				throw new ConflictException("You already have this badge");
+				throw new ConflictException("Вече имате тази значка");
 
 			var badge = await badgeRepo.GetAllAttached()
 				.Include(x => x.UserBadges)
 				.FirstOrDefaultAsync(x => x.Id == badgeId);
 
 			if (badge == null)
-				throw new NotFoundException("Badge not found");
+				throw new NotFoundException("Значката не е намерена");
 
 			var userBadge = new UserBadge
 			{
@@ -98,7 +98,7 @@ namespace Cryptomind.Core.Services
 				await notificationService.CreateAndSendNotification(
 					userId,
 					NotificationType.BadgeEarned,
-					$"You earned {badge.Title} badge!",
+					$"Спечелихте значка {badge.Title}!",
 					"account-info"); //There might be a different page with badges.
 			}
 			catch (DbUpdateException) //Third time checking
