@@ -7,16 +7,24 @@ import EmptyState       from './EmptyState';
 import Pagination       from './Pagination';
 import { useState, useEffect, useContext } from 'react';
 import { AuthorizationContext } from '../App.jsx'; 
+import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import qs from 'qs';
 
 const SKELETON_COUNT = 6;
 
 const CipherBrowsePage = () => {
+  const getInitialChallengeType = () => {
+    const type = searchParams.get('type');
+    if (type === 'experimental') return 1;
+    if (type === 'standard') return 0;
+    return 0;
+  };
+  const [searchParams] = useSearchParams();
   const [activeFilters, setactiveFilters] = useState([]);
   const [ciphers, setCiphers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [challengeType, setChallengeType] = useState(0);
+  const [challengeType, setChallengeType] = useState(getInitialChallengeType);
   const [totalCiphers, setTotalCiphers] = useState(0);
   const [activeSolvers, setActiveSolvers] = useState(0);
   const { state, setState } = useContext(AuthorizationContext);
@@ -41,6 +49,8 @@ const CipherBrowsePage = () => {
     setSelectedTags([]);
   };
 
+  
+   
   const fetchCiphers = async (filtersParam) => {
     setIsLoading(true);
 
@@ -68,7 +78,7 @@ const CipherBrowsePage = () => {
     }
   };
 
-  useEffect(() => { fetchCiphers({ searchTerm: null, tags: null, challengeType: null }); }, []);
+  useEffect(() => { fetchCiphers({ searchTerm: null, tags: null, challengeType: challengeType }); }, []);
 
   return (
     <>
