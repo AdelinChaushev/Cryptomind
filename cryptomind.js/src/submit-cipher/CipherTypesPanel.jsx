@@ -9,35 +9,35 @@ const CipherTypesPanel = () => {
                     <div>
                         <p className="cipher-family-name">ЗАМЕСТВАНЕ</p>
                         <div className="cipher-tags">
-                            <span className="cipher-tag sub">Цезар</span>
-                            <span className="cipher-tag sub">Атбаш</span>
-                            <span className="cipher-tag sub">ROT13</span>
-                            <span className="cipher-tag sub">Проста замяна</span>
+                            <span className="cipher-tag sub">Цезар (Caesar)</span>
+                            <span className="cipher-tag sub">Атбаш (Atbash)</span>
+                            <span className="cipher-tag sub">ROT13 (ROT13)</span>
+                            <span className="cipher-tag sub">Проста замяна (SimpleSubstitution)</span>
                         </div>
                     </div>
                     <div>
                         <p className="cipher-family-name">ПОЛИАЗБУЧНИ</p>
                         <div className="cipher-tags">
-                            <span className="cipher-tag poly">Виженер</span>
-                            <span className="cipher-tag poly">Автоключ</span>
-                            <span className="cipher-tag poly">Тритемий</span>
+                            <span className="cipher-tag poly">Виженер (Vigenere)</span>
+                            <span className="cipher-tag poly">Автоключ (Autokey)</span>
+                            <span className="cipher-tag poly">Тритемий (Trithemius)</span>
                         </div>
                     </div>
                     <div>
                         <p className="cipher-family-name">ТРАНСПОЗИЦИЯ</p>
                         <div className="cipher-tags">
-                            <span className="cipher-tag trans">Железопътна ограда</span>
-                            <span className="cipher-tag trans">Колонна</span>
-                            <span className="cipher-tag trans">Маршрут</span>
+                            <span className="cipher-tag trans">Железопътна ограда (RailFence)</span>
+                            <span className="cipher-tag trans">Колонна (Columnar)</span>
+                            <span className="cipher-tag trans">Маршрут (Route)</span>
                         </div>
                     </div>
                     <div>
                         <p className="cipher-family-name">КОДИРАНЕ</p>
                         <div className="cipher-tags">
-                            <span className="cipher-tag enc">Base64</span>
-                            <span className="cipher-tag enc">Морзе</span>
-                            <span className="cipher-tag enc">Двоичен</span>
-                            <span className="cipher-tag enc">Шестнадесетичен</span>
+                            <span className="cipher-tag enc">Base64 (Base64)</span>
+                            <span className="cipher-tag enc">Морзов (Morse)</span>
+                            <span className="cipher-tag enc">Двоичен (Binary)</span>
+                            <span className="cipher-tag enc">Шестнадесетичен (Hex)</span>
                         </div>
                     </div>
                 </div>

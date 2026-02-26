@@ -165,9 +165,9 @@ function Hero() {
                 <div className="about-hero__meta">
                     <span className="about-hero__meta-item">▸ 14 типа шифри</span>
                     <span className="about-hero__meta-divider">|</span>
-                    <span className="about-hero__meta-item">▸ 90% точност</span>
+                    <span className="about-hero__meta-item">▸ 90% ML точност</span>
                     <span className="about-hero__meta-divider">|</span>
-                    <span className="about-hero__meta-item">▸ &lt;1 сек. предсказване</span>
+                    <span className="about-hero__meta-item">▸ AI асистент</span>
                 </div>
             </div>
 
@@ -212,7 +212,7 @@ function Mission() {
   Увереност: 99.97%
 
 > Слой 2: Специализиран модел...
-  Тип: Шифър на Виженер            ✓
+  Тип: Шифър на Виженер (Vigenere)           ✓
   Увереност: 95.56%
 
 > Резултат: VIGENERE
@@ -241,10 +241,10 @@ function Stats() {
 // ─── Cipher Families ──────────────────────────────────────────────────────────
 function CipherFamilies() {
     const families = [
-        { family: "ЗАМЕСТВАНЕ",   types: ["Цезар", "ROT13", "Atbash", "Просто заместване"], icon: "⟳", partial: false },
-        { family: "ПОЛИАЗБУЧНИ",  types: ["Виженер", "Autokey", "Трифемий"],                icon: "◈", partial: false },
-        { family: "ТРАНСПОЗИЦИЯ", types: ["Rail Fence", "Колонна", "Маршрутна"],            icon: "⊞", partial: true  },
-        { family: "КОДИРАНЕ",     types: ["Base64", "Morse", "Binary", "Hex"],              icon: "⌬", partial: false },
+        { family: "ЗАМЕСТВАНЕ",   types: ["Цезар (Caesar)", "ROT13 (ROT13)", "Атбаш (Atbash)", "Просто замяна (Simple Substitution)"], icon: "⟳", partial: false },
+        { family: "ПОЛИАЗБУЧНИ",  types: ["Виженер (Vigenere)", "Автоключ (Autokey)", "Тритемий (Trithemius)"],                icon: "◈", partial: false },
+        { family: "ТРАНСПОЗИЦИЯ", types: ["Железопътна ограда (RailFence)", "Колонна (Columnar)", "Маршрут (Route)"],            icon: "⊞", partial: true  },
+        { family: "КОДИРАНЕ",     types: ["Base64 (Base64)", "Морзов (Morse)", "Двоичен (Binary)", "Шестнадесетичен (Hex)"],              icon: "⌬", partial: false },
     ];
 
     return (
@@ -253,7 +253,6 @@ function CipherFamilies() {
                 <SectionHeader tag="// ШИФРИ" title="Поддържани типове шифри" />
                 <p className="about-body-text" style={{ maxWidth: 580, marginBottom: 12 }}>
                     Системата покрива 14 типа класически шифри в 4 семейства.
-                    Задръжте курсора върху карта, за да видите точността на разпознаване.
                 </p>
                 <div className="about-cipher-grid">
                     {families.map((f) => <CipherCard key={f.family} {...f} />)}
@@ -288,8 +287,8 @@ function HowItWorks() {
 function Limitations() {
     const limits = [
         { icon: "🇬🇧", title: "САМО АНГЛИЙСКИ ТЕКСТ",   desc: "ML моделът е трениран на английски корпус. Индексът на съвпадение приема английски честоти (~0.065). Друг език ще даде неверни резултати." },
-        { icon: "📏",   title: "МИНИМУМ 150 ЗНАКА",      desc: "Статистическите характеристики стават ненадеждни под тази граница. Оптималната дължина за класификация е 200–400 знака." },
-        { icon: "1️⃣",  title: "САМО ЕДИН ШИФЪР",        desc: "Системата предполага, че текстът е криптиран с точно един тип шифър. Наслоеното или смесено криптиране не се поддържа." },
+        { icon: "📏",   title: "ОПТИМАЛНО 200–400 ЗНАКА",      desc: "За най-добра точност на класификацията препоръчваме текст между 200 и 400 знака. Под 150 знака статистиката става ненадеждна и резултатите често са неточни." },
+        {icon: "🔒", title: "ЕДНО НИВО НА ШИФРОВАНЕ", desc: "Приложено е само едно ниво на криптиране. Няма допълнителни слоеве или двойно шифроване." },
         { icon: "📜",   title: "САМО КЛАСИЧЕСКИ ШИФРИ",  desc: "Не е предназначена за модерни алгоритми като AES или RSA. Платформата покрива единствено исторически и образователни шифри." },
     ];
 
@@ -313,7 +312,7 @@ function Limitations() {
 // ─── Roles ────────────────────────────────────────────────────────────────────
 function Roles() {
     const userPerms  = ["Разглежда и решава шифри", "Подава собствени предизвикателства", "Ползва AI подсказки и пълни решения", "Участва в класацията", "Преглежда своята история"];
-    const adminPerms = ["Одобрява или отхвърля шифри", "Преглежда ML и AI анализи при проверка", "Задава тагове, трудност и тип", "Управлява и деактивира потребители", "Промотира до администратор"];
+    const adminPerms = ["Одобрява или отхвърля шифри", "Одобрява или отхвърля предложени отговори", "Преглежда ML и AI анализи при проверка", "Управлява и деактивира потребители", "Промотира до администратор"];
 
     return (
         <section className="about-section">

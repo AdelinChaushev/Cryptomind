@@ -75,8 +75,8 @@ export default function Login() {
                     </header>
 
                     <div className="form-title-block">
-                        <h2 className="form-title">УДОСТОВЕРЯВАНЕ</h2>
-                        <p className="form-subtitle">Достъп до вашето табло за шифри</p>
+                        <h2 className="form-title">ВЛЕЗТЕ В СИСТЕМАТА</h2>
+                        <p className="form-subtitle">Вашият достъп до света на криптографията</p>
                     </div>
 
                    <form className="auth-form" onSubmit={handleSubmit} noValidate>
