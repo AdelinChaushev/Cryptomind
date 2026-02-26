@@ -278,7 +278,7 @@ namespace Cryptomind.Core.Services
 				throw new ConflictException("There is already a cipher with this title");
 
 			//When type is not given we cannot approve it
-			if (model.TypeOfCipher == null)
+			if (model.TypeOfCipher == null || (int)model.TypeOfCipher == -1)
 				throw new ConflictException("Cipher with unknown type cannot be approved because the points for each cipher are based on it's type.");
 
 			cipher.ChallengeType = string.IsNullOrWhiteSpace(cipher.DecryptedText)
