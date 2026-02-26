@@ -15,7 +15,10 @@ function AIAssistant({ onTypeHint, onSolutionHint, onSolution, aiMode, aiText, a
                         <span className="btn-ai-icon">🔍</span>
                         Тип подсказка
                     </span>
-                    <span className="btn-ai-arrow">→</span>
+                    <span className="btn-ai-right">
+                        <span className="btn-ai-penalty">-30%</span>
+                        <span className="btn-ai-arrow">→</span>
+                    </span>
                 </button>}
 
                {allowSolutionHint && <button
@@ -25,7 +28,10 @@ function AIAssistant({ onTypeHint, onSolutionHint, onSolution, aiMode, aiText, a
                     <span className="btn-ai-left">
                         Подсказка за решение
                     </span>
-                    <span className="btn-ai-arrow">→</span>
+                    <span className="btn-ai-right">
+                        <span className="btn-ai-penalty">-50%</span>
+                        <span className="btn-ai-arrow">→</span>
+                    </span>
                 </button>}
 
                {allowSolution && <button
@@ -35,7 +41,10 @@ function AIAssistant({ onTypeHint, onSolutionHint, onSolution, aiMode, aiText, a
                     <span className="btn-ai-left">
                         Разкрий решението
                     </span>
-                    <span className="btn-ai-arrow">→</span>
+                    <span className="btn-ai-right">
+                        <span className="btn-ai-penalty">-95%</span>
+                        <span className="btn-ai-arrow">→</span>
+                    </span>
                 </button>}
             </div>
 

@@ -7,7 +7,7 @@
 			if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
 				return Path.Combine(AppContext.BaseDirectory, "Images");
 			else
-				return Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Images"));
+				return Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
 		}
 	}
 }
