@@ -20,9 +20,9 @@ namespace Cryptomind.Core.Services
 			bool passwordValid = user != null && await userManager.CheckPasswordAsync(user, password);
 
 			if (!passwordValid)
-				throw new UnauthorizedException("Invalid credentials");
+				throw new UnauthorizedException("Невалидни данни");
 			if (user.IsDeactivated)
-				throw new ConflictException("This account is deactivated.");
+				throw new ConflictException("Този акаунт е деактивиран");
 			return user;
 		}
 		public async Task<string> GenerateJSONWebToken(ApplicationUser user)
@@ -60,7 +60,7 @@ namespace Cryptomind.Core.Services
 			var userExist = await userManager.FindByEmailAsync(email);
 			if (userExist != null)
 			{
-				throw new ConflictException("User with this email already exists");
+				throw new ConflictException("Потребител с този имейл вече съществува");
 			}
 			
 			if (await userManager.FindByNameAsync(userName) != null)
@@ -72,7 +72,7 @@ namespace Cryptomind.Core.Services
 				throw new CustomValidationException("Keep the username constraints");
 
 			if (password.Length < 8)
-				throw new CustomValidationException("Keep the password constraints");
+				throw new CustomValidationException("Спазвайте ограниченията на паролата");
 
 			ApplicationUser user = new ApplicationUser()
 			{
@@ -95,13 +95,13 @@ namespace Cryptomind.Core.Services
 			var user = await userManager.FindByIdAsync(userId);
 
 			if (user == null)
-				throw new NotFoundException("User not found");
+				throw new NotFoundException("Потребителят не е намерен");
 
 			if (user.IsDeactivated)
-				throw new ConflictException("This account is already deactivated");
+				throw new ConflictException("Този акаунт е деактивиран");
 
 			if (await userManager.IsInRoleAsync(user, "Admin"))
-				throw new ConflictException("Admins cannot deactivate their own account");
+				throw new ConflictException("Администраторите не могат да деактивират собствения си акаунт");
 
 			user.IsDeactivated = true;
 			user.DeactivatedAt = DateTime.UtcNow.AddHours(2);

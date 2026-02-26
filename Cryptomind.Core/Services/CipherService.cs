@@ -8,277 +8,263 @@ using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Cryptomind.Common.Helpers;
 using Cryptomind.Data.Repositories;
+using Cryptomind.Common.Constants;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cryptomind.Core.Services
 {
-	public class CipherService(
-		IRepository<Cipher, int> cipherRepo,
-		IRepository<UserSolution, int> solutionRepo,
-		UserManager<ApplicationUser> userManager) : ICipherService
-	{
-		public async Task<List<CipherOutputViewModel>> GetApprovedAsync(CipherFilter filter, string userId)
-		{
-			IQueryable<Cipher> query = cipherRepo.GetAllAttached()
-				.Include(x => x.UserSolutions)
-				.Where(c => c.Status == ApprovalStatus.Approved && !c.IsDeleted);
+    public class CipherService(
+        IRepository<Cipher, int> cipherRepo,
+        IRepository<UserSolution, int> solutionRepo,
+        UserManager<ApplicationUser> userManager) : ICipherService
+    {
+        private const string DateFormat = "ddd, dd MMM yyyy h:mm";
 
-			if (!string.IsNullOrEmpty(filter.SearchTerm))
-				query = query.Where(c => c.Title.ToLower().Contains(filter.SearchTerm.ToLower()));
+        public async Task<List<CipherOutputViewModel>> GetApprovedAsync(CipherFilter filter, string userId)
+        {
+            IQueryable<Cipher> query = cipherRepo.GetAllAttached()
+                .Include(x => x.UserSolutions)
+                .Where(c => c.Status == ApprovalStatus.Approved && !c.IsDeleted);
 
-			if (filter.Tags != null && filter.Tags.Any())
-				query = query.Where(c => c.CipherTags.Any(t => filter.Tags.Contains(t.Tag.Type)));
+            if (!string.IsNullOrEmpty(filter.SearchTerm))
+                query = query.Where(c => c.Title.ToLower().Contains(filter.SearchTerm.ToLower()));
 
-			// Apply challenge type filter
-			switch (filter.ChallengeType)
-			{
-				case ChallengeType.Standard:
-					query = query.Where(x => x.ChallengeType == ChallengeType.Standard);
-					break;
-				case ChallengeType.Experimental:
-					query = query.Where(x => x.ChallengeType == ChallengeType.Experimental);
-					break;
-			}
+            if (filter.Tags != null && filter.Tags.Any())
+                query = query.Where(c => c.CipherTags.Any(t => filter.Tags.Contains(t.Tag.Type)));
 
-			// Apply cipher definition filter
-			switch (filter.CipherDefinition)
-			{
-				case CipherDefinition.ImageCipher:
-					query = query.OfType<ImageCipher>();
-					break;
-				case CipherDefinition.TextCipher:
-					query = query.OfType<TextCipher>();
-					break;
-			}
+            switch (filter.ChallengeType)
+            {
+                case ChallengeType.Standard:
+                    query = query.Where(x => x.ChallengeType == ChallengeType.Standard);
+                    break;
+                case ChallengeType.Experimental:
+                    query = query.Where(x => x.ChallengeType == ChallengeType.Experimental);
+                    break;
+            }
 
-			// Apply ordering
-			switch (filter.OrderTerm)
-			{
-				case CipherOrderTerm.Newest:
-					query = query.OrderByDescending(x => x.CreatedAt);
-					break;
-				case CipherOrderTerm.Oldest:
-					query = query.OrderBy(x => x.CreatedAt);
-					break;
-				case CipherOrderTerm.MostPopular:
-					query = query.OrderByDescending(x => x.UserSolutions.Count);
-					break;
+            switch (filter.CipherDefinition)
+            {
+                case CipherDefinition.ImageCipher:
+                    query = query.OfType<ImageCipher>();
+                    break;
+                case CipherDefinition.TextCipher:
+                    query = query.OfType<TextCipher>();
+                    break;
+            }
+
+            switch (filter.OrderTerm)
+            {
+                case CipherOrderTerm.Newest:
+                    query = query.OrderByDescending(x => x.CreatedAt);
+                    break;
+                case CipherOrderTerm.Oldest:
+                    query = query.OrderBy(x => x.CreatedAt);
+                    break;
+                case CipherOrderTerm.MostPopular:
+                    query = query.OrderByDescending(x => x.UserSolutions.Count);
+                    break;
                 case CipherOrderTerm.LeastPopular:
                     query = query.OrderBy(x => x.UserSolutions.Count);
                     break;
             }
 
-			List<Cipher> approved = await query.ToListAsync();
+            List<Cipher> approved = await query.ToListAsync();
 
-			List<CipherOutputViewModel> result = new List<CipherOutputViewModel>();
-			foreach (var cipher in approved)
-			{
-				result.Add(ToOutputViewModel(cipher, userId));
-			}
-			return result;
-		}
-		public async Task<CipherDetailedOutputViewModel?> GetCipherAsync(int id, string userId)
-		{
-			Cipher? cipher = await cipherRepo.GetAllAttached()
-				.Include(x => x.UserSolutions)
-				.ThenInclude(x => x.User)
-				.Include(x => x.HintsRequested)
-				.Include(x => x.CipherTags)
-					.ThenInclude(x => x.Tag)
-				.FirstOrDefaultAsync(x => x.Id == id);
+            List<CipherOutputViewModel> result = new List<CipherOutputViewModel>();
+            foreach (var cipher in approved)
+            {
+                result.Add(ToOutputViewModel(cipher, userId));
+            }
+            return result;
+        }
 
-			if (cipher == null || cipher.Status != ApprovalStatus.Approved)
-				throw new NotFoundException("Cipher not found");
+        public async Task<CipherDetailedOutputViewModel?> GetCipherAsync(int id, string userId)
+        {
+            Cipher? cipher = await cipherRepo.GetAllAttached()
+                .Include(x => x.UserSolutions)
+                .ThenInclude(x => x.User)
+                .Include(x => x.HintsRequested)
+                .Include(x => x.CipherTags)
+                    .ThenInclude(x => x.Tag)
+                .FirstOrDefaultAsync(x => x.Id == id);
 
-			if (cipher.IsDeleted)
-				throw new ConflictException("This cipher has been removed");
+            if (cipher == null || cipher.Status != ApprovalStatus.Approved)
+                throw new NotFoundException(CipherErrorConstants.CipherNotFoundMessage);
 
-			return await ToDetailedOutputViewModel(cipher, userId);
-		}
-		public async Task<bool> SolveCipherAsync(string userId, string input, int cipherId)
-		{
-			Cipher? cipher = await cipherRepo.GetAllAttached()
-				.Include(x => x.UserSolutions)
-				.Include(x => x.HintsRequested)
-				.Where(x => x.Status == ApprovalStatus.Approved && !x.IsDeleted)
-				.FirstOrDefaultAsync(x => x.Id == cipherId);
+            if (cipher.IsDeleted)
+                throw new ConflictException(CipherErrorConstants.CipherDeletedConflict);
 
-			if (cipher == null)
-				throw new NotFoundException("Cipher not found");
+            return await ToDetailedOutputViewModel(cipher, userId);
+        }
 
-			if (cipher.CreatedByUserId == userId)
-				throw new ConflictException("A cipher cannot be solved by it's user");
+        public async Task<bool> SolveCipherAsync(string userId, string input, int cipherId)
+        {
+            Cipher? cipher = await cipherRepo.GetAllAttached()
+                .Include(x => x.UserSolutions)
+                .Include(x => x.HintsRequested)
+                .Where(x => x.Status == ApprovalStatus.Approved && !x.IsDeleted)
+                .FirstOrDefaultAsync(x => x.Id == cipherId);
 
-			if (cipher.ChallengeType == ChallengeType.Experimental)
-				throw new ConflictException("Experimental ciphers cannot be solved");
+            if (cipher == null)
+                throw new NotFoundException(CipherErrorConstants.CipherNotFoundMessage);
 
-			if (cipher.UserSolutions.FirstOrDefault(x => x.UserId == userId && x.IsCorrect) != null)
-				throw new ConflictException("Cannot solve the same cipher 2 times");
+            if (cipher.CreatedByUserId == userId)
+                throw new ConflictException(CipherErrorConstants.OwnCipherSolveConflict);
 
-			var userNow = await userManager.FindByIdAsync(userId);
-			if (userNow == null)
-				throw new Exception($"Data integrity error: user {cipher.CreatedByUserId} not found for cipher {cipher.Id}.");
+            if (cipher.ChallengeType == ChallengeType.Experimental)
+                throw new ConflictException(CipherErrorConstants.ExperimentalSolveConflict);
 
-			if (!userNow.CipherAnswers.Any(x => x.CipherId == cipherId))
-				userNow.AttemptedCiphers += 1;
-			
-			string correctAnswer = cipher.DecryptedText;
+            if (cipher.UserSolutions.FirstOrDefault(x => x.UserId == userId && x.IsCorrect) != null)
+                throw new ConflictException(CipherErrorConstants.AlreadySolvedConflict);
 
-			bool isCorrect = correctAnswer.Trim().Equals(input.Trim(), StringComparison.OrdinalIgnoreCase);
+            var userNow = await userManager.FindByIdAsync(userId);
+            if (userNow == null)
+                throw new Exception(GeneralErrorConstants.MatchDataIntegrityError(userId, cipherId));
 
-			var userHints = cipher.HintsRequested
-				.Where(hr => hr.UserId == userId)
-				.ToList();
+            if (!userNow.CipherAnswers.Any(x => x.CipherId == cipherId))
+                userNow.AttemptedCiphers += 1;
 
-			bool usedTypeHint = userHints.Any(h => h.HintType == HintType.Type);
-			bool usedSolutionHint = userHints.Any(h => h.HintType == HintType.Hint);
-			bool usedFullSolution = userHints.Any(h => h.HintType == HintType.FullSolution);
+            string correctAnswer = cipher.DecryptedText;
 
-			var userSolution = new UserSolution()
-			{
-				CipherId = cipherId,
-				UserId = userId,
-				TimeSolved = DateTime.UtcNow.AddHours(2),
-				UsedTypeHint = usedTypeHint,
-				UsedSolutionHint = usedSolutionHint,
-				UsedFullSolution = usedFullSolution,
-				PointsEarned = 0,
-				IsCorrect = false,
-			};
+            bool isCorrect = correctAnswer.Trim().Equals(input.Trim(), StringComparison.OrdinalIgnoreCase);
 
-			if (isCorrect) // The answer is correct
-			{
-				int pointsEarned = CalculatePointsHelper.CalculateAvailablePointsWithPenalty(
-					cipher.Points,
-					usedTypeHint,
-					usedSolutionHint,
-					usedFullSolution);		
+            var userHints = cipher.HintsRequested
+                .Where(hr => hr.UserId == userId)
+                .ToList();
 
-				userSolution.PointsEarned = pointsEarned;
-				userSolution.IsCorrect = true;
+            bool usedTypeHint = userHints.Any(h => h.HintType == HintType.Type);
+            bool usedSolutionHint = userHints.Any(h => h.HintType == HintType.Hint);
+            bool usedFullSolution = userHints.Any(h => h.HintType == HintType.FullSolution);
 
-				userNow.Score += pointsEarned;
-			}
-			await userManager.UpdateAsync(userNow);
-			await solutionRepo.AddAsync(userSolution);
-			return isCorrect;
-		}
+            var userSolution = new UserSolution()
+            {
+                CipherId = cipherId,
+                UserId = userId,
+                TimeSolved = DateTime.UtcNow.AddHours(2),
+                UsedTypeHint = usedTypeHint,
+                UsedSolutionHint = usedSolutionHint,
+                UsedFullSolution = usedFullSolution,
+                PointsEarned = 0,
+                IsCorrect = false,
+            };
 
-		#region Private methods	
-		private CipherOutputViewModel ToOutputViewModel(Cipher cipher, string userId)
-		{
-			bool isSolved = cipher.UserSolutions.Any(x => x.UserId == userId);
+            if (isCorrect)
+            {
+                int pointsEarned = CalculatePointsHelper.CalculateAvailablePointsWithPenalty(
+                    cipher.Points,
+                    usedTypeHint,
+                    usedSolutionHint,
+                    usedFullSolution);
 
-			var userHints = cipher.HintsRequested
-					.Where(x => x.UserId == userId)
-					.OrderBy(x => x.HintType)
-					.ToList();
+                userSolution.PointsEarned = pointsEarned;
+                userSolution.IsCorrect = true;
 
-			var model = new CipherOutputViewModel
-			{
-				Id = cipher.Id,
-				Title = cipher.Title,
-				AlreadySolved = cipher.UserSolutions.FirstOrDefault(x => x.UserId == userId && x.IsCorrect) != null,
-				ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
-				IsImage = cipher is ImageCipher
-			};
+                userNow.Score += pointsEarned;
+            }
+            await userManager.UpdateAsync(userNow);
+            await solutionRepo.AddAsync(userSolution);
+            return isCorrect;
+        }
 
-			return model;
-		}
-		private async Task<CipherDetailedOutputViewModel> ToDetailedOutputViewModel(Cipher cipher, string userId)
-		{
-			bool isSolved = cipher.UserSolutions.Any(x => x.UserId == userId);
+        #region Private methods	
+        private CipherOutputViewModel ToOutputViewModel(Cipher cipher, string userId)
+        {
+            var model = new CipherOutputViewModel
+            {
+                Id = cipher.Id,
+                Title = cipher.Title,
+                AlreadySolved = cipher.UserSolutions.FirstOrDefault(x => x.UserId == userId && x.IsCorrect) != null,
+                ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
+                IsImage = cipher is ImageCipher
+            };
 
-			var userHints = cipher.HintsRequested
-					.Where(x => x.UserId == userId)
-					.OrderBy(x => x.HintType)
-					.ToList();
+            return model;
+        }
 
-			double successfullSolutionCount = cipher.UserSolutions.Count(x => x.IsCorrect);
-			double unsuccessfullSolutionCount = cipher.UserSolutions.Count(x => !x.IsCorrect);
-			double successRate = 0;
-			successRate = successfullSolutionCount / (unsuccessfullSolutionCount + successfullSolutionCount) * 100;
+        private async Task<CipherDetailedOutputViewModel> ToDetailedOutputViewModel(Cipher cipher, string userId)
+        {
+            double successfullSolutionCount = cipher.UserSolutions.Count(x => x.IsCorrect);
+            var allSolutions = cipher.UserSolutions.Count;
 
-			var allSolutions = cipher.UserSolutions.Count;
+            double successRate = allSolutions == 0
+                ? 0
+                : (successfullSolutionCount / allSolutions) * 100;
 
-			successRate = allSolutions == 0
-			? 0
-			: ((double)successfullSolutionCount / allSolutions) * 100;
+            List<CipherSolverViewModel> recentSolvers = new List<CipherSolverViewModel>();
 
-			List<CipherSolverViewModel> recentSolvers = new List<CipherSolverViewModel>();
+            foreach (var userSolution in cipher.UserSolutions.Where(x => x.IsCorrect))
+            {
+                var userName = userSolution.User.IsDeactivated
+                    ? CipherErrorConstants.AnonymousUser
+                    : userSolution.User.UserName;
 
-			foreach (var userSolution in cipher.UserSolutions.Where(x => x.IsCorrect))
-			{
-				var solvedAt = userSolution.TimeSolved;
-				var userName = userSolution.User.IsDeactivated ? "Anonymous" : userSolution.User.UserName;
+                recentSolvers.Add(new CipherSolverViewModel
+                {
+                    UserName = userName,
+                    SolvedSince = GetTimeSpan(userSolution.TimeSolved),
+                });
+            }
 
-				var cipherSolver = new CipherSolverViewModel
-				{
-					UserName = userName,
-					SolvedSince = GetTimeSpan(solvedAt),
-				};
-				recentSolvers.Add(cipherSolver);
-			}
+            var userHints = cipher.HintsRequested
+                    .Where(x => x.UserId == userId)
+                    .ToList();
 
-			bool usedTypeHint = userHints.Any(h => h.HintType == HintType.Type);
-			bool usedSolutionHint = userHints.Any(h => h.HintType == HintType.Hint);
-			bool usedFullSolution = userHints.Any(h => h.HintType == HintType.FullSolution);
+            bool usedTypeHint = userHints.Any(h => h.HintType == HintType.Type);
+            bool usedSolutionHint = userHints.Any(h => h.HintType == HintType.Hint);
+            bool usedFullSolution = userHints.Any(h => h.HintType == HintType.FullSolution);
 
-			var availablePoints = CalculatePointsHelper.CalculateAvailablePointsWithPenalty(
-					cipher.Points,
-					usedTypeHint,
-					usedSolutionHint,
-					usedFullSolution);
+            var availablePoints = CalculatePointsHelper.CalculateAvailablePointsWithPenalty(
+                    cipher.Points,
+                    usedTypeHint,
+                    usedSolutionHint,
+                    usedFullSolution);
 
-			var model = new CipherDetailedOutputViewModel
-			{
-				Id = cipher.Id,
-				Title = cipher.Title,
-				CipherText = cipher.EncryptedText,
-				SolvedUsersCount = cipher.UserSolutions.Count,
-				AlreadySolved = cipher.UserSolutions.FirstOrDefault(x => x.UserId == userId) != null,
-				Points = availablePoints,
-				IsImage = cipher is ImageCipher,
-				SuccessRate = successRate,
-				AllowsAnswer = cipher.AllowSolution,
-				AllowsHint = cipher.AllowHint,
-				ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
-				AllowsTypeHint = cipher.AllowTypeHint,
-				AllowsSolutionHint = cipher.AllowHint,
-				AllowsFullSolution = cipher.AllowSolution,
-				DateSubmitted =  cipher.CreatedAt.ToString("ddd, dd MMM yyyy h:mm"),
-				RecentSolvers = recentSolvers,
-				TimesSolved = cipher.UserSolutions.Count,
-				TypeHintUsed = userHints.Any(x => x.HintType == HintType.Type),
-				SolutionHintUsed = userHints.Any(x => x.HintType == HintType.Hint),
-				FullSolutionUsed = userHints.Any(x => x.HintType == HintType.FullSolution),
-				AllSubmissions = cipher.UserSolutions.Count(),
-				SuccessfulSubmissions = (int)successfullSolutionCount,
-				Tags = cipher.CipherTags.Select(x => x.Tag.Type.ToString()).ToList(),
-				PreviousHints = userHints.Select(x => new HintData
-				{
-					Type = x.HintType,
-					Content = x.HintContent,
-					RequestedAt = x.RequestedAt
-				}).OrderBy(x => x.Type).ToList(),
-				
-			};
-			if (cipher is ImageCipher)
-			{
-				ImageCipher cipherImage = cipher as ImageCipher;
-				string imagePath = Path.Combine(PathHelper.GetImagesBasePath(), cipherImage.ImagePath);
-				string base64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imagePath))}";
-				model.ImageBase64 = base64;
-			}
-			return model;
-		}
-		private TimeSpan GetTimeSpan(DateTime solvedAt)
-		{
-			var timeNow = DateTime.UtcNow.AddHours(2);
+            var model = new CipherDetailedOutputViewModel
+            {
+                Id = cipher.Id,
+                Title = cipher.Title,
+                CipherText = cipher.EncryptedText,
+                SolvedUsersCount = allSolutions,
+                AlreadySolved = cipher.UserSolutions.FirstOrDefault(x => x.UserId == userId) != null,
+                Points = availablePoints,
+                IsImage = cipher is ImageCipher,
+                SuccessRate = successRate,
+                AllowsAnswer = cipher.AllowSolution,
+                AllowsHint = cipher.AllowHint,
+                ChallengeTypeDisplay = cipher.ChallengeType.ToString(),
+                AllowsTypeHint = cipher.AllowTypeHint,
+                AllowsSolutionHint = cipher.AllowHint,
+                AllowsFullSolution = cipher.AllowSolution,
+                DateSubmitted = cipher.CreatedAt.ToString(DateFormat),
+                RecentSolvers = recentSolvers,
+                TimesSolved = allSolutions,
+                TypeHintUsed = usedTypeHint,
+                SolutionHintUsed = usedSolutionHint,
+                FullSolutionUsed = usedFullSolution,
+                AllSubmissions = allSolutions,
+                SuccessfulSubmissions = (int)successfullSolutionCount,
+                Tags = cipher.CipherTags.Select(x => x.Tag.Type.ToString()).ToList(),
+                PreviousHints = userHints.Select(x => new HintData
+                {
+                    Type = x.HintType,
+                    Content = x.HintContent,
+                    RequestedAt = x.RequestedAt
+                }).OrderBy(x => x.Type).ToList(),
+            };
 
-            return timeNow - solvedAt;
-		}
-		#endregion
-	}
+            if (cipher is ImageCipher imageCipher)
+            {
+                string imagePath = Path.Combine(PathHelper.GetImagesBasePath(), imageCipher.ImagePath);
+                model.ImageBase64 = $"data:image/jpg;base64{Convert.ToBase64String(await File.ReadAllBytesAsync(imagePath))}";
+            }
+            return model;
+        }
+
+        private TimeSpan GetTimeSpan(DateTime solvedAt)
+        {
+            return DateTime.UtcNow.AddHours(2) - solvedAt;
+        }
+        #endregion
+    }
 }
