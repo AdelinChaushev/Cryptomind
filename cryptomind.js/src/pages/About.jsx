@@ -243,7 +243,7 @@ function CipherFamilies() {
     const families = [
         { family: "ЗАМЕСТВАНЕ",   types: ["Цезар (Caesar)", "ROT13 (ROT13)", "Атбаш (Atbash)", "Просто замяна (Simple Substitution)"], icon: "⟳", partial: false },
         { family: "ПОЛИАЗБУЧНИ",  types: ["Виженер (Vigenere)", "Автоключ (Autokey)", "Тритемий (Trithemius)"],                icon: "◈", partial: false },
-        { family: "ТРАНСПОЗИЦИЯ", types: ["Железопътна ограда (RailFence)", "Колонна (Columnar)", "Маршрут (Route)"],            icon: "⊞", partial: true  },
+        { family: "ТРАНСПОЗИЦИЯ", types: ["Железопътна ограда (RailFence)", "Колонна (Columnar)", "Маршрут (Route)"],            icon: "⊞", partial: false  },
         { family: "КОДИРАНЕ",     types: ["Base64 (Base64)", "Морзов (Morse)", "Двоичен (Binary)", "Шестнадесетичен (Hex)"],              icon: "⌬", partial: false },
     ];
 
