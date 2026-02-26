@@ -62,9 +62,14 @@ namespace Cryptomind.Core.Services
 			{
 				throw new ConflictException("Потребител с този имейл вече съществува");
 			}
+			
+			if (await userManager.FindByNameAsync(userName) != null)
+			{
+				throw new ConflictException("Вече съществува потребител с това име");
+			}
 
-			if (userName.Length < 3 || userName.Length > 32)
-				throw new CustomValidationException("Спазвайте ограниченията на потребителското име");
+			if (userName.Length < 3 || userName.Length > 16)
+				throw new CustomValidationException("Keep the username constraints");
 
 			if (password.Length < 8)
 				throw new CustomValidationException("Спазвайте ограниченията на паролата");
