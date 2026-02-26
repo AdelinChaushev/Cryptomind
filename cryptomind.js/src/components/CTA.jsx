@@ -6,7 +6,7 @@ const CTA = () => {
             <div className="cta-box">
                 <div className="cta-content">
                     <h2>Готови ли сте да започнете?</h2>
-                    <p>Присъединете се към 1,203 криптографи, решаващи шифри днес</p>
+                    <p>Присъединете се към криптографското ни общество</p>
                     <a href="/register" className="btn btn-cta">
                         Създай своя акаунт
                     </a>

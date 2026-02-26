@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Cryptomind.Common.Helpers
+﻿namespace Cryptomind.Common.Helpers
 {
 	public static class CalculatePointsHelper
 	{
-		private const double TypeHintPenalty = 0.20;
-		private const double SolutionHintPenalty = 0.30;
-		private const double FullSolutionHintPenalty = 0.40;
+		private const double TypeHintPenalty = 0.30;
+		private const double SolutionHintPenalty = 0.50;
+		private const double FullSolutionHintPenalty = 0.95;
 		public static int CalculateAvailablePointsWithPenalty(
 			int basePoints,
 			bool usedTypeHint,
@@ -20,13 +14,16 @@ namespace Cryptomind.Common.Helpers
 			double multiplier = 1.0;
 
 			if (usedTypeHint)
-				multiplier -= TypeHintPenalty; //-20%
+				multiplier -= TypeHintPenalty; //-30%
 
 			if (usedSolutionHint)
-				multiplier -= SolutionHintPenalty; //-30%
+				multiplier -= SolutionHintPenalty; //-50%
 
 			if (usedFullSolution)
-				multiplier -= FullSolutionHintPenalty; //-40%
+				multiplier -= FullSolutionHintPenalty; //-95%
+
+			if (multiplier < 0.05)
+				multiplier = 0.05;
 
 			return (int)Math.Max(0, basePoints * multiplier);
 		}
