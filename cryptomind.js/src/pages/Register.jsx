@@ -6,7 +6,17 @@ import { useNavigate } from "react-router-dom"
 import { useContext } from "react";
 import { AuthorizationContext } from "../App.jsx";
 import { useError } from '../ErrorContext.jsx';
-
+const errorTranslations = {
+    "The Email field is not a valid e-mail address.": "Имейлът не е валиден.",
+    "The Password field is required.": "Паролата е задължителна.",
+    "The field Password must be a string or array type with a minimum length of '8'.": "Паролата трябва да е поне 8 символа.",
+    "The Username field is required.": "Потребителското име е задължително.",
+    "The field ConfirmPassword must be a string or array type with a minimum length of '8'.": "Потвърждението на паролата трябва да е поне 8 символа.",
+    "User with this email already exists": "Потребител с този имейл вече съществува.",
+    "Keep the username constraints": "Потребителското име трябва да е между 3 и 32 символа.",
+    "Keep the password constraints": "Паролата трябва да е поне 8 символа.",
+    "User creation failed": "Създаването на акаунт е неуспешно.",
+};
 export default function Register() {
      const navigate = useNavigate();
     const [data,setData] = useState({username: '',email:'',password:'',confirmPassword:''})
@@ -32,8 +42,20 @@ export default function Register() {
           navigate('/');
           setState({roles: ["User"], isLoggedIn: true})
          }).catch(e => {
-            setError(e.response?.data?.title ||e.response?.data?.error || 'Registration failed. Please check your input and try again.');
-        })        // Reload the page to reflect the new registration
+    const data = e.response?.data;
+
+    if (data?.errors) {
+        const raw = Object.values(data.errors)[0][0];
+        setError(errorTranslations[raw] || raw);
+        return;
+    }
+
+    const raw =
+        (typeof data === 'string' ? data : null) ||
+        data?.error ||
+        'Регистрацията е неуспешна. Моля, проверете въведените данни.';
+    setError(errorTranslations[raw] || raw);
+})// Reload the page to reflect the new registration
     }
     return (
         <>
