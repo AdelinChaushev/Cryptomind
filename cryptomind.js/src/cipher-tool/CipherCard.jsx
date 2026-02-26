@@ -38,25 +38,25 @@ export default function CipherCard({ cipher, familyColor, isOpen, onToggle }) {
 
         {/* key type */}
         <div className="cl-key-info">
-          <span className="cl-key-label">KEY TYPE:</span>
+          <span className="cl-key-label">ТИП НА КЛЮЧА:</span>
           <span className="cl-key-val">{cipher.keyType}</span>
         </div>
 
         {/* example */}
         <div className="cl-example">
-          <div className="cl-example-tag">// quick example</div>
+          <div className="cl-example-tag">// Бърз пример</div>
           <div className="cl-example-row">
-            <span className="cl-ex-label">PLAIN</span>
+            <span className="cl-ex-label">БАЗОВ ТЕКСТ</span>
             <span className="cl-ex-val cl-ex-plain">{cipher.example.plain}</span>
           </div>
           {cipher.example.key !== "—" && (
             <div className="cl-example-row" style={{marginTop:6}}>
-              <span className="cl-ex-label">KEY</span>
+              <span className="cl-ex-label">КЛЮЧ</span>
               <span className="cl-ex-val cl-ex-key">{cipher.example.key}</span>
             </div>
           )}
           <div className="cl-example-row" style={{marginTop:6}}>
-            <span className="cl-ex-label">CIPHER</span>
+            <span className="cl-ex-label">ШИФЪР</span>
             <span className="cl-ex-val cl-ex-cipher">{cipher.example.cipher}</span>
           </div>
         </div>
@@ -64,7 +64,7 @@ export default function CipherCard({ cipher, familyColor, isOpen, onToggle }) {
         {/* how it works + formula */}
         <div className="cl-grid2">
           <div className="cl-block">
-            <div className="cl-block-tag">// how it works</div>
+            <div className="cl-block-tag">// Как работи</div>
             <div className="cl-block-text">{cipher.how}</div>
             {cipher.formula && (
               <div className="cl-formula">{cipher.formula}</div>
@@ -73,7 +73,7 @@ export default function CipherCard({ cipher, familyColor, isOpen, onToggle }) {
           <div>
             {/* weakness */}
             <div className="cl-weakness" style={{marginBottom:12}}>
-              <div className="cl-weakness-tag">// cryptographic weakness</div>
+              <div className="cl-weakness-tag">// Криптографска слабост</div>
               <div className="cl-weakness-text">{cipher.weakness}</div>
             </div>
           </div>
@@ -81,14 +81,15 @@ export default function CipherCard({ cipher, familyColor, isOpen, onToggle }) {
 
         {/* fun fact */}
         <div className="cl-funfact">
-          <div className="cl-funfact-tag">// historical note</div>
+          <div className="cl-funfact-tag">// Исторически факт</div>
           <div className="cl-funfact-text">{cipher.funFact}</div>
         </div>
 
         {/* CTAs */}
         <div className="cl-cta-row">
           <Link className="cl-cta cl-cta-primary"
-            to={`/cipher-tool`}>
+            to="/cipher-tool"
+            state={{ cipherId: cipher.id }}>
             ▶ Виж в действие
           </Link>
         </div>
