@@ -27,7 +27,7 @@ namespace Cryptomind.Core.Services
 		{
 			if (string.IsNullOrWhiteSpace(plaintext))
 			{
-				throw new CustomValidationException("Plaintext cannot be empty");
+				throw new CustomValidationException("Декриптириният текст не може да бъде празен");
 			}
 
 			try
@@ -49,7 +49,7 @@ namespace Cryptomind.Core.Services
 				{
 					var errorContent = await response.Content.ReadAsStringAsync();
 					throw new Exception(
-						$"English validation API returned error (Status {response.StatusCode}): {errorContent}"
+						$"API за валидиране на английски език върна грешка (Статус{response.StatusCode}): {errorContent}"
 					);
 				}
 
@@ -65,7 +65,7 @@ namespace Cryptomind.Core.Services
 
 				if (result == null)
 				{
-					throw new Exception("Failed to parse English validation response");
+					throw new Exception("Неуспешен анализ на отговора за валидиране на английски език");
 				}
 
 				return result;
@@ -73,21 +73,21 @@ namespace Cryptomind.Core.Services
 			catch (HttpRequestException ex)
 			{
 				throw new Exception(
-					$"English validation service is unavailable. Please ensure the Python ML API is running at {mlApiUrl}",
+					$"Услугата за валидиране на английски език не е налична. Моля, уверете се, че Python ML API работи на {mlApiUrl}",
 					ex
 				);
 			}
 			catch (TaskCanceledException ex)
 			{
 				throw new Exception(
-					$"English validation request timed out after {ApiTimeoutSeconds} seconds",
+					$"Проверката на английския език не получи навременен отговор в рамките на  {ApiTimeoutSeconds} секунди",
 					ex
 				);
 			}
 			catch (JsonException ex)
 			{
 				throw new Exception(
-					"Failed to parse response from English validation service",
+                    "Неуспешен анализ на отговора от услугата за валидиране на английски език",
 					ex
 				);
 			}

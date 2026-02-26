@@ -1,4 +1,5 @@
-﻿using Cryptomind.Common.Enums;
+﻿using Cryptomind.Common.Constants;
+using Cryptomind.Common.Enums;
 using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.Helpers;
 using Cryptomind.Common.ViewModels.CipherSubmissionViewModels;
@@ -23,19 +24,19 @@ namespace Cryptomind.Core.Services
 		public async Task<Cipher> SubmitCipherAsync(SubmitCipherViewModel model, string userId)
 		{
 			if (string.IsNullOrEmpty(model.Title))
-				throw new CustomValidationException("Title is required");
+				throw new CustomValidationException(CipherErrorConstants.TitleRequiredMessage);
 
 			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.Title == model.Title && !x.IsDeleted))
-				throw new ConflictException("There is already a cipher with this title");
+				throw new ConflictException(CipherErrorConstants.DuplicateTitleMessage);
 
 			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.EncryptedText == model.EncryptedText))
-				throw new ConflictException("There is already a cipher like this");
+				throw new ConflictException(CipherErrorConstants.DuplicateCipherContent);
 
 			if (string.IsNullOrWhiteSpace(model.DecryptedText) && model.CipherType == null)
-				throw new ConflictException("Cannot submit cipher with unknown decrypted text and cipher type");
+				throw new ConflictException(CipherErrorConstants.UnknownCipherSolutionConflict);
 
 			if (model.EncryptedText != null && model.EncryptedText.Length >= 450)
-				throw new CustomValidationException("The maximal encrypted text length is 450 characters.");
+				throw new CustomValidationException(CipherErrorConstants.MaxLengthExceeded);
 
 			Cipher? cipher = null;
 			string? encryptedTextForAnalysis = model.EncryptedText;
@@ -72,7 +73,7 @@ namespace Cryptomind.Core.Services
 				{
 					var result = await ocrService.ExtractTextFromImageAsync(model.Image);
 					if (string.IsNullOrWhiteSpace(result.ExtractedText))
-						throw new CustomValidationException("OCR failed to extract any text from the image");
+						throw new CustomValidationException(CipherErrorConstants.OCRFailedMessage);
 					finalText = result.ExtractedText;
 					ocrConfidence = result.Confidence;
 				}
@@ -96,7 +97,7 @@ namespace Cryptomind.Core.Services
 				string relativePath = Path.Combine("Ciphers", safeTitle + originalExtension);
 
 				if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.EncryptedText == finalText) != null)
-					throw new ConflictException("There is already a cipher like this");
+					throw new ConflictException(CipherErrorConstants.DuplicateCipherContent);
 
 				cipher = new ImageCipher()
 				{
@@ -120,7 +121,7 @@ namespace Cryptomind.Core.Services
 
 			if (mlResult.TopPrediction.Type.ToLower() == "plaintext")
 			{
-				throw new CustomValidationException("Your text appears to already be in plaintext. Only encrypted text is allowed.");
+				throw new CustomValidationException(CipherErrorConstants.PlaintextNotAllowed);
 			}
 
 			cipher.MLPrediction = JsonSerializer.Serialize(new
@@ -213,20 +214,20 @@ namespace Cryptomind.Core.Services
 		private void ValidateImageFile(IFormFile imageFile)
 		{
 			if (imageFile == null)
-				throw new CustomValidationException("Image file is required for image ciphers");
+				throw new CustomValidationException(CipherErrorConstants.ImageRequired);
 
 			var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
 			var extension = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
 
 			if (!allowedExtensions.Contains(extension))
-				throw new CustomValidationException($"Invalid file type. Allowed types: {string.Join(", ", allowedExtensions)}");
+				throw new CustomValidationException(CipherErrorConstants.InvalidFileType);
 
 			const int maxSizeInBytes = 5 * 1024 * 1024;
 			if (imageFile.Length == 0)
-				throw new CustomValidationException("File cannot be empty");
+				throw new CustomValidationException(CipherErrorConstants.EmptyFileError);
 
 			if (imageFile.Length > maxSizeInBytes)
-				throw new CustomValidationException("File size cannot exceed 5MB");
+				throw new CustomValidationException(CipherErrorConstants.FileTooLarge);
 
 		}
 		private bool DetermineLLMRecommendation(

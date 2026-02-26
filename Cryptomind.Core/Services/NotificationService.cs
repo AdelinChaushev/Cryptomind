@@ -62,7 +62,7 @@ namespace Cryptomind.Core.Services
 			foreach (var notification in userNotifications)
 			{
 				if (notification == null)
-					throw new NotFoundException("Notification not found");
+					throw new NotFoundException("Известието не е намерено");
 
 				notification.IsRead = true;
 				await notificationRepo.UpdateAsync(notification);
@@ -74,7 +74,7 @@ namespace Cryptomind.Core.Services
             var notification = await notificationRepo.GetAllAttached()
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.Id == notificationId);
             if (notification == null)
-                throw new NotFoundException("Notification not found");
+                throw new NotFoundException("Известието не е намерено");
 
             notification.IsRead = true;
             await notificationRepo.UpdateAsync(notification);
