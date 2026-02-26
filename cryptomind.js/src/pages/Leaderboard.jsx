@@ -112,7 +112,7 @@ export default function Leaderboard() {
             <span className="lb-bracket">]</span>
           </div>
           <h1 className="lb-title">КЛАСАЦИЯ</h1>
-          <p className="lb-subtitle">Топ криптоанализатори според разбити шифри</p>
+          <p className="lb-subtitle">Топ криптоанализатори</p>
         </header>
 
         {status === "error" ? (

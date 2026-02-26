@@ -3,9 +3,9 @@ import FeatureCard from './FeatureCard';
 
 const features = [
     {
-        icon: '🤖',
-        title: 'ML класификация',
-        description: "Нашата невронна мрежа разпознава видовете шифри с 90% точност, помагайки ви да разберете с какво се сблъсквате."
+        icon: '📷',
+        title: 'Изпрати свой шифър',
+        description: 'Качи снимка или въведи текст — системата автоматично разпознава текста и го добавя към общността за решаване.'
     },
     {
         icon: '💡',
@@ -94,12 +94,12 @@ const useDecodeOnScroll = (ref, originalText) => {
 
 const Features = () => {
     const headerRef = useRef(null);
-    useDecodeOnScroll(headerRef, 'Мощни функции');
+    useDecodeOnScroll(headerRef, 'Функции');
 
     return (
         <section className="features-section">
             <div className="section-header">
-                <h2 ref={headerRef}>Мощни функции</h2>
+                <h2 ref={headerRef}>Функции</h2>
                 <p>Всичко необходимо, за да овладеете криптографията</p>
             </div>
             <div className="features-grid">

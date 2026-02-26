@@ -73,7 +73,7 @@ export default function Register() {
 
                     <div className="form-title-block">
                         <h2 className="form-title">СЪЗДАВАНЕ НА АКАУНТ</h2>
-                        <p className="form-subtitle">Присъединете се към разузнавателната мрежа</p>
+                        <p className="form-subtitle">Присъединете се към криптографската мрежа</p>
                     </div>
 
                     <form className="auth-form" onSubmit={handleSubmit} noValidate>
