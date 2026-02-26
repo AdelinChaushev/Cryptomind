@@ -121,7 +121,7 @@ export default function Register() {
                                 />
                                 <span className="input-focus-bar" aria-hidden="true" />
                             </div>
-                            <span className="field-hint">3–32 символа.</span>
+                            <span className="field-hint">3–16 символа.</span>
                         </div>
 
                         <div className="form-group">
