@@ -756,3 +756,14 @@ body {
     0%   { transform: translateX(-120%); }
     100% { transform: translateX(280%); }
 }
+.btn-ai-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-ai-penalty {
+    font-size: 0.75rem;
+    font-weight: 700;
+    opacity: 0.85;
+}

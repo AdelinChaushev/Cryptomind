@@ -275,7 +275,9 @@ namespace Cryptomind.Core.Services
 		}
 		private TimeSpan GetTimeSpan(DateTime solvedAt)
 		{
-			return DateTime.UtcNow.AddHours(2) - solvedAt;
+			var timeNow = DateTime.UtcNow.AddHours(2);
+
+            return timeNow - solvedAt;
 		}
 		#endregion
 	}
