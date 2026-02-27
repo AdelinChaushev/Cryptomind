@@ -14,13 +14,16 @@ namespace Cryptomind.Tests.Integration
 {
 	public class AuthenticationControllerTests : IntegrationTestBase
 	{
-		private static readonly JsonSerializerOptions JsonOpts = new() { PropertyNameCaseInsensitive = true };
+		private static readonly JsonSerializerOptions JsonOpts = new()
+		{
+			PropertyNameCaseInsensitive = true
+		};
 
-		public AuthenticationControllerTests(CryptomindWebApplicationFactory factory) : base(factory) { }
+		public AuthenticationControllerTests(CryptomindWebApplicationFactory factory) : base(factory)
+		{
+		}
 
-		// =========================================================================
-		// REGISTER
-		// =========================================================================
+		#region Register
 
 		[Fact]
 		public async Task Register_ValidModel_Returns200()
@@ -34,7 +37,6 @@ namespace Cryptomind.Tests.Integration
 			};
 
 			var response = await Client.PostAsJsonAsync("/api/auth/register", model);
-
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
 		}
 
@@ -74,6 +76,7 @@ namespace Cryptomind.Tests.Integration
 			using var scope = Factory.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<CryptomindDbContext>();
 			var user = await db.Users.FirstOrDefaultAsync(u => u.Email == email);
+
 			user.Should().NotBeNull();
 		}
 
@@ -89,7 +92,6 @@ namespace Cryptomind.Tests.Integration
 			};
 
 			var response = await Client.PostAsJsonAsync("/api/auth/register", model);
-
 			response.StatusCode.Should().Be(HttpStatusCode.Conflict);
 		}
 
@@ -105,7 +107,6 @@ namespace Cryptomind.Tests.Integration
 			};
 
 			var response = await Client.PostAsJsonAsync("/api/auth/register", model);
-
 			response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 		}
 
@@ -113,15 +114,13 @@ namespace Cryptomind.Tests.Integration
 		public async Task Register_MissingFields_ReturnsBadRequest()
 		{
 			var model = new { email = "" };
-
 			var response = await Client.PostAsJsonAsync("/api/auth/register", model);
-
 			response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 		}
 
-		// =========================================================================
-		// LOGIN
-		// =========================================================================
+		#endregion
+
+		#region Login
 
 		[Fact]
 		public async Task Login_ValidCredentials_Returns200()
@@ -190,6 +189,7 @@ namespace Cryptomind.Tests.Integration
 			// Register a fresh user then ban them
 			var email = $"banned_{Guid.NewGuid():N}@test.com";
 			var username = $"banned_{Guid.NewGuid():N}".Substring(0, 16);
+
 			await Client.PostAsJsonAsync("/api/auth/register", new
 			{
 				email,
@@ -201,6 +201,7 @@ namespace Cryptomind.Tests.Integration
 			using var scope = Factory.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<CryptomindDbContext>();
 			var user = await db.Users.FirstAsync(u => u.Email == email);
+
 			user.IsBanned = true;
 			user.BanReason = "Test ban";
 			await db.SaveChangesAsync();
@@ -214,17 +215,15 @@ namespace Cryptomind.Tests.Integration
 			response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
 		}
 
-		// =========================================================================
-		// LOGOUT
-		// =========================================================================
+		#endregion
+
+		#region Logout
 
 		[Fact]
 		public async Task Logout_Authenticated_Returns200()
 		{
 			var authClient = await GetAuthenticatedUserClientAsync();
-
 			var response = await authClient.PostAsync("/api/auth/logout", null);
-
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
 		}
 
@@ -232,21 +231,18 @@ namespace Cryptomind.Tests.Integration
 		public async Task Logout_Unauthenticated_Returns401()
 		{
 			var response = await Client.PostAsync("/api/auth/logout", null);
-
 			response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
 		}
 
-		// =========================================================================
-		// DEACTIVATE
-		// =========================================================================
+		#endregion
+
+		#region Deactivate
 
 		[Fact]
 		public async Task DeactivateAccount_Authenticated_Returns200()
 		{
 			var freshClient = await RegisterAndGetClientAsync();
-
 			var response = await freshClient.PostAsync("/api/auth/deactivate", null);
-
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
 		}
 
@@ -254,7 +250,6 @@ namespace Cryptomind.Tests.Integration
 		public async Task DeactivateAccount_Unauthenticated_Returns401()
 		{
 			var response = await Client.PostAsync("/api/auth/deactivate", null);
-
 			response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
 		}
 
@@ -266,12 +261,16 @@ namespace Cryptomind.Tests.Integration
 
 			var response = await freshClient.PostAsync("/api/auth/deactivate", null);
 			var body = await response.Content.ReadAsStringAsync();
+
 			response.StatusCode.Should().Be(HttpStatusCode.OK, because: body);
 
 			using var scope = Factory.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<CryptomindDbContext>();
 			var user = await db.Users.FirstAsync(u => u.Email == email);
+
 			user.IsDeactivated.Should().BeTrue();
 		}
+
+		#endregion
 	}
 }

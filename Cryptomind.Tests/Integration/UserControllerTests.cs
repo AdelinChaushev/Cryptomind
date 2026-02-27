@@ -9,19 +9,21 @@ namespace Cryptomind.Tests.Integration
 {
 	public class UserControllerTests : IntegrationTestBase
 	{
-		private static readonly JsonSerializerOptions JsonOpts = new() { PropertyNameCaseInsensitive = true };
+		private static readonly JsonSerializerOptions JsonOpts = new()
+		{
+			PropertyNameCaseInsensitive = true
+		};
 
-		public UserControllerTests(CryptomindWebApplicationFactory factory) : base(factory) { }
+		public UserControllerTests(CryptomindWebApplicationFactory factory) : base(factory)
+		{
+		}
 
-		// =========================================================================
-		// GET ROLES
-		// =========================================================================
+		#region Get Roles
 
 		[Fact]
 		public async Task GetUserRoles_Unauthenticated_Returns401()
 		{
 			var response = await Client.GetAsync("/api/user/get-roles");
-
 			response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
 		}
 
@@ -29,9 +31,7 @@ namespace Cryptomind.Tests.Integration
 		public async Task GetUserRoles_RegularUser_Returns200()
 		{
 			var userClient = await GetAuthenticatedUserClientAsync();
-
 			var response = await userClient.GetAsync("/api/user/get-roles");
-
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
 		}
 
@@ -39,9 +39,7 @@ namespace Cryptomind.Tests.Integration
 		public async Task GetUserRoles_AdminUser_Returns200()
 		{
 			var adminClient = await GetAuthenticatedAdminClientAsync();
-
 			var response = await adminClient.GetAsync("/api/user/get-roles");
-
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
 		}
 
@@ -49,10 +47,8 @@ namespace Cryptomind.Tests.Integration
 		public async Task GetUserRoles_RegularUser_ContainsUserRole()
 		{
 			var userClient = await GetAuthenticatedUserClientAsync();
-
 			var response = await userClient.GetAsync("/api/user/get-roles");
 			var body = await response.Content.ReadAsStringAsync();
-
 			body.Should().Contain("User");
 		}
 
@@ -60,10 +56,8 @@ namespace Cryptomind.Tests.Integration
 		public async Task GetUserRoles_AdminUser_ContainsAdminRole()
 		{
 			var adminClient = await GetAuthenticatedAdminClientAsync();
-
 			var response = await adminClient.GetAsync("/api/user/get-roles");
 			var body = await response.Content.ReadAsStringAsync();
-
 			body.Should().Contain("Admin");
 		}
 
@@ -71,22 +65,19 @@ namespace Cryptomind.Tests.Integration
 		public async Task GetUserRoles_FreshRegisteredUser_ContainsUserRole()
 		{
 			var freshClient = await RegisterAndGetClientAsync();
-
 			var response = await freshClient.GetAsync("/api/user/get-roles");
 			var body = await response.Content.ReadAsStringAsync();
-
 			body.Should().Contain("User");
 		}
 
-		// =========================================================================
-		// GET ACCOUNT INFO
-		// =========================================================================
+		#endregion
+
+		#region Get Account Info
 
 		[Fact]
 		public async Task GetAccountInfo_Unauthenticated_Returns401()
 		{
 			var response = await Client.GetAsync("/api/user/get-account-info");
-
 			response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
 		}
 
@@ -94,9 +85,7 @@ namespace Cryptomind.Tests.Integration
 		public async Task GetAccountInfo_RegularUser_Returns200()
 		{
 			var userClient = await GetAuthenticatedUserClientAsync();
-
 			var response = await userClient.GetAsync("/api/user/get-account-info");
-
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
 		}
 
@@ -104,9 +93,7 @@ namespace Cryptomind.Tests.Integration
 		public async Task GetAccountInfo_AdminUser_Returns200()
 		{
 			var adminClient = await GetAuthenticatedAdminClientAsync();
-
 			var response = await adminClient.GetAsync("/api/user/get-account-info");
-
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
 		}
 
@@ -114,10 +101,8 @@ namespace Cryptomind.Tests.Integration
 		public async Task GetAccountInfo_RegularUser_ResponseContainsEmail()
 		{
 			var userClient = await GetAuthenticatedUserClientAsync();
-
 			var response = await userClient.GetAsync("/api/user/get-account-info");
 			var body = await response.Content.ReadAsStringAsync();
-
 			body.Should().Contain("user@cryptomind.com");
 		}
 
@@ -126,11 +111,11 @@ namespace Cryptomind.Tests.Integration
 		{
 			var email = $"fresh_{System.Guid.NewGuid():N}@test.com";
 			var freshClient = await RegisterAndGetClientAsync(email: email);
-
 			var response = await freshClient.GetAsync("/api/user/get-account-info");
 			var body = await response.Content.ReadAsStringAsync();
-
 			body.Should().Contain(email);
 		}
+
+		#endregion
 	}
 }
