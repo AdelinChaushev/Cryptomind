@@ -267,6 +267,8 @@ Current length: {textLength} chars
 TASK 3 - VERIFY THE SOLUTION:
 Check that the solution is genuinely valid English plaintext.
 Look for coherent words, natural grammar, and reasonable length relative to the ciphertext (within ~10%).
+If the solution is identical or nearly identical to the ciphertext, it is invalid — reject it.
+A correct solution must be meaningfully different from the encrypted text.
 
 ================================================================================
 JSON RESPONSE FORMAT
@@ -445,6 +447,8 @@ Current length: {textLength} chars
 TASK 3 - VERIFY THE SOLUTION:
 Check that the solution is genuinely valid English plaintext.
 Look for coherent words, natural grammar, and reasonable length relative to the ciphertext (within ~10%).
+If the solution is identical or nearly identical to the ciphertext, it is invalid — reject it.
+A correct solution must be meaningfully different from the encrypted text.
 
 ================================================================================
 JSON RESPONSE FORMAT
