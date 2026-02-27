@@ -17,7 +17,7 @@ namespace Cryptomind.Core.Contracts
 		Task<string> ApproveCipherAsync(int id, ApproveCipherViewModel model);
 		Task RejectCipherAsync(int id, string reason);
 		Task UpdateApprovedCipher(int id, UpdateCipherViewModel model);
-		Task<CipherValidationResult> AnalyzeWithLLM(int id);
+		Task<CipherValidationResultDTO> AnalyzeWithLLM(int id);
 		Task SoftDeleteCipher(int id);
 		Task RestoreCipher(int id, string? newTitle = null);
 	}
