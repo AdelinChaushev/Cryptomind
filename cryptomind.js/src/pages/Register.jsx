@@ -13,7 +13,7 @@ const errorTranslations = {
     "The Username field is required.": "Потребителското име е задължително.",
     "The field ConfirmPassword must be a string or array type with a minimum length of '8'.": "Потвърждението на паролата трябва да е поне 8 символа.",
     "User with this email already exists": "Потребител с този имейл вече съществува.",
-    "Keep the username constraints": "Потребителското име трябва да е между 3 и 32 символа.",
+    "Keep the username constraints": "Потребителското име трябва да е между 3 и 16 символа.",
     "Keep the password constraints": "Паролата трябва да е поне 8 символа.",
     "User creation failed": "Създаването на акаунт е неуспешно.",
 };
@@ -45,7 +45,11 @@ export default function Register() {
     const data = e.response?.data;
 
     if (data?.errors) {
-        const raw = Object.values(data.errors)[0][0];
+        const raw =
+            (typeof data === 'string' ? data : null) ||
+            data?.error ||
+            data?.message ||
+            'Регистрацията е неуспешна. Моля, проверете въведените данни.';
         setError(errorTranslations[raw] || raw);
         return;
     }
@@ -114,7 +118,7 @@ export default function Register() {
                                     placeholder="Изберете потребителско име"
                                     autoComplete="username"
                                     minLength={3}
-                                    maxLength={32}
+                                    maxLength={16}
                                     value={data.username}
                                     onChange={handleChange}
                                     required

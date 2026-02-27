@@ -72,6 +72,7 @@ const handleSubmit = () => {
 
     if (fields.image) {
         formData.append("Image", fields.image);
+        formData.append("ReviewedText", ocrText); // add this
     }
 
     axios.post('http://localhost:5115/api/ciphers/submit', formData, {
