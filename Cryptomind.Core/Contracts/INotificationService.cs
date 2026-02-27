@@ -1,5 +1,4 @@
-﻿using Cryptomind.Data.Entities;
-using Cryptomind.Data.Enums;
+﻿using Cryptomind.Data.Enums;
 
 namespace Cryptomind.Core.Contracts
 {
@@ -9,7 +8,7 @@ namespace Cryptomind.Core.Contracts
 		Task<List<NotificationDTO>> GetUserNotifications(string userId);
 		Task MarkAsRead(string userId);
 
-		Task MarkAsReadSingle(string userId,int notificationId);
+		Task MarkAsReadSingle(string userId, int notificationId);
 		Task<int> GetUnreadCount(string userId);
 	}
 }

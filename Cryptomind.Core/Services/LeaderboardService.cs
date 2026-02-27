@@ -2,28 +2,38 @@
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cryptomind.Core.Services
 {
 	public class LeaderboardService(
-		IRepository<ApplicationUser, string> userRepo) : ILeaderboardService
+		IRepository<ApplicationUser, string> userRepo,
+		UserManager<ApplicationUser> userManager) : ILeaderboardService
 	{
 		public async Task<List<LeaderboardPlaceViewModel>> GetLeaderboard()
 		{
-			var users = await userRepo.GetAllAttached()
+			var allUsers = await userRepo.GetAllAttached()
 				.Where(x => !x.IsBanned && !x.IsDeactivated)
 				.OrderByDescending(x => x.Score)
 				.ToListAsync();
 
-			var models = new List<LeaderboardPlaceViewModel>();
-
-			return users.Select((user, index) => new LeaderboardPlaceViewModel
+			var filteredUsers = new List<ApplicationUser>();
+			foreach (var user in allUsers)
 			{
-				Username = user.UserName,
-				Points = user.Score,
-				Place = index + 1,
-			}).Take(20).ToList();
+				var roles = await userManager.GetRolesAsync(user);
+				if (!roles.Contains("Admin"))
+					filteredUsers.Add(user);
+			}
+
+			return filteredUsers
+				.Take(20)
+				.Select((user, index) => new LeaderboardPlaceViewModel
+				{
+					Username = user.UserName,
+					Points = user.Score,
+					Place = index + 1,
+				}).ToList();
 		}
 	}
 }

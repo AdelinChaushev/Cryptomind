@@ -9,23 +9,23 @@ namespace Cryptomind.Controllers
 	[Authorize(AuthenticationSchemes = "Bearer")]
 	[ApiController]
 	public class UserController(IUserService userService) : ControllerBase
-    {
-		
-        [HttpGet("get-roles")]
-        public async Task<IActionResult> GetUserRoles()
-        {
+	{
+
+		[HttpGet("get-roles")]
+		public async Task<IActionResult> GetUserRoles()
+		{
 			var roles = await userService.GetRolesUsers(GetUserId());
 			return Ok(roles);
 
-        }
+		}
 
-        [HttpGet("get-account-info")]
-        public async Task<IActionResult> GetAccountInfo()
-        {
+		[HttpGet("get-account-info")]
+		public async Task<IActionResult> GetAccountInfo()
+		{
 			var user = await userService.GetUserAccountInfo(GetUserId());
 			return Ok(user);
 		}
-        private string GetUserId()
-            => User.FindFirstValue(ClaimTypes.NameIdentifier);
-    }
+		private string GetUserId()
+			=> User.FindFirstValue(ClaimTypes.NameIdentifier);
+	}
 }

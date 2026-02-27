@@ -1,5 +1,8 @@
-﻿using Cryptomind.Data;
+﻿using Cryptomind.Core.Contracts;
+using Cryptomind.Core.Hubs;
+using Cryptomind.Data;
 using Cryptomind.Data.Entities;
+using Cryptomind.Data.Enums;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -7,15 +10,18 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Cryptomind.Tests.Integration.Fixtures
@@ -42,9 +48,16 @@ namespace Cryptomind.Tests.Integration.Fixtures
 
 			builder.ConfigureServices((context, services) =>
 			{
-				// Read whatever secret the app ended up with so we can sync validation to it
 				_jwtSecret = context.Configuration["JWT:Secret"]
 					?? "test-secret-key-long-enough-for-hmac-sha256-algorithm";
+
+				var mockBadge = new Mock<IBadgeService>();
+				mockBadge
+					.Setup(b => b.CheckBadgesByCategory(It.IsAny<string>(), It.IsAny<BadgeCategory>()))
+					.Returns(Task.CompletedTask);
+
+				services.RemoveAll<IBadgeService>();
+				services.AddScoped(_ => mockBadge.Object);
 
 				services.RemoveAll<DbContextOptions<CryptomindDbContext>>();
 				services.RemoveAll<CryptomindDbContext>();
@@ -59,13 +72,32 @@ namespace Cryptomind.Tests.Integration.Fixtures
 					options.MinimumSameSitePolicy = SameSiteMode.None;
 				});
 
+				var mockLLM = new Mock<ILLMService>();
+				mockLLM
+					.Setup(l => l.GetHint(It.IsAny<Cipher>(), It.IsAny<HintType>()))
+					.ReturnsAsync("This is a test hint.");
+
+				services.RemoveAll<ILLMService>();
+				services.AddScoped(_ => mockLLM.Object);
+
 				services.PostConfigure<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme, options =>
 				{
 					options.Cookie.SecurePolicy = CookieSecurePolicy.None;
 				});
 
-				// Override the validation key to match whatever key the app is actually using
-				// to sign tokens at runtime — this ensures generation and validation always match
+				var mockClients = new Mock<IHubClients>();
+				var mockClientProxy = new Mock<IClientProxy>();
+				mockClients
+					.Setup(c => c.Group(It.IsAny<string>()))
+					.Returns(mockClientProxy.Object);
+				mockClientProxy
+					.Setup(c => c.SendCoreAsync(It.IsAny<string>(), It.IsAny<object[]>(), It.IsAny<CancellationToken>()))
+					.Returns(Task.CompletedTask);
+				var mockHub = new Mock<IHubContext<NotificationHub>>();
+				mockHub.Setup(h => h.Clients).Returns(mockClients.Object);
+				services.RemoveAll<IHubContext<NotificationHub>>();
+				services.AddSingleton(mockHub.Object);
+
 				services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
 				{
 					var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtSecret));
@@ -84,7 +116,7 @@ namespace Cryptomind.Tests.Integration.Fixtures
 				});
 			});
 
-			builder.UseEnvironment("Testing");
+			builder.UseEnvironment("Development");
 		}
 
 		public HttpClient CreateSeededClient(WebApplicationFactoryClientOptions options)
@@ -102,6 +134,7 @@ namespace Cryptomind.Tests.Integration.Fixtures
 
 			return client;
 		}
+		public IServiceScope CreateScope() => Services.CreateScope();
 
 		private static async Task SeedAsync(
 			UserManager<ApplicationUser> userManager,

@@ -8,7 +8,7 @@ namespace Cryptomind.Controllers
 	[Route("api/notifications")]
 	[Authorize(AuthenticationSchemes = "Bearer")]
 	[ApiController]
-	public class NotificationController (INotificationService notificationService) : ControllerBase
+	public class NotificationController(INotificationService notificationService) : ControllerBase
 	{
 		[HttpGet]
 		[Route("")]
@@ -19,7 +19,7 @@ namespace Cryptomind.Controllers
 			var notifications = (await notificationService.GetUserNotifications(userId));
 			var unreadCount = await notificationService.GetUnreadCount(userId);
 
-			return Ok( new { notifications, unreadCount });
+			return Ok(new { notifications, unreadCount });
 		}
 
 		[HttpPut]
@@ -33,17 +33,17 @@ namespace Cryptomind.Controllers
 		}
 		[HttpPut]
 		[Route("mark-as-read/{id}")]
-        public async Task<IActionResult> MarkAsReadSingle([FromRoute] int id)
-        {
-            string userId = GetUserId();
+		public async Task<IActionResult> MarkAsReadSingle([FromRoute] int id)
+		{
+			string userId = GetUserId();
 
-            await notificationService.MarkAsReadSingle(userId,id);
-            return Ok();
-        }
+			await notificationService.MarkAsReadSingle(userId, id);
+			return Ok();
+		}
 
 
 
-        private string GetUserId()
+		private string GetUserId()
 		   => User.FindFirstValue(ClaimTypes.NameIdentifier);
 	}
 }

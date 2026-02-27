@@ -1,7 +1,7 @@
 ﻿using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
-using Cryptomind.Data.Repositories;
 using Cryptomind.Data.Enums;
+using Cryptomind.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cryptomind.Core.Services
@@ -36,7 +36,7 @@ namespace Cryptomind.Core.Services
 		public async Task<int> GetSolvedCount(string userId)
 		{
 			return await solutionRepo.GetAllAttached()
-				.CountAsync(s => s.UserId == userId);
+				.CountAsync(s => s.UserId == userId && s.IsCorrect);
 		}
 		public async Task<int> GetSolvedWithoutHintCount(string userId)
 		{

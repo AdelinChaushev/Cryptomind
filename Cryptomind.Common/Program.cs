@@ -1,10 +1,10 @@
 ﻿namespace Cryptomind.Common
 {
-    internal class Program
-    {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello, World!");
-        }
-    }
+	internal class Program
+	{
+		static void Main(string[] args)
+		{
+			Console.WriteLine("Hello, World!");
+		}
+	}
 }
