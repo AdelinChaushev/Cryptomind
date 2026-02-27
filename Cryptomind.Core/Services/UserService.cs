@@ -59,10 +59,8 @@ namespace Cryptomind.Core.Services
 					Title = badge.Badge.Title,
 					Description = badge.Badge.Description,
 					EarnedBy = badge.Badge.EarnedBy,
-
 				};
-				badges.Add(badgeViewModel);
-                
+				badges.Add(badgeViewModel); 
             };
 
 			AccountViewModel result = new AccountViewModel()
@@ -75,7 +73,7 @@ namespace Cryptomind.Core.Services
 				Score = user.Score,
 				AttemptedCiphers = attemptedCiphersCount,
 				LeaderBoardPlace = rank,
-				SuccessRate = (int)Math.Round((decimal)(user.SolvedCount / attemptedCiphersCount)* 100),
+				SuccessRate = user.SuccessRate,
 				Badges = badges,
 			};
 			return result;
