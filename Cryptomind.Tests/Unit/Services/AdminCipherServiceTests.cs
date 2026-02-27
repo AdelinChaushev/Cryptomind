@@ -15,7 +15,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using static Cryptomind.Core.Services.LLMService;
 
 namespace Cryptomind.Tests.Unit.Services
 {
