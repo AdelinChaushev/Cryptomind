@@ -1,7 +1,6 @@
 ﻿using Cryptomind.Data.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 
@@ -40,7 +39,7 @@ namespace Cryptomind.Core.Middlewares
 					{
 						context.Response.StatusCode = 403;
 						context.Response.ContentType = "application/json";
-						var json = System.Text.Json.JsonSerializer.Serialize(new { message =  user.BanReason });
+						var json = System.Text.Json.JsonSerializer.Serialize(new { message = user.BanReason });
 						await context.Response.WriteAsync(json);
 						return;
 					}

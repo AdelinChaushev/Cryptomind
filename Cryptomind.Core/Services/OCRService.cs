@@ -1,13 +1,11 @@
-﻿using Cryptomind.Common.DTOs;
+﻿using Cryptomind.Common.Constants;
+using Cryptomind.Common.DTOs;
+using Cryptomind.Common.Exceptions;
 using Cryptomind.Core.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Cryptomind.Common.Constants;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.ComponentModel.DataAnnotations;
-using Cryptomind.Common.Exceptions;
-using Cryptomind.Common.Constants;
 namespace Cryptomind.Core.Services.OCR
 {
 	public class OCRService : IOCRService

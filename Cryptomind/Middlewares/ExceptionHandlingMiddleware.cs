@@ -1,5 +1,4 @@
 ﻿using Cryptomind.Common.Exceptions;
-using Microsoft.AspNetCore.Http;
 using System.Text.Json;
 
 public class ExceptionHandlingMiddleware
@@ -17,10 +16,10 @@ public class ExceptionHandlingMiddleware
 		{
 			await _next(context);
 		}
-		catch(BannedException ex)
+		catch (BannedException ex)
 		{
-            await WriteResponse(context, StatusCodes.Status403Forbidden, ex.Message);
-        }
+			await WriteResponse(context, StatusCodes.Status403Forbidden, ex.Message);
+		}
 		catch (NotFoundException ex)
 		{
 			await WriteResponse(context, StatusCodes.Status404NotFound, ex.Message);

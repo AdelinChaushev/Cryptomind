@@ -1,6 +1,5 @@
 ﻿using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
 using Cryptomind.Core.Services;
-using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -13,7 +12,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using static Cryptomind.Core.Services.LLMService;
 
 namespace Cryptomind.Tests.Unit.Services
 {
