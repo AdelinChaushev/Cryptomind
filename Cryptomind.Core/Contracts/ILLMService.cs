@@ -1,4 +1,5 @@
-﻿using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
+﻿using Cryptomind.Common.DTOs;
+using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
 using Cryptomind.Data.Enums;
 using static Cryptomind.Core.Services.LLMService;
 
@@ -6,7 +7,7 @@ namespace Cryptomind.Core.Contracts
 {
 	public interface ILLMService
 	{
-		Task<CipherValidationResult> ValidateCipherAsync(
+		Task<CipherValidationResultDTO> ValidateCipherAsync(
 			string encryptedText,
 			string? decryptedText,
 			CipherRecognitionResultViewModel mlResult,

@@ -9,9 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Cryptomind.Core.Services
 {
-	public class NotificationService (
+	public class NotificationService(
 		IRepository<Notification, int> notificationRepo,
-		IHubContext<NotificationHub> hubContext): INotificationService
+		IHubContext<NotificationHub> hubContext) : INotificationService
 	{
 		private const int NotificationCount = 20;
 		public async Task CreateAndSendNotification(string userId, NotificationType type, string message, string link)
@@ -23,7 +23,7 @@ namespace Cryptomind.Core.Services
 				Message = message,
 				Link = link
 			};
-            await notificationRepo.AddAsync(notification);
+			await notificationRepo.AddAsync(notification);
 			await hubContext.Clients.Group($"user_{userId}").SendAsync("ReceiveNotification", new
 			{
 				notification.Id,
@@ -66,22 +66,22 @@ namespace Cryptomind.Core.Services
 
 				notification.IsRead = true;
 				await notificationRepo.UpdateAsync(notification);
-			}		
+			}
 		}
 
-        public async Task MarkAsReadSingle(string userId, int notificationId)
-        {
-            var notification = await notificationRepo.GetAllAttached()
-                .FirstOrDefaultAsync(c => c.UserId == userId && c.Id == notificationId);
-            if (notification == null)
-                throw new NotFoundException("Известието не е намерено");
+		public async Task MarkAsReadSingle(string userId, int notificationId)
+		{
+			var notification = await notificationRepo.GetAllAttached()
+				.FirstOrDefaultAsync(c => c.UserId == userId && c.Id == notificationId);
+			if (notification == null)
+				throw new NotFoundException("Известието не е намерено");
 
-            notification.IsRead = true;
-            await notificationRepo.UpdateAsync(notification);
-        }
-        private static TimeSpan GetTimeSpan(DateTime createdAt)
-        {
-            return DateTime.UtcNow.AddHours(2) - createdAt;
-        }
-    }
+			notification.IsRead = true;
+			await notificationRepo.UpdateAsync(notification);
+		}
+		private static TimeSpan GetTimeSpan(DateTime createdAt)
+		{
+			return DateTime.UtcNow.AddHours(2) - createdAt;
+		}
+	}
 }

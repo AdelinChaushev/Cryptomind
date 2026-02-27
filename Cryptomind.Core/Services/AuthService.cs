@@ -62,7 +62,7 @@ namespace Cryptomind.Core.Services
 			{
 				throw new ConflictException("Потребител с този имейл вече съществува");
 			}
-			
+
 			if (await userManager.FindByNameAsync(userName) != null)
 			{
 				throw new ConflictException("Вече съществува потребител с това име");

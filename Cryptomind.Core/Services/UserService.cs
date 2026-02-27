@@ -1,10 +1,10 @@
-﻿using Cryptomind.Core.Contracts;
+﻿using Cryptomind.Common.Exceptions;
+using Cryptomind.Common.ViewModels.UserViewModels;
+using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Cryptomind.Common.ViewModels.UserViewModels;
-using Cryptomind.Common.Exceptions;
 
 namespace Cryptomind.Core.Services
 {
@@ -26,17 +26,17 @@ namespace Cryptomind.Core.Services
 		{
 			var user = await userRepo.GetAllAttached()
 				.Include(x => x.Badges)
-                .ThenInclude(x => x.Badge)
-                .Include(x => x.CipherAnswers)			
+				.ThenInclude(x => x.Badge)
+				.Include(x => x.CipherAnswers)
 				.FirstOrDefaultAsync(x => x.Id == id);
 
-            ICollection<BadgeViewModel> badges = new List<BadgeViewModel>();
+			ICollection<BadgeViewModel> badges = new List<BadgeViewModel>();
 			int attemptedCiphersCount = user.CipherAnswers.DistinctBy(c => c.CipherId).Count();
 
-            int rank = await userRepo.GetAllAttached()
+			int rank = await userRepo.GetAllAttached()
 				.CountAsync(u => u.Score > user.Score && !u.IsDeactivated && !u.IsBanned) + 1;
 
-            if (user == null)
+			if (user == null)
 				throw new NotFoundException("Потребителят не беше намерен");
 
 			foreach (var badge in user.Badges)
@@ -59,11 +59,10 @@ namespace Cryptomind.Core.Services
 					Title = badge.Badge.Title,
 					Description = badge.Badge.Description,
 					EarnedBy = badge.Badge.EarnedBy,
-
 				};
 				badges.Add(badgeViewModel);
-                
-            };
+			}
+			;
 
 			AccountViewModel result = new AccountViewModel()
 			{
@@ -75,10 +74,10 @@ namespace Cryptomind.Core.Services
 				Score = user.Score,
 				AttemptedCiphers = attemptedCiphersCount,
 				LeaderBoardPlace = rank,
-				SuccessRate = (int)Math.Round((decimal)(user.SolvedCount / attemptedCiphersCount)* 100),
+				SuccessRate = user.SuccessRate,
 				Badges = badges,
 			};
 			return result;
 		}
-    }
+	}
 }

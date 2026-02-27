@@ -5,6 +5,6 @@
 		Newest = 0,
 		Oldest = 1,
 		MostPopular = 2,
-        LeastPopular = 3,
-    }
+		LeastPopular = 3,
+	}
 }

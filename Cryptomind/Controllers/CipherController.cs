@@ -1,7 +1,6 @@
 ﻿using Cryptomind.Common.DTOs;
 using Cryptomind.Common.ViewModels.CipherViewModels;
 using Cryptomind.Core.Contracts;
-using Cryptomind.Core.Services.OCR;
 using Cryptomind.Data.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

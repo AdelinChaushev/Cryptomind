@@ -1,6 +1,5 @@
 ﻿using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
 using Cryptomind.Core.Services;
-using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -13,7 +12,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using static Cryptomind.Core.Services.LLMService;
 
 namespace Cryptomind.Tests.Unit.Services
 {
@@ -205,9 +203,9 @@ namespace Cryptomind.Tests.Unit.Services
 				"KHOOR", "HELLO", mlResult, "Caesar");
 
 			Assert.NotNull(result);
-			Assert.Equal("manual_review", result.Recommendation);
+			Assert.Equal("reject", result.Recommendation);
 			Assert.Single(result.Issues);
-			Assert.Contains("LLM response parsing failed", result.Issues[0]);
+			Assert.Contains("Неуспешно разчитане на отговора от LLM — необходим е ръчен преглед.", result.Issues[0]);
 		}
 
 		[Fact]

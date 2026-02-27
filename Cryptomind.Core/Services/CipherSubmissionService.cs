@@ -114,7 +114,7 @@ namespace Cryptomind.Core.Services
 					OCRConfidence = ocrConfidence ?? 0,
 					CreatedAt = DateTime.UtcNow.AddHours(2)
 				};
-			
+
 			}
 
 			var mlResult = await cipherRecognizerService.ClassifyCipher(encryptedTextForAnalysis);
@@ -170,8 +170,8 @@ namespace Cryptomind.Core.Services
 			{
 				var model = new CipherSubmissionViewModel()
 				{
-                    Id = cipher.Id,
-                    Title = cipher.Title,
+					Id = cipher.Id,
+					Title = cipher.Title,
 					CipherText = cipher.EncryptedText,
 					SubmittedTime = cipher.CreatedAt.ToString("ddd, dd MMM yyyy h:mm"),
 					Status = cipher.Status.ToString(),
@@ -185,10 +185,10 @@ namespace Cryptomind.Core.Services
 				else if (cipher.Status == ApprovalStatus.Approved)
 				{
 					model.ApprovedTime = cipher.ApprovedAt?.ToString("ddd, dd MMM yyyy h:mm");
-                    model.ApprovedAs = cipher.ChallengeType.ToString();
+					model.ApprovedAs = cipher.ChallengeType.ToString();
 					model.AssignedTags = cipher.CipherTags.Select(x => x.Tag).ToList();
 					model.SolvedByCount = cipher.UserSolutions.Count(x => x.IsCorrect);
-					
+
 				}
 				else if (cipher.Status == ApprovalStatus.Rejected)
 				{

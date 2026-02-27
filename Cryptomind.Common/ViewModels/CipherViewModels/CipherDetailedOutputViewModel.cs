@@ -1,5 +1,4 @@
 ﻿using Cryptomind.Common.ViewModels.UserViewModels;
-using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 
 namespace Cryptomind.Common.ViewModels.CipherViewModels
@@ -27,8 +26,8 @@ namespace Cryptomind.Common.ViewModels.CipherViewModels
 		public bool FullSolutionUsed { get; set; }
 
 		public int AllSubmissions { get; set; }
-        public int SuccessfulSubmissions { get; set; }
-        public List<CipherSolverViewModel> RecentSolvers { get; set; }
+		public int SuccessfulSubmissions { get; set; }
+		public List<CipherSolverViewModel> RecentSolvers { get; set; }
 		public List<HintData> PreviousHints { get; set; }
 		public List<string> Tags { get; set; }
 	}

@@ -93,26 +93,6 @@ class CipherGenerator:
         
         return ''.join(result)
     
-    def beaufort(self, plaintext, key=None):
-        if key is None:
-            key_length = random.randint(3, 12)
-            key = ''.join(random.choices(self.alphabet, k=key_length))
-        
-        result = []
-        key_index = 0
-        
-        for char in plaintext.upper():
-            if char in self.alphabet:
-                char_idx = self.alphabet.index(char)
-                key_char_idx = self.alphabet.index(key[key_index % len(key)])
-                encrypted_idx = (key_char_idx - char_idx) % 26
-                result.append(self.alphabet[encrypted_idx])
-                key_index += 1
-            else:
-                result.append(char)
-        
-        return ''.join(result)
-    
     def trithemius(self, plaintext):
         result = []
         shift = 0
@@ -165,7 +145,7 @@ class CipherGenerator:
         # Pad text
         num_cols = len(key)
         num_rows = (len(text) + num_cols - 1) // num_cols
-        padded_text = text + 'X' * (num_rows * num_cols - len(text))
+        padded_text = text + '#' * (num_rows * num_cols - len(text))
         
         # Create grid
         grid = [padded_text[i:i+num_cols] for i in range(0, len(padded_text), num_cols)]
@@ -185,7 +165,7 @@ class CipherGenerator:
         
         # Determine grid size
         size = int(len(text) ** 0.5) + 1
-        padded = text + 'X' * (size * size - len(text))
+        padded = text + '#' * (size * size - len(text))
         
         # Create grid
         grid = [[padded[i * size + j] for j in range(size)] for i in range(size)]
@@ -252,7 +232,6 @@ class CipherGenerator:
             'SimpleSubstitution': self.simple_substitution,
             'Vigenere': self.vigenere,
             'Autokey': self.autokey,
-            'Beaufort': self.beaufort,
             'Trithemius': self.trithemius,
             'RailFence': self.rail_fence,
             'Columnar': self.columnar_transposition,
