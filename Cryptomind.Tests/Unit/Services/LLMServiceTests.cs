@@ -61,17 +61,6 @@ namespace Cryptomind.Tests.Unit.Services
 				});
 		}
 
-		private void SetupHttpException(Exception exception)
-		{
-			httpMessageHandlerMock
-				.Protected()
-				.Setup<Task<HttpResponseMessage>>(
-					"SendAsync",
-					ItExpr.IsAny<HttpRequestMessage>(),
-					ItExpr.IsAny<CancellationToken>())
-				.ThrowsAsync(exception);
-		}
-
 		private static string CreateOpenAIResponse(string messageContent)
 		{
 			return JsonSerializer.Serialize(new
