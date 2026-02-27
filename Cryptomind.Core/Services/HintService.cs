@@ -36,16 +36,6 @@ namespace Cryptomind.Core.Services
 					.ToList();
 
 			string hintContent = string.Empty;
-			bool usedTypeHint = userHints.Any(h => h.HintType == HintType.Type);
-			bool usedSolutionHint = userHints.Any(h => h.HintType == HintType.Hint);
-			bool usedFullSolution = userHints.Any(h => h.HintType == HintType.FullSolution);
-
-			var availablePoints = CalculatePointsHelper.CalculateAvailablePointsWithPenalty(
-					cipher.Points,
-					usedTypeHint,
-					usedSolutionHint,
-					usedFullSolution);
-
 
 			if (cipher.CreatedByUserId == userId)
 				throw new ConflictException("Не можете да искате подсказки за вашия собствен шифър");
@@ -63,6 +53,16 @@ namespace Cryptomind.Core.Services
 
 			if (!isAllowed)
 				throw new ConflictException("Този тип подсказка не е налична за този шифър.");
+
+			bool usedTypeHint = hintType == HintType.Type ? true : userHints.Any(h => h.HintType == HintType.Type);
+			bool usedSolutionHint = hintType == HintType.Hint ? true : userHints.Any(h => h.HintType == HintType.Hint);
+			bool usedFullSolution = hintType == HintType.FullSolution ? true : userHints.Any(h => h.HintType == HintType.FullSolution);
+
+			var availablePoints = CalculatePointsHelper.CalculateAvailablePointsWithPenalty(
+					cipher.Points,
+					usedTypeHint,
+					usedSolutionHint,
+					usedFullSolution);
 
 			var existingHint = cipher.HintsRequested
 					.FirstOrDefault(hr => hr.UserId == userId && hr.HintType == hintType);
@@ -94,8 +94,6 @@ namespace Cryptomind.Core.Services
 				HintContent = hintContent,
 			};
 
-			availablePoints = CalculateNewPointsWithPenalty(availablePoints, hintType);
-
 			await hintRequestRepo.AddAsync(hintRequest);
 			await cipherRepo.UpdateAsync(cipher);
 			return new HintResultDTO
@@ -113,22 +111,6 @@ namespace Cryptomind.Core.Services
 			HintType.FullSolution => cipher.LLMData.CachedSolution,
 			_ => null
 		};
-		private int CalculateNewPointsWithPenalty(int basePoints, HintType hintType)
-		{
-			double penalty = hintType switch
-			{
-				HintType.Type => TypeHintPenalty,
-				HintType.Hint => SolutionHintPenalty,
-				HintType.FullSolution => FullSolutionHintPenalty,
-				_ => 0
-			};
-
-			double multiplier = 1.0 - penalty;
-			if (multiplier < 0.05)
-				multiplier = 0.05;
-
-			return (int)Math.Max(0, basePoints * multiplier);
-		}
 		private void SetCachedHint(Cipher cipher, HintType hintType, string content)
 		{
 			switch (hintType)
