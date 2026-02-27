@@ -1,6 +1,5 @@
 ﻿using Cryptomind.Common.DTOs;
 using Cryptomind.Common.Exceptions;
-using Cryptomind.Core.Contracts;
 using Cryptomind.Core.Services;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;

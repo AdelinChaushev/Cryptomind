@@ -1,6 +1,4 @@
-﻿using Cryptomind.Common.DTOs;
-using Cryptomind.Common.Enums;
-using Cryptomind.Common.Exceptions;
+﻿using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.ViewModels.AdminViewModels;
 using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
 using Cryptomind.Core.Contracts;
@@ -14,7 +12,6 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Xunit;
 using static Cryptomind.Core.Services.LLMService;

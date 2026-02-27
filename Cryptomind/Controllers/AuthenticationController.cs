@@ -10,7 +10,7 @@ namespace Cryptomind.Controllers
 {
 	[Route("api/auth")]
 	[ApiController]
-	public class AuthenticationController(IAuthService authService , IUserService userService, IWebHostEnvironment env) : ControllerBase
+	public class AuthenticationController(IAuthService authService, IUserService userService, IWebHostEnvironment env) : ControllerBase
 	{
 		[HttpPost("register")]
 		public async Task<IActionResult> Register([FromBody] RegisterViewModel model)

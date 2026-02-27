@@ -1,11 +1,10 @@
-﻿using Cryptomind.Common.ViewModels.EnglishValidationModels;
+﻿using Cryptomind.Common.Constants;
+using Cryptomind.Common.Exceptions;
+using Cryptomind.Common.ViewModels.EnglishValidationModels;
 using Cryptomind.Core.Contracts;
-using Cryptomind.Common.Constants;
 using Microsoft.Extensions.Configuration;
 using System.Text;
 using System.Text.Json;
-using System.ComponentModel.DataAnnotations;
-using Cryptomind.Common.Exceptions;
 
 namespace Cryptomind.Core.Services
 {
@@ -87,7 +86,7 @@ namespace Cryptomind.Core.Services
 			catch (JsonException ex)
 			{
 				throw new Exception(
-                    "Неуспешен анализ на отговора от услугата за валидиране на английски език",
+					"Неуспешен анализ на отговора от услугата за валидиране на английски език",
 					ex
 				);
 			}

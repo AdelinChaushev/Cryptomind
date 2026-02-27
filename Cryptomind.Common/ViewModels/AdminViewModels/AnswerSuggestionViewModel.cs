@@ -5,9 +5,9 @@
 		public int Id { get; set; }
 		public string Username { get; set; }
 		public string Description { get; set; }
-        public string CipherName { get; set; }
-        public int CipherId { get; set; }
+		public string CipherName { get; set; }
+		public int CipherId { get; set; }
 
-        public string? SubmittedAt { get; set; }
-    }
+		public string? SubmittedAt { get; set; }
+	}
 }

@@ -4,7 +4,7 @@ using System.Security.Claims;
 
 namespace Cryptomind.Core.Hubs
 {
-	[Authorize(AuthenticationSchemes ="Bearer")]
+	[Authorize(AuthenticationSchemes = "Bearer")]
 	public class NotificationHub : Hub
 	{
 		public override async Task OnConnectedAsync()
