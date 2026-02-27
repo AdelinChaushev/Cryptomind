@@ -44,7 +44,10 @@ app.MapHub<NotificationHub>("/notificationHub");
 using (var scope = app.Services.CreateScope())
 {
 	var db = scope.ServiceProvider.GetRequiredService<CryptomindDbContext>();
-	db.Database.Migrate();
+	if (db.Database.IsRelational())
+	{
+		db.Database.Migrate();
+	}
 }
 
 app.Run();

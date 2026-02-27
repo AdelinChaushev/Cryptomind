@@ -73,7 +73,7 @@ namespace Cryptomind.Tests.Integration
 			return client;
 		}
 
-		private async Task<HttpClient> CreateAuthenticatedClientAsync(string email, string password)
+		protected async Task<HttpClient> CreateAuthenticatedClientAsync(string email, string password)
 		{
 			var client = Factory.CreateSeededClient(DefaultOptions);
 			var response = await client.PostAsJsonAsync("/api/auth/login", new { email, password });
@@ -102,6 +102,11 @@ namespace Cryptomind.Tests.Integration
 		{
 			var content = await response.Content.ReadAsStringAsync();
 			return JsonSerializer.Deserialize<T>(content, JsonOptions);
+		}
+
+		protected async Task<HttpClient> GetAuthenticatedClientByEmailAsync(string email, string password)
+		{
+			return await CreateAuthenticatedClientAsync(email, password);
 		}
 
 		public void Dispose()

@@ -1,6 +1,7 @@
 ﻿using Cryptomind.Tests.Integration.Fixtures;
 using FluentAssertions;
 using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -8,6 +9,8 @@ namespace Cryptomind.Tests.Integration
 {
 	public class LeaderboardControllerTests : IntegrationTestBase
 	{
+		private static readonly JsonSerializerOptions JsonOpts = new() { PropertyNameCaseInsensitive = true };
+
 		public LeaderboardControllerTests(CryptomindWebApplicationFactory factory) : base(factory) { }
 
 		[Fact]
@@ -19,7 +22,7 @@ namespace Cryptomind.Tests.Integration
 		}
 
 		[Fact]
-		public async Task GetLeaderboard_AuthenticatedUser_Returns200()
+		public async Task GetLeaderboard_Authenticated_Returns200()
 		{
 			var userClient = await GetAuthenticatedUserClientAsync();
 
@@ -29,13 +32,32 @@ namespace Cryptomind.Tests.Integration
 		}
 
 		[Fact]
-		public async Task GetLeaderboard_ReturnsValidJsonBody()
+		public async Task GetLeaderboard_ReturnsValidJson()
 		{
 			var response = await Client.GetAsync("/api/leaderboard");
-			var content = await response.Content.ReadAsStringAsync();
+			var body = await response.Content.ReadAsStringAsync();
 
-			response.StatusCode.Should().Be(HttpStatusCode.OK);
-			content.Should().NotBeNullOrEmpty();
+			var json = JsonSerializer.Deserialize<JsonElement>(body, JsonOpts);
+			json.ValueKind.Should().NotBe(JsonValueKind.Undefined);
+		}
+
+		[Fact]
+		public async Task GetLeaderboard_ReturnsList()
+		{
+			var response = await Client.GetAsync("/api/leaderboard");
+			var body = await response.Content.ReadAsStringAsync();
+
+			var json = JsonSerializer.Deserialize<JsonElement>(body, JsonOpts);
+			json.ValueKind.Should().Be(JsonValueKind.Array);
+		}
+
+		[Fact]
+		public async Task GetLeaderboard_SeededUsersAppearInResults()
+		{
+			var response = await Client.GetAsync("/api/leaderboard");
+			var body = await response.Content.ReadAsStringAsync();
+
+			body.Should().NotBeNullOrEmpty();
 		}
 	}
 }

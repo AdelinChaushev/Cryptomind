@@ -285,7 +285,7 @@ namespace Cryptomind.Core.Services
                 throw new ConflictException("Шифър с неизвестен тип не може да бъде одобрен, защото точките за всеки шифър се базират на неговия тип.");
 
             cipher.ChallengeType = string.IsNullOrWhiteSpace(cipher.DecryptedText)
-                ? ChallengeType.Standard
+                ? ChallengeType.Experimental
                 : ChallengeType.Standard;
 
             if (cipher.ChallengeType == ChallengeType.Experimental && (model.AllowHint || model.AllowSolution || model.AllowTypeHint))
@@ -299,8 +299,10 @@ namespace Cryptomind.Core.Services
             cipher.ApprovedAt = DateTime.UtcNow.AddHours(2);
             cipher.TypeOfCipher = model.TypeOfCipher;
 
+			if (!PointsForType.ContainsKey(model.TypeOfCipher.Value))
+				throw new ConflictException("Невалиден тип шифър");
 
-            cipher.Points = cipher.TypeOfCipher.HasValue
+			cipher.Points = cipher.TypeOfCipher.HasValue
                 ? PointsForType[cipher.TypeOfCipher.Value]
                 : 0;
 
