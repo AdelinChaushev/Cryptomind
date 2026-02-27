@@ -29,7 +29,6 @@
 		public const string UnknownCipherSolutionConflict = "Не може да се изпрати шифър с неизвестен дешифриран текст и тип едновременно.";
 		public const string MaxLengthExceeded = "Максималната дължина на шифрирания текст е 450 символа.";
 		public const string OCRFailedMessage = "OCR не успя да извлече текст от изображението.";
-		public const string DecryptedTextShouldBePlainText = "Решението на шифъра трябва да бъде четим английски текст";
 		public const string PlaintextNotAllowed = "Текстът изглежда вече е дешифриран. Разрешени са само шифрирани текстове.";
 		public const string StatusCipherDeleted = "CipherDeleted";
 		public const string ImageRequired = "За този тип шифър е необходимо изображение.";
