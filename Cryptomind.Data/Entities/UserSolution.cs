@@ -6,8 +6,8 @@ namespace Cryptomind.Data.Entities
 	public class UserSolution
 	{
 		[Key]
-        public int Id { get; set; }
-        [ForeignKey(nameof(Cipher))]
+		public int Id { get; set; }
+		[ForeignKey(nameof(Cipher))]
 		public int CipherId { get; set; }
 		public Cipher Cipher { get; set; }
 		[ForeignKey(nameof(ApplicationUser))]

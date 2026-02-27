@@ -65,7 +65,7 @@ function CipherSolvePage() {
           allowsSolutionHint: data.allowsSolutionHint,
           allowsTypeHint: data.allowsTypeHint,
           alreadySolved: data.alreadySolved,
-          cipherText: data.cipherText,
+          cipherText: data.cipherText.replace(/#/g, ''),
           fullSolutionUsed: data.fullSolutionUsed,
           imageBase64: data.imageBase64,
           isImage: data.isImage,

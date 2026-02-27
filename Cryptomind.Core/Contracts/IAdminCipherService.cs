@@ -4,8 +4,8 @@ using static Cryptomind.Core.Services.LLMService;
 
 namespace Cryptomind.Core.Contracts
 {
-    public interface IAdminCipherService
-    {
+	public interface IAdminCipherService
+	{
 		Task<List<PendingCipherTitleViewModels>> GetRecentCipherSubmissionTitles();
 		Task<int> GetPendingCiphersCount();
 		Task<int> GetApprovedCiphersCount();
@@ -18,7 +18,7 @@ namespace Cryptomind.Core.Contracts
 		Task RejectCipherAsync(int id, string reason);
 		Task UpdateApprovedCipher(int id, UpdateCipherViewModel model);
 		Task<CipherValidationResult> AnalyzeWithLLM(int id);
-        Task SoftDeleteCipher(int id);
+		Task SoftDeleteCipher(int id);
 		Task RestoreCipher(int id, string? newTitle = null);
 	}
 }

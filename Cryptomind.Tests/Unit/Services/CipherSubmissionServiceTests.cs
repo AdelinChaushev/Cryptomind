@@ -1,7 +1,6 @@
 ﻿using Cryptomind.Common.Enums;
 using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
-using Cryptomind.Common.ViewModels.CipherSubmissionViewModels;
 using Cryptomind.Common.ViewModels.CipherViewModels;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Core.Services;

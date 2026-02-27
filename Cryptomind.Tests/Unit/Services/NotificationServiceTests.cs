@@ -1,6 +1,4 @@
-﻿using Cryptomind.Common.Exceptions;
-using Cryptomind.Core.Contracts;
-using Cryptomind.Core.Hubs;
+﻿using Cryptomind.Core.Hubs;
 using Cryptomind.Core.Services;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;

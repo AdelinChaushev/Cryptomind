@@ -1,11 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using Cryptomind.Common.Exceptions;
+﻿using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
 using Cryptomind.Core.Contracts;
 using Microsoft.Extensions.Configuration;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Cryptomind.Core.Services
 {
@@ -47,7 +46,7 @@ namespace Cryptomind.Core.Services
 				if (!response.IsSuccessStatusCode)
 				{
 					var errorContent = await response.Content.ReadAsStringAsync();
-					throw new Exception($"ML API върна грешка(Статус{ response.StatusCode}): {errorContent}");
+					throw new Exception($"ML API върна грешка(Статус{response.StatusCode}): {errorContent}");
 				}
 
 				var responseJson = await response.Content.ReadAsStringAsync();
@@ -97,7 +96,7 @@ namespace Cryptomind.Core.Services
 			catch (JsonException ex)
 			{
 				throw new Exception(
-                    "Неуспешно анализиране на отговора от услугата за машинно обучение. Възможно е услугата да връща невалидни данни.",
+					"Неуспешно анализиране на отговора от услугата за машинно обучение. Възможно е услугата да връща невалидни данни.",
 					ex
 				);
 			}

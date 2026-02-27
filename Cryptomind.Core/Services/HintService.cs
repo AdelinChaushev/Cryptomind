@@ -1,4 +1,5 @@
-﻿using Cryptomind.Common.DTOs;
+﻿using Cryptomind.Common.Constants;
+using Cryptomind.Common.DTOs;
 using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.Helpers;
 using Cryptomind.Core.Contracts;
@@ -6,7 +7,6 @@ using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Cryptomind.Common.Constants;
 
 namespace Cryptomind.Core.Services
 {
@@ -16,9 +16,6 @@ namespace Cryptomind.Core.Services
 		ILLMService llmService
 		) : IHintService
 	{
-		private const double TypeHintPenalty = 0.30;
-		private const double SolutionHintPenalty = 0.50;
-		private const double FullSolutionHintPenalty = 0.95;
 		public async Task<HintResultDTO> RequestHintAsync(string userId, int cipherId, HintType hintType)
 		{
 			var cipher = await cipherRepo.GetAllAttached()
@@ -38,10 +35,10 @@ namespace Cryptomind.Core.Services
 			string hintContent = string.Empty;
 
 			if (cipher.CreatedByUserId == userId)
-				throw new ConflictException("Не можете да искате подсказки за вашия собствен шифър");
+				throw new ConflictException(HintErrorConstants.CannotRequestHintsForOwnCipher);
 
 			if (cipher.UserSolutions.Any(x => x.UserId == userId && x.IsCorrect))
-				throw new ConflictException(CipherErrorConstants.AlreadySolvedConflict);
+				throw new ConflictException(HintErrorConstants.CipherAlreadySolved);
 
 			bool isAllowed = hintType switch
 			{
@@ -52,7 +49,7 @@ namespace Cryptomind.Core.Services
 			};
 
 			if (!isAllowed)
-				throw new ConflictException("Този тип подсказка не е налична за този шифър.");
+				throw new ConflictException(HintErrorConstants.ThisHintTypeIsNotAllowed);
 
 			bool usedTypeHint = hintType == HintType.Type ? true : userHints.Any(h => h.HintType == HintType.Type);
 			bool usedSolutionHint = hintType == HintType.Hint ? true : userHints.Any(h => h.HintType == HintType.Hint);
