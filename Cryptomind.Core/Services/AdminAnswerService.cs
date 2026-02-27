@@ -1,4 +1,5 @@
-﻿using Cryptomind.Common.Exceptions;
+﻿using Cryptomind.Common.Constants;
+using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.Helpers;
 using Cryptomind.Common.ViewModels.AdminViewModels;
 using Cryptomind.Core.Contracts;
@@ -7,12 +8,9 @@ using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Text.Json;
-using Cryptomind.Common.Constants;
 namespace Cryptomind.Core.Services
 {
-	
+
 	public class AdminAnswerService(
 		IRepository<Cipher, int> cipherRepo,
 		IRepository<AnswerSuggestion, int> answerRepo,
@@ -42,19 +40,19 @@ namespace Cryptomind.Core.Services
 
 			if (cipherName != null)
 			{
-                answerSuggestions = answerSuggestions.Where(x => x.Cipher.Title.ToLower().Contains(cipherName.ToLower())).ToList();
+				answerSuggestions = answerSuggestions.Where(x => x.Cipher.Title.ToLower().Contains(cipherName.ToLower())).ToList();
 
-            }
-            if (username != null)
-            {
-                answerSuggestions = answerSuggestions.Where(x => x.ApplicationUser.UserName.ToLower().Contains(username.ToLower())).ToList();
-            }
+			}
+			if (username != null)
+			{
+				answerSuggestions = answerSuggestions.Where(x => x.ApplicationUser.UserName.ToLower().Contains(username.ToLower())).ToList();
+			}
 			if (answerSuggestions.Count == 0)
 			{
 				return new List<AnswerSuggestionViewModel>();
 			}
 
-            var userIds = answerSuggestions.Select(x => x.UserId).Distinct().ToList();
+			var userIds = answerSuggestions.Select(x => x.UserId).Distinct().ToList();
 			var users = (await userManager.Users
 				.Where(x => userIds.Contains(x.Id))
 				.ToListAsync())
@@ -65,7 +63,7 @@ namespace Cryptomind.Core.Services
 			foreach (var answer in answerSuggestions)
 			{
 				if (!users.TryGetValue(answer.UserId, out var user))
-					throw new Exception(GeneralErrorConstants.MatchDataIntegrityError(answer.UserId , answer.Id));
+					throw new Exception(GeneralErrorConstants.MatchDataIntegrityError(answer.UserId, answer.Id));
 
 				models.Add(new AnswerSuggestionViewModel
 				{
@@ -75,7 +73,7 @@ namespace Cryptomind.Core.Services
 					CipherName = answer.Cipher.Title,
 					Username = user.UserName,
 					SubmittedAt = answer.UploadedTime.ToString("ddd, dd MMM yyyy h:mm")
-                });
+				});
 			}
 
 			return models;
@@ -94,7 +92,7 @@ namespace Cryptomind.Core.Services
 			var user = await userManager.FindByIdAsync(answer.UserId);
 
 			if (user == null)
-				throw new Exception(GeneralErrorConstants.MatchDataIntegrityError(answer.UserId , answer.Id));
+				throw new Exception(GeneralErrorConstants.MatchDataIntegrityError(answer.UserId, answer.Id));
 
 			var userName = user.UserName;
 
@@ -106,13 +104,13 @@ namespace Cryptomind.Core.Services
 				Username = userName,
 				CipherEncryptedText = answer.Cipher.EncryptedText,
 				CipherName = answer.Cipher.Title,
-				
+
 			};
-            if (answer.Cipher.TypeOfCipher is { } typeOfCipher)
-            {
-                model.Type = CipherTypeMapperHelper.ToDisplayName(typeOfCipher);
-            }
-            return model;
+			if (answer.Cipher.TypeOfCipher is { } typeOfCipher)
+			{
+				model.Type = CipherTypeMapperHelper.ToDisplayName(typeOfCipher);
+			}
+			return model;
 		}
 		public async Task<List<string>> ApproveAnswerAsync(int id)
 		{
@@ -133,18 +131,18 @@ namespace Cryptomind.Core.Services
 			var cipher = await cipherRepo.FirstOrDefaultAsync(x => x.Id == firstCorrectAnswerSuggestion.CipherId);
 
 			if (cipher == null)
-				throw new Exception(GeneralErrorConstants.MatchDataIntegrityError(selectedAnswer.CipherId,selectedAnswer.Id));
+				throw new Exception(GeneralErrorConstants.MatchDataIntegrityError(selectedAnswer.CipherId, selectedAnswer.Id));
 
 			if (cipher.ChallengeType == ChallengeType.Standard)
 				throw new ConflictException(CipherErrorConstants.ExperimentalSolveConflict);
 
-			if (!string.IsNullOrWhiteSpace(cipher.DecryptedText)) 
+			if (!string.IsNullOrWhiteSpace(cipher.DecryptedText))
 				throw new ConflictException(CipherErrorConstants.AlreadyHasAnswer);
 
 			var user = await userManager.FindByIdAsync(firstCorrectAnswerSuggestion.UserId);
 
 			if (user == null)
-				throw new Exception(GeneralErrorConstants.MatchDataIntegrityError(cipher.CreatedByUserId ,selectedAnswer.Id));
+				throw new Exception(GeneralErrorConstants.MatchDataIntegrityError(cipher.CreatedByUserId, selectedAnswer.Id));
 
 			var otherCorrectAnswerSuggestions = (await answerRepo.GetAllAsync())
 				.Where(x => x.CipherId == selectedAnswer.CipherId)
@@ -185,7 +183,7 @@ namespace Cryptomind.Core.Services
 				var currentUser = await userManager.FindByIdAsync(correctAnswer.UserId);
 
 				if (currentUser == null)
-					throw new Exception(GeneralErrorConstants.MatchDataIntegrityError(cipher.CreatedByUserId,selectedAnswer.Id));
+					throw new Exception(GeneralErrorConstants.MatchDataIntegrityError(cipher.CreatedByUserId, selectedAnswer.Id));
 
 				int pointsGrantedForOtherCorrectSolutions = (int)Math.Round(pointsGranted * 0.75, MidpointRounding.AwayFromZero);
 
@@ -209,13 +207,13 @@ namespace Cryptomind.Core.Services
 				await userManager.UpdateAsync(currentUser);
 
 				await notificationService.CreateAndSendNotification(
-					currentUser.Id, 
+					currentUser.Id,
 					NotificationType.AnswerApproved,
-					$"Предложението ви за отговор беше одобрено +{pointsGrantedForOtherCorrectSolutions} точки", 
+					$"Предложението ви за отговор беше одобрено +{pointsGrantedForOtherCorrectSolutions} точки",
 					$"cipher/{cipher.Id}");
 			}
 
-			foreach(var wrongAnswer in wrongAnswerSuggestions)
+			foreach (var wrongAnswer in wrongAnswerSuggestions)
 			{
 				bool userAlsoHadCorrectAnswer =
 					firstCorrectAnswerSuggestion.UserId == wrongAnswer.UserId ||
@@ -233,9 +231,9 @@ namespace Cryptomind.Core.Services
 			await userManager.UpdateAsync(user);
 
 			await notificationService.CreateAndSendNotification(
-				user.Id, 
-				NotificationType.AnswerApproved, 
-				$"Вашият отговор беше одобрен +{pointsGranted} точки", 
+				user.Id,
+				NotificationType.AnswerApproved,
+				$"Вашият отговор беше одобрен +{pointsGranted} точки",
 				$"cipher/{cipher.Id}");
 
 			return userIds;
@@ -259,16 +257,16 @@ namespace Cryptomind.Core.Services
 			answer.RejectionReason = reason;
 
 			if (await userManager.FindByIdAsync(answer.UserId) == null)
-					throw new Exception(GeneralErrorConstants.MatchDataIntegrityError(answer.UserId,answer.Id));
+				throw new Exception(GeneralErrorConstants.MatchDataIntegrityError(answer.UserId, answer.Id));
 
 			await answerRepo.UpdateAsync(answer);
 			await notificationService.CreateAndSendNotification(
-				answer.UserId, 
-				NotificationType.AnswerRejected, 
+				answer.UserId,
+				NotificationType.AnswerRejected,
 				$"Вашият отговор беше отхвърлен: {reason}",
-                "my_submissions");
+				"my_submissions");
 		}
-        
-        #endregion
-    }
+
+		#endregion
+	}
 }

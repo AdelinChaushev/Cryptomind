@@ -168,7 +168,7 @@ body {
 }
 
 /* ─── MAIN COLUMN ─── */
-.solve-main { display: flex; flex-direction: column; gap: 20px; }
+.solve-main { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 
 /* ─── CIPHER HEADER ─── */
 .cipher-header {
@@ -512,7 +512,7 @@ body {
     font-size: 13px;
 }
 .ai-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; color: var(--yellow-500); text-transform: uppercase; }
-.ai-response-body { font-size: 14px; color: var(--text-secondary); line-height: 1.8; }
+.ai-response-body { font-size: 14px; color: var(--text-secondary); line-height: 1.8; overflow-wrap: break-word; word-break: break-word; min-width: 0; }
 .ai-loading { display: flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); }
 .loading-dots { display: flex; gap: 4px; }
 .loading-dot {

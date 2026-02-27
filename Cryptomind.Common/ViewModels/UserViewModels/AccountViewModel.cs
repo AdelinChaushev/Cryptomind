@@ -10,7 +10,7 @@
 		public int Score { get; set; }
 		public int AttemptedCiphers { get; set; }
 		public int LeaderBoardPlace { get; set; }
-		public double SuccessRate {get; set;}
+		public double SuccessRate { get; set; }
 		public ICollection<BadgeViewModel> Badges { get; set; }
 	}
 }

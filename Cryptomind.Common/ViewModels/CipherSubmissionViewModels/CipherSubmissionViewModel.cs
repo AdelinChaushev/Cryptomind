@@ -9,9 +9,9 @@ namespace Cryptomind.Common.ViewModels.CipherSubmissionViewModels
 		public string CipherText { get; set; }
 		public string SubmittedTime { get; set; }
 		public string Status { get; set; }
-        public int? Id{ get; set; }
-        //Deleted state
-        public string? DeletedTime { get; set; }
+		public int? Id { get; set; }
+		//Deleted state
+		public string? DeletedTime { get; set; }
 		//Approved state
 		public string? ApprovedTime { get; set; }
 		public string? ApprovedAs { get; set; }

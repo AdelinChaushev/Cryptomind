@@ -2,9 +2,9 @@
 
 namespace Cryptomind.Core.Contracts
 {
-    public interface IUserService
-    {
-        Task<IEnumerable<string>> GetRolesUsers(string id);
-        Task<AccountViewModel?> GetUserAccountInfo(string id);
-    }
+	public interface IUserService
+	{
+		Task<IEnumerable<string>> GetRolesUsers(string id);
+		Task<AccountViewModel?> GetUserAccountInfo(string id);
+	}
 }

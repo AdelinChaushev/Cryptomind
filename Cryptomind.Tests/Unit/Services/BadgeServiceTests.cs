@@ -1,4 +1,5 @@
-﻿using Cryptomind.Core.Contracts;
+﻿using Cryptomind.Common.Exceptions;
+using Cryptomind.Core.Contracts;
 using Cryptomind.Core.Services;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
@@ -31,16 +32,14 @@ namespace Cryptomind.Tests.Unit.Services
 				statsServiceMock.Object,
 				notificationMock.Object);
 
-			// Default safe queryable setups for ALL repos
 			SetupUserBadgeIds("u1");
-			SetupAttachedUsers(MakeUser("u1")); // <-- prevents "user not found" from masking real failures
+			SetupAttachedUsers(MakeUser("u1"));
 			SetupAttachedBadges(
 				MakeBadge(1), MakeBadge(2), MakeBadge(3), MakeBadge(4),
 				MakeBadge(5), MakeBadge(6), MakeBadge(7), MakeBadge(8),
 				MakeBadge(9), MakeBadge(10), MakeBadge(11), MakeBadge(12),
 				MakeBadge(13), MakeBadge(14), MakeBadge(15));
 
-			// Default all stats to 0 so no criteria is accidentally satisfied
 			statsServiceMock.Setup(s => s.GetSolvedCount(It.IsAny<string>())).ReturnsAsync(0);
 			statsServiceMock.Setup(s => s.GetDistinctCipherTypesSolved(It.IsAny<string>())).ReturnsAsync(0);
 			statsServiceMock.Setup(s => s.GetApprovedCount(It.IsAny<string>())).ReturnsAsync(0);
@@ -100,7 +99,6 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task CheckBadgesByCategory_SkipsBadge_WhenUserAlreadyHasAllOnSolveBadges()
 		{
-			// All 10 OnSolve badge IDs: 1-6 and 12-15
 			SetupUserBadgeIds("u1", 1, 2, 3, 4, 5, 6, 12, 13, 14, 15);
 
 			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
@@ -114,7 +112,7 @@ namespace Cryptomind.Tests.Unit.Services
 		}
 
 		[Fact]
-		public async Task CheckBadgesByCategory_AwardsBadge_WhenCriteriaIsSatisfied()
+		public async Task CheckBadgesByCategory_AwardsBadge1_WhenSolvedCountIs1()
 		{
 			SetupUserBadgeIds("u1");
 			statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(1);
@@ -127,7 +125,7 @@ namespace Cryptomind.Tests.Unit.Services
 		}
 
 		[Fact]
-		public async Task CheckBadgesByCategory_DoesNotAwardBadge_WhenCriteriaIsNotSatisfied()
+		public async Task CheckBadgesByCategory_DoesNotAwardBadge1_WhenSolvedCountIs0()
 		{
 			SetupUserBadgeIds("u1");
 			statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(0);
@@ -138,7 +136,7 @@ namespace Cryptomind.Tests.Unit.Services
 		}
 
 		[Fact]
-		public async Task CheckBadgesByCategory_AwardsBothOnSolveBadges_WhenBothCriteriaAreSatisfied()
+		public async Task CheckBadgesByCategory_AwardsBadge1And2_WhenSolvedCountIs25()
 		{
 			SetupUserBadgeIds("u1");
 			statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(25);
@@ -152,7 +150,7 @@ namespace Cryptomind.Tests.Unit.Services
 		}
 
 		[Fact]
-		public async Task CheckBadgesByCategory_AwardsOnlyFirstBadge_WhenOnlyFirstCriteriaIsSatisfied()
+		public async Task CheckBadgesByCategory_AwardsOnlyBadge1_WhenSolvedCountIs1()
 		{
 			SetupUserBadgeIds("u1");
 			statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(1);
@@ -163,6 +161,102 @@ namespace Cryptomind.Tests.Unit.Services
 
 			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 1)), Times.Once);
 			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 2)), Times.Never);
+		}
+
+		[Fact]
+		public async Task CheckBadgesByCategory_AwardsBadge6_WhenDistinctTypesSolvedIs10()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetDistinctCipherTypesSolved("u1")).ReturnsAsync(10);
+			SetupAttachedUsers(MakeUser("u1"));
+			SetupAttachedBadges(MakeBadge(5), MakeBadge(6));
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 6)), Times.Once);
+		}
+
+		[Fact]
+		public async Task CheckBadgesByCategory_DoesNotAwardBadge3_WhenSolvedCountIs49()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(49);
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 3)), Times.Never);
+		}
+
+		[Fact]
+		public async Task CheckBadgesByCategory_AwardsBadge4_WhenSolvedCountIs100()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(100);
+			SetupAttachedUsers(MakeUser("u1"));
+			SetupAttachedBadges(MakeBadge(1), MakeBadge(2), MakeBadge(3), MakeBadge(4));
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 4)), Times.Once);
+		}
+
+		[Fact]
+		public async Task CheckBadgesByCategory_DoesNotAwardBadge4_WhenSolvedCountIs99()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(99);
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 4)), Times.Never);
+		}
+
+		[Fact]
+		public async Task CheckBadgesByCategory_AwardsBadge5_WhenDistinctTypesSolvedIs5()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetDistinctCipherTypesSolved("u1")).ReturnsAsync(5);
+			SetupAttachedUsers(MakeUser("u1"));
+			SetupAttachedBadges(MakeBadge(5));
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 5)), Times.Once);
+		}
+
+		[Fact]
+		public async Task CheckBadgesByCategory_DoesNotAwardBadge5_WhenDistinctTypesSolvedIs4()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetDistinctCipherTypesSolved("u1")).ReturnsAsync(4);
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 5)), Times.Never);
+		}
+
+		[Fact]
+		public async Task CheckBadgesByCategory_AwardsBadge3_WhenSolvedCountIs50()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(50);
+			SetupAttachedUsers(MakeUser("u1"));
+			SetupAttachedBadges(MakeBadge(1), MakeBadge(2), MakeBadge(3));
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 3)), Times.Once);
+		}
+
+		[Fact]
+		public async Task CheckBadgesByCategory_DoesNotAwardBadge6_WhenDistinctTypesSolvedIs9()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetDistinctCipherTypesSolved("u1")).ReturnsAsync(9);
+
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+
+			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 6)), Times.Never);
 		}
 
 		[Fact]
@@ -210,7 +304,6 @@ namespace Cryptomind.Tests.Unit.Services
 			Assert.Equal(1, badge.EarnedBy);
 		}
 
-		// Badge 12 - NoHintsSolvedCriteria (requires 10 solves without hints)
 		[Fact]
 		public async Task CheckBadgesByCategory_AwardsBadge12_WhenNoHintSolvesCriteriaMet()
 		{
@@ -228,14 +321,13 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task CheckBadgesByCategory_DoesNotAwardBadge12_WhenNoHintSolvesCriteriaNotMet()
 		{
 			SetupUserBadgeIds("u1");
-			statsServiceMock.Setup(s => s.GetSolvedWithoutHintCount("u1")).ReturnsAsync(5);
+			statsServiceMock.Setup(s => s.GetSolvedWithoutHintCount("u1")).ReturnsAsync(9);
 
 			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
 
 			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 12)), Times.Never);
 		}
 
-		// Badge 13 - PerfectSolveCountCriteria (requires 10 first-attempt solves)
 		[Fact]
 		public async Task CheckBadgesByCategory_AwardsBadge13_WhenPerfectSolveCriteriaMet()
 		{
@@ -260,7 +352,6 @@ namespace Cryptomind.Tests.Unit.Services
 			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 13)), Times.Never);
 		}
 
-		// Badge 14 - HintUsageCountCriteria (requires 25 hint usages)
 		[Fact]
 		public async Task CheckBadgesByCategory_AwardsBadge14_WhenHintUsageCriteriaMet()
 		{
@@ -285,7 +376,6 @@ namespace Cryptomind.Tests.Unit.Services
 			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 14)), Times.Never);
 		}
 
-		// Badge 15 - RareSolveCriteria (requires 25 rare solves)
 		[Fact]
 		public async Task CheckBadgesByCategory_AwardsBadge15_WhenRareSolveCriteriaMet()
 		{
@@ -312,7 +402,7 @@ namespace Cryptomind.Tests.Unit.Services
 
 		#endregion
 
-		#region CheckBadgesByCategory - OnCipherApprove
+		#region CheckBadgesByCategory - OnUpload
 
 		[Fact]
 		public async Task CheckBadgesByCategory_SkipsBadge_WhenUserAlreadyHasAllOnCipherApproveBadges()
@@ -381,7 +471,7 @@ namespace Cryptomind.Tests.Unit.Services
 
 		#endregion
 
-		#region CheckBadgesByCategory - OnAnswerApprove
+		#region CheckBadgesByCategory - OnSuggesting
 
 		[Fact]
 		public async Task CheckBadgesByCategory_SkipsBadge_WhenUserAlreadyHasAllOnAnswerApproveBadges()
@@ -430,6 +520,48 @@ namespace Cryptomind.Tests.Unit.Services
 			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSuggesting);
 
 			userBadgeRepoMock.Verify(r => r.AddAsync(It.IsAny<UserBadge>()), Times.Never);
+		}
+
+		#endregion
+
+		#region AwardBadge internal guards
+
+		[Fact]
+		public async Task CheckBadgesByCategory_Throws_WhenUserNotFoundDuringAwarding()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(1);
+			SetupAttachedUsers();
+
+			await Assert.ThrowsAsync<Exception>(
+				() => service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve));
+		}
+
+		[Fact]
+		public async Task CheckBadgesByCategory_Throws_WhenUserAlreadyHasBadgeInBadgesCollection()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(1);
+
+			var user = MakeUser("u1");
+			user.Badges = new List<UserBadge> { new UserBadge { BadgeId = 1, UserId = "u1" } };
+			SetupAttachedUsers(user);
+			SetupAttachedBadges(MakeBadge(1));
+
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve));
+		}
+
+		[Fact]
+		public async Task CheckBadgesByCategory_Throws_WhenBadgeNotFoundDuringAwarding()
+		{
+			SetupUserBadgeIds("u1");
+			statsServiceMock.Setup(s => s.GetSolvedCount("u1")).ReturnsAsync(1);
+			SetupAttachedUsers(MakeUser("u1"));
+			SetupAttachedBadges();
+
+			await Assert.ThrowsAsync<NotFoundException>(
+				() => service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve));
 		}
 
 		#endregion
@@ -591,9 +723,9 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var solutions = new[]
 			{
-				new UserSolution { UserId = "u1" },
-				new UserSolution { UserId = "u1" },
-				new UserSolution { UserId = "u1" },
+				new UserSolution { UserId = "u1", IsCorrect = true },
+				new UserSolution { UserId = "u1", IsCorrect = true },
+				new UserSolution { UserId = "u1", IsCorrect = true },
 				new UserSolution { UserId = "u2" },
 			};
 			SetupAttachedSolutions(solutions);
@@ -684,13 +816,10 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var solutions = new[]
 			{
-                // Cipher 1: solved on first attempt
-                new UserSolution { UserId = "u1", CipherId = 1, IsCorrect = true },
-                // Cipher 2: solved but had a prior wrong attempt (2 attempts total)
-                new UserSolution { UserId = "u1", CipherId = 2, IsCorrect = false },
+				new UserSolution { UserId = "u1", CipherId = 1, IsCorrect = true },
+				new UserSolution { UserId = "u1", CipherId = 2, IsCorrect = false },
 				new UserSolution { UserId = "u1", CipherId = 2, IsCorrect = true },
-                // Cipher 3: one attempt but wrong
-                new UserSolution { UserId = "u1", CipherId = 3, IsCorrect = false },
+				new UserSolution { UserId = "u1", CipherId = 3, IsCorrect = false },
 			};
 			SetupAttachedSolutions(solutions);
 
@@ -749,8 +878,8 @@ namespace Cryptomind.Tests.Unit.Services
 			var hints = new[]
 			{
 				new HintRequest { UserId = "u1", CipherId = 1 },
-				new HintRequest { UserId = "u1", CipherId = 1 }, // duplicate cipher
-                new HintRequest { UserId = "u1", CipherId = 2 },
+				new HintRequest { UserId = "u1", CipherId = 1 },
+				new HintRequest { UserId = "u1", CipherId = 2 },
 				new HintRequest { UserId = "u1", CipherId = 3 },
 			};
 			SetupAttachedHints(hints);
@@ -800,8 +929,7 @@ namespace Cryptomind.Tests.Unit.Services
 				{
 					new() { IsCorrect = true },
 					new() { IsCorrect = true },
-                    // Only 2 correct solvers total - qualifies as rare
-                }
+				}
 			};
 			var commonCipher = new ConcreteCipher
 			{
@@ -812,8 +940,7 @@ namespace Cryptomind.Tests.Unit.Services
 					new() { IsCorrect = true },
 					new() { IsCorrect = true },
 					new() { IsCorrect = true },
-                    // 4 correct solvers - not rare
-                }
+				}
 			};
 			var solutions = new[]
 			{
@@ -887,13 +1014,12 @@ namespace Cryptomind.Tests.Unit.Services
 			var solutions = new[]
 			{
 				new UserSolution { UserId = "u1", CipherId = 1, IsCorrect = false, Cipher = cipher },
-				new UserSolution { UserId = "u2", CipherId = 1, IsCorrect = true,  Cipher = cipher },
+				new UserSolution { UserId = "u2", CipherId = 1, IsCorrect = true, Cipher = cipher },
 			};
 			SetupAttachedSolutions(solutions);
 
 			var result = await service.GetRareSolves("u1");
 
-			// u1 did not solve it correctly, so should be 0
 			Assert.Equal(0, result);
 		}
 

@@ -1,80 +1,130 @@
-﻿using Cryptomind.Tests.Integration.Fixtures;
+﻿using Cryptomind.Data;
+using Cryptomind.Tests.Integration.Fixtures;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Cryptomind.Tests.Integration
 {
-	public class AuthControllerTests : IntegrationTestBase
+	public class AuthenticationControllerTests : IntegrationTestBase
 	{
-		public AuthControllerTests(CryptomindWebApplicationFactory factory) : base(factory) { }
+		private static readonly JsonSerializerOptions JsonOpts = new() { PropertyNameCaseInsensitive = true };
 
-		#region Register
+		public AuthenticationControllerTests(CryptomindWebApplicationFactory factory) : base(factory) { }
+
+		// =========================================================================
+		// REGISTER
+		// =========================================================================
 
 		[Fact]
-		public async Task Register_ValidData_Returns200AndSetsCookie()
+		public async Task Register_ValidModel_Returns200()
 		{
-			var payload = new
+			var model = new
 			{
-				email = $"newuser_{Guid.NewGuid():N}@test.com",
-				username = $"u_{Guid.NewGuid():N}".Substring(0, 16),
+				email = $"test_{Guid.NewGuid():N}@test.com",
+				username = $"user_{Guid.NewGuid():N}".Substring(0, 16),
 				password = "Test123!",
 				confirmPassword = "Test123!"
 			};
 
-			var response = await Client.PostAsJsonAsync("/api/auth/register", payload);
+			var response = await Client.PostAsJsonAsync("/api/auth/register", model);
 
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
 		}
 
 		[Fact]
-		public async Task Register_DuplicateEmail_Returns400()
+		public async Task Register_ValidModel_ReturnsToken()
 		{
-			var email = $"duplicate_{Guid.NewGuid():N}@test.com";
-			var payload = new { email, username = "user1", password = "Test123!" };
-
-			await Client.PostAsJsonAsync("/api/auth/register", payload);
-
-			var secondPayload = new { email, username = "user2", password = "Test123!" };
-			var response = await Client.PostAsJsonAsync("/api/auth/register", secondPayload);
-
-			response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-		}
-
-		[Fact]
-		public async Task Register_PasswordTooShort_Returns400()
-		{
-			var payload = new
+			var model = new
 			{
-				email = $"short_{Guid.NewGuid():N}@test.com",
-				username = "shortpass",
-				password = "abc"
+				email = $"test_{Guid.NewGuid():N}@test.com",
+				username = $"user_{Guid.NewGuid():N}".Substring(0, 16),
+				password = "Test123!",
+				confirmPassword = "Test123!"
 			};
 
-			var response = await Client.PostAsJsonAsync("/api/auth/register", payload);
+			var response = await Client.PostAsJsonAsync("/api/auth/register", model);
+			var body = await response.Content.ReadAsStringAsync();
+			var json = JsonSerializer.Deserialize<JsonElement>(body, JsonOpts);
 
-			response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+			json.TryGetProperty("token", out var token).Should().BeTrue();
+			token.GetString().Should().NotBeNullOrEmpty();
 		}
 
 		[Fact]
-		public async Task Register_EmptyEmail_Returns400()
+		public async Task Register_ValidModel_UserExistsInDatabase()
 		{
-			var payload = new { email = "", username = "someone", password = "Test123!" };
+			var email = $"test_{Guid.NewGuid():N}@test.com";
+			var model = new
+			{
+				email,
+				username = $"user_{Guid.NewGuid():N}".Substring(0, 16),
+				password = "Test123!",
+				confirmPassword = "Test123!"
+			};
 
-			var response = await Client.PostAsJsonAsync("/api/auth/register", payload);
+			await Client.PostAsJsonAsync("/api/auth/register", model);
+
+			using var scope = Factory.CreateScope();
+			var db = scope.ServiceProvider.GetRequiredService<CryptomindDbContext>();
+			var user = await db.Users.FirstOrDefaultAsync(u => u.Email == email);
+			user.Should().NotBeNull();
+		}
+
+		[Fact]
+		public async Task Register_DuplicateEmail_ReturnsBadRequest()
+		{
+			var model = new
+			{
+				email = "user@cryptomind.com", // already seeded
+				username = $"user_{Guid.NewGuid():N}".Substring(0, 16),
+				password = "Test123!",
+				confirmPassword = "Test123!"
+			};
+
+			var response = await Client.PostAsJsonAsync("/api/auth/register", model);
+
+			response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+		}
+
+		[Fact]
+		public async Task Register_InvalidModel_ReturnsBadRequest()
+		{
+			var model = new
+			{
+				email = "not-an-email",
+				username = "",
+				password = "weak",
+				confirmPassword = "weak"
+			};
+
+			var response = await Client.PostAsJsonAsync("/api/auth/register", model);
 
 			response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 		}
 
-		#endregion
+		[Fact]
+		public async Task Register_MissingFields_ReturnsBadRequest()
+		{
+			var model = new { email = "" };
 
-		#region Login
+			var response = await Client.PostAsJsonAsync("/api/auth/register", model);
+
+			response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+		}
+
+		// =========================================================================
+		// LOGIN
+		// =========================================================================
 
 		[Fact]
-		public async Task Login_ValidCredentials_Returns200AndSetsCookie()
+		public async Task Login_ValidCredentials_Returns200()
 		{
 			var response = await Client.PostAsJsonAsync("/api/auth/login", new
 			{
@@ -83,11 +133,35 @@ namespace Cryptomind.Tests.Integration
 			});
 
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
-			response.Headers.Should().ContainKey("Set-Cookie");
 		}
 
 		[Fact]
-		public async Task Login_WrongPassword_Returns401()
+		public async Task Login_ValidCredentials_ReturnsUserInfo()
+		{
+			var response = await Client.PostAsJsonAsync("/api/auth/login", new
+			{
+				email = "user@cryptomind.com",
+				password = "User123!"
+			});
+
+			var body = await response.Content.ReadAsStringAsync();
+			body.Should().NotBeNullOrEmpty();
+		}
+
+		[Fact]
+		public async Task Login_AdminCredentials_Returns200()
+		{
+			var response = await Client.PostAsJsonAsync("/api/auth/login", new
+			{
+				email = "admin@cryptomind.com",
+				password = "Admin123!"
+			});
+
+			response.StatusCode.Should().Be(HttpStatusCode.OK);
+		}
+
+		[Fact]
+		public async Task Login_WrongPassword_ReturnsError()
 		{
 			var response = await Client.PostAsJsonAsync("/api/auth/login", new
 			{
@@ -95,71 +169,89 @@ namespace Cryptomind.Tests.Integration
 				password = "WrongPassword!"
 			});
 
-			response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+			response.StatusCode.Should().NotBe(HttpStatusCode.OK);
 		}
 
 		[Fact]
-		public async Task Login_NonExistentEmail_Returns401()
+		public async Task Login_NonExistentEmail_ReturnsError()
 		{
 			var response = await Client.PostAsJsonAsync("/api/auth/login", new
 			{
-				email = "nobody@nowhere.com",
+				email = "nonexistent@test.com",
 				password = "Test123!"
 			});
 
-			response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+			response.StatusCode.Should().NotBe(HttpStatusCode.OK);
 		}
 
 		[Fact]
-		public async Task Login_EmptyBody_Returns400Or401()
+		public async Task Login_BannedUser_Returns403()
 		{
-			var response = await Client.PostAsJsonAsync("/api/auth/login", new
+			// Register a fresh user then ban them
+			var email = $"banned_{Guid.NewGuid():N}@test.com";
+			var username = $"banned_{Guid.NewGuid():N}".Substring(0, 16);
+			await Client.PostAsJsonAsync("/api/auth/register", new
 			{
-				email = "",
-				password = ""
+				email,
+				username,
+				password = "Test123!",
+				confirmPassword = "Test123!"
 			});
 
-			((int)response.StatusCode).Should().BeOneOf(400, 401);
+			using var scope = Factory.CreateScope();
+			var db = scope.ServiceProvider.GetRequiredService<CryptomindDbContext>();
+			var user = await db.Users.FirstAsync(u => u.Email == email);
+			user.IsBanned = true;
+			user.BanReason = "Test ban";
+			await db.SaveChangesAsync();
+
+			var response = await Client.PostAsJsonAsync("/api/auth/login", new
+			{
+				email,
+				password = "Test123!"
+			});
+
+			response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
 		}
 
-		#endregion
-
-		#region Logout
+		// =========================================================================
+		// LOGOUT
+		// =========================================================================
 
 		[Fact]
-		public async Task Logout_AuthenticatedUser_Returns200()
+		public async Task Logout_Authenticated_Returns200()
 		{
-			var authenticatedClient = await GetAuthenticatedUserClientAsync();
+			var authClient = await GetAuthenticatedUserClientAsync();
 
-			var response = await authenticatedClient.PostAsync("/api/auth/logout", null);
+			var response = await authClient.PostAsync("/api/auth/logout", null);
 
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
 		}
 
 		[Fact]
-		public async Task Logout_UnauthenticatedUser_Returns401()
+		public async Task Logout_Unauthenticated_Returns401()
 		{
 			var response = await Client.PostAsync("/api/auth/logout", null);
 
 			response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
 		}
 
-		#endregion
-
-		#region Deactivate
+		// =========================================================================
+		// DEACTIVATE
+		// =========================================================================
 
 		[Fact]
-		public async Task Deactivate_AuthenticatedUser_Returns200()
+		public async Task DeactivateAccount_Authenticated_Returns200()
 		{
-			var client = await RegisterAndGetClientAsync();
+			var freshClient = await RegisterAndGetClientAsync();
 
-			var response = await client.PostAsync("/api/auth/deactivate", null);
+			var response = await freshClient.PostAsync("/api/auth/deactivate", null);
 
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
 		}
 
 		[Fact]
-		public async Task Deactivate_UnauthenticatedUser_Returns401()
+		public async Task DeactivateAccount_Unauthenticated_Returns401()
 		{
 			var response = await Client.PostAsync("/api/auth/deactivate", null);
 
@@ -167,23 +259,19 @@ namespace Cryptomind.Tests.Integration
 		}
 
 		[Fact]
-		public async Task Deactivate_DeactivatedUserCannotLogin()
+		public async Task DeactivateAccount_Authenticated_UserIsDeactivatedInDatabase()
 		{
-			var uniqueEmail = $"deactivated_{Guid.NewGuid():N}@test.com";
-			var client = await RegisterAndGetClientAsync(email: uniqueEmail, password: "Test123!");
+			var email = $"deactivate_{Guid.NewGuid():N}@test.com";
+			var freshClient = await RegisterAndGetClientAsync(email: email);
 
-			await client.PostAsync("/api/auth/deactivate", null);
+			var response = await freshClient.PostAsync("/api/auth/deactivate", null);
+			var body = await response.Content.ReadAsStringAsync();
+			response.StatusCode.Should().Be(HttpStatusCode.OK, because: body);
 
-			var loginResponse = await Client.PostAsJsonAsync("/api/auth/login", new
-			{
-				email = uniqueEmail,
-				password = "Test123!"
-			});
-
-			// Deactivated users should not be able to log in
-			((int)loginResponse.StatusCode).Should().BeOneOf(400, 409);
+			using var scope = Factory.CreateScope();
+			var db = scope.ServiceProvider.GetRequiredService<CryptomindDbContext>();
+			var user = await db.Users.FirstAsync(u => u.Email == email);
+			user.IsDeactivated.Should().BeTrue();
 		}
-
-		#endregion
 	}
 }

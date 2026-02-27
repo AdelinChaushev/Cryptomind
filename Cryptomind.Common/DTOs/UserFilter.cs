@@ -4,6 +4,6 @@
 	{
 		public bool? IsBanned { get; set; }
 		public bool? IsDeactivated { get; set; }
-        public string? Username { get; set; }
-    }
+		public string? Username { get; set; }
+	}
 }

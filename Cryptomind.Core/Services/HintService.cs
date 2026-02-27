@@ -1,4 +1,5 @@
-﻿using Cryptomind.Common.DTOs;
+﻿using Cryptomind.Common.Constants;
+using Cryptomind.Common.DTOs;
 using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.Helpers;
 using Cryptomind.Core.Contracts;
@@ -6,7 +7,6 @@ using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Cryptomind.Common.Constants;
 
 namespace Cryptomind.Core.Services
 {
@@ -16,9 +16,6 @@ namespace Cryptomind.Core.Services
 		ILLMService llmService
 		) : IHintService
 	{
-		private const double TypeHintPenalty = 0.30;
-		private const double SolutionHintPenalty = 0.50;
-		private const double FullSolutionHintPenalty = 0.95;
 		public async Task<HintResultDTO> RequestHintAsync(string userId, int cipherId, HintType hintType)
 		{
 			var cipher = await cipherRepo.GetAllAttached()
@@ -36,22 +33,12 @@ namespace Cryptomind.Core.Services
 					.ToList();
 
 			string hintContent = string.Empty;
-			bool usedTypeHint = userHints.Any(h => h.HintType == HintType.Type);
-			bool usedSolutionHint = userHints.Any(h => h.HintType == HintType.Hint);
-			bool usedFullSolution = userHints.Any(h => h.HintType == HintType.FullSolution);
-
-			var availablePoints = CalculatePointsHelper.CalculateAvailablePointsWithPenalty(
-					cipher.Points,
-					usedTypeHint,
-					usedSolutionHint,
-					usedFullSolution);
-
 
 			if (cipher.CreatedByUserId == userId)
-				throw new ConflictException("Не можете да искате подсказки за вашия собствен шифър");
+				throw new ConflictException(HintErrorConstants.CannotRequestHintsForOwnCipher);
 
 			if (cipher.UserSolutions.Any(x => x.UserId == userId && x.IsCorrect))
-				throw new ConflictException(CipherErrorConstants.AlreadySolvedConflict);
+				throw new ConflictException(HintErrorConstants.CipherAlreadySolved);
 
 			bool isAllowed = hintType switch
 			{
@@ -62,7 +49,17 @@ namespace Cryptomind.Core.Services
 			};
 
 			if (!isAllowed)
-				throw new ConflictException("Този тип подсказка не е налична за този шифър.");
+				throw new ConflictException(HintErrorConstants.ThisHintTypeIsNotAllowed);
+
+			bool usedTypeHint = hintType == HintType.Type ? true : userHints.Any(h => h.HintType == HintType.Type);
+			bool usedSolutionHint = hintType == HintType.Hint ? true : userHints.Any(h => h.HintType == HintType.Hint);
+			bool usedFullSolution = hintType == HintType.FullSolution ? true : userHints.Any(h => h.HintType == HintType.FullSolution);
+
+			var availablePoints = CalculatePointsHelper.CalculateAvailablePointsWithPenalty(
+					cipher.Points,
+					usedTypeHint,
+					usedSolutionHint,
+					usedFullSolution);
 
 			var existingHint = cipher.HintsRequested
 					.FirstOrDefault(hr => hr.UserId == userId && hr.HintType == hintType);
@@ -94,8 +91,6 @@ namespace Cryptomind.Core.Services
 				HintContent = hintContent,
 			};
 
-			availablePoints = CalculateNewPointsWithPenalty(availablePoints, hintType);
-
 			await hintRequestRepo.AddAsync(hintRequest);
 			await cipherRepo.UpdateAsync(cipher);
 			return new HintResultDTO
@@ -113,22 +108,6 @@ namespace Cryptomind.Core.Services
 			HintType.FullSolution => cipher.LLMData.CachedSolution,
 			_ => null
 		};
-		private int CalculateNewPointsWithPenalty(int basePoints, HintType hintType)
-		{
-			double penalty = hintType switch
-			{
-				HintType.Type => TypeHintPenalty,
-				HintType.Hint => SolutionHintPenalty,
-				HintType.FullSolution => FullSolutionHintPenalty,
-				_ => 0
-			};
-
-			double multiplier = 1.0 - penalty;
-			if (multiplier < 0.05)
-				multiplier = 0.05;
-
-			return (int)Math.Max(0, basePoints * multiplier);
-		}
 		private void SetCachedHint(Cipher cipher, HintType hintType, string content)
 		{
 			switch (hintType)
