@@ -1,6 +1,5 @@
 ﻿using Cryptomind.Common.DTOs;
 using Cryptomind.Common.ViewModels.AdminViewModels;
-using static Cryptomind.Core.Services.LLMService;
 
 namespace Cryptomind.Core.Contracts
 {

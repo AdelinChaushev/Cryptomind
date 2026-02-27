@@ -2,20 +2,20 @@ import React from 'react';
 import CipherInputToggle from './CipherInputToggle';
 
 const CIPHER_TYPES = [
-    { value: '0',  label: 'Цезар (Caesar)',               group: 'Substitution' },
-    { value: '1',  label: 'Атбаш (Atbash)',               group: 'Substitution' },
-    { value: '2',  label: 'Проста замяна (SimpleSubstitution)',        group: 'Substitution' },
-    { value: '3',  label: 'ROT13 (ROT13)',                group: 'Substitution' },
-    { value: '4',  label: 'Виженер (Vigenere)',              group: 'Polyalphabetic' },
-    { value: '5',  label: 'Автоключ (Autokey)',             group: 'Polyalphabetic' },
-    { value: '6',  label: 'Тритемий (Trithemius)',             group: 'Polyalphabetic' },
-    { value: '7',  label: 'Железопътна ограда (RailFence)',   group: 'Transposition' },
-    { value: '8',  label: 'Колонна (Columnar)',              group: 'Transposition' },
-    { value: '9',  label: 'Маршрут (Route)',              group: 'Transposition' },
-    { value: '10', label: 'Base64 (Base64)',               group: 'Encoding' },
-    { value: '11', label: 'Морзов (Morse)',                group: 'Encoding' },
-    { value: '12', label: 'Двоичен (Binary)',              group: 'Encoding' },
-    { value: '13', label: 'Шестнадесетичен (Hex)',      group: 'Encoding' },
+    { value: '0',  label: 'Цезар (Caesar)',                          group: 'Substitution' },
+    { value: '1',  label: 'Атбаш (Atbash)',                          group: 'Substitution' },
+    { value: '2',  label: 'Проста замяна (SimpleSubstitution)',       group: 'Substitution' },
+    { value: '3',  label: 'ROT13 (ROT13)',                           group: 'Substitution' },
+    { value: '4',  label: 'Виженер (Vigenere)',                       group: 'Polyalphabetic' },
+    { value: '5',  label: 'Автоключ (Autokey)',                       group: 'Polyalphabetic' },
+    { value: '6',  label: 'Тритемий (Trithemius)',                    group: 'Polyalphabetic' },
+    { value: '7',  label: 'Железопътна ограда (RailFence)',           group: 'Transposition' },
+    { value: '8',  label: 'Колонна (Columnar)',                       group: 'Transposition' },
+    { value: '9',  label: 'Маршрут (Route)',                          group: 'Transposition' },
+    { value: '10', label: 'Base64 (Base64)',                          group: 'Encoding' },
+    { value: '11', label: 'Морзов (Morse)',                           group: 'Encoding' },
+    { value: '12', label: 'Двоичен (Binary)',                         group: 'Encoding' },
+    { value: '13', label: 'Шестнадесетичен (Hex)',                    group: 'Encoding' },
 ];
 
 const GROUPS = ['Substitution', 'Polyalphabetic', 'Transposition', 'Encoding'];
@@ -33,6 +33,7 @@ const SubmitForm = ({
     onToggle,
     onFieldChange,
     ocrText,
+    ocrFailed,
     ocrLoading,
     onOcrTextChange,
     onImageChange,
@@ -142,7 +143,7 @@ const SubmitForm = ({
                             <p className="ocr-loading">Извличане на текст от изображението…</p>
                         )}
 
-                        {!ocrLoading && ocrText && (
+                        {!ocrLoading && image && !ocrFailed && (
                             <div className="ocr-review">
                                 <label className="field-label">
                                     ИЗВЛЕЧЕН ТЕКСТ <span className="optional">ПРЕГЛЕДАЙТЕ И КОРИГИРАЙТЕ</span>
@@ -159,7 +160,7 @@ const SubmitForm = ({
                             </div>
                         )}
 
-                        {!ocrLoading && !ocrText && image && (
+                        {!ocrLoading && ocrFailed && image && (
                             <p className="ocr-notice ocr-notice--error">
                                 OCR не успя да извлече текст. Опитайте с по-ясно изображение.
                             </p>

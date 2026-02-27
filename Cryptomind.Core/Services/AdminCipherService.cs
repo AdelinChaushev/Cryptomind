@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.Json;
-using static Cryptomind.Core.Services.LLMService;
 
 
 namespace Cryptomind.Core.Services
@@ -243,7 +242,7 @@ namespace Cryptomind.Core.Services
 				}).ToList()
 			};
 
-			string type = cipher.TypeOfCipher?.ToString() ?? "Unknown";
+			string? type = cipher.TypeOfCipher?.ToString();
 
 			var validation = await llmService.ValidateCipherAsync(cipher.EncryptedText, cipher.DecryptedText, mlResult, type);
 			cipher.LLMData.Reasoning = validation.Reasoning;

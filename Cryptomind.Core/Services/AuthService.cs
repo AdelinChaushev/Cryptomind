@@ -69,7 +69,7 @@ namespace Cryptomind.Core.Services
 			}
 
 			if (userName.Length < 3 || userName.Length > 16)
-				throw new CustomValidationException("Keep the username constraints");
+				throw new CustomValidationException("Спазвайте ограниченията за името");
 
 			if (password.Length < 8)
 				throw new CustomValidationException("Спазвайте ограниченията на паролата");
