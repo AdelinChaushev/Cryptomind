@@ -13,6 +13,7 @@ const SubmitCipherPage = () => {
     const [useImage, setUseImage] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [ocrText, setOcrText] = useState('');
+    const [ocrFailed, setOcrFailed] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [ocrLoading, setOcrLoading] = useState(false);
     const { setError } = useError();
@@ -40,6 +41,7 @@ const SubmitCipherPage = () => {
     const handleImageChange = (file) => {
         handleFieldChange('image', file);
         setOcrText('');
+        setOcrFailed(false);
 
         if (!file) return;
 
@@ -51,61 +53,63 @@ const SubmitCipherPage = () => {
             withCredentials: true,
             headers: { 'Content-Type': 'multipart/form-data' }
         })
-        .then(res => setOcrText(res.data.extractedText))
-        .catch(e => setError(e.response?.data?.error || 'OCR failed'))
+        .then(res => {
+            setOcrText(res.data.extractedText);
+            setOcrFailed(false);
+        })
+        .catch(e => {
+            setError(e.response?.data?.error || 'OCR failed');
+            setOcrFailed(true);
+        })
         .finally(() => setOcrLoading(false));
     };
 
-   // 1. REMOVE: import { response } from 'express'; 
+    const handleSubmit = () => {
+        setSubmitted(false);
+        setError(null);
+        setIsSubmitting(true);
+        const formData = new FormData();
+        formData.append("Title", fields.title);
+        formData.append("DecryptedText", fields.decryptedText || "");
+        formData.append("EncryptedText", fields.encryptedText);
+        formData.append("CipherType", fields.cipherType.toString());
+        formData.append("CipherDefinition", (fields.image != null ? 1 : 0).toString());
 
-const handleSubmit = () => {
-    // Reset states at the start of a new attempt
-    setSubmitted(false);
-    setError(null);
-    setIsSubmitting(true); 
-    const formData = new FormData();
-    formData.append("Title", fields.title);
-    formData.append("DecryptedText", fields.decryptedText || "");
-    formData.append("EncryptedText", fields.encryptedText);
-    formData.append("CipherType", fields.cipherType.toString());
-    formData.append("CipherDefinition", (fields.image != null ? 1 : 0).toString());
+        if (fields.image) {
+            formData.append("Image", fields.image);
+            formData.append("ReviewedText", ocrText);
+        }
 
-    if (fields.image) {
-        formData.append("Image", fields.image);
-        formData.append("ReviewedText", ocrText); // add this
-    }
-
-    axios.post('http://localhost:5115/api/ciphers/submit', formData, {
-        withCredentials: true,
-        headers: { 'Content-Type': 'multipart/form-data' }
-    })
-    .then(() => {
-        setFields({ title:             '',
-        decryptedText:     '',
-        encryptedText:     '',
-        image:             null,
-        cipherType:        '',
-        cipherDefinition:  '',
-        allowHints:        false,
-        allowAnswer:       false,
-    });
-        setSubmitted(true);
-        setTimeout(() => setIsSubmitting(false), 4000);
-    })
-    .catch(e => {
-        // triggers on 400, 401, 404, 500, etc.
-        setSubmitted(false); // Force hide the success message
-        
-        console.error('Submission error:', e.response?.data);
-
-        // Safe extraction
-        const errorMsg = e.response?.data?.error 
-                      || e.response?.data?.title 
-                      || "An unexpected error occurred.";
-        
-        setError(errorMsg);
-    }).finally(c => setIsSubmitting(false));
-};
+        axios.post('http://localhost:5115/api/ciphers/submit', formData, {
+            withCredentials: true,
+            headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        .then(() => {
+            setFields({
+                title:             '',
+                decryptedText:     '',
+                encryptedText:     '',
+                image:             null,
+                cipherType:        '',
+                cipherDefinition:  '',
+                allowHints:        false,
+                allowAnswer:       false,
+            });
+            setOcrText('');
+            setOcrFailed(false);
+            setUseImage(false);
+            setSubmitted(true);
+            setTimeout(() => setIsSubmitting(false), 4000);
+        })
+        .catch(e => {
+            setSubmitted(false);
+            console.error('Submission error:', e.response?.data);
+            const errorMsg = e.response?.data?.error
+                          || e.response?.data?.title
+                          || "An unexpected error occurred.";
+            setError(errorMsg);
+        }).finally(() => setIsSubmitting(false));
+    };
 
     const handleCancel = () => window.history.back();
 
@@ -116,24 +120,25 @@ const handleSubmit = () => {
             <div className="main-layout">
                 <CipherTypesPanel />
 
-               <SubmitForm
+                <SubmitForm
                     fields={fields}
                     useImage={useImage}
                     onToggle={handleToggle}
                     onFieldChange={handleFieldChange}
                     ocrText={ocrText}
+                    ocrFailed={ocrFailed}
                     ocrLoading={ocrLoading}
                     onOcrTextChange={setOcrText}
                     onImageChange={handleImageChange}
                 />
 
                 <div className="sidebar">
-                {isSubmitting && (
-                    <div className="submit-pending">
-                        <div className="submit-pending__spinner" />
-                        <span className="submit-pending__text">Изпращане и анализиране</span>
-                    </div>
-                )}
+                    {isSubmitting && (
+                        <div className="submit-pending">
+                            <div className="submit-pending__spinner" />
+                            <span className="submit-pending__text">Изпращане и анализиране</span>
+                        </div>
+                    )}
                     {submitted && !isSubmitting && (
                         <p className="submit-success">
                             ✓ Шифърът е изпратен успешно. Ще бъде прегледан от администратор.
