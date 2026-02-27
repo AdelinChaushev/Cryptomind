@@ -13,8 +13,12 @@ function getInitial(username) {
 
 function PodiumCard({ entry }) {
   const rankIndex = entry.place - 1;
+  const col = entry.place === 1 ? 2 : entry.place === 2 ? 1 : 3;
   return (
-    <div className={`lb-podium-card ${RANK_CLASSES[rankIndex]}`}>
+    <div
+      className={`lb-podium-card ${RANK_CLASSES[rankIndex]}`}
+      style={{ gridColumn: col }}
+    >
       <span className="lb-podium-crown">{MEDALS[rankIndex]}</span>
       <span className="lb-podium-rank-num">#{entry.place}</span>
       <div className="lb-podium-avatar">{getInitial(entry.username)}</div>
