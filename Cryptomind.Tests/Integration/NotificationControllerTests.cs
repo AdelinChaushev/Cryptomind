@@ -15,13 +15,16 @@ namespace Cryptomind.Tests.Integration
 {
 	public class NotificationControllerTests : IntegrationTestBase
 	{
-		private static readonly JsonSerializerOptions JsonOpts = new() { PropertyNameCaseInsensitive = true };
+		private static readonly JsonSerializerOptions JsonOpts = new()
+		{
+			PropertyNameCaseInsensitive = true
+		};
 
-		public NotificationControllerTests(CryptomindWebApplicationFactory factory) : base(factory) { }
+		public NotificationControllerTests(CryptomindWebApplicationFactory factory) : base(factory)
+		{
+		}
 
-		// -------------------------------------------------------------------------
-		// Seed helpers
-		// -------------------------------------------------------------------------
+		#region Seed Helpers
 
 		private async Task<Notification> SeedNotificationAsync(string userId)
 		{
@@ -43,15 +46,14 @@ namespace Cryptomind.Tests.Integration
 			return notification;
 		}
 
-		// =========================================================================
-		// GET ALL NOTIFICATIONS
-		// =========================================================================
+		#endregion
+
+		#region Get All Notifications
 
 		[Fact]
 		public async Task GetAllNotifications_Unauthenticated_Returns401()
 		{
 			var response = await Client.GetAsync("/api/notifications");
-
 			response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
 		}
 
@@ -59,9 +61,7 @@ namespace Cryptomind.Tests.Integration
 		public async Task GetAllNotifications_Authenticated_Returns200()
 		{
 			var userClient = await GetAuthenticatedUserClientAsync();
-
 			var response = await userClient.GetAsync("/api/notifications");
-
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
 		}
 
@@ -69,7 +69,6 @@ namespace Cryptomind.Tests.Integration
 		public async Task GetAllNotifications_ResponseContainsExpectedFields()
 		{
 			var userClient = await GetAuthenticatedUserClientAsync();
-
 			var response = await userClient.GetAsync("/api/notifications");
 			var body = await response.Content.ReadAsStringAsync();
 			var json = JsonSerializer.Deserialize<JsonElement>(body, JsonOpts);
@@ -111,15 +110,14 @@ namespace Cryptomind.Tests.Integration
 			json.GetProperty("unreadCount").GetInt32().Should().BeGreaterThan(0);
 		}
 
-		// =========================================================================
-		// MARK ALL AS READ
-		// =========================================================================
+		#endregion
+
+		#region Mark All As Read
 
 		[Fact]
 		public async Task MarkAsRead_Unauthenticated_Returns401()
 		{
 			var response = await Client.PutAsync("/api/notifications/mark-as-read", null);
-
 			response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
 		}
 
@@ -127,9 +125,7 @@ namespace Cryptomind.Tests.Integration
 		public async Task MarkAsRead_Authenticated_Returns200()
 		{
 			var userClient = await GetAuthenticatedUserClientAsync();
-
 			var response = await userClient.PutAsync("/api/notifications/mark-as-read", null);
-
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
 		}
 
@@ -139,12 +135,12 @@ namespace Cryptomind.Tests.Integration
 			using var scope = Factory.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<CryptomindDbContext>();
 			var user = await db.Users.FirstAsync(u => u.Email == "user@cryptomind.com");
-
 			var notification = await SeedNotificationAsync(user.Id);
 
 			var userClient = await GetAuthenticatedUserClientAsync();
 			var response = await userClient.PutAsync("/api/notifications/mark-as-read", null);
 			var body = await response.Content.ReadAsStringAsync();
+
 			response.StatusCode.Should().Be(HttpStatusCode.OK, because: body);
 
 			using var verifyScope = Factory.CreateScope();
@@ -153,15 +149,14 @@ namespace Cryptomind.Tests.Integration
 			updated!.IsRead.Should().BeTrue();
 		}
 
-		// =========================================================================
-		// MARK SINGLE AS READ
-		// =========================================================================
+		#endregion
+
+		#region Mark Single As Read
 
 		[Fact]
 		public async Task MarkAsReadSingle_Unauthenticated_Returns401()
 		{
 			var response = await Client.PutAsync("/api/notifications/mark-as-read/1", null);
-
 			response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
 		}
 
@@ -169,9 +164,7 @@ namespace Cryptomind.Tests.Integration
 		public async Task MarkAsReadSingle_NonExistentId_Returns404()
 		{
 			var userClient = await GetAuthenticatedUserClientAsync();
-
 			var response = await userClient.PutAsync("/api/notifications/mark-as-read/99999", null);
-
 			response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 		}
 
@@ -181,7 +174,6 @@ namespace Cryptomind.Tests.Integration
 			using var scope = Factory.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<CryptomindDbContext>();
 			var user = await db.Users.FirstAsync(u => u.Email == "user@cryptomind.com");
-
 			var notification = await SeedNotificationAsync(user.Id);
 
 			var userClient = await GetAuthenticatedUserClientAsync();
@@ -197,12 +189,12 @@ namespace Cryptomind.Tests.Integration
 			using var scope = Factory.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<CryptomindDbContext>();
 			var user = await db.Users.FirstAsync(u => u.Email == "user@cryptomind.com");
-
 			var notification = await SeedNotificationAsync(user.Id);
 
 			var userClient = await GetAuthenticatedUserClientAsync();
 			var response = await userClient.PutAsync($"/api/notifications/mark-as-read/{notification.Id}", null);
 			var body = await response.Content.ReadAsStringAsync();
+
 			response.StatusCode.Should().Be(HttpStatusCode.OK, because: body);
 
 			using var verifyScope = Factory.CreateScope();
@@ -218,14 +210,14 @@ namespace Cryptomind.Tests.Integration
 			using var scope = Factory.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<CryptomindDbContext>();
 			var admin = await db.Users.FirstAsync(u => u.Email == "admin@cryptomind.com");
-
 			var notification = await SeedNotificationAsync(admin.Id);
 
 			// Try to mark it as read with the regular user
 			var userClient = await GetAuthenticatedUserClientAsync();
 			var response = await userClient.PutAsync($"/api/notifications/mark-as-read/{notification.Id}", null);
-
 			response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 		}
+
+		#endregion
 	}
 }

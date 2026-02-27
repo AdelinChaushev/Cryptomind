@@ -15,13 +15,16 @@ namespace Cryptomind.Tests.Integration
 {
 	public class SubmissionControllerTests : IntegrationTestBase
 	{
-		private static readonly JsonSerializerOptions JsonOpts = new() { PropertyNameCaseInsensitive = true };
+		private static readonly JsonSerializerOptions JsonOpts = new()
+		{
+			PropertyNameCaseInsensitive = true
+		};
 
-		public SubmissionControllerTests(CryptomindWebApplicationFactory factory) : base(factory) { }
+		public SubmissionControllerTests(CryptomindWebApplicationFactory factory) : base(factory)
+		{
+		}
 
-		// -------------------------------------------------------------------------
-		// Seed helpers
-		// -------------------------------------------------------------------------
+		#region Seed Helpers
 
 		private async Task<TextCipher> SeedPendingCipherForUserAsync(string userId)
 		{
@@ -98,15 +101,14 @@ namespace Cryptomind.Tests.Integration
 			return answer;
 		}
 
-		// =========================================================================
-		// GET ALL SUBMISSIONS
-		// =========================================================================
+		#endregion
+
+		#region Get All Submissions
 
 		[Fact]
 		public async Task GetAllSubmissions_Unauthenticated_Returns401()
 		{
 			var response = await Client.GetAsync("/api/submissions");
-
 			response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
 		}
 
@@ -114,9 +116,7 @@ namespace Cryptomind.Tests.Integration
 		public async Task GetAllSubmissions_Authenticated_Returns200()
 		{
 			var userClient = await GetAuthenticatedUserClientAsync();
-
 			var response = await userClient.GetAsync("/api/submissions");
-
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
 		}
 
@@ -124,7 +124,6 @@ namespace Cryptomind.Tests.Integration
 		public async Task GetAllSubmissions_ResponseContainsExpectedFields()
 		{
 			var userClient = await GetAuthenticatedUserClientAsync();
-
 			var response = await userClient.GetAsync("/api/submissions");
 			var body = await response.Content.ReadAsStringAsync();
 			var json = JsonSerializer.Deserialize<JsonElement>(body, JsonOpts);
@@ -137,7 +136,6 @@ namespace Cryptomind.Tests.Integration
 		public async Task GetAllSubmissions_EmptyForNewUser_ReturnsBothEmptyLists()
 		{
 			var freshClient = await RegisterAndGetClientAsync();
-
 			var response = await freshClient.GetAsync("/api/submissions");
 			var body = await response.Content.ReadAsStringAsync();
 			var json = JsonSerializer.Deserialize<JsonElement>(body, JsonOpts);
@@ -191,7 +189,6 @@ namespace Cryptomind.Tests.Integration
 			using var scope = Factory.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<CryptomindDbContext>();
 			var admin = await db.Users.FirstAsync(u => u.Email == "admin@cryptomind.com");
-
 			await SeedPendingCipherForUserAsync(admin.Id);
 
 			var freshClient = await RegisterAndGetClientAsync();
@@ -201,5 +198,7 @@ namespace Cryptomind.Tests.Integration
 
 			json.GetProperty("ciphers").GetArrayLength().Should().Be(0);
 		}
+
+		#endregion
 	}
 }

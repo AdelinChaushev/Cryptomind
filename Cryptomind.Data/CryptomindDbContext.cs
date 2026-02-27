@@ -97,7 +97,7 @@ namespace Cryptomind.Data
 			{
 				Id = adminId,
 				UserName = "Admin",
-				NormalizedUserName = "ADMIN@CRYPTOMIND.COM",
+				NormalizedUserName = "ADMIN",
 				Email = "admin@cryptomind.com",
 				NormalizedEmail = "ADMIN@CRYPTOMIND.COM",
 				EmailConfirmed = true,
@@ -109,7 +109,7 @@ namespace Cryptomind.Data
 			{
 				Id = userId,
 				UserName = "User",
-				NormalizedUserName = "USER@CRYPTOMIND.COM",
+				NormalizedUserName = "USER",
 				Email = "user@cryptomind.com",
 				NormalizedEmail = "USER@CRYPTOMIND.COM",
 				EmailConfirmed = true,
@@ -193,7 +193,14 @@ namespace Cryptomind.Data
 						new { CipherId = 47, Reasoning = (string?)null, Issues = (List<string>?)null, PredictedType = "Autokey", Confidence = "Medium", SolutionCorrect = (bool?)true, IsAppropriate = (bool?)true, IsSolvable = (bool?)true, CachedHint = "", CachedSolution = "", CachedTypeHint = "" },
 						new { CipherId = 48, Reasoning = (string?)null, Issues = (List<string>?)null, PredictedType = "Autokey", Confidence = "Medium", SolutionCorrect = (bool?)true, IsAppropriate = (bool?)true, IsSolvable = (bool?)true, CachedHint = "", CachedSolution = "", CachedTypeHint = "" },
 						new { CipherId = 49, Reasoning = (string?)null, Issues = (List<string>?)null, PredictedType = "Autokey", Confidence = "Medium", SolutionCorrect = (bool?)true, IsAppropriate = (bool?)true, IsSolvable = (bool?)true, CachedHint = "", CachedSolution = "", CachedTypeHint = "" },
-						new { CipherId = 50, Reasoning = (string?)null, Issues = (List<string>?)null, PredictedType = "Autokey", Confidence = "Medium", SolutionCorrect = (bool?)true, IsAppropriate = (bool?)true, IsSolvable = (bool?)true, CachedHint = "", CachedSolution = "", CachedTypeHint = "" }
+						new { CipherId = 50, Reasoning = (string?)null, Issues = (List<string>?)null, PredictedType = "Autokey", Confidence = "Medium", SolutionCorrect = (bool?)true, IsAppropriate = (bool?)true, IsSolvable = (bool?)true, CachedHint = "", CachedSolution = "", CachedTypeHint = "" },
+
+						//Experimental (50-55)
+						new { CipherId = 51, Reasoning = (string?)null, Issues = (List<string>?)null, PredictedType = "SimpleSubstitution", Confidence = "High", SolutionCorrect = (bool?)null, IsAppropriate = (bool?)true, IsSolvable = (bool?)false, CachedHint = "", CachedSolution = "", CachedTypeHint = "" },
+						new { CipherId = 52, Reasoning = (string?)null, Issues = (List<string>?)null, PredictedType = "Vigenere", Confidence = "High", SolutionCorrect = (bool?)null, IsAppropriate = (bool?)true, IsSolvable = (bool?)false, CachedHint = "", CachedSolution = "", CachedTypeHint = "" },
+						new { CipherId = 53, Reasoning = (string?)null, Issues = (List<string>?)null, PredictedType = "Autokey", Confidence = "High", SolutionCorrect = (bool?)null, IsAppropriate = (bool?)true, IsSolvable = (bool?)false, CachedHint = "", CachedSolution = "", CachedTypeHint = "" },
+						new { CipherId = 54, Reasoning = (string?)null, Issues = (List<string>?)null, PredictedType = "Columnar", Confidence = "Medium", SolutionCorrect = (bool?)null, IsAppropriate = (bool?)true, IsSolvable = (bool?)false, CachedHint = "", CachedSolution = "", CachedTypeHint = "" },
+						new { CipherId = 55, Reasoning = (string?)null, Issues = (List<string>?)null, PredictedType = "Route", Confidence = "Medium", SolutionCorrect = (bool?)null, IsAppropriate = (bool?)true, IsSolvable = (bool?)false, CachedHint = "", CachedSolution = "", CachedTypeHint = "" }
 					);
 				});
 
@@ -1249,6 +1256,111 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 500,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+					},
+					new TextCipher
+					{
+						Id = 51,
+						Title = "The Unbroken Seal of the Grand Inquisitor",
+						DecryptedText = null,
+						EncryptedText = "HVM SNXDJ PDYAPUPHFN UMXRMJ VPU OFUH JXDSMNFAU ZFNNMULFDJMDZM TPHV X ZPLVMN HVXH DF OMOQMN FB HVM ZFANH VXJ MEMN OXDXSMJ HF JMZPLVMN JMULPHM CMXNU FB XHHMOLHU QC HVM BPDMUH ZNCLHXDXRCUHU PD HVM KPDSJFO",
+						MLPrediction = "{\"family\": \"Substitution\", \"type\": \"SimpleSubstitution\", \"confidence\": 0.9534, \"allPredictions\": [{\"family\": \"Substitution\", \"type\": \"SimpleSubstitution\", \"confidence\": 0.9534}, {\"family\": \"Polyalphabetic\", \"type\": \"Vigenere\", \"confidence\": 4.66e-06}]}",
+						TypeOfCipher = CipherType.SimpleSubstitution,
+						ChallengeType = ChallengeType.Experimental,
+						CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+						ApprovedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+						AllowTypeHint = false,
+						AllowHint = false,
+						AllowSolution = false,
+						Status = ApprovalStatus.Approved,
+						IsDeleted = false,
+						IsPlaintextValid = false,
+						IsLLMRecommended = true,
+						Points = 250,
+						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+					},
+					new TextCipher
+					{
+						Id = 52,
+						Title = "Fragments from a Burned Archive",
+						DecryptedText = null,
+						EncryptedText = "IOE NKQTXCE JTG NJYNRW PQUVRR MVQ XUVRLHUVHTBKG MGYIIXR NJA TUKSQ EHGRL GGGCIIXR ODUTNBBUCN WUTH MEWENKSP IV BR XBODKEQ BBEIYUPMWACZ FBK OZ DWEETHUDU TUTH IPZ NROSD RVMCESFTK AAW KTDZE CNFBDZE EXAMXUS HGYZDDN",
+						MLPrediction = "{\"family\": \"Polyalphabetic\", \"type\": \"Vigenere\", \"confidence\": 0.9187, \"allPredictions\": [{\"family\": \"Polyalphabetic\", \"type\": \"Vigenere\", \"confidence\": 0.9187}, {\"family\": \"Substitution\", \"type\": \"Caesar\", \"confidence\": 8.13e-06}]}",
+						TypeOfCipher = CipherType.Vigenere,
+						ChallengeType = ChallengeType.Experimental,
+						CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+						ApprovedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+						AllowTypeHint = false,
+						AllowHint = false,
+						AllowSolution = false,
+						Status = ApprovalStatus.Approved,
+						IsDeleted = false,
+						IsPlaintextValid = false,
+						IsLLMRecommended = true,
+						Points = 400,
+						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+					},
+					new TextCipher
+					{
+						Id = 53,
+						Title = "The Diplomat's Final Transmission",
+						DecryptedText = null,
+						EncryptedText = "ZOS VBISSPII DSZT HFI SBBNP RMFSLSI TWFUVF HNGRTSMSRXCK FIWZ ZMV QAGZYNOGW UYD MLE RQVVHIQ VSAX KTW OXTAAEIP UVFSOPRV TZM HHHOUHW UIWXAFO BG I PRIFSKQIWV NNTI WMIE ATZ OGHY JSPPLKPA HRVWYVWKQIWV NTZ TXGZZR LFGQGN",
+						MLPrediction = "{\"family\": \"Polyalphabetic\", \"type\": \"Autokey\", \"confidence\": 0.9023, \"allPredictions\": [{\"family\": \"Polyalphabetic\", \"type\": \"Autokey\", \"confidence\": 0.9023}, {\"family\": \"Substitution\", \"type\": \"Caesar\", \"confidence\": 9.77e-06}]}",
+						TypeOfCipher = CipherType.Autokey,
+						ChallengeType = ChallengeType.Experimental,
+						CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+						ApprovedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+						AllowTypeHint = false,
+						AllowHint = false,
+						AllowSolution = false,
+						Status = ApprovalStatus.Approved,
+						IsDeleted = false,
+						IsPlaintextValid = false,
+						IsLLMRecommended = true,
+						Points = 500,
+						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+					},
+					new TextCipher
+					{
+						Id = 54,
+						Title = "The Rearranged Testament of Brother Aldric",
+						DecryptedText = null,
+						EncryptedText = "OLPSDAISTEOTUBBNITTOETDTDEFARNEENAHLEYEGEIRAHSEITNSAHRTIOTNENHTCBIHH#HRNIYRGCSTFADRAWHRTECE#BRCHARNIEANRCOAYOIEETEARASILEGSTMTMOTDOMNPFRDN",
+						MLPrediction = "{\"family\": \"Transposition\", \"type\": \"Columnar\", \"confidence\": 0.8934, \"allPredictions\": [{\"family\": \"Transposition\", \"type\": \"Columnar\", \"confidence\": 0.8934}, {\"family\": \"Transposition\", \"type\": \"RailFence\", \"confidence\": 1.066e-05}]}",
+						TypeOfCipher = CipherType.Columnar,
+						ChallengeType = ChallengeType.Experimental,
+						CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+						ApprovedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+						AllowTypeHint = false,
+						AllowHint = false,
+						AllowSolution = false,
+						Status = ApprovalStatus.Approved,
+						IsDeleted = false,
+						IsPlaintextValid = false,
+						IsLLMRecommended = true,
+						Points = 350,
+						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+					},
+					new TextCipher
+					{
+						Id = 55,
+						Title = "The Cartographer's Last Coordinates",
+						DecryptedText = null,
+						EncryptedText = "THECARTOGRAPHRIEFLSSLIAD#ECNARAEPPASILNIAEEOSNEERDIEDBEFOREFTNEISEAODEVLOSNUGNOTEGNFROAVEALINGTHEAEHHEBTTREWSNAEHVECTTFLCOORDINDTTMSNOCOTDEWRBRTHEHIDUDDIHCIHYEESSBNETPHI",
+						MLPrediction = "{\"family\": \"Transposition\", \"type\": \"Route\", \"confidence\": 0.9056, \"allPredictions\": [{\"family\": \"Transposition\", \"type\": \"Route\", \"confidence\": 0.9056}, {\"family\": \"Transposition\", \"type\": \"RailFence\", \"confidence\": 9.44e-06}]}",
+						TypeOfCipher = CipherType.Route,
+						ChallengeType = ChallengeType.Experimental,
+						CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+						ApprovedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+						AllowTypeHint = false,
+						AllowHint = false,
+						AllowSolution = false,
+						Status = ApprovalStatus.Approved,
+						IsDeleted = false,
+						IsPlaintextValid = false,
+						IsLLMRecommended = true,
+						Points = 375,
+						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
 					}
 				);
 			});
@@ -1283,67 +1395,177 @@ namespace Cryptomind.Data
 			);
 
 			builder.Entity<CipherTag>().HasData(
-				// The ROT13 Challenge - Beginner, Short
+				// ── Base64 (1-3) — Beginner, Long ──────────────────────────────────────
 				new CipherTag { CipherId = 1, TagId = 6 },
-				new CipherTag { CipherId = 1, TagId = 4 },
-
-				// Caesar's Secret - Historical, Beginner
-				new CipherTag { CipherId = 2, TagId = 3 },
+				new CipherTag { CipherId = 1, TagId = 5 },
 				new CipherTag { CipherId = 2, TagId = 6 },
+				new CipherTag { CipherId = 2, TagId = 5 },
+				new CipherTag { CipherId = 3, TagId = 6 },
+				new CipherTag { CipherId = 3, TagId = 5 },
 
-				// Mirror of Letters (Atbash) - Historical, Short
-				new CipherTag { CipherId = 3, TagId = 3 },
-				new CipherTag { CipherId = 3, TagId = 4 },
-
-				// Scrambled Alphabet (SimpleSubstitution) - Puzzle, Tricky
-				new CipherTag { CipherId = 4, TagId = 2 },
-				new CipherTag { CipherId = 4, TagId = 7 },
-
-				// The Vigenere Veil - Puzzle, Tricky
-				new CipherTag { CipherId = 5, TagId = 2 },
-				new CipherTag { CipherId = 5, TagId = 7 },
-
-				// Autokey Enigma - Puzzle, Tricky, Long
-				new CipherTag { CipherId = 6, TagId = 2 },
-				new CipherTag { CipherId = 6, TagId = 7 },
+				// ── Hex (4-6) — Beginner, Long ─────────────────────────────────────────
+				new CipherTag { CipherId = 4, TagId = 6 },
+				new CipherTag { CipherId = 4, TagId = 5 },
+				new CipherTag { CipherId = 5, TagId = 6 },
+				new CipherTag { CipherId = 5, TagId = 5 },
+				new CipherTag { CipherId = 6, TagId = 6 },
 				new CipherTag { CipherId = 6, TagId = 5 },
 
-				// The Trithemius Ladder - Historical, Puzzle
-				new CipherTag { CipherId = 7, TagId = 3 },
-				new CipherTag { CipherId = 7, TagId = 2 },
-
-				// The Rail Fence - Puzzle, Short
-				new CipherTag { CipherId = 8, TagId = 2 },
+				// ── Binary (7-9) — Beginner, Short ─────────────────────────────────────
+				new CipherTag { CipherId = 7, TagId = 6 },
+				new CipherTag { CipherId = 7, TagId = 4 },
+				new CipherTag { CipherId = 8, TagId = 6 },
 				new CipherTag { CipherId = 8, TagId = 4 },
+				new CipherTag { CipherId = 9, TagId = 6 },
+				new CipherTag { CipherId = 9, TagId = 4 },
 
-				// The Columnar Maze - Puzzle, Tricky
-				new CipherTag { CipherId = 9, TagId = 2 },
-				new CipherTag { CipherId = 9, TagId = 7 },
-
-				// The Base64 Barrier - Beginner, Short
+				// ── Morse (10-12) — Beginner, Short ────────────────────────────────────
 				new CipherTag { CipherId = 10, TagId = 6 },
 				new CipherTag { CipherId = 10, TagId = 4 },
-
-				// Dots and Dashes (Morse) - Beginner, Long
 				new CipherTag { CipherId = 11, TagId = 6 },
-				new CipherTag { CipherId = 11, TagId = 5 },
-
-				// The Binary Message - Beginner, Short
+				new CipherTag { CipherId = 11, TagId = 4 },
 				new CipherTag { CipherId = 12, TagId = 6 },
 				new CipherTag { CipherId = 12, TagId = 4 },
 
-				// Hex Decoded - Beginner, Short
+				// ── ROT13 (13-15) — Beginner, Historical ───────────────────────────────
 				new CipherTag { CipherId = 13, TagId = 6 },
-				new CipherTag { CipherId = 13, TagId = 4 },
-
-				// Julius's Whisper (Caesar harder) - Historical, Tricky
+				new CipherTag { CipherId = 13, TagId = 3 },
+				new CipherTag { CipherId = 14, TagId = 6 },
 				new CipherTag { CipherId = 14, TagId = 3 },
-				new CipherTag { CipherId = 14, TagId = 7 },
+				new CipherTag { CipherId = 15, TagId = 6 },
+				new CipherTag { CipherId = 15, TagId = 3 },
 
-				// The Unknown Veil (Experimental) - Puzzle, Tricky, Long
-				new CipherTag { CipherId = 15, TagId = 2 },
-				new CipherTag { CipherId = 15, TagId = 7 },
-				new CipherTag { CipherId = 15, TagId = 5 }
+				// ── Caesar (16-20) — Historical, Beginner ──────────────────────────────
+				new CipherTag { CipherId = 16, TagId = 3 },
+				new CipherTag { CipherId = 16, TagId = 6 },
+				new CipherTag { CipherId = 17, TagId = 3 },
+				new CipherTag { CipherId = 17, TagId = 6 },
+				new CipherTag { CipherId = 18, TagId = 3 },
+				new CipherTag { CipherId = 18, TagId = 6 },
+				new CipherTag { CipherId = 19, TagId = 3 },
+				new CipherTag { CipherId = 19, TagId = 7 },
+				new CipherTag { CipherId = 20, TagId = 3 },
+				new CipherTag { CipherId = 20, TagId = 7 },
+
+				// ── Atbash (21-23) — Historical, Short ─────────────────────────────────
+				new CipherTag { CipherId = 21, TagId = 3 },
+				new CipherTag { CipherId = 21, TagId = 4 },
+				new CipherTag { CipherId = 22, TagId = 3 },
+				new CipherTag { CipherId = 22, TagId = 4 },
+				new CipherTag { CipherId = 23, TagId = 3 },
+				new CipherTag { CipherId = 23, TagId = 4 },
+
+				// ── SimpleSubstitution (24-27) — Puzzle, Tricky, Long ──────────────────
+				new CipherTag { CipherId = 24, TagId = 2 },
+				new CipherTag { CipherId = 24, TagId = 7 },
+				new CipherTag { CipherId = 24, TagId = 5 },
+				new CipherTag { CipherId = 25, TagId = 2 },
+				new CipherTag { CipherId = 25, TagId = 7 },
+				new CipherTag { CipherId = 25, TagId = 5 },
+				new CipherTag { CipherId = 26, TagId = 2 },
+				new CipherTag { CipherId = 26, TagId = 7 },
+				new CipherTag { CipherId = 26, TagId = 5 },
+				new CipherTag { CipherId = 27, TagId = 2 },
+				new CipherTag { CipherId = 27, TagId = 7 },
+				new CipherTag { CipherId = 27, TagId = 5 },
+
+				// ── RailFence (28-31) — Puzzle, varies ─────────────────────────────────
+				new CipherTag { CipherId = 28, TagId = 2 },
+				new CipherTag { CipherId = 28, TagId = 4 },
+				new CipherTag { CipherId = 29, TagId = 2 },
+				new CipherTag { CipherId = 29, TagId = 7 },
+				new CipherTag { CipherId = 29, TagId = 5 },
+				new CipherTag { CipherId = 30, TagId = 2 },
+				new CipherTag { CipherId = 30, TagId = 7 },
+				new CipherTag { CipherId = 30, TagId = 5 },
+				new CipherTag { CipherId = 31, TagId = 2 },
+				new CipherTag { CipherId = 31, TagId = 4 },
+
+				// ── Trithemius (32-34) — Historical, Puzzle, Tricky ────────────────────
+				new CipherTag { CipherId = 32, TagId = 3 },
+				new CipherTag { CipherId = 32, TagId = 2 },
+				new CipherTag { CipherId = 32, TagId = 7 },
+				new CipherTag { CipherId = 33, TagId = 3 },
+				new CipherTag { CipherId = 33, TagId = 2 },
+				new CipherTag { CipherId = 33, TagId = 7 },
+				new CipherTag { CipherId = 34, TagId = 3 },
+				new CipherTag { CipherId = 34, TagId = 2 },
+				new CipherTag { CipherId = 34, TagId = 7 },
+
+				// ── Vigenere (35-39) — Historical, Puzzle, Tricky, Long ────────────────
+				new CipherTag { CipherId = 35, TagId = 3 },
+				new CipherTag { CipherId = 35, TagId = 2 },
+				new CipherTag { CipherId = 35, TagId = 7 },
+				new CipherTag { CipherId = 35, TagId = 5 },
+				new CipherTag { CipherId = 36, TagId = 3 },
+				new CipherTag { CipherId = 36, TagId = 2 },
+				new CipherTag { CipherId = 36, TagId = 7 },
+				new CipherTag { CipherId = 36, TagId = 5 },
+				new CipherTag { CipherId = 37, TagId = 3 },
+				new CipherTag { CipherId = 37, TagId = 2 },
+				new CipherTag { CipherId = 37, TagId = 7 },
+				new CipherTag { CipherId = 37, TagId = 5 },
+				new CipherTag { CipherId = 38, TagId = 3 },
+				new CipherTag { CipherId = 38, TagId = 2 },
+				new CipherTag { CipherId = 38, TagId = 7 },
+				new CipherTag { CipherId = 38, TagId = 5 },
+				new CipherTag { CipherId = 39, TagId = 3 },
+				new CipherTag { CipherId = 39, TagId = 2 },
+				new CipherTag { CipherId = 39, TagId = 7 },
+				new CipherTag { CipherId = 39, TagId = 5 },
+
+				// ── Columnar (40-43) — Puzzle, Tricky, Long ────────────────────────────
+				new CipherTag { CipherId = 40, TagId = 2 },
+				new CipherTag { CipherId = 40, TagId = 7 },
+				new CipherTag { CipherId = 40, TagId = 5 },
+				new CipherTag { CipherId = 41, TagId = 2 },
+				new CipherTag { CipherId = 41, TagId = 7 },
+				new CipherTag { CipherId = 41, TagId = 5 },
+				new CipherTag { CipherId = 42, TagId = 2 },
+				new CipherTag { CipherId = 42, TagId = 7 },
+				new CipherTag { CipherId = 42, TagId = 5 },
+				new CipherTag { CipherId = 43, TagId = 2 },
+				new CipherTag { CipherId = 43, TagId = 7 },
+				new CipherTag { CipherId = 43, TagId = 5 },
+
+				// ── Route (44-46) — Puzzle, Tricky ─────────────────────────────────────
+				new CipherTag { CipherId = 44, TagId = 2 },
+				new CipherTag { CipherId = 44, TagId = 7 },
+				new CipherTag { CipherId = 45, TagId = 2 },
+				new CipherTag { CipherId = 45, TagId = 7 },
+				new CipherTag { CipherId = 46, TagId = 2 },
+				new CipherTag { CipherId = 46, TagId = 7 },
+
+				// ── Autokey (47-50) — Puzzle, Tricky, Long ─────────────────────────────
+				new CipherTag { CipherId = 47, TagId = 2 },
+				new CipherTag { CipherId = 47, TagId = 7 },
+				new CipherTag { CipherId = 47, TagId = 5 },
+				new CipherTag { CipherId = 48, TagId = 2 },
+				new CipherTag { CipherId = 48, TagId = 7 },
+				new CipherTag { CipherId = 48, TagId = 5 },
+				new CipherTag { CipherId = 49, TagId = 2 },
+				new CipherTag { CipherId = 49, TagId = 7 },
+				new CipherTag { CipherId = 49, TagId = 5 },
+				new CipherTag { CipherId = 50, TagId = 2 },
+				new CipherTag { CipherId = 50, TagId = 7 },
+				new CipherTag { CipherId = 50, TagId = 5 },
+
+				// ── Experimental (51-55) — Puzzle, Tricky, Long ────────────────────────
+				new CipherTag { CipherId = 51, TagId = 2 },
+				new CipherTag { CipherId = 51, TagId = 7 },
+				new CipherTag { CipherId = 51, TagId = 5 },
+				new CipherTag { CipherId = 52, TagId = 2 },
+				new CipherTag { CipherId = 52, TagId = 7 },
+				new CipherTag { CipherId = 52, TagId = 5 },
+				new CipherTag { CipherId = 53, TagId = 2 },
+				new CipherTag { CipherId = 53, TagId = 7 },
+				new CipherTag { CipherId = 53, TagId = 5 },
+				new CipherTag { CipherId = 54, TagId = 2 },
+				new CipherTag { CipherId = 54, TagId = 7 },
+				new CipherTag { CipherId = 54, TagId = 5 },
+				new CipherTag { CipherId = 55, TagId = 2 },
+				new CipherTag { CipherId = 55, TagId = 7 },
+				new CipherTag { CipherId = 55, TagId = 5 }
 			);
 		}
 	}
