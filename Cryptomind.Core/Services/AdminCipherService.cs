@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.Json;
-using static Cryptomind.Core.Services.LLMService;
 
 
 namespace Cryptomind.Core.Services
