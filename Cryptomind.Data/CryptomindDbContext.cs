@@ -1402,7 +1402,7 @@ namespace Cryptomind.Data
 				new CipherTag { CipherId = 2, TagId = 5 },
 				new CipherTag { CipherId = 3, TagId = 6 },
 				new CipherTag { CipherId = 3, TagId = 5 },
-			
+
 				// ── Hex (4-6) — Beginner, Long ─────────────────────────────────────────
 				new CipherTag { CipherId = 4, TagId = 6 },
 				new CipherTag { CipherId = 4, TagId = 5 },
@@ -1410,7 +1410,7 @@ namespace Cryptomind.Data
 				new CipherTag { CipherId = 5, TagId = 5 },
 				new CipherTag { CipherId = 6, TagId = 6 },
 				new CipherTag { CipherId = 6, TagId = 5 },
-			
+
 				// ── Binary (7-9) — Beginner, Short ─────────────────────────────────────
 				new CipherTag { CipherId = 7, TagId = 6 },
 				new CipherTag { CipherId = 7, TagId = 4 },
@@ -1418,7 +1418,7 @@ namespace Cryptomind.Data
 				new CipherTag { CipherId = 8, TagId = 4 },
 				new CipherTag { CipherId = 9, TagId = 6 },
 				new CipherTag { CipherId = 9, TagId = 4 },
-			
+
 				// ── Morse (10-12) — Beginner, Short ────────────────────────────────────
 				new CipherTag { CipherId = 10, TagId = 6 },
 				new CipherTag { CipherId = 10, TagId = 4 },
@@ -1426,7 +1426,7 @@ namespace Cryptomind.Data
 				new CipherTag { CipherId = 11, TagId = 4 },
 				new CipherTag { CipherId = 12, TagId = 6 },
 				new CipherTag { CipherId = 12, TagId = 4 },
-			
+
 				// ── ROT13 (13-15) — Beginner, Historical ───────────────────────────────
 				new CipherTag { CipherId = 13, TagId = 6 },
 				new CipherTag { CipherId = 13, TagId = 3 },
@@ -1434,7 +1434,7 @@ namespace Cryptomind.Data
 				new CipherTag { CipherId = 14, TagId = 3 },
 				new CipherTag { CipherId = 15, TagId = 6 },
 				new CipherTag { CipherId = 15, TagId = 3 },
-			
+
 				// ── Caesar (16-20) — Historical, Beginner ──────────────────────────────
 				new CipherTag { CipherId = 16, TagId = 3 },
 				new CipherTag { CipherId = 16, TagId = 6 },
@@ -1446,7 +1446,7 @@ namespace Cryptomind.Data
 				new CipherTag { CipherId = 19, TagId = 7 },
 				new CipherTag { CipherId = 20, TagId = 3 },
 				new CipherTag { CipherId = 20, TagId = 7 },
-			
+
 				// ── Atbash (21-23) — Historical, Short ─────────────────────────────────
 				new CipherTag { CipherId = 21, TagId = 3 },
 				new CipherTag { CipherId = 21, TagId = 4 },
@@ -1454,7 +1454,7 @@ namespace Cryptomind.Data
 				new CipherTag { CipherId = 22, TagId = 4 },
 				new CipherTag { CipherId = 23, TagId = 3 },
 				new CipherTag { CipherId = 23, TagId = 4 },
-			
+
 				// ── SimpleSubstitution (24-27) — Puzzle, Tricky, Long ──────────────────
 				new CipherTag { CipherId = 24, TagId = 2 },
 				new CipherTag { CipherId = 24, TagId = 7 },
@@ -1468,7 +1468,7 @@ namespace Cryptomind.Data
 				new CipherTag { CipherId = 27, TagId = 2 },
 				new CipherTag { CipherId = 27, TagId = 7 },
 				new CipherTag { CipherId = 27, TagId = 5 },
-			
+
 				// ── RailFence (28-31) — Puzzle, varies ─────────────────────────────────
 				new CipherTag { CipherId = 28, TagId = 2 },
 				new CipherTag { CipherId = 28, TagId = 4 },
@@ -1480,7 +1480,7 @@ namespace Cryptomind.Data
 				new CipherTag { CipherId = 30, TagId = 5 },
 				new CipherTag { CipherId = 31, TagId = 2 },
 				new CipherTag { CipherId = 31, TagId = 4 },
-			
+
 				// ── Trithemius (32-34) — Historical, Puzzle, Tricky ────────────────────
 				new CipherTag { CipherId = 32, TagId = 3 },
 				new CipherTag { CipherId = 32, TagId = 2 },
@@ -1491,7 +1491,7 @@ namespace Cryptomind.Data
 				new CipherTag { CipherId = 34, TagId = 3 },
 				new CipherTag { CipherId = 34, TagId = 2 },
 				new CipherTag { CipherId = 34, TagId = 7 },
-			
+
 				// ── Vigenere (35-39) — Historical, Puzzle, Tricky, Long ────────────────
 				new CipherTag { CipherId = 35, TagId = 3 },
 				new CipherTag { CipherId = 35, TagId = 2 },
@@ -1513,7 +1513,7 @@ namespace Cryptomind.Data
 				new CipherTag { CipherId = 39, TagId = 2 },
 				new CipherTag { CipherId = 39, TagId = 7 },
 				new CipherTag { CipherId = 39, TagId = 5 },
-			
+
 				// ── Columnar (40-43) — Puzzle, Tricky, Long ────────────────────────────
 				new CipherTag { CipherId = 40, TagId = 2 },
 				new CipherTag { CipherId = 40, TagId = 7 },
@@ -1527,7 +1527,7 @@ namespace Cryptomind.Data
 				new CipherTag { CipherId = 43, TagId = 2 },
 				new CipherTag { CipherId = 43, TagId = 7 },
 				new CipherTag { CipherId = 43, TagId = 5 },
-			
+
 				// ── Route (44-46) — Puzzle, Tricky ─────────────────────────────────────
 				new CipherTag { CipherId = 44, TagId = 2 },
 				new CipherTag { CipherId = 44, TagId = 7 },
@@ -1535,7 +1535,7 @@ namespace Cryptomind.Data
 				new CipherTag { CipherId = 45, TagId = 7 },
 				new CipherTag { CipherId = 46, TagId = 2 },
 				new CipherTag { CipherId = 46, TagId = 7 },
-			
+
 				// ── Autokey (47-50) — Puzzle, Tricky, Long ─────────────────────────────
 				new CipherTag { CipherId = 47, TagId = 2 },
 				new CipherTag { CipherId = 47, TagId = 7 },
@@ -1549,7 +1549,7 @@ namespace Cryptomind.Data
 				new CipherTag { CipherId = 50, TagId = 2 },
 				new CipherTag { CipherId = 50, TagId = 7 },
 				new CipherTag { CipherId = 50, TagId = 5 },
-			
+
 				// ── Experimental (51-55) — Puzzle, Tricky, Long ────────────────────────
 				new CipherTag { CipherId = 51, TagId = 2 },
 				new CipherTag { CipherId = 51, TagId = 7 },
@@ -1567,6 +1567,6 @@ namespace Cryptomind.Data
 				new CipherTag { CipherId = 55, TagId = 7 },
 				new CipherTag { CipherId = 55, TagId = 5 }
 			);
-					}
+		}
 	}
 }
