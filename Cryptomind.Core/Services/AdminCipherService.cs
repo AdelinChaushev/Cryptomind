@@ -243,7 +243,7 @@ namespace Cryptomind.Core.Services
 				}).ToList()
 			};
 
-			string type = cipher.TypeOfCipher?.ToString() ?? "Unknown";
+			string? type = cipher.TypeOfCipher?.ToString();
 
 			var validation = await llmService.ValidateCipherAsync(cipher.EncryptedText, cipher.DecryptedText, mlResult, type);
 			cipher.LLMData.Reasoning = validation.Reasoning;
