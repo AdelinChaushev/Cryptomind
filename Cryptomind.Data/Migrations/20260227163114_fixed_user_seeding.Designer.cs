@@ -4,6 +4,7 @@ using Cryptomind.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cryptomind.Data.Migrations
 {
     [DbContext(typeof(CryptomindDbContext))]
-    partial class CryptomindDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260227163114_fixed_user_seeding")]
+    partial class fixed_user_seeding
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -267,7 +270,7 @@ namespace Cryptomind.Data.Migrations
                             Id = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                             AccessFailedCount = 0,
                             AttemptedCiphers = 0,
-                            ConcurrencyStamp = "aa74da97-7e16-4bcf-beae-aa307f24a016",
+                            ConcurrencyStamp = "d8bc6e7a-b8f8-4bac-8287-36c8242084e6",
                             Email = "admin@cryptomind.com",
                             EmailConfirmed = true,
                             IsBanned = false,
@@ -276,7 +279,7 @@ namespace Cryptomind.Data.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@CRYPTOMIND.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEB7MqnzQt5TkIe8xj1jhC75uDBUiRGKPbtuUlJKrfAjVhMcGrVwIAaX/c9P/v4CWKw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEHBxvjlYt3zocyw1KEXenTNlD26PG53wqarvxeiCLB2fuZB+KSyQ8LfHJkEGRvbj1g==",
                             PhoneNumberConfirmed = false,
                             RegisteredAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Score = 0,
@@ -289,7 +292,7 @@ namespace Cryptomind.Data.Migrations
                             Id = "b2c3d4e5-f6a7-8901-bcde-f12345678901",
                             AccessFailedCount = 0,
                             AttemptedCiphers = 0,
-                            ConcurrencyStamp = "d3bb9f58-c28b-4960-83d2-a57a9cc5e641",
+                            ConcurrencyStamp = "907d3d22-4ef4-4f47-be50-09b6df8a9c7f",
                             Email = "user@cryptomind.com",
                             EmailConfirmed = true,
                             IsBanned = false,
@@ -298,7 +301,7 @@ namespace Cryptomind.Data.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "USER@CRYPTOMIND.COM",
                             NormalizedUserName = "USER",
-                            PasswordHash = "AQAAAAIAAYagAAAAEI3KNEEgM0Su6xBSwMKxTyE7XV3FrU2jmbuXLYfyrZp3EzDjrmEmvSjTWQrAPztbqQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEACCi+80Q2sAJioI9RZPI4liUBhGtt4qnFxH/4upis+DpIE/YfEviIi5+/34kbTJRQ==",
                             PhoneNumberConfirmed = false,
                             RegisteredAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Score = 0,
@@ -499,7 +502,12 @@ namespace Cryptomind.Data.Migrations
                         new
                         {
                             CipherId = 1,
-                            TagId = 5
+                            TagId = 4
+                        },
+                        new
+                        {
+                            CipherId = 2,
+                            TagId = 3
                         },
                         new
                         {
@@ -508,43 +516,43 @@ namespace Cryptomind.Data.Migrations
                         },
                         new
                         {
-                            CipherId = 2,
-                            TagId = 5
+                            CipherId = 3,
+                            TagId = 3
                         },
                         new
                         {
                             CipherId = 3,
-                            TagId = 6
-                        },
-                        new
-                        {
-                            CipherId = 3,
-                            TagId = 5
+                            TagId = 4
                         },
                         new
                         {
                             CipherId = 4,
-                            TagId = 6
+                            TagId = 2
                         },
                         new
                         {
                             CipherId = 4,
-                            TagId = 5
+                            TagId = 7
                         },
                         new
                         {
                             CipherId = 5,
-                            TagId = 6
+                            TagId = 2
                         },
                         new
                         {
                             CipherId = 5,
-                            TagId = 5
+                            TagId = 7
                         },
                         new
                         {
                             CipherId = 6,
-                            TagId = 6
+                            TagId = 2
+                        },
+                        new
+                        {
+                            CipherId = 6,
+                            TagId = 7
                         },
                         new
                         {
@@ -554,17 +562,17 @@ namespace Cryptomind.Data.Migrations
                         new
                         {
                             CipherId = 7,
-                            TagId = 6
+                            TagId = 3
                         },
                         new
                         {
                             CipherId = 7,
-                            TagId = 4
+                            TagId = 2
                         },
                         new
                         {
                             CipherId = 8,
-                            TagId = 6
+                            TagId = 2
                         },
                         new
                         {
@@ -574,12 +582,12 @@ namespace Cryptomind.Data.Migrations
                         new
                         {
                             CipherId = 9,
-                            TagId = 6
+                            TagId = 2
                         },
                         new
                         {
                             CipherId = 9,
-                            TagId = 4
+                            TagId = 7
                         },
                         new
                         {
@@ -599,7 +607,7 @@ namespace Cryptomind.Data.Migrations
                         new
                         {
                             CipherId = 11,
-                            TagId = 4
+                            TagId = 5
                         },
                         new
                         {
@@ -619,12 +627,7 @@ namespace Cryptomind.Data.Migrations
                         new
                         {
                             CipherId = 13,
-                            TagId = 3
-                        },
-                        new
-                        {
-                            CipherId = 14,
-                            TagId = 6
+                            TagId = 4
                         },
                         new
                         {
@@ -633,572 +636,22 @@ namespace Cryptomind.Data.Migrations
                         },
                         new
                         {
+                            CipherId = 14,
+                            TagId = 7
+                        },
+                        new
+                        {
                             CipherId = 15,
-                            TagId = 6
+                            TagId = 2
                         },
                         new
                         {
                             CipherId = 15,
-                            TagId = 3
-                        },
-                        new
-                        {
-                            CipherId = 16,
-                            TagId = 3
-                        },
-                        new
-                        {
-                            CipherId = 16,
-                            TagId = 6
-                        },
-                        new
-                        {
-                            CipherId = 17,
-                            TagId = 3
-                        },
-                        new
-                        {
-                            CipherId = 17,
-                            TagId = 6
-                        },
-                        new
-                        {
-                            CipherId = 18,
-                            TagId = 3
-                        },
-                        new
-                        {
-                            CipherId = 18,
-                            TagId = 6
-                        },
-                        new
-                        {
-                            CipherId = 19,
-                            TagId = 3
-                        },
-                        new
-                        {
-                            CipherId = 19,
                             TagId = 7
                         },
                         new
                         {
-                            CipherId = 20,
-                            TagId = 3
-                        },
-                        new
-                        {
-                            CipherId = 20,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 21,
-                            TagId = 3
-                        },
-                        new
-                        {
-                            CipherId = 21,
-                            TagId = 4
-                        },
-                        new
-                        {
-                            CipherId = 22,
-                            TagId = 3
-                        },
-                        new
-                        {
-                            CipherId = 22,
-                            TagId = 4
-                        },
-                        new
-                        {
-                            CipherId = 23,
-                            TagId = 3
-                        },
-                        new
-                        {
-                            CipherId = 23,
-                            TagId = 4
-                        },
-                        new
-                        {
-                            CipherId = 24,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 24,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 24,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 25,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 25,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 25,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 26,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 26,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 26,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 27,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 27,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 27,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 28,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 28,
-                            TagId = 4
-                        },
-                        new
-                        {
-                            CipherId = 29,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 29,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 29,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 30,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 30,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 30,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 31,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 31,
-                            TagId = 4
-                        },
-                        new
-                        {
-                            CipherId = 32,
-                            TagId = 3
-                        },
-                        new
-                        {
-                            CipherId = 32,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 32,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 33,
-                            TagId = 3
-                        },
-                        new
-                        {
-                            CipherId = 33,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 33,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 34,
-                            TagId = 3
-                        },
-                        new
-                        {
-                            CipherId = 34,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 34,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 35,
-                            TagId = 3
-                        },
-                        new
-                        {
-                            CipherId = 35,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 35,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 35,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 36,
-                            TagId = 3
-                        },
-                        new
-                        {
-                            CipherId = 36,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 36,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 36,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 37,
-                            TagId = 3
-                        },
-                        new
-                        {
-                            CipherId = 37,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 37,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 37,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 38,
-                            TagId = 3
-                        },
-                        new
-                        {
-                            CipherId = 38,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 38,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 38,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 39,
-                            TagId = 3
-                        },
-                        new
-                        {
-                            CipherId = 39,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 39,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 39,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 40,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 40,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 40,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 41,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 41,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 41,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 42,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 42,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 42,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 43,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 43,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 43,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 44,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 44,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 45,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 45,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 46,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 46,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 47,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 47,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 47,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 48,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 48,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 48,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 49,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 49,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 49,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 50,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 50,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 50,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 51,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 51,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 51,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 52,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 52,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 52,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 53,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 53,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 53,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 54,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 54,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 54,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            CipherId = 55,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            CipherId = 55,
-                            TagId = 7
-                        },
-                        new
-                        {
-                            CipherId = 55,
+                            CipherId = 15,
                             TagId = 5
                         });
                 });
@@ -2629,106 +2082,6 @@ namespace Cryptomind.Data.Migrations
                             Status = 1,
                             Title = "The Diplomat's Self-Consuming Letter",
                             TypeOfCipher = 5
-                        },
-                        new
-                        {
-                            Id = 51,
-                            AllowHint = false,
-                            AllowSolution = false,
-                            AllowTypeHint = false,
-                            ApprovedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            ChallengeType = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                            EncryptedText = "HVM SNXDJ PDYAPUPHFN UMXRMJ VPU OFUH JXDSMNFAU ZFNNMULFDJMDZM TPHV X ZPLVMN HVXH DF OMOQMN FB HVM ZFANH VXJ MEMN OXDXSMJ HF JMZPLVMN JMULPHM CMXNU FB XHHMOLHU QC HVM BPDMUH ZNCLHXDXRCUHU PD HVM KPDSJFO",
-                            IsDeleted = false,
-                            IsLLMRecommended = true,
-                            IsPlaintextValid = false,
-                            MLPrediction = "{\"family\": \"Substitution\", \"type\": \"SimpleSubstitution\", \"confidence\": 0.9534, \"allPredictions\": [{\"family\": \"Substitution\", \"type\": \"SimpleSubstitution\", \"confidence\": 0.9534}, {\"family\": \"Polyalphabetic\", \"type\": \"Vigenere\", \"confidence\": 4.66e-06}]}",
-                            Points = 250,
-                            Status = 1,
-                            Title = "The Unbroken Seal of the Grand Inquisitor",
-                            TypeOfCipher = 2
-                        },
-                        new
-                        {
-                            Id = 52,
-                            AllowHint = false,
-                            AllowSolution = false,
-                            AllowTypeHint = false,
-                            ApprovedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            ChallengeType = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                            EncryptedText = "IOE NKQTXCE JTG NJYNRW PQUVRR MVQ XUVRLHUVHTBKG MGYIIXR NJA TUKSQ EHGRL GGGCIIXR ODUTNBBUCN WUTH MEWENKSP IV BR XBODKEQ BBEIYUPMWACZ FBK OZ DWEETHUDU TUTH IPZ NROSD RVMCESFTK AAW KTDZE CNFBDZE EXAMXUS HGYZDDN",
-                            IsDeleted = false,
-                            IsLLMRecommended = true,
-                            IsPlaintextValid = false,
-                            MLPrediction = "{\"family\": \"Polyalphabetic\", \"type\": \"Vigenere\", \"confidence\": 0.9187, \"allPredictions\": [{\"family\": \"Polyalphabetic\", \"type\": \"Vigenere\", \"confidence\": 0.9187}, {\"family\": \"Substitution\", \"type\": \"Caesar\", \"confidence\": 8.13e-06}]}",
-                            Points = 400,
-                            Status = 1,
-                            Title = "Fragments from a Burned Archive",
-                            TypeOfCipher = 4
-                        },
-                        new
-                        {
-                            Id = 53,
-                            AllowHint = false,
-                            AllowSolution = false,
-                            AllowTypeHint = false,
-                            ApprovedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            ChallengeType = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                            EncryptedText = "ZOS VBISSPII DSZT HFI SBBNP RMFSLSI TWFUVF HNGRTSMSRXCK FIWZ ZMV QAGZYNOGW UYD MLE RQVVHIQ VSAX KTW OXTAAEIP UVFSOPRV TZM HHHOUHW UIWXAFO BG I PRIFSKQIWV NNTI WMIE ATZ OGHY JSPPLKPA HRVWYVWKQIWV NTZ TXGZZR LFGQGN",
-                            IsDeleted = false,
-                            IsLLMRecommended = true,
-                            IsPlaintextValid = false,
-                            MLPrediction = "{\"family\": \"Polyalphabetic\", \"type\": \"Autokey\", \"confidence\": 0.9023, \"allPredictions\": [{\"family\": \"Polyalphabetic\", \"type\": \"Autokey\", \"confidence\": 0.9023}, {\"family\": \"Substitution\", \"type\": \"Caesar\", \"confidence\": 9.77e-06}]}",
-                            Points = 500,
-                            Status = 1,
-                            Title = "The Diplomat's Final Transmission",
-                            TypeOfCipher = 5
-                        },
-                        new
-                        {
-                            Id = 54,
-                            AllowHint = false,
-                            AllowSolution = false,
-                            AllowTypeHint = false,
-                            ApprovedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            ChallengeType = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                            EncryptedText = "OLPSDAISTEOTUBBNITTOETDTDEFARNEENAHLEYEGEIRAHSEITNSAHRTIOTNENHTCBIHH#HRNIYRGCSTFADRAWHRTECE#BRCHARNIEANRCOAYOIEETEARASILEGSTMTMOTDOMNPFRDN",
-                            IsDeleted = false,
-                            IsLLMRecommended = true,
-                            IsPlaintextValid = false,
-                            MLPrediction = "{\"family\": \"Transposition\", \"type\": \"Columnar\", \"confidence\": 0.8934, \"allPredictions\": [{\"family\": \"Transposition\", \"type\": \"Columnar\", \"confidence\": 0.8934}, {\"family\": \"Transposition\", \"type\": \"RailFence\", \"confidence\": 1.066e-05}]}",
-                            Points = 350,
-                            Status = 1,
-                            Title = "The Rearranged Testament of Brother Aldric",
-                            TypeOfCipher = 8
-                        },
-                        new
-                        {
-                            Id = 55,
-                            AllowHint = false,
-                            AllowSolution = false,
-                            AllowTypeHint = false,
-                            ApprovedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            ChallengeType = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                            EncryptedText = "THECARTOGRAPHRIEFLSSLIAD#ECNARAEPPASILNIAEEOSNEERDIEDBEFOREFTNEISEAODEVLOSNUGNOTEGNFROAVEALINGTHEAEHHEBTTREWSNAEHVECTTFLCOORDINDTTMSNOCOTDEWRBRTHEHIDUDDIHCIHYEESSBNETPHI",
-                            IsDeleted = false,
-                            IsLLMRecommended = true,
-                            IsPlaintextValid = false,
-                            MLPrediction = "{\"family\": \"Transposition\", \"type\": \"Route\", \"confidence\": 0.9056, \"allPredictions\": [{\"family\": \"Transposition\", \"type\": \"Route\", \"confidence\": 0.9056}, {\"family\": \"Transposition\", \"type\": \"RailFence\", \"confidence\": 9.44e-06}]}",
-                            Points = 375,
-                            Status = 1,
-                            Title = "The Cartographer's Last Coordinates",
-                            TypeOfCipher = 9
                         });
                 });
 
@@ -3385,61 +2738,6 @@ namespace Cryptomind.Data.Migrations
                                     IsSolvable = true,
                                     PredictedType = "Autokey",
                                     SolutionCorrect = true
-                                },
-                                new
-                                {
-                                    CipherId = 51,
-                                    CachedHint = "",
-                                    CachedSolution = "",
-                                    CachedTypeHint = "",
-                                    Confidence = "High",
-                                    IsAppropriate = true,
-                                    IsSolvable = false,
-                                    PredictedType = "SimpleSubstitution"
-                                },
-                                new
-                                {
-                                    CipherId = 52,
-                                    CachedHint = "",
-                                    CachedSolution = "",
-                                    CachedTypeHint = "",
-                                    Confidence = "High",
-                                    IsAppropriate = true,
-                                    IsSolvable = false,
-                                    PredictedType = "Vigenere"
-                                },
-                                new
-                                {
-                                    CipherId = 53,
-                                    CachedHint = "",
-                                    CachedSolution = "",
-                                    CachedTypeHint = "",
-                                    Confidence = "High",
-                                    IsAppropriate = true,
-                                    IsSolvable = false,
-                                    PredictedType = "Autokey"
-                                },
-                                new
-                                {
-                                    CipherId = 54,
-                                    CachedHint = "",
-                                    CachedSolution = "",
-                                    CachedTypeHint = "",
-                                    Confidence = "Medium",
-                                    IsAppropriate = true,
-                                    IsSolvable = false,
-                                    PredictedType = "Columnar"
-                                },
-                                new
-                                {
-                                    CipherId = 55,
-                                    CachedHint = "",
-                                    CachedSolution = "",
-                                    CachedTypeHint = "",
-                                    Confidence = "Medium",
-                                    IsAppropriate = true,
-                                    IsSolvable = false,
-                                    PredictedType = "Route"
                                 });
                         });
 

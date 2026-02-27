@@ -142,6 +142,11 @@ namespace Cryptomind.Core.Services
 				cipher.IsPlaintextValid = await englishValidationService.IsLikelyEnglishAsync(model.DecryptedText);
 			}
 
+			if (!cipher.IsPlaintextValid)
+			{
+				throw new CustomValidationException(CipherErrorConstants.DecryptedTextShouldBePlainText);
+			}
+
 			cipher.IsLLMRecommended = DetermineLLMRecommendation(
 				mlConfidence: mlResult.TopPrediction.Confidence * 100,
 				mlType: mlResult.TopPrediction.Type,
