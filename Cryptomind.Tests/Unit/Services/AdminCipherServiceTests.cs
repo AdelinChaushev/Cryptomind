@@ -1,4 +1,5 @@
-﻿using Cryptomind.Common.Exceptions;
+﻿using Cryptomind.Common.DTOs;
+using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.ViewModels.AdminViewModels;
 using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
 using Cryptomind.Core.Contracts;
@@ -321,7 +322,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var cipher = MakeCipher(1);
 			cipher.LLMData = null;
 
-			var llmResult = new CipherValidationResult
+			var llmResult = new CipherValidationResultDTO
 			{
 				Reasoning = "fresh reasoning",
 				Confidence = "0.8",

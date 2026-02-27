@@ -7,12 +7,14 @@ const LlmAssistantSection = ({
 }) => {
     const getConfidenceBadge = (confidence) => {
         const map = {
-            high: 'badge-approved',
-            medium: 'badge-pending',
-            low: 'badge-rejected'
+            'висока': 'badge-approved',
+            'средна': 'badge-pending',
+            'ниска': 'badge-rejected'
         };
         return map[confidence?.toLowerCase()] || 'badge-standard';
     };
+
+    const isApproved = result?.recommendation === 'approve';
 
     return (
         <div className="admin-card">
@@ -56,13 +58,13 @@ const LlmAssistantSection = ({
             {result && (
                 <div className="llm-result">
                     {/* Recommendation Banner */}
-                    <div className={`llm-recommendation-banner recommendation-${result.solutionCorrect && result.isAppropriate ? "approve" : "reject"}`}>
+                    <div className={`llm-recommendation-banner recommendation-${isApproved ? 'approve' : 'reject'}`}>
                         <div className="recommendation-icon">
-                            {result.solutionCorrect && result.isAppropriate ? '✓' : '✕'}
+                            {isApproved ? '✓' : '✕'}
                         </div>
                         <div>
                             <div className="recommendation-title">
-                                Препоръка: {result.solutionCorrect && result.isAppropriate ? 'Одобри' : 'Отхвърли'}
+                                Препоръка: {isApproved ? 'Одобри' : 'Отхвърли'}
                             </div>
                             <div className="recommendation-subtitle">
                                 {result.reasoning}
@@ -86,12 +88,14 @@ const LlmAssistantSection = ({
                             </span>
                         </div>
 
-                        <div className="llm-result-block">
-                            <span className="llm-result-label">Решението е вярно</span>
-                            <span className={`badge ${result.solutionCorrect ? 'badge-approved' : 'badge-rejected'}`}>
-                                {result.solutionCorrect ? 'Да' : 'Не'}
-                            </span>
-                        </div>
+                        {result.solutionCorrect !== null && result.solutionCorrect !== undefined && (
+                            <div className="llm-result-block">
+                                <span className="llm-result-label">Решението е вярно</span>
+                                <span className={`badge ${result.solutionCorrect ? 'badge-approved' : 'badge-rejected'}`}>
+                                    {result.solutionCorrect ? 'Да' : 'Не'}
+                                </span>
+                            </div>
+                        )}
 
                         <div className="llm-result-block">
                             <span className="llm-result-label">Съдържанието е подходящо</span>
@@ -124,16 +128,6 @@ const LlmAssistantSection = ({
                             </div>
                         </div>
                     )}
-{/* 
-                    {/* Re-run button 
-                    <button
-                        onClick={onRunAnalysis}
-                        className="btn btn-ghost btn-sm"
-                        style={{ marginTop: '8px' }}
-                        disabled={isLoading}
-                    >
-                        {isLoading ? 'Re-analyzing...' : 'Re-run Analysis'}
-                    </button> */}
                 </div>
             )}
         </div>

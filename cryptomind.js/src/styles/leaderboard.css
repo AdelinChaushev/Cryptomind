@@ -86,8 +86,9 @@
 
 /* ---- Podium Section ---- */
 .leaderboard-page .lb-podium {
-    display: flex;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    justify-items: center;
     align-items: flex-end;
     gap: 14px;
     margin-bottom: 40px;
@@ -380,7 +381,10 @@
 @media (max-width: 580px) {
     .leaderboard-page .lb-container { padding: 36px 14px 56px; }
 
-    .leaderboard-page .lb-podium { gap: 8px; }
+    .leaderboard-page .lb-podium {
+        grid-template-columns: 1fr auto 1fr;
+        gap: 8px;
+    }
 
     .leaderboard-page .lb-podium-card { padding: 14px 8px 12px; }
     .leaderboard-page .lb-podium-rank-num { font-size: 1.3rem; }

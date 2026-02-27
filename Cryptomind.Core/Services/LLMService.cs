@@ -1,4 +1,5 @@
 ﻿using Cryptomind.Common.Constants;
+using Cryptomind.Common.DTOs;
 using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
 using Cryptomind.Core.Contracts;
@@ -50,18 +51,20 @@ namespace Cryptomind.Core.Services
 			"Base64", "Morse", "Binary", "Hex"
 		};
 
-		public async Task<CipherValidationResult> ValidateCipherAsync(
+		public async Task<CipherValidationResultDTO> ValidateCipherAsync(
 			string encryptedText,
 			string? decryptedText,
 			CipherRecognitionResultViewModel mlResult,
 			string? userProvidedType = null)
 		{
+			encryptedText = encryptedText.Replace("#", "");
+
 			bool hasType = !string.IsNullOrWhiteSpace(userProvidedType);
 			bool hasSolution = !string.IsNullOrWhiteSpace(decryptedText);
 
 			if (!hasType && !hasSolution)
 			{
-				return new CipherValidationResult
+				return new CipherValidationResultDTO
 				{
 					Issues = new List<string> { "Не е предоставен нито тип, нито решение — заявката е автоматично отхвърлена." },
 					Recommendation = "reject",
@@ -86,7 +89,7 @@ namespace Cryptomind.Core.Services
 
 			try
 			{
-				var result = JsonSerializer.Deserialize<CipherValidationResult>(
+				var result = JsonSerializer.Deserialize<CipherValidationResultDTO>(
 					jsonResponse,
 					new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
 				);
@@ -101,11 +104,18 @@ namespace Cryptomind.Core.Services
 					result.Issues.Add($"Предсказаният тип '{result.PredictedType}' не съответства на нито един от 14-те поддържани типа шифри — автоматично отхвърлен.");
 				}
 
+				if (result.Recommendation != "approve" && result.Recommendation != "reject")
+				{
+					result.Recommendation = "reject";
+					result.Issues ??= new List<string>();
+					result.Issues.Add("Невалидна препоръка от LLM — автоматично отхвърлен.");
+				}
+
 				return result;
 			}
 			catch (JsonException)
 			{
-				return new CipherValidationResult
+				return new CipherValidationResultDTO
 				{
 					Issues = new List<string> { "Неуспешно разчитане на отговора от LLM — необходим е ръчен преглед." },
 					Recommendation = "reject",
@@ -119,11 +129,13 @@ namespace Cryptomind.Core.Services
 		#region User-facing content
 		public async Task<string> GetHint(Cipher cipher, HintType hintType)
 		{
-			string encryptedText = cipher.EncryptedText;
+			string encryptedText = cipher.EncryptedText.Replace("#", "");
 			string decryptedText = cipher.DecryptedText;
-
 			if (cipher.TypeOfCipher == null)
 				throw new ConflictException("Не може да се генерира подсказка за шифър без тип");
+
+			if ((hintType == HintType.Hint || hintType == HintType.FullSolution) && string.IsNullOrWhiteSpace(cipher.DecryptedText))
+				throw new ConflictException("Не може да се генерира подсказка за шифър без решение");
 
 			string actualType = cipher.TypeOfCipher.ToString();
 			string result = string.Empty;
@@ -170,7 +182,7 @@ namespace Cryptomind.Core.Services
 			return await CallLLMAsync(
 				prompt,
 				model: educationalModel,
-				maxTokens: 250,
+				maxTokens: 600,
 				temperature: 0.3f
 			);
 		}
@@ -184,7 +196,7 @@ namespace Cryptomind.Core.Services
 			return await CallLLMAsync(
 				prompt,
 				model: educationalModel,
-				maxTokens: 250,
+				maxTokens: 600,
 				temperature: 0.3f
 			);
 		}
@@ -199,76 +211,80 @@ namespace Cryptomind.Core.Services
 		{
 			var allPredictions = string.Join(", ",
 				mlResult.AllPredictions.Take(5).Select(p => $"{p.Type} ({p.Confidence:P0})"));
+
 			int textLength = encryptedText.Length;
 
 			return $@"You are a cryptanalysis expert validating a cipher submission for an educational platform.
 
-			IMPORTANT: All ""issues"" array entries and the ""reasoning"" field MUST be written in Bulgarian.
+Short text length is never a reason to reject — it only affects ML reliability. You can add it as issue though.
+IMPORTANT: All ""issues"" array entries and the ""reasoning"" field MUST be written in Bulgarian.
 
-			ENCRYPTED TEXT ({textLength} characters):
-			{encryptedText}
-			
-			USER-PROVIDED TYPE: {userProvidedType}
-			USER-PROVIDED SOLUTION: {decryptedText}
-			
-			ML ANALYSIS:
-			- Top Prediction: {mlResult.TopPrediction.Type} ({mlResult.TopPrediction.Confidence:P0} confidence)
-			- All Predictions: {allPredictions}
-			
-			SUPPORTED CIPHER TYPES (the only valid types for this platform):
-			Substitution family: Caesar, ROT13, Atbash, SimpleSubstitution
-			Polyalphabetic family: Vigenere, Autokey, Trithemius
-			Transposition family: RailFence, Columnar, Route
-			Encoding family: Base64, Morse, Binary, Hex
-			
-			================================================================================
-			YOUR THREE TASKS
-			================================================================================
-			TASK 1 - APPROPRIATENESS CHECK:
-			After decrypting, is this legitimate cipher content suitable for an educational platform?
-			Reject if: spam, inappropriate content, random gibberish that is clearly not a real cipher, offensive material.
-			
-			TASK 2 - VERIFY THE TYPE:
-			Evaluate whether the user-provided type ({userProvidedType}) is correct.
-			The predicted type in your response MUST be one of the 14 supported types listed above.
-			If you cannot match the cipher to any of the 14 supported types, set recommendation to reject.
-			Cross-check against the ML prediction using this logic:
-			
-			- If ML AND your own analysis independently agree on the same type → commit to that type confidently, do not let the user override it, set recommendation to approve
-			- If ML is uncertain OR your own analysis disagrees with ML → trust the user over ML
-			
-			Known confusion pairs and ML confidence thresholds where ML is considered uncertain:
-			- Columnar/RailFence: ML unreliable below 90% confidence
-			- Vigenere/Trithemius: ML unreliable below 70% confidence
-			- Caesar/SimpleSubstitution: low priority, functionally similar
-			
-			TEXT LENGTH IMPACT ON ML RELIABILITY:
-			- Below 150 chars: ML very unreliable
-			- 150-199 chars: Reduced ML reliability
-			- 200-400 chars: Optimal range
-			Current length: {textLength} chars
-			
-			TASK 3 - VERIFY THE SOLUTION:
-			Check that the solution is genuinely valid English plaintext.
-			Look for coherent words, natural grammar, and reasonable length relative to the ciphertext (within ~10%).
-			
-			================================================================================
-			JSON RESPONSE FORMAT
-			================================================================================
-			
-			{{
-			  ""predicted_type"": ""must be one of the 14 supported types listed above"",
-			  ""confidence"": ""висока"" | ""средна"" | ""ниска"",
-			  ""solution_correct"": true | false,
-			  ""is_appropriate"": true | false,
-			  ""issues"": [""Write all issues in Bulgarian. If text is below 150 characters always add in Bulgarian: 'Текстът е под 150 символа — надеждността на ML предсказването е намалена.'""],
-			  ""recommendation"": ""approve"" | ""reject"",
-			  ""reasoning"": ""2-3 sentences in Bulgarian explaining your decision, referencing confusion patterns if relevant.""
-			}}
-			
-			Recommendation rules:
-			- ""approve"": content is appropriate, type matches one of the 14 supported types, solution is valid
-			- ""reject"": content is inappropriate, spam, solution does not match ciphertext, or cipher cannot be matched to any of the 14 supported types";
+ENCRYPTED TEXT ({textLength} characters):
+{encryptedText}
+
+USER-PROVIDED TYPE: {userProvidedType}
+USER-PROVIDED SOLUTION: {decryptedText}
+
+ML ANALYSIS:
+- Top Prediction: {mlResult.TopPrediction.Type} ({mlResult.TopPrediction.Confidence:P0} confidence)
+- All Predictions: {allPredictions}
+
+SUPPORTED CIPHER TYPES (the only valid types for this platform):
+Substitution family: Caesar, ROT13, Atbash, SimpleSubstitution
+Polyalphabetic family: Vigenere, Autokey, Trithemius
+Transposition family: RailFence, Columnar, Route
+Encoding family: Base64, Morse, Binary, Hex
+
+================================================================================
+YOUR THREE TASKS
+================================================================================
+TASK 1 - APPROPRIATENESS CHECK:
+After decrypting, is this legitimate cipher content suitable for an educational platform?
+Reject if the decrypted text contains: spam, advertising, promotional content (e.g. ""buy cheap viagra"", 
+""click here"", ""limited offer""), offensive language, sexual content, violence, random gibberish 
+that is clearly not a real cipher, or any content unsuitable for students.
+
+TASK 2 - VERIFY THE TYPE:
+Evaluate whether the user-provided type ({userProvidedType}) is correct.
+The predicted type in your response MUST be one of the 14 supported types listed above.
+If you cannot match the cipher to any of the 14 supported types, set recommendation to reject.
+Cross-check against the ML prediction using this logic:
+
+- If ML AND your own analysis independently agree on the same type → commit to that type confidently, do not let the user override it, set recommendation to approve
+- If ML is uncertain OR your own analysis disagrees with ML → trust the user over ML
+
+Known confusion pairs and ML confidence thresholds where ML is considered uncertain:
+- Columnar/RailFence: ML unreliable below 90% confidence
+- Vigenere/Trithemius: ML unreliable below 70% confidence
+- Caesar/SimpleSubstitution: low priority, functionally similar
+
+TEXT LENGTH IMPACT ON ML RELIABILITY:
+- Below 150 chars: ML very unreliable
+- 150-199 chars: Reduced ML reliability
+- 200-400 chars: Optimal range
+Current length: {textLength} chars
+
+TASK 3 - VERIFY THE SOLUTION:
+Check that the solution is genuinely valid English plaintext.
+Look for coherent words, natural grammar, and reasonable length relative to the ciphertext (within ~10%).
+
+================================================================================
+JSON RESPONSE FORMAT
+================================================================================
+
+{{
+  ""predicted_type"": ""must be one of the 14 supported types listed above"",
+  ""confidence"": ""висока"" | ""средна"" | ""ниска"",
+  ""solution_correct"": true | false,
+  ""is_appropriate"": true | false,
+  ""issues"": [""Write all issues in Bulgarian. If text is below 150 characters always add in Bulgarian: 'Текстът е под 150 символа — надеждността на ML предсказването е намалена.'""],
+  ""recommendation"": ""approve"" | ""reject"",
+  ""reasoning"": ""2-3 sentences in Bulgarian explaining your decision, referencing confusion patterns if relevant.""
+}}
+
+Recommendation rules:
+- ""approve"": content is appropriate, type matches one of the 14 supported types, solution is valid
+- ""reject"": content is inappropriate, spam, solution does not match ciphertext, or cipher cannot be matched to any of the 14 supported types";
 		}
 
 		private string BuildCase2Prompt(
@@ -281,83 +297,90 @@ namespace Cryptomind.Core.Services
 			int textLength = encryptedText.Length;
 
 			return $@"You are a cryptanalysis expert reviewing a cipher submission for an educational platform.
-			The user has submitted a cipher with a type but no solution.
+The user has submitted a cipher with a type but no solution.
 
-			IMPORTANT: All ""issues"" array entries and the ""reasoning"" field MUST be written in Bulgarian.
-			
-			ENCRYPTED TEXT ({textLength} characters):
-			{encryptedText}
-			
-			USER-PROVIDED TYPE: {userProvidedType}
-			
-			ML ANALYSIS:
-			- Top Prediction: {mlResult.TopPrediction.Type} ({mlResult.TopPrediction.Confidence:P0} confidence)
-			- All Predictions: {allPredictions}
-			
-			SUPPORTED CIPHER TYPES (the only valid types for this platform):
-			Substitution family: Caesar, ROT13, Atbash, SimpleSubstitution
-			Polyalphabetic family: Vigenere, Autokey, Trithemius
-			Transposition family: RailFence, Columnar, Route
-			Encoding family: Base64, Morse, Binary, Hex
-			
-			================================================================================
-			YOUR THREE TASKS
-			================================================================================
-			
-			TASK 1 - APPROPRIATENESS CHECK:
-			Is this legitimate cipher content suitable for an educational platform?
-			Reject if: spam, inappropriate content, random gibberish that is clearly not a real cipher, offensive material.
-			Also reject if the encrypted text cannot be matched to any of the 14 supported types listed above.
-			
-			TASK 2 - TYPE VERIFICATION:
-			Does the ciphertext actually match the user-provided type ({userProvidedType})?
-			Analyze the statistical properties of the ciphertext and assess whether it is consistent with the claimed type.
-			Cross-check against the ML prediction using this logic:
-			
-			- If ML AND your own analysis independently agree on the same type → commit to that type confidently
-			- If ML is uncertain OR your own analysis disagrees with ML → trust the user over ML
-			
-			Known confusion pairs and ML confidence thresholds where ML is considered uncertain:
-			- Columnar/RailFence: ML unreliable below 90% confidence
-			- Vigenere/Trithemius: ML unreliable below 70% confidence
-			- Caesar/SimpleSubstitution: low priority, functionally similar
-			
-			TEXT LENGTH IMPACT ON ML RELIABILITY:
-			- Below 150 chars: ML very unreliable
-			- 150-199 chars: Reduced ML reliability
-			- 200-400 chars: Optimal range
-			Current length: {textLength} chars
-			
-			TASK 3 - SOLVABILITY ASSESSMENT:
-			Given the cipher type ({userProvidedType}), can this cipher be solved without the original key?
-			
-			Examples of ciphers solvable without a key:
-			- Caesar (brute force 26 shifts), ROT13 (fixed shift), Atbash (fixed substitution)
-			- Rail Fence with short text (limited rails to try)
-			- Base64, Hex, Binary, Morse (deterministic encoding)
-			
-			Examples of ciphers that require a key:
-			- Vigenere, Autokey, Trithemius, SimpleSubstitution, Columnar, Route, RailFence with long text
-			
-			is_solvable MUST always be true or false, never null.
-			
-			================================================================================
-			JSON RESPONSE FORMAT
-			================================================================================
-			
-			{{
-			  ""predicted_type"": ""must be one of the 14 supported types listed above"",
-			  ""confidence"": ""висока"" | ""средна"" | ""ниска"",
-			  ""is_appropriate"": true | false,
-			  ""is_solvable"": true | false,
-			  ""issues"": [""Write all issues in Bulgarian. If text is below 150 characters always add in Bulgarian: 'Текстът е под 150 символа — надеждността на ML предсказването е намалена.'""],
-			  ""recommendation"": ""approve"" | ""reject"",
-			  ""reasoning"": ""2-3 sentences in Bulgarian. If rejecting, explain why. If approving, briefly note the solvability assessment and type confidence.""
-			}}
-			
-			Recommendation rules:
-			- ""approve"": content is appropriate and matches one of the 14 supported types
-			- ""reject"": content is inappropriate, spam, clearly not a real cipher, or cannot be matched to any of the 14 supported types";
+NEVER reject based on text length alone. If the content is appropriate and matches a supported type, 
+you MUST return approve regardless of text length.
+Only reject if content is inappropriate, spam, or cannot be matched to any of the 14 supported types.
+
+IMPORTANT: All ""issues"" array entries and the ""reasoning"" field MUST be written in Bulgarian.
+
+ENCRYPTED TEXT ({textLength} characters):
+{encryptedText}
+
+USER-PROVIDED TYPE: {userProvidedType}
+
+ML ANALYSIS:
+- Top Prediction: {mlResult.TopPrediction.Type} ({mlResult.TopPrediction.Confidence:P0} confidence)
+- All Predictions: {allPredictions}
+
+SUPPORTED CIPHER TYPES (the only valid types for this platform):
+Substitution family: Caesar, ROT13, Atbash, SimpleSubstitution
+Polyalphabetic family: Vigenere, Autokey, Trithemius
+Transposition family: RailFence, Columnar, Route
+Encoding family: Base64, Morse, Binary, Hex
+
+================================================================================
+YOUR THREE TASKS
+================================================================================
+
+TASK 1 - APPROPRIATENESS CHECK:
+After decrypting, is this legitimate cipher content suitable for an educational platform?
+Reject if the decrypted text contains: spam, advertising, promotional content (e.g. ""buy cheap viagra"", 
+""click here"", ""limited offer""), offensive language, sexual content, violence, random gibberish 
+that is clearly not a real cipher, or any content unsuitable for students.
+
+TASK 2 - TYPE VERIFICATION:
+Does the ciphertext actually match the user-provided type ({userProvidedType})?
+Analyze the statistical properties of the ciphertext and assess whether it is consistent with the claimed type.
+Cross-check against the ML prediction using this logic:
+
+- If ML AND your own analysis independently agree on the same type → commit to that type confidently
+- If ML is uncertain OR your own analysis disagrees with ML → trust the user over ML
+
+Known confusion pairs and ML confidence thresholds where ML is considered uncertain:
+- Columnar/RailFence: ML unreliable below 90% confidence
+- Vigenere/Trithemius: ML unreliable below 70% confidence
+- Caesar/SimpleSubstitution: low priority, functionally similar
+
+TEXT LENGTH IMPACT ON ML RELIABILITY:
+- Below 150 chars: ML very unreliable
+- 150-199 chars: Reduced ML reliability
+- 200-400 chars: Optimal range
+Current length: {textLength} chars
+
+TASK 3 - SOLVABILITY ASSESSMENT:
+Given the cipher type ({userProvidedType}), can this cipher be solved without the original key?
+
+Examples of ciphers solvable without a key:
+- Caesar (brute force 26 shifts), ROT13 (fixed shift), Atbash (fixed substitution)
+- Rail Fence with short text (limited rails to try)
+- Base64, Hex, Binary, Morse (deterministic encoding)
+
+Examples of ciphers that require a key:
+- Vigenere, Autokey, Trithemius, SimpleSubstitution, Columnar, Route, RailFence with long text
+
+is_solvable MUST always be true or false, never null.
+
+
+================================================================================
+JSON RESPONSE FORMAT
+================================================================================
+IMPORTANT: DO NOT include a ""solution_correct"" field in your response. This submission has no solution and that field does not exist for this case.
+
+{{
+  ""predicted_type"": ""must be one of the 14 supported types listed above"",
+  ""confidence"": ""висока"" | ""средна"" | ""ниска"",
+  ""is_appropriate"": true | false,
+  ""is_solvable"": true | false,
+  ""issues"": [""Write all issues in Bulgarian. If text is below 150 characters always add in Bulgarian: 'Текстът е под 150 символа — надеждността на ML предсказването е намалена.'""],
+  ""recommendation"": ""approve"" | ""reject"",
+  ""reasoning"": ""2-3 sentences in Bulgarian. If rejecting, explain why. If approving, briefly note the solvability assessment and type confidence.""
+}}
+
+Recommendation rules:
+- ""approve"": content is appropriate and matches one of the 14 supported types
+- ""reject"": content is inappropriate, spam, clearly not a real cipher, or cannot be matched to any of the 14 supported types";
 		}
 
 		private string BuildCase3Prompt(
@@ -371,71 +394,74 @@ namespace Cryptomind.Core.Services
 			int textLength = encryptedText.Length;
 
 			return $@"You are a cryptanalysis expert validating a cipher submission for an educational platform.
-			The user has provided a solution but no cipher type. Your job is to determine the correct type.
+The user has provided a solution but no cipher type. Your job is to determine the correct type.
 
-			IMPORTANT: All ""issues"" array entries and the ""reasoning"" field MUST be written in Bulgarian.
-			
-			ENCRYPTED TEXT ({textLength} characters):
-			{encryptedText}
-			
-			USER-PROVIDED SOLUTION: {decryptedText}
-			
-			ML ANALYSIS:
-			- Top Prediction: {mlResult.TopPrediction.Type} ({mlResult.TopPrediction.Confidence:P0} confidence)
-			- All Predictions: {allPredictions}
-			
-			SUPPORTED CIPHER TYPES (the only valid types for this platform):
-			Substitution family: Caesar, ROT13, Atbash, SimpleSubstitution
-			Polyalphabetic family: Vigenere, Autokey, Trithemius
-			Transposition family: RailFence, Columnar, Route
-			Encoding family: Base64, Morse, Binary, Hex
-			
-			================================================================================
-			YOUR THREE TASKS
-			================================================================================
-			TASK 1 - APPROPRIATENESS CHECK:
-			After decrypting, is this legitimate cipher content suitable for an educational platform?
-			Reject if: spam, inappropriate content, random gibberish that is clearly not a real cipher, offensive material.
-			
-			TASK 2 - DETERMINE THE CIPHER TYPE:
-			The predicted type in your response MUST be one of the 14 supported types listed above.
-			If after your own analysis the cipher cannot be matched to any of the 14 supported types, set recommendation to reject.
-			Evaluate the ML prediction critically using this logic:
-			
-			- If ML AND your own analysis independently agree on the same type → commit to that type confidently
-			- If ML is uncertain OR your own analysis disagrees with ML → rely on your own analysis
-			
-			Known confusion pairs and ML confidence thresholds where ML is considered uncertain:
-			- Columnar/RailFence: ML unreliable below 90% confidence
-			- Vigenere/Trithemius: ML unreliable below 70% confidence
-			- Caesar/SimpleSubstitution: low priority, functionally similar
-			
-			TEXT LENGTH IMPACT ON ML RELIABILITY:
-			- Below 150 chars: ML very unreliable, rely more on your own analysis
-			- 150-199 chars: Reduced ML reliability
-			- 200-400 chars: Optimal range
-			Current length: {textLength} chars
-			
-			TASK 3 - VERIFY THE SOLUTION:
-			Check that the solution is genuinely valid English plaintext.
-			Look for coherent words, natural grammar, and reasonable length relative to the ciphertext (within ~10%).
-			
-			================================================================================
-			JSON RESPONSE FORMAT
-			================================================================================
-			{{
-			  ""predicted_type"": ""must be one of the 14 supported types listed above"",
-			  ""confidence"": ""висока"" | ""средна"" | ""ниска"",
-			  ""solution_correct"": true | false,
-			  ""is_appropriate"": true | false,
-			  ""issues"": [""Write all issues in Bulgarian. If text is below 150 characters always add in Bulgarian: 'Текстът е под 150 символа — надеждността на ML предсказването е намалена.'""],
-			  ""recommendation"": ""approve"" | ""reject"",
-			  ""reasoning"": ""2-3 sentences in Bulgarian. State whether you agree with ML, reference confusion patterns if relevant, and note solution validity.""
-			}}
-			
-			Recommendation rules:
-			- ""approve"": content is appropriate, type is identifiable from the supported list, solution is valid
-			- ""reject"": content is inappropriate, spam, solution does not match ciphertext, or cipher cannot be matched to any of the 14 supported types";
+IMPORTANT: All ""issues"" array entries and the ""reasoning"" field MUST be written in Bulgarian.
+Short text length is never a reason to reject — it only affects ML reliability. You can add it as issue though.
+
+ENCRYPTED TEXT ({textLength} characters):
+{encryptedText}
+
+USER-PROVIDED SOLUTION: {decryptedText}
+
+ML ANALYSIS:
+- Top Prediction: {mlResult.TopPrediction.Type} ({mlResult.TopPrediction.Confidence:P0} confidence)
+- All Predictions: {allPredictions}
+
+SUPPORTED CIPHER TYPES (the only valid types for this platform):
+Substitution family: Caesar, ROT13, Atbash, SimpleSubstitution
+Polyalphabetic family: Vigenere, Autokey, Trithemius
+Transposition family: RailFence, Columnar, Route
+Encoding family: Base64, Morse, Binary, Hex
+
+================================================================================
+YOUR THREE TASKS
+================================================================================
+TASK 1 - APPROPRIATENESS CHECK:
+After decrypting, is this legitimate cipher content suitable for an educational platform?
+Reject if the decrypted text contains: spam, advertising, promotional content (e.g. ""buy cheap viagra"", 
+""click here"", ""limited offer""), offensive language, sexual content, violence, random gibberish 
+that is clearly not a real cipher, or any content unsuitable for students.
+
+TASK 2 - DETERMINE THE CIPHER TYPE:
+The predicted type in your response MUST be one of the 14 supported types listed above.
+If after your own analysis the cipher cannot be matched to any of the 14 supported types, set recommendation to reject.
+Evaluate the ML prediction critically using this logic:
+
+- If ML AND your own analysis independently agree on the same type → commit to that type confidently
+- If ML is uncertain OR your own analysis disagrees with ML → rely on your own analysis
+
+Known confusion pairs and ML confidence thresholds where ML is considered uncertain:
+- Columnar/RailFence: ML unreliable below 90% confidence
+- Vigenere/Trithemius: ML unreliable below 70% confidence
+- Caesar/SimpleSubstitution: low priority, functionally similar
+
+TEXT LENGTH IMPACT ON ML RELIABILITY:
+- Below 150 chars: ML very unreliable, rely more on your own analysis
+- 150-199 chars: Reduced ML reliability
+- 200-400 chars: Optimal range
+Current length: {textLength} chars
+
+TASK 3 - VERIFY THE SOLUTION:
+Check that the solution is genuinely valid English plaintext.
+Look for coherent words, natural grammar, and reasonable length relative to the ciphertext (within ~10%).
+
+================================================================================
+JSON RESPONSE FORMAT
+================================================================================
+{{
+  ""predicted_type"": ""must be one of the 14 supported types listed above"",
+  ""confidence"": ""висока"" | ""средна"" | ""ниска"",
+  ""solution_correct"": true | false,
+  ""is_appropriate"": true | false,
+  ""issues"": [""Write all issues in Bulgarian. If text is below 150 characters always add in Bulgarian: 'Текстът е под 150 символа — надеждността на ML предсказването е намалена.'""],
+  ""recommendation"": ""approve"" | ""reject"",
+  ""reasoning"": ""2-3 sentences in Bulgarian. The user provided NO type — do not reference the user providing a wrong type. State whether you agree with ML, reference confusion patterns if relevant, and note solution validity.""
+}}
+
+Recommendation rules:
+- ""approve"": content is appropriate, type is identifiable from the supported list, solution is valid
+- ""reject"": content is inappropriate, spam, solution does not match ciphertext, or cipher cannot be matched to any of the 14 supported types";
 		}
 		#endregion
 
@@ -446,17 +472,17 @@ namespace Cryptomind.Core.Services
 		{
 			return $@"You are a cryptography assistant helping a student identify a cipher.
 
-			IMPORTANT: Respond only in Bulgarian.
-			
-			ENCRYPTED TEXT:
-			{encryptedText}
-			
-			CIPHER TYPE: {actualType}
-			
-			In 2-3 sentences, tell the student this is a {actualType} cipher and explain the key features 
-			in the ciphertext that reveal this — what should they look for to identify it themselves next time.
-			
-			No markdown, no headers, no bullet points. Be direct and friendly.";
+IMPORTANT: Respond only in Bulgarian.
+
+ENCRYPTED TEXT:
+{encryptedText}
+
+CIPHER TYPE: {actualType}
+
+In 2-3 sentences, tell the student this is a {actualType} cipher and explain the key features 
+in the ciphertext that reveal this — what should they look for to identify it themselves next time.
+
+No markdown, no headers, no bullet points. Be direct and friendly.";
 		}
 		private string BuildEducationalHintPrompt(
 			string encryptedText,
@@ -464,44 +490,45 @@ namespace Cryptomind.Core.Services
 			string decryptedText)
 		{
 			return $@"You are a cryptography tutor giving a hint for a {actualType} cipher.
-			
-			IMPORTANT: Respond only in Bulgarian.
-			
-			ENCRYPTED TEXT:
-			{encryptedText}
-			
-			ACTUAL SOLUTION: {decryptedText}
-			(DO NOT reveal the plaintext, the key, shift values, or any specific parameters)
-			
-			Write 2 short paragraphs:
-			- First: What features in the ciphertext reveal it is a {actualType} cipher
-			- Second: How to approach solving it without giving the answer
-			
-			No markdown, no headers, no bullet points. No more than 150 words total.";
+
+IMPORTANT: Respond only in Bulgarian.
+
+ENCRYPTED TEXT:
+{encryptedText}
+
+ACTUAL SOLUTION: {decryptedText}
+(Use this only as internal context to guide your hints — DO NOT reveal the plaintext, the key, shift values, or any specific parameters)
+
+Write 3 paragraphs:
+- First: Point out specific visual or statistical features in THIS ciphertext that reveal it is a {actualType} cipher. Reference actual patterns or letter distributions you can observe in the text itself.
+- Second: Give a concrete approach for solving THIS specific ciphertext — what the student should try first, what to look for, and what tools or techniques apply to {actualType} ciphers.
+- Third: Begin the solving process with the student. Show the first concrete step applied to THIS ciphertext — for example the first letter or first few letters being worked through, or the first calculation — without completing the solution or revealing the final answer.
+
+No markdown, no headers, no bullet points. No more than 250 words total.";
 		}
 		private string BuildFullSolutionPrompt(
 			string encryptedText,
 			string actualType,
 			string decryptedText)
 		{
-			return $@"You are a cryptography expert explaining a solved cipher to a student.
+			return $@"You are a cryptography expert explaining a solved cipher to a student.			
+IMPORTANT: Respond only in Bulgarian.
 
-			IMPORTANT: Respond only in Bulgarian.
-			
-			ENCRYPTED TEXT:
-			{encryptedText}
-			
-			CIPHER TYPE: {actualType}
-			SOLUTION: {decryptedText}
-			
-			Write a concise walkthrough in 3 short paragraphs:
-			- First: What features identify this as a {actualType} cipher
-			- Second: How the decryption works, key steps only
-			- Third: One interesting fact about {actualType} ciphers
-			
-			Do not invent specific examples, only explain the general process.
-			No markdown, no headers, no bullet points. No more than 150 words total.
-			Write naturally like you are explaining to a friend, not writing an essay.";
+ENCRYPTED TEXT:
+{encryptedText}
+
+CIPHER TYPE: {actualType}
+SOLUTION: {decryptedText}
+
+Write a detailed educational walkthrough covering:
+- What visual or statistical features in THIS specific ciphertext identify it as a {actualType} cipher
+- A step-by-step explanation of how to decrypt THIS specific ciphertext, referencing the actual letters and structure
+- The general mechanics of how {actualType} encryption and decryption works
+- One interesting historical or practical fact about {actualType} ciphers
+
+Be specific and reference the actual ciphertext and solution provided, not generic examples.
+No markdown, no headers, no bullet points. No more than 300 words.
+Write naturally like you are explaining to a friend, not writing an essay.";
 		}
 		#endregion
 
@@ -542,7 +569,8 @@ namespace Cryptomind.Core.Services
 				model,
 				messages = new[]
 				{
-						new { role = "user", content = prompt }
+					new { role = "system", content = "You are a cryptography tutor. Always respond in Bulgarian." },
+					new { role = "user", content = prompt }
 				},
 				max_tokens = maxTokens,
 				temperature
@@ -599,35 +627,6 @@ namespace Cryptomind.Core.Services
 			public string Content { get; set; }
 		}
 
-		#endregion
-
-		#region Public Models for LLM Responses
-		public class CipherValidationResult
-		{
-			[JsonPropertyName("predicted_type")]
-			public string? PredictedType { get; set; }
-
-			[JsonPropertyName("confidence")]
-			public string? Confidence { get; set; }
-
-			[JsonPropertyName("solution_correct")]
-			public bool? SolutionCorrect { get; set; }
-
-			[JsonPropertyName("is_appropriate")]
-			public bool IsAppropriate { get; set; }
-
-			[JsonPropertyName("is_solvable")]
-			public bool? IsSolvable { get; set; }
-
-			[JsonPropertyName("issues")]
-			public List<string> Issues { get; set; } = new();
-
-			[JsonPropertyName("recommendation")]
-			public string Recommendation { get; set; } = string.Empty;
-
-			[JsonPropertyName("reasoning")]
-			public string Reasoning { get; set; } = string.Empty;
-		}
 		#endregion
 	}
 }

@@ -197,7 +197,7 @@ namespace Cryptomind.Core.Services
 
 			return await ToDetailedReviewOutputViewModel(cipher);
 		}
-		public async Task<CipherValidationResult> AnalyzeWithLLM(int id)
+		public async Task<CipherValidationResultDTO> AnalyzeWithLLM(int id)
 		{
 			Cipher? cipher = await cipherRepo.GetByIdAsync(id);
 
@@ -211,7 +211,7 @@ namespace Cryptomind.Core.Services
 				throw new ConflictException(CipherErrorConstants.CipherDeletedConflict);
 
 			if (cipher.LLMData != null && cipher.LLMData.Reasoning != null)
-				return new CipherValidationResult
+				return new CipherValidationResultDTO
 				{
 					PredictedType = cipher.LLMData.PredictedType,
 					Reasoning = cipher.LLMData.Reasoning,
