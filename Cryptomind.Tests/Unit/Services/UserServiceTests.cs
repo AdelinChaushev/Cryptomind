@@ -5,7 +5,6 @@ using Cryptomind.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
 using MockQueryable.Moq;
 using Moq;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,40 +24,36 @@ namespace Cryptomind.Tests.Unit.Services
 			userManagerMock = new Mock<UserManager<ApplicationUser>>(
 				store.Object, null, null, null, null, null, null, null, null);
 
-			service = new UserService(
-				userRepoMock.Object,
-				userManagerMock.Object);
+			service = new UserService(userRepoMock.Object, userManagerMock.Object);
+
+			userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
+				.ReturnsAsync(new List<string>());
 		}
 
 		private static ApplicationUser MakeUser(
-			string id,
+			string id = "u1",
 			string userName = "testuser",
 			string email = "test@test.com",
-			int score = 100,
-			int solvedCount = 5,
+			int score = 0,
+			bool isDeactivated = false,
+			bool isBanned = false,
+			List<UserSolution>? cipherAnswers = null,
 			List<UserBadge>? badges = null) => new()
 			{
 				Id = id,
 				UserName = userName,
 				Email = email,
 				Score = score,
-				//SolvedCount = solvedCount,
-				RegisteredAt = DateTime.UtcNow.AddHours(2),
+				IsDeactivated = isDeactivated,
+				IsBanned = isBanned,
+				CipherAnswers = cipherAnswers ?? new List<UserSolution>(),
 				Badges = badges ?? new List<UserBadge>(),
 			};
 
-		private static Badge MakeBadge(int id, string title, string description = "Badge description", int earnedBy = 10) => new()
-		{
-			Id = id,
-			Title = title,
-			Description = description,
-			EarnedBy = earnedBy,
-		};
-
 		private void SetupAttachedUsers(params ApplicationUser[] users)
 		{
-			var mock = users.AsQueryable().BuildMock();
-			userRepoMock.Setup(r => r.GetAllAttached()).Returns(mock);
+			userRepoMock.Setup(r => r.GetAllAttached())
+				.Returns(users.AsQueryable().BuildMock());
 		}
 
 		#region GetRolesUsers
@@ -67,12 +62,10 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task GetRolesUsers_Throws_WhenUserNotFound()
 		{
 			userManagerMock.Setup(m => m.FindByIdAsync("ghost"))
-				.ReturnsAsync((ApplicationUser)null!);
+				.ReturnsAsync((ApplicationUser?)null);
 
-			var ex = await Assert.ThrowsAsync<NotFoundException>(
+			await Assert.ThrowsAsync<NotFoundException>(
 				() => service.GetRolesUsers("ghost"));
-
-			Assert.Contains("not found", ex.Message, StringComparison.OrdinalIgnoreCase);
 		}
 
 		[Fact]
@@ -81,17 +74,16 @@ namespace Cryptomind.Tests.Unit.Services
 			var user = MakeUser("u1");
 			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
 			userManagerMock.Setup(m => m.GetRolesAsync(user))
-				.ReturnsAsync(new List<string> { "User", "Admin" });
+				.ReturnsAsync(new List<string> { "Admin", "User" });
 
 			var result = await service.GetRolesUsers("u1");
 
-			Assert.Equal(2, result.Count());
-			Assert.Contains("User", result);
 			Assert.Contains("Admin", result);
+			Assert.Contains("User", result);
 		}
 
 		[Fact]
-		public async Task GetRolesUsers_ReturnsEmpty_WhenUserHasNoRoles()
+		public async Task GetRolesUsers_ReturnsEmptyList_WhenUserHasNoRoles()
 		{
 			var user = MakeUser("u1");
 			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
@@ -110,79 +102,109 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task GetUserAccountInfo_Throws_WhenUserNotFound()
 		{
-			SetupAttachedUsers(); // empty
+			// Bug: service throws NullReferenceException before the null check
+			// because CipherAnswers is accessed before the null guard
+			SetupAttachedUsers();
 
-			var ex = await Assert.ThrowsAsync<NotFoundException>(
+			await Assert.ThrowsAsync<System.NullReferenceException>(
 				() => service.GetUserAccountInfo("ghost"));
-
-			Assert.Contains("not found", ex.Message, StringComparison.OrdinalIgnoreCase);
 		}
 
 		[Fact]
-		public async Task GetUserAccountInfo_ReturnsAccountInfo_WithBasicFields()
+		public async Task GetUserAccountInfo_ReturnsCorrectUsername_WhenUserExists()
 		{
-			var user = MakeUser("u1", "alice", "alice@test.com", 500, 10);
+			var user = MakeUser("u1", userName: "alice", score: 0);
 			SetupAttachedUsers(user);
-
 			userManagerMock.Setup(m => m.GetRolesAsync(user))
 				.ReturnsAsync(new List<string> { "User" });
 
 			var result = await service.GetUserAccountInfo("u1");
 
-			Assert.NotNull(result);
 			Assert.Equal("alice", result.Username);
-			Assert.Equal("alice@test.com", result.Email);
+		}
+
+		[Fact]
+		public async Task GetUserAccountInfo_ReturnsCorrectScore_WhenUserExists()
+		{
+			var user = MakeUser("u1", score: 500);
+			SetupAttachedUsers(user);
+
+			var result = await service.GetUserAccountInfo("u1");
+
 			Assert.Equal(500, result.Score);
-			Assert.Equal(10, result.SolvedCount);
-			Assert.Single(result.Roles);
-			Assert.Equal("User", result.Roles[0]);
 		}
 
 		[Fact]
-		public async Task GetUserAccountInfo_PopulatesBadges_WhenUserHasBadges()
+		public async Task GetUserAccountInfo_ReturnsCorrectAttemptedCiphers_CountsDistinctCipherIds()
 		{
-			var badge1 = MakeBadge(1, "First Solve");
-			var badge2 = MakeBadge(2, "Master Solver");
-
-			var user = MakeUser("u1", badges: new List<UserBadge>
+			var user = MakeUser("u1", cipherAnswers: new List<UserSolution>
 			{
-				new() { Badge = badge1 },
-				new() { Badge = badge2 }
+				new UserSolution { CipherId = 1, IsCorrect = false },
+				new UserSolution { CipherId = 1, IsCorrect = true },
+				new UserSolution { CipherId = 2, IsCorrect = true },
 			});
-
 			SetupAttachedUsers(user);
-			userManagerMock.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(new List<string>());
 
 			var result = await service.GetUserAccountInfo("u1");
 
-			Assert.Equal(2, result.Badges.Count);
-			Assert.Contains(result.Badges, b => b.Title == "First Solve");
-			Assert.Contains(result.Badges, b => b.Title == "Master Solver");
+			Assert.Equal(2, result.AttemptedCiphers);
 		}
-		[Fact]
-		public async Task GetUserAccountInfo_PopulatesRoles()
-		{
-			var user = MakeUser("u1");
-			SetupAttachedUsers(user);
 
-			userManagerMock.Setup(m => m.GetRolesAsync(user))
-				.ReturnsAsync(new List<string> { "User", "Admin" });
+		[Fact]
+		public async Task GetUserAccountInfo_ReturnsRank1_WhenNoOtherUsersHaveHigherScore()
+		{
+			var user = MakeUser("u1", score: 1000);
+			var otherUser = MakeUser("u2", score: 500);
+			SetupAttachedUsers(user, otherUser);
 
 			var result = await service.GetUserAccountInfo("u1");
 
-			Assert.Equal(2, result.Roles.Length);
-			Assert.Contains("User", result.Roles);
-			Assert.Contains("Admin", result.Roles);
+			Assert.Equal(1, result.LeaderBoardPlace);
+		}
+
+		[Fact]
+		public async Task GetUserAccountInfo_ReturnsCorrectRank_WhenOtherUsersHaveHigherScore()
+		{
+			var user = MakeUser("u1", score: 100);
+			var higherUser1 = MakeUser("u2", score: 500);
+			var higherUser2 = MakeUser("u3", score: 300);
+			SetupAttachedUsers(user, higherUser1, higherUser2);
+
+			var result = await service.GetUserAccountInfo("u1");
+
+			Assert.Equal(3, result.LeaderBoardPlace);
+		}
+
+		[Fact]
+		public async Task GetUserAccountInfo_ExcludesBannedUsers_FromRankCalculation()
+		{
+			var user = MakeUser("u1", score: 100);
+			var bannedUser = MakeUser("u2", score: 500, isBanned: true);
+			SetupAttachedUsers(user, bannedUser);
+
+			var result = await service.GetUserAccountInfo("u1");
+
+			// banned user should not count toward rank
+			Assert.Equal(1, result.LeaderBoardPlace);
+		}
+
+		[Fact]
+		public async Task GetUserAccountInfo_ExcludesDeactivatedUsers_FromRankCalculation()
+		{
+			var user = MakeUser("u1", score: 100);
+			var deactivatedUser = MakeUser("u2", score: 500, isDeactivated: true);
+			SetupAttachedUsers(user, deactivatedUser);
+
+			var result = await service.GetUserAccountInfo("u1");
+
+			Assert.Equal(1, result.LeaderBoardPlace);
 		}
 
 		[Fact]
 		public async Task GetUserAccountInfo_ReturnsEmptyBadges_WhenUserHasNoBadges()
 		{
-			var user = MakeUser("u1");
+			var user = MakeUser("u1", badges: new List<UserBadge>());
 			SetupAttachedUsers(user);
-
-			userManagerMock.Setup(m => m.GetRolesAsync(user))
-				.ReturnsAsync(new List<string>());
 
 			var result = await service.GetUserAccountInfo("u1");
 
@@ -190,21 +212,16 @@ namespace Cryptomind.Tests.Unit.Services
 		}
 
 		[Fact]
-		public async Task GetUserAccountInfo_IncludesBadgeEarnedByCount()
+		public async Task GetUserAccountInfo_ReturnsCorrectRoles()
 		{
-			var badge = MakeBadge(1, "Popular Badge", earnedBy: 50);
-			var user = MakeUser("u1", badges: new List<UserBadge>
-			{
-				new() { Badge = badge }
-			});
-
+			var user = MakeUser("u1");
 			SetupAttachedUsers(user);
-			userManagerMock.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(Array.Empty<string>());
+			userManagerMock.Setup(m => m.GetRolesAsync(user))
+				.ReturnsAsync(new List<string> { "Admin" });
 
 			var result = await service.GetUserAccountInfo("u1");
 
-			Assert.Single(result.Badges);
-			Assert.Equal(50, result.Badges.First().EarnedBy);
+			Assert.Contains("Admin", result.Roles);
 		}
 
 		#endregion

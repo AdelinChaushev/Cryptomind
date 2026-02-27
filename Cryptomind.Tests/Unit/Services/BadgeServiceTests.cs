@@ -723,9 +723,9 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var solutions = new[]
 			{
-				new UserSolution { UserId = "u1" },
-				new UserSolution { UserId = "u1" },
-				new UserSolution { UserId = "u1" },
+				new UserSolution { UserId = "u1", IsCorrect = true },
+				new UserSolution { UserId = "u1", IsCorrect = true },
+				new UserSolution { UserId = "u1", IsCorrect = true },
 				new UserSolution { UserId = "u2" },
 			};
 			SetupAttachedSolutions(solutions);

@@ -1,16 +1,13 @@
 ﻿using Cryptomind.Common.Exceptions;
 using Cryptomind.Core.Services.OCR;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.Protected;
 using System;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,9 +35,7 @@ namespace Cryptomind.Tests.Unit.Services
 			configurationMock.Setup(c => c["OCRService:ApiUrl"])
 				.Returns("http://localhost:5001");
 
-			service = new OCRService(
-				httpClientFactoryMock.Object,
-				configurationMock.Object);
+			service = new OCRService(httpClientFactoryMock.Object, configurationMock.Object);
 		}
 
 		private void SetupHttpResponse(HttpStatusCode statusCode, string content)
@@ -69,138 +64,148 @@ namespace Cryptomind.Tests.Unit.Services
 				.ThrowsAsync(exception);
 		}
 
-		private static Mock<IFormFile> CreateMockImageFile(
-			string fileName = "test.jpg",
-			long length = 1024)
-		{
-			var mock = new Mock<IFormFile>();
-			mock.Setup(f => f.FileName).Returns(fileName);
-			mock.Setup(f => f.Length).Returns(length);
-			mock.Setup(f => f.ContentType).Returns("image/jpeg");
-			mock.Setup(f => f.OpenReadStream()).Returns(new MemoryStream(Encoding.UTF8.GetBytes("fake image data")));
-			return mock;
-		}
-
-		private static string CreateOCRResponse(
-			bool success = true,
-			string text = "HELLO WORLD",
+		private static string CreateSuccessResponse(
+			string text = "KHOOR ZRUOG",
 			double confidence = 0.95,
 			int charCount = 11,
-			bool? validationIsValid = true,
-			string error = null)
+			bool success = true,
+			bool validationIsValid = true,
+			string? error = null)
 		{
-			var validation = validationIsValid.HasValue
-				? new
-				{
-					is_valid = validationIsValid.Value,
-					warnings = new string[] { },
-					recommendation = "Good quality extraction"
-				}
-				: null;
-
 			return JsonSerializer.Serialize(new
 			{
 				success,
 				text,
 				confidence,
 				char_count = charCount,
-				validation,
+				validation = new
+				{
+					is_valid = validationIsValid,
+					warnings = Array.Empty<string>(),
+					recommendation = "looks good"
+				},
 				error
 			});
+		}
+
+		private static IFormFile MakeFormFile(string content = "fake image content", string fileName = "test.jpg", string contentType = "image/jpeg")
+		{
+			var bytes = System.Text.Encoding.UTF8.GetBytes(content);
+			var stream = new MemoryStream(bytes);
+			var fileMock = new Mock<IFormFile>();
+			fileMock.Setup(f => f.FileName).Returns(fileName);
+			fileMock.Setup(f => f.ContentType).Returns(contentType);
+			fileMock.Setup(f => f.Length).Returns(bytes.Length);
+			fileMock.Setup(f => f.OpenReadStream()).Returns(stream);
+			return fileMock.Object;
+		}
+
+		private static IFormFile MakeEmptyFormFile()
+		{
+			var fileMock = new Mock<IFormFile>();
+			fileMock.Setup(f => f.Length).Returns(0);
+			return fileMock.Object;
 		}
 
 		#region ExtractTextFromImageAsync
 
 		[Fact]
-		public async Task ExtractTextFromImageAsync_Throws_WhenImageFileIsNull()
+		public async Task ExtractTextFromImageAsync_Throws_WhenImageIsNull()
 		{
 			await Assert.ThrowsAsync<CustomValidationException>(
 				() => service.ExtractTextFromImageAsync(null));
 		}
 
 		[Fact]
-		public async Task ExtractTextFromImageAsync_Throws_WhenImageFileIsEmpty()
+		public async Task ExtractTextFromImageAsync_Throws_WhenImageIsEmpty()
 		{
-			var imageFile = CreateMockImageFile(length: 0);
-
 			await Assert.ThrowsAsync<CustomValidationException>(
-				() => service.ExtractTextFromImageAsync(imageFile.Object));
+				() => service.ExtractTextFromImageAsync(MakeEmptyFormFile()));
 		}
 
 		[Fact]
-		public async Task ExtractTextFromImageAsync_ReturnsResult_WhenExtractionSucceeds()
+		public async Task ExtractTextFromImageAsync_ReturnsResult_WhenResponseIsValid()
 		{
-			SetupHttpResponse(HttpStatusCode.OK, CreateOCRResponse());
-			var imageFile = CreateMockImageFile();
+			SetupHttpResponse(HttpStatusCode.OK, CreateSuccessResponse(text: "KHOOR ZRUOG", confidence: 0.95));
 
-			var result = await service.ExtractTextFromImageAsync(imageFile.Object);
+			var result = await service.ExtractTextFromImageAsync(MakeFormFile());
 
 			Assert.NotNull(result);
-			Assert.True(result.Success);
-			Assert.Equal("HELLO WORLD", result.ExtractedText);
+			Assert.Equal("KHOOR ZRUOG", result.ExtractedText);
 			Assert.Equal(0.95, result.Confidence);
-			Assert.Equal(11, result.CharCount);
+			Assert.True(result.Success);
 		}
 
 		[Fact]
 		public async Task ExtractTextFromImageAsync_PopulatesValidation_WhenPresent()
 		{
-			SetupHttpResponse(HttpStatusCode.OK, CreateOCRResponse());
-			var imageFile = CreateMockImageFile();
+			SetupHttpResponse(HttpStatusCode.OK, CreateSuccessResponse(validationIsValid: true));
 
-			var result = await service.ExtractTextFromImageAsync(imageFile.Object);
+			var result = await service.ExtractTextFromImageAsync(MakeFormFile());
 
-			Assert.NotNull(result.Validation);
 			Assert.True(result.Validation.IsValid);
-			Assert.Equal("Good quality extraction", result.Validation.Recommendation);
 		}
 
 		[Fact]
-		public async Task ExtractTextFromImageAsync_HandlesNullValidation()
+		public async Task ExtractTextFromImageAsync_ReturnsEmptyValidation_WhenValidationIsNull()
 		{
-			SetupHttpResponse(HttpStatusCode.OK, CreateOCRResponse(validationIsValid: null));
-			var imageFile = CreateMockImageFile();
+			var response = JsonSerializer.Serialize(new
+			{
+				success = true,
+				text = "hello",
+				confidence = 0.9,
+				char_count = 5,
+				validation = (object?)null,
+				error = (string?)null
+			});
+			SetupHttpResponse(HttpStatusCode.OK, response);
 
-			var result = await service.ExtractTextFromImageAsync(imageFile.Object);
+			var result = await service.ExtractTextFromImageAsync(MakeFormFile());
 
 			Assert.NotNull(result.Validation);
 			Assert.False(result.Validation.IsValid);
 			Assert.Empty(result.Validation.Warnings);
-			Assert.Empty(result.Validation.Recommendation);
+			Assert.Equal(string.Empty, result.Validation.Recommendation);
 		}
 
 		[Fact]
-		public async Task ExtractTextFromImageAsync_Throws_WhenApiReturnsError()
+		public async Task ExtractTextFromImageAsync_Throws_WhenApiReturnsNonSuccessStatusCode()
 		{
-			SetupHttpResponse(HttpStatusCode.InternalServerError, "Server error");
-			var imageFile = CreateMockImageFile();
+			SetupHttpResponse(HttpStatusCode.InternalServerError, "error");
 
 			await Assert.ThrowsAsync<Exception>(
-				() => service.ExtractTextFromImageAsync(imageFile.Object));
+				() => service.ExtractTextFromImageAsync(MakeFormFile()));
 		}
 
 		[Fact]
-		public async Task ExtractTextFromImageAsync_Throws_WhenResponseIsInvalidJson()
+		public async Task ExtractTextFromImageAsync_Throws_WhenPythonResponseSuccessIsFalse()
 		{
-			SetupHttpResponse(HttpStatusCode.OK, "not json");
-			var imageFile = CreateMockImageFile();
+			SetupHttpResponse(HttpStatusCode.OK, CreateSuccessResponse(success: false, error: "OCR failed"));
 
-			await Assert.ThrowsAsync<JsonException>(
-				() => service.ExtractTextFromImageAsync(imageFile.Object));
+			await Assert.ThrowsAsync<Exception>(
+				() => service.ExtractTextFromImageAsync(MakeFormFile()));
 		}
 
 		[Fact]
-		public async Task ExtractTextFromImageAsync_Throws_WhenSuccessIsFalse()
+		public async Task ExtractTextFromImageAsync_WrapsException_WhenHttpRequestFails()
 		{
-			SetupHttpResponse(HttpStatusCode.OK, CreateOCRResponse(
-				success: false,
-				error: "OCR processing failed"));
-			var imageFile = CreateMockImageFile();
+			SetupHttpException(new HttpRequestException("Connection refused"));
 
-			var exception = await Assert.ThrowsAsync<Exception>(
-				() => service.ExtractTextFromImageAsync(imageFile.Object));
+			var ex = await Assert.ThrowsAsync<Exception>(
+				() => service.ExtractTextFromImageAsync(MakeFormFile()));
 
-			Assert.Contains("OCR extraction failed", exception.Message);
+			Assert.IsType<HttpRequestException>(ex.InnerException);
+		}
+
+		[Fact]
+		public async Task ExtractTextFromImageAsync_WrapsException_WhenRequestTimesOut()
+		{
+			SetupHttpException(new TaskCanceledException("Timeout"));
+
+			var ex = await Assert.ThrowsAsync<Exception>(
+				() => service.ExtractTextFromImageAsync(MakeFormFile()));
+
+			Assert.IsType<TaskCanceledException>(ex.InnerException);
 		}
 
 		#endregion
@@ -208,42 +213,57 @@ namespace Cryptomind.Tests.Unit.Services
 		#region ExtractTextWithMultipleMethodsAsync
 
 		[Fact]
-		public async Task ExtractTextWithMultipleMethodsAsync_Throws_WhenImageFileIsNull()
+		public async Task ExtractTextWithMultipleMethodsAsync_Throws_WhenImageIsNull()
 		{
 			await Assert.ThrowsAsync<CustomValidationException>(
 				() => service.ExtractTextWithMultipleMethodsAsync(null));
 		}
 
 		[Fact]
-		public async Task ExtractTextWithMultipleMethodsAsync_Throws_WhenImageFileIsEmpty()
+		public async Task ExtractTextWithMultipleMethodsAsync_Throws_WhenImageIsEmpty()
 		{
-			var imageFile = CreateMockImageFile(length: 0);
-
 			await Assert.ThrowsAsync<CustomValidationException>(
-				() => service.ExtractTextWithMultipleMethodsAsync(imageFile.Object));
+				() => service.ExtractTextWithMultipleMethodsAsync(MakeEmptyFormFile()));
 		}
 
 		[Fact]
-		public async Task ExtractTextWithMultipleMethodsAsync_ReturnsResult_WhenExtractionSucceeds()
+		public async Task ExtractTextWithMultipleMethodsAsync_ReturnsResult_WhenResponseIsValid()
 		{
-			SetupHttpResponse(HttpStatusCode.OK, CreateOCRResponse());
-			var imageFile = CreateMockImageFile();
+			SetupHttpResponse(HttpStatusCode.OK, CreateSuccessResponse(text: "extracted text", confidence: 0.88));
 
-			var result = await service.ExtractTextWithMultipleMethodsAsync(imageFile.Object);
+			var result = await service.ExtractTextWithMultipleMethodsAsync(MakeFormFile());
 
 			Assert.NotNull(result);
-			Assert.True(result.Success);
-			Assert.Equal("HELLO WORLD", result.ExtractedText);
+			Assert.Equal("extracted text", result.ExtractedText);
+			Assert.Equal(0.88, result.Confidence);
 		}
 
 		[Fact]
-		public async Task ExtractTextWithMultipleMethodsAsync_Throws_WhenApiReturnsError()
+		public async Task ExtractTextWithMultipleMethodsAsync_Throws_WhenApiReturnsNonSuccessStatusCode()
 		{
-			SetupHttpResponse(HttpStatusCode.BadRequest, "Bad request");
-			var imageFile = CreateMockImageFile();
+			SetupHttpResponse(HttpStatusCode.InternalServerError, "error");
 
 			await Assert.ThrowsAsync<Exception>(
-				() => service.ExtractTextWithMultipleMethodsAsync(imageFile.Object));
+				() => service.ExtractTextWithMultipleMethodsAsync(MakeFormFile()));
+		}
+
+		[Fact]
+		public async Task ExtractTextWithMultipleMethodsAsync_Throws_WhenPythonResponseSuccessIsFalse()
+		{
+			SetupHttpResponse(HttpStatusCode.OK, CreateSuccessResponse(success: false, error: "OCR failed"));
+
+			await Assert.ThrowsAsync<Exception>(
+				() => service.ExtractTextWithMultipleMethodsAsync(MakeFormFile()));
+		}
+
+		[Fact]
+		public async Task ExtractTextWithMultipleMethodsAsync_DoesNotWrapException_WhenHttpRequestFails()
+		{
+			// Unlike ExtractTextFromImageAsync, this method does NOT wrap exceptions
+			SetupHttpException(new HttpRequestException("Connection refused"));
+
+			await Assert.ThrowsAsync<HttpRequestException>(
+				() => service.ExtractTextWithMultipleMethodsAsync(MakeFormFile()));
 		}
 
 		#endregion
@@ -263,7 +283,7 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task IsServiceHealthyAsync_ReturnsFalse_WhenHealthEndpointReturnsError()
 		{
-			SetupHttpResponse(HttpStatusCode.ServiceUnavailable, "unhealthy");
+			SetupHttpResponse(HttpStatusCode.InternalServerError, "unhealthy");
 
 			var result = await service.IsServiceHealthyAsync();
 
