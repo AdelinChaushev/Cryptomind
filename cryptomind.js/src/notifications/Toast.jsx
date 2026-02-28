@@ -1,20 +1,8 @@
 import '../styles/toast.css';
 import { NotificationType } from './UseNotifications';
 
-/*
- * How auto-dismiss works:
- *
- * The parent (ToastContainer) calls dismissToast(id) after DISMISS_MS.
- * Before removing the toast from state it toggles .toast--leaving which
- * plays the exit animation. The CSS animation duration matches DISMISS_MS
- * so the progress bar empties exactly as the card leaves.
- *
- * This value is read here only for the CSS variable — the actual timer
- * lives in ToastContainer.
- */
 export const DISMISS_MS = 4500;
 
-// Same type → variant + icon mapping used in NotificationItem
 const TYPE_CONFIG = {
     0: { variant: 'approved', label: 'Cipher approved',  icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> },
     1: { variant: 'rejected', label: 'Cipher rejected',  icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> },
@@ -34,14 +22,6 @@ const FALLBACK = {
     icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
 };
 
-/*
- * Toast
- *
- * Props:
- *   toast       — { id, notification, isLeaving }
- *   onDismiss   — called with toast.id when X is clicked
- *   onClick     — called with the notification when the card body is clicked
- */
 const Toast = ({ toast, onDismiss, onClick }) => {
     const config = TYPE_CONFIG[toast.notification.type] ?? FALLBACK;
 
@@ -51,7 +31,8 @@ const Toast = ({ toast, onDismiss, onClick }) => {
     };
 
     const handleClose = (e) => {
-        e.stopPropagation(); // don't trigger body click
+        e.stopPropagation(); 
+
         onDismiss(toast.id);
     };
 
@@ -88,7 +69,7 @@ const Toast = ({ toast, onDismiss, onClick }) => {
                 </svg>
             </button>
 
-            {/* Draining progress bar */}
+            {}
             <span
                 className="toast__progress"
                 style={{ '--toast-duration': `${DISMISS_MS}ms` }}

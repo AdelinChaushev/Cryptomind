@@ -26,11 +26,9 @@ const MySubmissionsPage = () => {
 }, []);
     const [activeTab,setActiveTab] = useState('ciphers'); 
 
-    
     const cipherSubmissions = submissions.ciphers;
     const answerSuggestions = submissions.suggestions;
 
-    
     const stats = {
         totalSubmissions: cipherSubmissions.length  + answerSuggestions.length,
         approved: cipherSubmissions.filter(s => s.status === 'Approved').length + answerSuggestions.filter(s => s.status === 'Approved').length,
@@ -39,9 +37,8 @@ const MySubmissionsPage = () => {
         deleted : cipherSubmissions.filter(c => c.status === 'CipherDeleted').length + answerSuggestions.filter(s => s.status === 'CipherDeleted').length
     };
 
- 
     const handleViewCipher  = (id) => { navigate(`/cipher/${id}`); };
-    
+
     const handleTabChange   = (tab) => { setActiveTab(tab); };
 
     return (
@@ -61,15 +58,15 @@ const MySubmissionsPage = () => {
                     cipherCount={cipherSubmissions ? cipherSubmissions.length : 0}
                     answerCount={answerSuggestions? answerSuggestions.length : 0}
                 />
-                {/* Cipher Submissions Tab */}
+             
                 <div className={`tab-content ${activeTab === 'ciphers' ? 'active' : ''}`}>
                     <CipherSubmissionsList
                         submissions={cipherSubmissions}
                         onViewCipher={handleViewCipher}
-                     
+
                     />
                 </div>
-                {/* Answer Suggestions Tab */}
+               
                 <div className={`tab-content ${activeTab === 'answers' ? 'active' : ''}`}>
                     <AnswerSuggestionsList
                         answers={answerSuggestions}
@@ -82,3 +79,4 @@ const MySubmissionsPage = () => {
 };
 
 export default MySubmissionsPage;
+

@@ -48,7 +48,7 @@ const AdminDashboard = ({ recentActivity = [] }) => {
                         <h1 className="page-title">Табло за управление</h1>
                     </div>
 
-                    {/* ─── Ред със статистики ─── */}
+                    
                     <div className="stats-grid">
                         <StatCard
                             label="Изчакващи предложения"
@@ -84,7 +84,7 @@ const AdminDashboard = ({ recentActivity = [] }) => {
                     </div>
 
                     <div className="dashboard-grid">
-                        {/* ─── Бързи действия ─── */}
+                        
                         <div className="admin-card">
                             <div className="admin-card-header">
                                 <span className="admin-card-title">Бързи действия</span>
@@ -169,7 +169,7 @@ const AdminDashboard = ({ recentActivity = [] }) => {
                             </div>
                         </div>
 
-                        {/* ─── Последни активности ─── */}
+                        
                         <div className="admin-card">
                             <div className="admin-card-header">
                                 <span className="admin-card-title">Последни предложения</span>

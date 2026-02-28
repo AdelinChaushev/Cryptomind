@@ -155,7 +155,7 @@ const ManageApprovedCiphers = () => {
                         <h1 className="page-title">Управление на шифри</h1>
                     </div>
 
-                    {/* Toolbar */}
+                   
                     <div className="table-toolbar">
                         <div className="toolbar-left">
                             <div className="filter-tabs">
@@ -214,7 +214,7 @@ const ManageApprovedCiphers = () => {
                         </div>
                     </div>
 
-                    {/* Table */}
+                    
                     {error ? (
                         <div className="data-table-wrapper">
                             <div className="empty-state">
@@ -328,7 +328,7 @@ const ManageApprovedCiphers = () => {
                 </div>
             </main>
 
-            {/* Edit Modal */}
+           
             {editModal.open && (
                 <div className="modal-backdrop" onClick={closeEditModal}>
                     <div className="modal-box modal-box-wide" onClick={(e) => e.stopPropagation()}>
@@ -405,7 +405,7 @@ const ManageApprovedCiphers = () => {
                 </div>
             )}
 
-            {/* Delete Confirm Modal */}
+            
             {deleteModal.open && (
                 <div className="modal-backdrop" onClick={closeDeleteModal}>
                     <div className="modal-box" onClick={(e) => e.stopPropagation()}>

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "../styles/not-found.css";
 import { useContext } from "react";
 import { AuthorizationContext } from "../App.jsx";
-// ─── Typing Effect ────────────────────────────────────────────────────────────
+
 function useTyping(text, delay = 0) {
     const [displayed, setDisplayed] = useState("");
 
@@ -27,7 +27,7 @@ function useTyping(text, delay = 0) {
     return displayed;
 }
 
-// ─── Background ───────────────────────────────────────────────────────────────
+
 function NfBackground() {
     return (
         <>
@@ -38,7 +38,7 @@ function NfBackground() {
     );
 }
 
-// ─── Terminal Line ────────────────────────────────────────────────────────────
+
 function NfTerminalLine({ prompt = "$", text, type = "cmd", show }) {
     if (!show) return null;
     return (
@@ -49,7 +49,6 @@ function NfTerminalLine({ prompt = "$", text, type = "cmd", show }) {
     );
 }
 
-// ─── Terminal ─────────────────────────────────────────────────────────────────
 function NfTerminal() {
     const [step, setStep] = useState(0);
 
@@ -94,8 +93,6 @@ function NfTerminal() {
         </div>
     );
 }
-
-// ─── Actions ──────────────────────────────────────────────────────────────────
 function NfActions() {
     const navigate = useNavigate();
     const { state,setState } = useContext(AuthorizationContext);
@@ -115,7 +112,7 @@ function NfActions() {
     );
 }
 
-// ─── Page Root ────────────────────────────────────────────────────────────────
+
 export default function NotFoundPage() {
     return (
         <div className="not-found-page">

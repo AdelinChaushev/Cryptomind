@@ -1,8 +1,3 @@
-/* ===========================
-   cipher-browse.css
-   CryptoMind — Browse Page
-=========================== */
-
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@300;400;500;600;700&display=swap');
 
 :root {
@@ -32,7 +27,6 @@
     --font-mono: 'Space Mono', monospace;
     --font-body: 'Sora', sans-serif;
 
-    /* The key variable — all horizontal spacing derives from this */
     --gutter: clamp(20px, 4vw, 72px);
 
     --sidebar-width: clamp(220px, 17vw, 300px);
@@ -40,7 +34,6 @@
     --transition:    0.2s ease;
 }
 
-/* ─── RESET & BASE ─── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 
@@ -62,7 +55,6 @@ a { text-decoration: none; color: inherit; }
 input, select, button { font-family: var(--font-body); }
 .hidden { display: none !important; }
 
-/* ─── NAVBAR ─── */
 .navbar {
     background: rgba(30, 41, 59, 0.8);
     backdrop-filter: blur(12px);
@@ -74,7 +66,6 @@ input, select, button { font-family: var(--font-body); }
     width: 100%;
 }
 
-/* No max-width — navbar spans the full screen */
 .navbar-container {
     width: 100%;
     padding: 0 var(--gutter);
@@ -118,7 +109,6 @@ input, select, button { font-family: var(--font-body); }
     flex-shrink: 0;
 }
 
-/* ─── BUTTONS ─── */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -174,8 +164,6 @@ input, select, button { font-family: var(--font-body); }
     font-size: clamp(11px, 0.85vw, 13px);
 }
 
-/* ─── PAGE HEADER ─── */
-/* Spans full width, uses the same --gutter as everything else */
 .page-header {
     width: 100%;
     padding: clamp(28px, 3.5vw, 52px) var(--gutter) clamp(16px, 2vw, 28px);
@@ -269,8 +257,6 @@ input, select, button { font-family: var(--font-body); }
     margin-top: 4px;
 }
 
-/* ─── BROWSE LAYOUT ─── */
-/* Same --gutter keeps alignment consistent with page-header above */
 .browse-layout {
     width: 100%;
     padding: 0 var(--gutter) clamp(40px, 6vw, 80px);
@@ -279,7 +265,6 @@ input, select, button { font-family: var(--font-body); }
     align-items: flex-start;
 }
 
-/* ─── FILTER SIDEBAR ─── */
 .filter-sidebar {
     width: var(--sidebar-width);
     flex-shrink: 0;
@@ -424,7 +409,6 @@ input, select, button { font-family: var(--font-body); }
     color: var(--yellow-500);
 }
 
-/* ─── CIPHER CONTENT AREA ─── */
 .cipher-content {
     flex: 1;
     min-width: 0;
@@ -541,15 +525,12 @@ input, select, button { font-family: var(--font-body); }
     font-family: var(--font-mono);
 }
 
-/* ─── CIPHER CARDS GRID ─── */
-/* Cards fill all available space and auto-size based on viewport */
 .cipher-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(clamp(240px, 22vw, 360px), 1fr));
     gap: clamp(10px, 1.2vw, 16px);
 }
 
-/* ─── CIPHER CARD ─── */
 .cipher-card {
     background: var(--bg-surface);
     border: 1px solid var(--border-default);
@@ -675,7 +656,6 @@ input, select, button { font-family: var(--font-body); }
 
 .meta-icon { color: var(--yellow-600); font-size: 12px; }
 
-/* ─── SKELETON LOADERS ─── */
 .cipher-card.skeleton {
     pointer-events: none;
     min-height: 240px;
@@ -697,7 +677,6 @@ input, select, button { font-family: var(--font-body); }
     100% { background-position: 200% 0; }
 }
 
-/* ─── EMPTY STATE ─── */
 .empty-state {
     grid-column: 1 / -1;
     text-align: center;
@@ -726,7 +705,6 @@ input, select, button { font-family: var(--font-body); }
     margin-bottom: 24px;
 }
 
-/* ─── PAGINATION ─── */
 .pagination {
     display: flex;
     align-items: center;
@@ -782,7 +760,6 @@ input, select, button { font-family: var(--font-body); }
     color: #020617;
 }
 
-/* ─── FOOTER ─── */
 .footer {
     background: rgba(30, 41, 59, 0.5);
     border-top: 1px solid var(--border-default);
@@ -838,7 +815,6 @@ input, select, button { font-family: var(--font-body); }
     font-size: clamp(12px, 0.9vw, 14px);
 }
 
-/* ─── MOBILE — only structural switches, all sizing stays fluid ─── */
 @media (max-width: 768px) {
     .nav-links {
         position: fixed;
@@ -900,7 +876,6 @@ input, select, button { font-family: var(--font-body); }
     border-color: rgba(16, 185, 129, 0.8);
 }
 
-/* Image badge */
 .badge-image {
     display: inline-flex;
     align-items: center;
@@ -910,7 +885,6 @@ input, select, button { font-family: var(--font-body); }
     border: 1px solid rgba(139, 92, 246, 0.25);
 }
 
-/* Solved badge */
 .badge-solved {
     display: inline-flex;
     align-items: center;

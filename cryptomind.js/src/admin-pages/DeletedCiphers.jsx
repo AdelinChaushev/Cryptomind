@@ -123,7 +123,7 @@ const DeletedCiphers = () => {
                         </p>
                     </div>
 
-                    {/* Toolbar */}
+                    
                     <div className="table-toolbar">
                         <div className="toolbar-left">
                             <div className="search-input-wrap">
@@ -199,7 +199,7 @@ const DeletedCiphers = () => {
                         </div>
                     </div>
 
-                    {/* Table */}
+                    
                     {error ? (
                         <div className="data-table-wrapper">
                             <div className="empty-state">
@@ -289,12 +289,7 @@ const DeletedCiphers = () => {
                                                     >
                                                         Възстанови
                                                     </button>
-                                                    {/* <button
-                                                        className="btn btn-danger btn-sm"
-                                                        onClick={() => handlePermanentDelete(cipher.id, cipher.title)}
-                                                    >
-                                                        Delete Forever
-                                                    </button> */}
+                                                  
                                                 </div>
                                             </td>
                                         </tr>
@@ -306,7 +301,7 @@ const DeletedCiphers = () => {
                 </div>
             </main>
 
-            {/* Restore Confirmation Modal */}
+            
             {restoreModal.open && (
                 <div className="modal-backdrop" onClick={() => setRestoreModal({ open: false, cipher: null })}>
                     <div className="modal-box" onClick={(e) => e.stopPropagation()}>
@@ -322,7 +317,7 @@ const DeletedCiphers = () => {
                 </div>
             )}
 
-            {/* Rename Modal (title conflict) */}
+            
             {renameModal.open && (
                 <div className="modal-backdrop" onClick={() => setRenameModal({ open: false, cipher: null, newTitle: '' })}>
                     <div className="modal-box" onClick={(e) => e.stopPropagation()}>

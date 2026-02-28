@@ -1,7 +1,7 @@
 import "../styles/banned.css";
 import { useContext } from "react";
 import { AuthorizationContext } from "../App";
-// ─── Background ───────────────────────────────────────────────────────────────
+
 function BannedBackground() {
     return (
         <>
@@ -11,7 +11,6 @@ function BannedBackground() {
     );
 }
 
-// ─── Icon ─────────────────────────────────────────────────────────────────────
 function BannedIcon() {
     return (
         <div className="banned-icon__wrap">
@@ -20,7 +19,6 @@ function BannedIcon() {
     );
 }
 
-// ─── Status Badge ─────────────────────────────────────────────────────────────
 function BannedStatusBadge() {
     return (
         <div className="banned-status-badge">
@@ -30,7 +28,7 @@ function BannedStatusBadge() {
     );
 }
 
-// ─── Heading ──────────────────────────────────────────────────────────────────
+
 function BannedHeading() {
     return (
         <>
@@ -47,8 +45,7 @@ function BannedHeading() {
     );
 }
 
-// ─── Info Row ─────────────────────────────────────────────────────────────────
-// Renders a single key → value row inside the info card.
+
 function BannedInfoRow({ label, value, valueStyle }) {
     return (
         <div className="banned-info-row">
@@ -60,8 +57,7 @@ function BannedInfoRow({ label, value, valueStyle }) {
     );
 }
 
-// ─── Info Card ────────────────────────────────────────────────────────────────
-// Shows account status details in a terminal-style card.
+
 function BannedInfoCard() {
     const { state,setState} = useContext(AuthorizationContext)
     return (
@@ -101,34 +97,9 @@ function BannedInfoCard() {
     );
 }
 
-// ─── Actions ──────────────────────────────────────────────────────────────────
-function BannedActions() {
-    return (
-        <></>
-        // <div className="banned-actions">
-        //     <a href="mailto:support@cryptomind.bg" className="banned-actions__btn-primary">
-        //         Свържи се с нас
-        //     </a>
-        //     <a href="/" className="banned-actions__btn-ghost">
-        //         Начална страница
-        //     </a>
-        // </div>
-    );
-}
 
-// ─── Footer Note ──────────────────────────────────────────────────────────────
-function BannedFooterNote() {
-    return (
-        <></>
-        // <p className="banned-footer-note">
-        //     Смяташ, че е грешка? Изпрати имейл на{" "}
-        //     <a href="mailto:support@cryptomind.bg" className="banned-footer-note__link">
-        //         support@cryptomind.bg
-        //     </a>
-        //     {" "}с темата „Обжалване на блокиране".
-        // </p>
-    );
-}
+
+
 
 // ─── Page Root ────────────────────────────────────────────────────────────────
 export default function BannedPage() {
@@ -141,8 +112,6 @@ export default function BannedPage() {
                 <BannedStatusBadge />
                 <BannedHeading />
                 <BannedInfoCard />
-                <BannedActions />
-                <BannedFooterNote />
             </div>
         </div>
     );

@@ -31,7 +31,7 @@ import NotificationsPage from './notifications/NotificationsPage.jsx';
 import { useNotifications } from './notifications/UseNotifications';
 import ToastContainer from './notifications/ToastContainer';
 import { ErrorProvider } from "./ErrorContext";
-
+import PageTransition from "./PageTransition";
 import AccountInfo from './account-page/AccountInfo.jsx';
 export const AuthorizationContext = createContext({roles : [], isLoggedIn: false , isBanned : false , bannedMessage : ""});
 export const NotificationContext = createContext(null);
@@ -71,6 +71,7 @@ function App() {
     <AuthorizationContext.Provider value={{ state, setState }}>
     <ErrorProvider>
     <NotificationContext.Provider value={notifications}>
+     <PageTransition>
     <Routes >
       <Route path="/banned" element={<RequireNotBanned><BannedPage/></RequireNotBanned>} />
       <Route path="*" element={<NotFoundPage />} />
@@ -96,10 +97,9 @@ function App() {
         <Route path="admin/users" element={<RequireAuth allowedRoles="Admin" ><UsersManagement /></RequireAuth>} />
         <Route path="admin/deleted-ciphers" element={<RequireAuth allowedRoles="Admin" ><DeletedCiphers /></RequireAuth>} />
         {!state.isLoggedIn ?(<Route index element={<Home/>} />) : (<Route index element={<RequireAuth ><CipherBrowsePage/></RequireAuth>}  />)}  
-        
-        
       </Route>
     </Routes>
+    </PageTransition> 
     <ToastContainer
             toasts={notifications.toasts}
             onDismiss={notifications.dismissToast}

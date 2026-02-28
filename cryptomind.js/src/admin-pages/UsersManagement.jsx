@@ -153,7 +153,7 @@ const UsersManagement = () => {
                         </p>
                     </div>
 
-                    {/* Filters */}
+                   
                     <div className="table-toolbar">
                         <div className="toolbar-left">
                             <div className="filter-tabs">
@@ -204,7 +204,7 @@ const UsersManagement = () => {
                         </div>
                     </div>
 
-                    {/* Table */}
+                   
                     {error ? (
                         <div className="data-table-wrapper">
                             <div className="empty-state">
@@ -293,7 +293,7 @@ const UsersManagement = () => {
                 </div>
             </main>
 
-            {/* Ban Modal */}
+            
             {banModal.open && (
                 <div className="modal-backdrop" onClick={closeBanModal}>
                     <div className="modal-box" onClick={(e) => e.stopPropagation()}>

@@ -10,7 +10,7 @@ const AnswerCard = ({
     rejectionReason,
     pointsEarned,
     onViewCipher,
-    
+
 }) => {
     const isCipherRemoved = status === 'cipherdeleted';
      console.log(isCipherRemoved)
@@ -35,7 +35,7 @@ const AnswerCard = ({
     return (
         <div className={`submission-card ${isCipherRemoved ? 'submission-card--deleted' : ''}`}>
 
-            {/* Header */}
+          
             <div className="card-header">
                 <div className="card-title-group">
                     <span className={`card-title ${isCipherRemoved ? 'card-title--deleted' : ''}`}>
@@ -48,7 +48,7 @@ const AnswerCard = ({
                 </span>
             </div>
 
-            {/* Meta */}
+            
             <div className="card-meta">
                 <span className="meta-item">Предложен: {suggestedAt}</span>
 
@@ -67,12 +67,12 @@ const AnswerCard = ({
                 )}
             </div>
 
-            {/* Description */}
+            
             <p className={`card-description ${descriptionBorderClass}`}>
                 {description}
             </p>
 
-            {/* Rejection notice */}
+            
             {status === 'rejected' && rejectionReason && (
                 <div className="rejection-notice">
                     <span className="rejection-icon">⚠</span>
@@ -82,7 +82,7 @@ const AnswerCard = ({
                 </div>
             )}
 
-            {/* Cipher removed notice */}
+            
             {isCipherRemoved && (
                 <div className="deletion-notice">
                     <span className="deletion-notice__label">Шифърът е премахнат от администратор</span>
@@ -94,7 +94,7 @@ const AnswerCard = ({
                 </div>
             )}
 
-            {/* Footer */}
+            
             {!isCipherRemoved && (
                 <div className="card-footer">
                     <div className="card-footer-left">
@@ -102,13 +102,13 @@ const AnswerCard = ({
                             <span className="points-badge">+{pointsEarned} т.</span>
                         )}
                     </div>
-                   
+
                     <div className="card-footer-right">
-                        
+
                             <button className="btn-card-action" onClick={ onViewCipher}>
                                 Виж шифъра
                             </button>
-                        
+
                     </div>
                 </div>
             )}

@@ -1,10 +1,5 @@
-/* ============================================================
-   cipher-review.css
-   CryptoMind — Cipher Review / Approval Page
-============================================================ */
 @import './admin-base.css';
 
-/* ─── REVIEW LAYOUT ─── */
 .review-layout {
     display: grid;
     grid-template-columns: 1fr 320px;
@@ -35,7 +30,6 @@
     }
 }
 
-
 .review-card-title-row {
     display: flex;
     align-items: center;
@@ -59,7 +53,6 @@
     color: var(--violet-400);
 }
 
-/* ─── CIPHER TEXT DISPLAY ─── */
 .cipher-text-label {
     font-family: var(--font-mono);
     font-size: 9px;
@@ -85,7 +78,6 @@
     letter-spacing: 0.04em;
 }
 
-/* Enhanced prominent cipher text display */
 .cipher-text-display.prominent {
     font-size: 13px;
     font-weight: 600;
@@ -122,7 +114,6 @@
     color: var(--text-secondary);
 }
 
-/* ─── IMAGE PREVIEW ─── */
 .cipher-image-preview {
     margin-top: 14px;
 }
@@ -143,7 +134,6 @@
     font-family: var(--font-mono);
 }
 
-/* ─── SOLUTION DISPLAY ─── */
 .solution-display {
     background: var(--emerald-dim);
     border: 1px solid rgba(16, 185, 129, 0.25);
@@ -157,7 +147,6 @@
     box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.05);
 }
 
-/* ─── ML RESULT GRID ─── */
 .ml-result-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -229,7 +218,6 @@
     text-align: right;
 }
 
-/* ─── LLM SECTION ─── */
 .llm-trigger {
     display: flex;
     flex-direction: column;
@@ -263,7 +251,6 @@
     gap: 16px;
 }
 
-/* Recommendation Banner */
 .llm-recommendation-banner {
     display: flex;
     align-items: flex-start;
@@ -335,7 +322,6 @@
     line-height: 1.55;
 }
 
-/* Analysis Grid */
 .llm-analysis-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -362,7 +348,6 @@
     gap: 10px;
 }
 
-/* Issues List */
 .llm-issues-list {
     display: flex;
     flex-direction: column;
@@ -409,7 +394,6 @@
     border-left: 3px solid var(--border-yellow);
 }
 
-/* ─── TAG CLOUD ─── */
 .tag-cloud {
     display: flex;
     flex-wrap: wrap;
@@ -440,7 +424,6 @@
     color: var(--yellow-500);
 }
 
-/* ─── CHALLENGE TYPE TOGGLE ─── */
 .type-toggle {
     display: flex;
     flex-direction: column;
@@ -503,7 +486,6 @@
     letter-spacing: 0.06em;
 }
 
-/* ─── PERMISSION TOGGLES ─── */
 .permission-toggle {
     display: flex;
     align-items: center;
@@ -525,7 +507,6 @@
     color: var(--text-primary);
 }
 
-/* ─── REJECT FORM ─── */
 .reject-section {
     display: flex;
     flex-direction: column;
