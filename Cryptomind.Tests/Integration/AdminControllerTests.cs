@@ -407,7 +407,7 @@ namespace Cryptomind.Tests.Integration
         public async Task UpdateCipher_NonExistentId_Returns404()
         {
             var adminClient = await GetAuthenticatedAdminClientAsync();
-            var model = new { title = "New Title", description = "New desc" };
+            var model = new { title = "New Title"};
             var response = await adminClient.PutAsJsonAsync("/api/admin/cipher/99999/update", model);
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
@@ -417,7 +417,7 @@ namespace Cryptomind.Tests.Integration
         {
             var cipher = await SeedApprovedCipherAsync();
             var adminClient = await GetAuthenticatedAdminClientAsync();
-            var model = new { title = $"Updated_{Guid.NewGuid():N}".Substring(0, 20), description = "Updated desc" };
+            var model = new { title = $"Updated_{Guid.NewGuid():N}".Substring(0, 20)};
             var response = await adminClient.PutAsJsonAsync($"/api/admin/cipher/{cipher.Id}/update", model);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
         }

@@ -372,7 +372,12 @@ namespace Cryptomind.Core.Services
 
 			if (model.TagIds != null && model.TagIds.Count > 0)
 				await DefineTagsAsync(cipher, model.TagIds.ToList());
-			
+			else
+			{
+				cipher.CipherTags = new HashSet<CipherTag>();
+
+            }
+
 
 				await cipherRepo.UpdateAsync(cipher);
 
