@@ -58,7 +58,7 @@ const SubmitCipherPage = () => {
             setOcrFailed(false);
         })
         .catch(e => {
-            setError(e.response?.data?.error || 'OCR failed');
+            setError(e.response?.data?.error || 'OCR се провали');
             setOcrFailed(true);
         })
         .finally(() => setOcrLoading(false));
@@ -103,10 +103,11 @@ const SubmitCipherPage = () => {
         })
         .catch(e => {
             setSubmitted(false);
-            console.error('Submission error:', e.response?.data);
+            console.error('Грешка при изпращане:', e.response?.data);
             const errorMsg = e.response?.data?.error
-                          || e.response?.data?.title
-                          || "An unexpected error occurred.";
+                          || e.response?.data?.errors.Title == "The Title field is required." && "Полетo заглавие е задължително."
+                          || "Възникна неочаквана грешка.";
+                          
             setError(errorMsg);
         }).finally(() => setIsSubmitting(false));
     };

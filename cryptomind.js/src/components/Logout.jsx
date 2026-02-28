@@ -22,7 +22,7 @@ export default function useLogout() {
             window.location.href = "/";
 
         } catch (error) {
-            setError(error.response?.data?.error ?? "Logout failed");
+            setError(error.response?.data?.error ?? "Неуспешно излизане");
         }
     };
 

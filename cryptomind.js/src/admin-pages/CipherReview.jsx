@@ -88,7 +88,7 @@ const CipherReview = () => {
                 switch (status) {
                     case 404:
                         setLocalError('Шифърът не е намерен');
-                        navigate('/not-found');
+                      //  navigate('/not-found');
                         break;
                     default:
                         setLocalError(serverMessage || 'Неуспешно зареждане на шифъра');
@@ -96,7 +96,7 @@ const CipherReview = () => {
                         break;    
                 };
                 console.error('Failed to fetch cipher:', err);
-                setLocalError(err.response?.data?.message || err.message);
+                setLocalError(err.response?.data?.error || err.message);
             })
             .finally(() => setLoading(false));
         };

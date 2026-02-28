@@ -40,16 +40,12 @@ export default function Register() {
          }).then(e => 
           {console.log(e.data)
           navigate('/');
-          setState({roles: ["User"], isLoggedIn: true})
+          setState({roles: e.data, isLoggedIn: true})
          }).catch(e => {
     const data = e.response?.data;
 
-    if (data?.errors) {
-        const raw =
-            (typeof data === 'string' ? data : null) ||
-            data?.error ||
-            data?.message ||
-            'Регистрацията е неуспешна. Моля, проверете въведените данни.';
+   if (data?.errors) {
+        const raw = Object.values(data.errors)[0][0];
         setError(errorTranslations[raw] || raw);
         return;
     }
