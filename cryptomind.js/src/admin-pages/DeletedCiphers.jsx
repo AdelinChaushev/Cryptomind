@@ -96,7 +96,7 @@ const DeletedCiphers = () => {
             fetchCiphers();
         } catch (err) {
             console.error('Restore with rename error:', err);
-            setGlobalError(`Неуспешно възстановяване: ${err.response?.data?.message || err.message}`);
+            setGlobalError(`Неуспешно възстановяване: ${err.response?.data?.error}`);
         }
     }, [renameModal, fetchCiphers]);
 

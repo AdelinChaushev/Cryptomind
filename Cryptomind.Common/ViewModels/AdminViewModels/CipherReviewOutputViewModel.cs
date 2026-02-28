@@ -7,6 +7,7 @@
 		public bool IsImage { get; set; }
 		public string SubmittedBy { get; set; }
 		public string? SubmittedAt { get; set; }
+		public bool ChallengeType { get; set; }
 		public int PercentageOfConfidence { get; set; }
 		public string CipherType { get; set; }
 		public bool IsLLMRecommended { get; set; }
