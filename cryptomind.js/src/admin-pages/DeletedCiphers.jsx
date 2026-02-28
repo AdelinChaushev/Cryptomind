@@ -7,7 +7,15 @@ import { useError } from '../ErrorContext.jsx';
 const API_BASE = 'http://localhost:5115/api/admin';
 
 axios.defaults.withCredentials = true;
-
+const AVAILABLE_TAGS = [          
+    { value: 1, label: 'Изображение',mapValue : 'Image'},
+    { value: 2, label: 'Пъзел', mapValue : 'Puzzle' },
+    { value: 3, label: 'Исторически',mapValue : 'Historical'},
+    { value: 4, label: 'Кратък',mapValue : 'Short'},
+    { value: 5, label: 'Дълъг' ,mapValue : 'Long'},
+    { value: 6, label: 'Подходящ за начинаещи' , mapValue : 'Beginner_Friendly'},
+    { value: 7, label: 'Труден', mapValue : 'Tricky'},
+];
 const DeletedCiphers = () => {
     const [ciphers, setCiphers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -100,20 +108,6 @@ const DeletedCiphers = () => {
         }
     }, [renameModal, fetchCiphers]);
 
-    // Permanently delete
-    // const handlePermanentDelete = useCallback(async (id, title) => {
-    //     if (!window.confirm(`PERMANENTLY delete cipher "${title}"? This action cannot be undone!`)) return;
-
-    //     try {
-    //         await axios.delete(`${API_BASE}/cipher/${id}/permanent`);
-    //         alert('Cipher permanently deleted');
-    //         fetchCiphers();
-    //     } catch (err) {
-    //         console.error('Permanent delete error:', err);
-    //         alert(`Failed to delete: ${err.response?.data?.message || err.message}`);
-    //     }
-    // }, [fetchCiphers]);
-
     return (
         <div className="admin-shell">
             <AdminSidebar activePage="deleted-ciphers" />
@@ -144,8 +138,52 @@ const DeletedCiphers = () => {
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                             </div>
+                             <div className="filter-tabs">
+                               
+                                <button 
+                                    className={`filter-tab${filters.challengeType === 0 ? ' active' : ''}`}
+                                    onClick={() => setFilters(prev => ({
+                                        ...prev,
+                                        challengeType : 0
+                                    }))}
+                                >
+                                    Стандартни
+                                </button>
+                                <button 
+                                    className={`filter-tab${filters.challengeType === 1 ? ' active' : ''}`}
+                                    onClick={() => setFilters(prev => ({ ...prev,
+                                        challengeType : 1}))}
+                                >
+                                    Експериментлани
+                                </button>
+                            </div>
                         </div>
                         <div className="toolbar-right">
+
+                               <select 
+                                className="form-select" 
+                                style={{ width: '140px' }}
+                                value={filters.tags[0]}
+                                onChange={ e => setFilters(prev => ({
+                                    ...prev,
+                                   tags : [parseInt(e.target.value)]
+
+                                }))}
+                               
+                            >
+                                <option value="0" onClick={e => 
+                                        setFilters(prev => (
+                                        { ...prev, tags : [tag.value]}))}>Никакъв</option>
+                                {AVAILABLE_TAGS.map((tag) => (
+                                    <option key={tag.value} value={tag.value} onClick={e =>
+                                      
+                                        setFilters(prev => (
+                                        { ...prev,
+                                         tags : [tag.value]}
+                                        ))}>{tag.label}</option>)
+                                )}
+                                
+                            </select>
                             <select 
                                 className="form-select" 
                                 style={{ width: '140px' }}
