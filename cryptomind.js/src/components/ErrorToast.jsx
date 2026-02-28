@@ -35,21 +35,10 @@ const CloseIcon = () => (
     </svg>
 );
 
-/**
- * ErrorToast component
- *
- * Usage:
- *   const [error, setError] = useState(null);
- *   <ErrorToast message={error} onDismiss={() => setError(null)} />
- *
- * To trigger:  setError("Something went wrong.")
- * To dismiss:  setError(null)   ← happens automatically after 5s too
- */
 export default function ErrorToast({ message, onDismiss, duration = TOAST_DURATION }) {
     const [visible, setVisible] = useState(false);
     const [dismissing, setDismissing] = useState(false);
 
-    // Animate in whenever a new message arrives
     useEffect(() => {
         if (!message) return;
         setDismissing(false);
@@ -65,7 +54,8 @@ export default function ErrorToast({ message, onDismiss, duration = TOAST_DURATI
             setVisible(false);
             setDismissing(false);
             onDismiss?.();
-        }, 300); // matches slide-out animation
+        }, 300); 
+
     }, [onDismiss]);
 
     if (!visible || !message) return null;
@@ -102,7 +92,6 @@ export default function ErrorToast({ message, onDismiss, duration = TOAST_DURATI
     );
 }
 
-// Styles are injected as a function so the duration CSS var stays in sync
 const styles = (duration) => `
     .error-toast {
         position: fixed;

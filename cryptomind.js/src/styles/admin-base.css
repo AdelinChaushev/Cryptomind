@@ -1,13 +1,7 @@
-/* ============================================================
-   admin-base.css
-   CryptoMind — Shared Admin Styles (imported by all admin pages)
-   Tone: Industrial / utilitarian. Data-dense. Not fancy.
-============================================================ */
-
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Sora:wght@300;400;500;600;700&family=Orbitron:wght@700;900&display=swap');
 
 :root {
-    /* ─── Core Palette ─── */
+
     --bg-primary:    #020617;
     --bg-surface:    #0c1428;
     --bg-elevated:   #1e293b;
@@ -39,26 +33,22 @@
     --border-yellow:  rgba(251, 191, 36, 0.25);
     --border-active:  rgba(251, 191, 36, 0.50);
 
-    /* ─── Typography ─── */
     --font-mono: 'Space Mono', monospace;
     --font-body: 'Sora', sans-serif;
     --font-display: 'Orbitron', monospace;
 
-    /* ─── Layout ─── */
     --sidebar-width:    220px;
     --topbar-height:    52px;
     --radius:           8px;
     --radius-sm:        5px;
     --transition:       0.15s ease;
 
-    /* ─── Admin specific status colors ─── */
     --status-pending:   #fbbf24;
     --status-approved:  #10b981;
     --status-rejected:  #f43f5e;
     --status-exp:       #a78bfa;
 }
 
-/* ─── RESET ─── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 a { text-decoration: none; color: inherit; }
@@ -75,14 +65,12 @@ body {
     min-height: 100vh;
 }
 
-/* ─── ADMIN LAYOUT SHELL ─── */
 .admin-shell {
     display: flex;
     min-height: 100vh;
     width: 100%;
 }
 
-/* ─── SIDEBAR ─── */
 .admin-sidebar {
     width: var(--sidebar-width);
     min-height: 100vh;
@@ -249,7 +237,6 @@ button.sidebar-link {
     letter-spacing: 0.06em;
 }
 
-/* ─── MAIN CONTENT AREA ─── */
 .admin-main {
     margin-left: var(--sidebar-width);
     flex: 1;
@@ -258,7 +245,6 @@ button.sidebar-link {
     flex-direction: column;
 }
 
-/* ─── TOPBAR ─── */
 .admin-topbar {
     height: var(--topbar-height);
     background: rgba(2, 6, 23, 0.85);
@@ -291,7 +277,6 @@ button.sidebar-link {
     gap: 10px;
 }
 
-/* ─── PAGE CONTENT ─── */
 .admin-content {
     padding: 28px;
     flex: 1;
@@ -315,7 +300,6 @@ button.sidebar-link {
     margin-top: 4px;
 }
 
-/* ─── SHARED TABLE STYLES ─── */
 .data-table-wrapper {
     background: var(--bg-surface);
     border: 1px solid var(--border-default);
@@ -362,7 +346,6 @@ button.sidebar-link {
     font-size: 11px;
 }
 
-/* ─── STATUS BADGES ─── */
 .badge {
     display: inline-flex;
     align-items: center;
@@ -427,7 +410,6 @@ button.sidebar-link {
 }
 .badge-admin::before { background: var(--orange-400); }
 
-/* ─── SHARED BUTTONS ─── */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -512,7 +494,6 @@ button.sidebar-link {
     background: rgba(255,255,255,0.03);
 }
 
-/* ─── FORM CONTROLS ─── */
 .form-input,
 .form-select,
 .form-textarea {
@@ -569,7 +550,6 @@ button.sidebar-link {
     gap: 4px;
 }
 
-/* ─── CARD ─── */
 .admin-card {
     background: var(--bg-surface);
     border: 1px solid var(--border-default);
@@ -594,7 +574,6 @@ button.sidebar-link {
     color: var(--text-tertiary);
 }
 
-/* ─── TOOLBAR (search/filter row) ─── */
 .table-toolbar {
     display: flex;
     align-items: center;
@@ -632,7 +611,6 @@ button.sidebar-link {
     width: 220px;
 }
 
-/* ─── EMPTY STATE ─── */
 .empty-state {
     display: flex;
     flex-direction: column;
@@ -661,7 +639,6 @@ button.sidebar-link {
     color: var(--text-dim);
 }
 
-/* ─── STAT CARD ─── */
 .stat-card {
     background: var(--bg-surface);
     border: 1px solid var(--border-default);
@@ -699,7 +676,6 @@ button.sidebar-link {
 .stat-card.accent-sky     { border-left: 3px solid var(--sky-400); }
 .stat-card.accent-violet  { border-left: 3px solid var(--violet-400); }
 
-/* ─── CONFIDENCE BAR ─── */
 .confidence-bar-wrap {
     display: flex;
     align-items: center;
@@ -728,7 +704,6 @@ button.sidebar-link {
     text-align: right;
 }
 
-/* ─── UTILITY ─── */
 .text-yellow  { color: var(--yellow-500); }
 .text-emerald { color: var(--emerald-500); }
 .text-rose    { color: var(--rose-500); }
@@ -742,14 +717,12 @@ button.sidebar-link {
 .gap-8        { gap: 8px; }
 .gap-12       { gap: 12px; }
 
-/* ─── DIVIDER ─── */
 .divider {
     height: 1px;
     background: var(--border-default);
     margin: 20px 0;
 }
 
-/* ─── FILTER TABS (shared across pages) ─── */
 .filter-tabs {
     display: flex;
     gap: 3px;
@@ -781,7 +754,6 @@ button.sidebar-link {
     color: var(--text-secondary);
 }
 
-/* ─── PAGINATION ─── */
 .pagination {
     display: flex;
     align-items: center;
@@ -829,7 +801,6 @@ button.sidebar-link {
     color: var(--yellow-500);
 }
 
-/* ─── ALERT/NOTICE ─── */
 .admin-notice {
     display: flex;
     align-items: flex-start;
@@ -866,7 +837,6 @@ button.sidebar-link {
     color: var(--rose-500);
 }
 
-/* ─── MODAL BACKDROP ─── */
 .modal-backdrop {
     position: fixed;
     inset: 0;
@@ -903,28 +873,20 @@ button.sidebar-link {
     margin-top: 20px;
 }
 
-/* ─── SCROLLBAR ─── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--border-active); }
 
-/* ============================================================
-   FLUID RESPONSIVE — admin-base.css
-   All sizing uses clamp() / vw / min() / % — no fixed px jumps
-============================================================ */
-
-/* ─── Fluid sidebar width — scales between 160px and 220px ─── */
 :root {
     --sidebar-width:    clamp(160px, 14vw, 220px);
     --topbar-height:    clamp(44px, 4vh, 52px);
     --admin-padding:    clamp(14px, 2.2vw, 28px);
 }
 
-/* ─── Main content uses fluid padding ─── */
 .admin-content {
     padding: var(--admin-padding);
-    /* Cap width on ultrawide so content doesn't stretch to 3000px */
+
     max-width: min(100%, 1600px);
 }
 
@@ -933,7 +895,6 @@ button.sidebar-link {
     height: var(--topbar-height);
 }
 
-/* ─── Page title scales with viewport ─── */
 .page-title {
     font-size: clamp(14px, 1.4vw, 18px);
 }
@@ -942,7 +903,6 @@ button.sidebar-link {
     font-size: clamp(11px, 1vw, 13px);
 }
 
-/* ─── Stat card values scale fluidly ─── */
 .stat-card-value {
     font-size: clamp(18px, 2vw, 26px);
 }
@@ -951,13 +911,11 @@ button.sidebar-link {
     padding: clamp(12px, 1.2vw, 20px) clamp(14px, 1.5vw, 20px);
 }
 
-/* ─── Stats grid — auto columns scale with viewport ─── */
 .stats-grid {
     grid-template-columns: repeat(auto-fill, minmax(clamp(140px, 14vw, 200px), 1fr));
     gap: clamp(8px, 1vw, 14px);
 }
 
-/* ─── Table cells scale ─── */
 .data-table th {
     font-size: clamp(8px, 0.65vw, 9px);
     padding: clamp(8px, 0.7vw, 10px) clamp(10px, 1vw, 16px);
@@ -968,7 +926,6 @@ button.sidebar-link {
     padding: clamp(9px, 0.8vw, 11px) clamp(10px, 1vw, 16px);
 }
 
-/* ─── Table scrolls horizontally instead of breaking ─── */
 .data-table-wrapper {
     overflow-x: auto;
 }
@@ -976,7 +933,6 @@ button.sidebar-link {
     min-width: min(600px, 100%);
 }
 
-/* ─── Buttons scale ─── */
 .btn {
     font-size: clamp(10px, 0.9vw, 12px);
     padding: clamp(6px, 0.6vw, 8px) clamp(10px, 1.1vw, 16px);
@@ -988,14 +944,12 @@ button.sidebar-link {
     font-size: clamp(9px, 0.75vw, 10px);
 }
 
-/* ─── Sidebar collapses when viewport is narrow ─── */
-/* Uses em-based query so it respects user font-size preferences */
-@media (max-width: 64em) {  /* ~1024px */
+@media (max-width: 64em) {  
     .admin-sidebar {
         transform: translateX(-100%);
         transition: transform 0.25s ease, box-shadow 0.25s ease;
         z-index: 200;
-        /* Keep fluid width but override so it doesn't shrink too small */
+
         width: clamp(200px, 60vw, 260px);
     }
 
@@ -1017,7 +971,6 @@ button.sidebar-link {
         margin-left: 0;
     }
 
-    /* Hamburger button */
     .sidebar-toggle-btn {
         display: flex !important;
         align-items: center;
@@ -1043,7 +996,6 @@ button.sidebar-link {
         height: clamp(14px, 1.3vw, 16px);
     }
 
-    /* Toolbar wraps */
     .table-toolbar {
         flex-direction: column;
         align-items: flex-start;
@@ -1060,8 +1012,7 @@ button.sidebar-link {
 
 .sidebar-toggle-btn { display: none; }
 
-/* ─── Filter tabs scroll on narrow viewports ─── */
-@media (max-width: 40em) {  /* ~640px */
+@media (max-width: 40em) {  
     .filter-tabs {
         overflow-x: auto;
         flex-wrap: nowrap;
@@ -1085,3 +1036,4 @@ button.sidebar-link {
 body {
     overflow-x: hidden;
 }
+
