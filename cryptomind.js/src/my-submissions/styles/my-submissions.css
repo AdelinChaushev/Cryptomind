@@ -555,7 +555,7 @@ body {
 
 .card-title--deleted {
     color: var(--text-tertiary);
-    text-decoration: line-through;
+    
 }
 
 .border-deleted {
@@ -603,21 +603,17 @@ body {
 }
 
 
-/* ----------------------------------------------------------------
-   Stats strip — grey chip value for "Removed" count
-   ---------------------------------------------------------------- */
 .stat-chip-value.grey {
     color: #9ca3af;
 }
 .submission-card--deleted {
     background-color: var(--bg-primary);
-    border-left-color: #4b5563;   /* muted grey border, not rose/emerald */
+    border-left-color: #4b5563;  
     opacity: 0.72;
 }
 
 .card-title--deleted {
     color: var(--text-tertiary);
-    text-decoration: line-through;
 }
 
 .border-deleted {
@@ -644,7 +640,7 @@ body {
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.06em;
-    text-transform: uppercase;
+     text-transform: uppercase; 
     color: #9ca3af;
     margin-bottom: 6px;
     font-family: 'Space Mono', monospace;
