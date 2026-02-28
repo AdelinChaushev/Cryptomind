@@ -35,13 +35,7 @@ function ProfileCard({ user, onDeactivate, deactivating }) {
                         <div className="meta-value">{user.email}</div>
                     </div>
                 </div>
-                {/* <div className="meta-row">
-                    <span className="meta-icon">📅</span>
-                    <div className="meta-content">
-                        <div className="meta-label">Член от</div>
-                        <div className="meta-value">{formatDate(user.registeredAt)}</div>
-                    </div>
-                </div> */}
+               
                 <div className="meta-row">
                     <span className="meta-icon">🔐</span>
                     <div className="meta-content">

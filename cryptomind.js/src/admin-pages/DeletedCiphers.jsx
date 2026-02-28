@@ -126,6 +126,25 @@ const DeletedCiphers = () => {
                     
                     <div className="table-toolbar">
                         <div className="toolbar-left">
+                            <div className="filter-tabs">
+                               
+                                <button 
+                                    className={`filter-tab${filters.challengeType === 0 ? ' active' : ''}`}
+                                    onClick={() => setFilters(prev => ({
+                                        ...prev,
+                                        challengeType : 0
+                                    }))}
+                                >
+                                    Стандартен
+                                </button>
+                                <button 
+                                    className={`filter-tab${filters.challengeType === 1 ? ' active' : ''}`}
+                                    onClick={() => setFilters(prev => ({ ...prev,
+                                        challengeType : 1}))}
+                                >
+                                    Експериментален
+                                </button>
+                            </div>
                             <div className="search-input-wrap">
                                 <svg className="search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                                     <circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/>
@@ -138,25 +157,7 @@ const DeletedCiphers = () => {
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                             </div>
-                             <div className="filter-tabs">
-                               
-                                <button 
-                                    className={`filter-tab${filters.challengeType === 0 ? ' active' : ''}`}
-                                    onClick={() => setFilters(prev => ({
-                                        ...prev,
-                                        challengeType : 0
-                                    }))}
-                                >
-                                    Стандартни
-                                </button>
-                                <button 
-                                    className={`filter-tab${filters.challengeType === 1 ? ' active' : ''}`}
-                                    onClick={() => setFilters(prev => ({ ...prev,
-                                        challengeType : 1}))}
-                                >
-                                    Експериментлани
-                                </button>
-                            </div>
+                             
                         </div>
                         <div className="toolbar-right">
 
