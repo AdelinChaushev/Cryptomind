@@ -193,6 +193,7 @@ const ManageApprovedCiphers = () => {
                                 value={tagsFilter}
                                 onChange={(e) => setTagsFilter(parseInt(e.target.value))}
                             >
+                                <option value="0" onClick={e => setTagsFilter(0) }>Никакъв</option>
                                 {AVAILABLE_TAGS.map((tag) => (
                                     <option key={tag.value} value={tag.value} onClick={e => setTagsFilter(tag.value)}>{tag.label}</option>)
                                 )}
