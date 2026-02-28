@@ -1,10 +1,5 @@
-/* ============================================================
-   pending-ciphers.css
-   CryptoMind — Pending Cipher Submissions Page
-============================================================ */
 @import './admin-base.css';
 
-/* ─── CIPHER PREVIEW ─── */
 .cipher-preview {
     font-family: var(--font-mono);
     font-size: 10px;
@@ -15,7 +10,6 @@
     white-space: nowrap;
 }
 
-/* ─── HAS IMAGE indicator ─── */
 .image-tag {
     display: inline-flex;
     align-items: center;
@@ -29,7 +23,6 @@
     border-radius: 3px;
 }
 
-/* ─── FILTER TABS ─── */
 .filter-tabs {
     display: flex;
     gap: 4px;
@@ -61,7 +54,6 @@
     color: var(--text-secondary);
 }
 
-/* ─── SUBMISSION TYPE ─── */
 .type-cell {
     display: flex;
     align-items: center;
@@ -71,7 +63,6 @@
     color: var(--text-secondary);
 }
 
-/* ─── ML CONFIDENCE INLINE ─── */
 .confidence-inline {
     display: flex;
     flex-direction: column;
@@ -121,7 +112,6 @@
 .confidence-mid .confidence-bar-fill { background: var(--yellow-500); }
 .confidence-mid .confidence-pct { color: var(--yellow-500); }
 
-/* ─── FLUID RESPONSIVE ─── */
 .cipher-preview {
     max-width: clamp(100px, 15vw, 200px);
     font-size: clamp(9px, 0.8vw, 10px);
@@ -145,3 +135,4 @@
         flex-wrap: nowrap;
     }
 }
+

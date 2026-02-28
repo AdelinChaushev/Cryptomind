@@ -16,7 +16,6 @@ const CheckIcon = () => (
     </svg>
 );
 
-// challengeTypeDisplay is now a plain string from the backend e.g. "Standard" / "Experimental"
 const CHALLENGE_TYPE_BADGE = {
     Standard:     'badge-standard',
     Experimental: 'badge-experimental',
@@ -25,7 +24,7 @@ const CHALLENGE_TYPE_BADGE = {
 const CipherCard = ({ cipher }) => {
     if (!cipher) return null;
     const typeBadgeClass = CHALLENGE_TYPE_BADGE[cipher.challengeTypeDisplay ?? ''] || null;
-    
+
     return (
         <article className={`cipher-card ${cipher.alreadySolved ? 'cipher-card--solved' : ''}`} data-id={cipher.id}>
             <div className="card-header">

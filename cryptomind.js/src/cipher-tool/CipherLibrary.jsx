@@ -285,7 +285,7 @@ export default function CipherLibrary() {
       <div className="cl-scroll-bar" style={{ width: `${scrollPct}%` }} />
 
       <div className="cl">
-        {/* HERO */}
+        
         <div className="cl-hero">
           <div className="cl-hero-tag">// библиотека с шифри</div>
           <h1>ПЪЛНОТО РЪКОВОДСТВО ЗА<br/><span>КЛАСИЧЕСКИ ШИФРИ</span></h1>
@@ -295,7 +295,7 @@ export default function CipherLibrary() {
           </p>
         </div>
 
-        {/* STICKY FAMILY NAV */}
+      
         <nav className="cl-nav">
           <div className="cl-nav-inner">
             {FAMILIES.map(f => (
@@ -309,7 +309,7 @@ export default function CipherLibrary() {
           </div>
         </nav>
 
-        {/* FAMILY SECTIONS */}
+       
         {FAMILIES.map(fam => (
           <section key={fam.id} id={`fam-${fam.id}`} className="cl-family"
             style={{ "--fc": fam.color, "--fb": fam.color + "12" }}>

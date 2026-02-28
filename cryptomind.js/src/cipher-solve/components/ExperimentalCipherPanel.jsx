@@ -7,7 +7,7 @@ function ExperimentalCipherPanel({ onSubmit }) {
     const handleSubmit = async () => {
        const isSuccessful = await onSubmit.onSubmit(); 
     
-    // 2. ONLY show the success message if the parent returned true
+   
     if (isSuccessful) {
         setSubmitted(true);
         setTimeout(() => setSubmitted(false), 4000);

@@ -25,7 +25,7 @@ export default function Login() {
     }).then(res => {
       setState({isLoggedIn: true,roles: res.data});
      setTimeout(() => {
-            navigate('/banned');
+            navigate('/');
           }, 0); 
     } ).catch(error => {  
     if (error.response?.status === 403) {
