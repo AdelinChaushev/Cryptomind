@@ -12,8 +12,8 @@ const AnswerCard = ({
     onViewCipher,
     
 }) => {
-    const isCipherRemoved = status === 'cipher_removed';
-     
+    const isCipherRemoved = status === 'cipherdeleted';
+     console.log(isCipherRemoved)
     const statusClass =
         status === 'approved'        ? 'badge-approved'  :
         status === 'pending'         ? 'badge-pending'   :
@@ -102,6 +102,7 @@ const AnswerCard = ({
                             <span className="points-badge">+{pointsEarned} т.</span>
                         )}
                     </div>
+                   
                     <div className="card-footer-right">
                         
                             <button className="btn-card-action" onClick={ onViewCipher}>
