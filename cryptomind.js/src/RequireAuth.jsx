@@ -6,7 +6,7 @@ export default function RequireAuth({ allowedRoles = [], mustNotBeLogged = false
   const { state } = useContext(AuthorizationContext);
   const { isLoggedIn, roles } = state;
  console.log("isLoggedIn:", isLoggedIn, "roles:", roles, "allowedRoles:", allowedRoles);
-  if (!allowedRoles.length && roles.length) {
+  if (allowedRoles.length == 0 && roles.includes("Admin") ){
      return <Navigate to="/admin" replace />;
    }
   if (mustNotBeLogged && isLoggedIn) {

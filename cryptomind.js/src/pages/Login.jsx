@@ -34,7 +34,7 @@ export default function Login() {
         return;
     }
     setState({ isLoggedIn: false, roles: [] });
-    setError(error.response?.data?.title || 'Влизането е неуспешно. Моля, проверете данните си и опитайте отново.');
+    setError('Влизането е неуспешно. Моля, проверете данните си и опитайте отново.');
 });
     
    }

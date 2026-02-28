@@ -343,7 +343,7 @@ const ManageApprovedCiphers = () => {
                                     onChange={(e) => setEditTitle(e.target.value)}
                                 />
                             </div>
-
+                            { editModal.cipher.challengeType &&
                             <div className="form-group">
                                 <label className="form-label">Разрешения за AI помощ</label>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
@@ -378,7 +378,7 @@ const ManageApprovedCiphers = () => {
                                     </label>
                                 </div>
                             </div>
-
+                            }
                             <div className="form-group">
                                 <label className="form-label">Етикети</label>
                                 <div className="edit-tag-cloud" style={{ marginTop: '8px' }}>

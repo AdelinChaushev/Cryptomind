@@ -107,7 +107,7 @@ function NfActions() {
             <button className="nf-actions__btn-ghost" onClick={() => navigate(-1)}>
                 Назад
             </button>
-                {state.isLoggedIn && (
+                {state.isLoggedIn && !state.roles.includes("Admin") && (
             <Link to="/" className="nf-actions__btn-ghost">
                 Разгледай шифрите
             </Link>)}

@@ -104,7 +104,7 @@ function CipherSolvePage() {
         setResult(res.data ? "correct" : "incorrect");
         return true;
       } catch (e) {
-        setError(e.response?.data?.error || "Failed to submit answer.");
+        setError(e.response?.data?.error || "Изпращането на отговора не бе успешно.");
         return false;
       }
     } else if (cipher.challengeTypeDisplay === "Experimental") {
@@ -125,7 +125,7 @@ function CipherSolvePage() {
         setError(
           e.response?.data?.error ||
             e.response?.data?.title ||
-            "Failed to submit answer."
+            "Изпращането на отговора не бе успешно."
         );
         return false; // FAILURE
       }

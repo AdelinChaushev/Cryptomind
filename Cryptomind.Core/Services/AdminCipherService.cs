@@ -366,13 +366,15 @@ namespace Cryptomind.Core.Services
 				throw new ConflictException(CipherErrorConstants.HintExperimentalConflict);
 
 			cipher.Title = model.Title;
+			cipher.AllowTypeHint = model.AllowTypeHint;
 			cipher.AllowHint = model.AllowHint;
 			cipher.AllowSolution = model.AllowSolution;
 
 			if (model.TagIds != null && model.TagIds.Count > 0)
 				await DefineTagsAsync(cipher, model.TagIds.ToList());
+			
 
-			await cipherRepo.UpdateAsync(cipher);
+				await cipherRepo.UpdateAsync(cipher);
 
 			await notificationService.CreateAndSendNotification(
 				cipher.CreatedByUserId,
@@ -517,6 +519,7 @@ namespace Cryptomind.Core.Services
 					IsSolutionAllowed = cipher.AllowSolution,
 					Tags = cipher.CipherTags.Select(x => x.Tag.Type.ToString()).ToList(),
 					SubmittedBy = cipher.CreatedByUser.UserName,
+					ChallengeType = (int)cipher.ChallengeType == 0 ? true : false,
 					SubmittedAt = (int)cipher.Status == 1 ? (cipher.ApprovedAt?.ToString(DateFormat)) : (int)cipher.Status == 0 ? cipher.CreatedAt.ToString(DateFormat) : cipher.DeletedAt?.ToString(DateFormat),
 					CipherType = cipherType.HasValue ? CipherTypeMapperHelper.ToDisplayName(cipherType.Value) : null,
 					PercentageOfConfidence = (int)Math.Floor(mlData.Confidence * 100),
