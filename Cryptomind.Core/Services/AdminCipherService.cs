@@ -94,8 +94,8 @@ namespace Cryptomind.Core.Services
 		{
 			var result = await cipherRepo.GetAllAttached()
 				.Include(x => x.CipherTags)
-					.ThenInclude(x => x.Tag)
-		.Include(c => c.CreatedByUser)
+				.ThenInclude(x => x.Tag)
+		        .Include(c => c.CreatedByUser)
 				.Include(c => c.UserSolutions)
 		.Where(c => c.Status == ApprovalStatus.Approved && !c.IsDeleted)
 				.ToListAsync();
@@ -141,9 +141,11 @@ namespace Cryptomind.Core.Services
 		{
 			var result = await cipherRepo.GetAllAttached()
 		.Include(c => c.UserSolutions)
-				.Include(c => c.CreatedByUser)
-		.Where(c => c.IsDeleted)
-				.ToListAsync();
+		.Include(c => c.CreatedByUser)
+		.Include(c => c.CipherTags)
+        .ThenInclude(x => x.Tag)
+        .Where(c => c.IsDeleted)
+		.ToListAsync();
 
 			if (!result.Any())
 				return new List<CipherReviewOutputViewModel>();
