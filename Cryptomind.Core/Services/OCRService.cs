@@ -29,7 +29,12 @@ namespace Cryptomind.Core.Services.OCR
 				throw new CustomValidationException(CipherErrorConstants.ImageRequired);
 			try
 			{
-				return await SendOCRRequestAsync(imageFile, "ocr/extract");
+				var result = await SendOCRRequestAsync(imageFile, "ocr/extract");
+
+				if (string.IsNullOrEmpty(result.ExtractedText))
+					throw new Exception();
+
+				return result;
 			}
 			catch (Exception ex)
 			{
