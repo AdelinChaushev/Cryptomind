@@ -35,7 +35,10 @@ namespace Cryptomind.Core.Services
 			if (string.IsNullOrWhiteSpace(model.DecryptedText) && model.CipherType == null)
 				throw new ConflictException(CipherErrorConstants.UnknownCipherSolutionConflict);
 
-			if (model.EncryptedText != null && model.EncryptedText.Length >= 450)
+			if (string.IsNullOrEmpty(model.EncryptedText))
+				throw new ConflictException(CipherErrorConstants.EncryptedTextShouldNotBeEmpty);
+
+			if (model.EncryptedText.Length >= 450)
 				throw new CustomValidationException(CipherErrorConstants.MaxLengthExceeded);
 
 			Cipher? cipher = null;
@@ -79,7 +82,7 @@ namespace Cryptomind.Core.Services
 				}
 
 				encryptedTextForAnalysis = finalText;
-
+				
 				string imageFolderPath = Path.Combine(PathHelper.GetImagesBasePath(), "Ciphers");
 				Directory.CreateDirectory(imageFolderPath);
 				string originalExtension = Path.GetExtension(model.Image.FileName).ToLowerInvariant();
@@ -98,6 +101,9 @@ namespace Cryptomind.Core.Services
 
 				if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.EncryptedText == finalText) != null)
 					throw new ConflictException(CipherErrorConstants.DuplicateCipherContent);
+
+				if (string.IsNullOrEmpty(finalText))
+					throw new ConflictException(CipherErrorConstants.EncryptedTextShouldNotBeEmpty);
 
 				cipher = new ImageCipher()
 				{
