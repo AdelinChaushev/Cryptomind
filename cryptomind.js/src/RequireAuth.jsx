@@ -4,9 +4,10 @@ import { AuthorizationContext } from './App.jsx';
 
 export default function RequireAuth({ allowedRoles = [], mustNotBeLogged = false,children }) {
   const { state } = useContext(AuthorizationContext);
-  const { isLoggedIn, roles } = state;
+  const { isLoggedIn } = state;
+  const roles = Array.isArray(state.roles) ? state.roles : [];
  console.log("isLoggedIn:", isLoggedIn, "roles:", roles, "allowedRoles:", allowedRoles);
-  if (allowedRoles.length == 0 && roles.includes("Admin") ){
+  if (allowedRoles.length === 0 && roles.length != 0 &&roles.includes("Admin") ){
      return <Navigate to="/admin" replace />;
    }
   if (mustNotBeLogged && isLoggedIn) {
