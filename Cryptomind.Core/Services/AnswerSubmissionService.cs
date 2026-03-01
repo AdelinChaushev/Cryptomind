@@ -6,13 +6,15 @@ using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cryptomind.Core.Services
 {
 	public class AnswerSubmissionService(
 		IRepository<Cipher, int> cipherRepo,
-		IRepository<AnswerSuggestion, int> answerRepo) : IAnswerSubmissionService
+		IRepository<AnswerSuggestion, int> answerRepo,
+		UserManager<ApplicationUser> userManager) : IAnswerSubmissionService
 	{
 		private const string DateFormat = "ddd, dd MMM yyyy h:mm";
 
@@ -44,8 +46,16 @@ namespace Cryptomind.Core.Services
 			if (cipher.AnswerSuggestions.Any(x => x.UserId == userId &&
 				x.DecryptedText.Trim().ToLower() == dto.DecryptedText.Trim().ToLower()))
 				throw new ConflictException(CipherErrorConstants.DuplicateSuggestion);
+            var userNow = await userManager.FindByIdAsync(userId);
+            if (userNow == null)
+                throw new Exception(UserConstants.UserNotFound);
 
-			AnswerSuggestion answer = new AnswerSuggestion
+			if(!userNow.CipherAnswers.Any(c => c.CipherId == cipherId))
+			{
+				userNow.AttemptedCiphers += 1;
+
+			}
+            AnswerSuggestion answer = new AnswerSuggestion
 			{
 				UserId = userId,
 				CipherId = cipherId,

@@ -1,4 +1,5 @@
-﻿using Cryptomind.Common.Exceptions;
+﻿using Cryptomind.Common.Constants;
+using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.ViewModels.UserViewModels;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
@@ -17,7 +18,7 @@ namespace Cryptomind.Core.Services
 			var user = await userManager.FindByIdAsync(id);
 
 			if (user == null)
-				throw new NotFoundException("Потребителят не беше намерен");
+				throw new NotFoundException(UserConstants.UserNotFound);
 
 			return await userManager.GetRolesAsync(user);
 
@@ -37,7 +38,7 @@ namespace Cryptomind.Core.Services
 				.CountAsync(u => u.Score > user.Score && !u.IsDeactivated && !u.IsBanned) + 1;
 
 			if (user == null)
-				throw new NotFoundException("Потребителят не беше намерен");
+				throw new NotFoundException(UserConstants.UserNotFound);
 
 			foreach (var badge in user.Badges)
 			{
