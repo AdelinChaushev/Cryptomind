@@ -1,7 +1,4 @@
-/* ================================
-   my-submissions.css
-   CryptoMind — My Submissions Page
-================================ */
+
 
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Sora:wght@300;400;500;600;700&family=Orbitron:wght@700;900&display=swap');
 
@@ -61,7 +58,7 @@ body {
     min-height: 100vh;
 }
 
-/* ─── NAVBAR ─── */
+
 .navbar {
     position: sticky;
     top: 0;
@@ -143,14 +140,14 @@ body {
     transform: translateY(-1px);
 }
 
-/* ─── PAGE WRAPPER ─── */
+
 .page-wrapper {
     max-width: 1000px;
     margin: 0 auto;
     padding: 44px 24px 80px;
 }
 
-/* ─── PAGE HEADER ─── */
+
 .page-header { margin-bottom: 32px; }
 
 .breadcrumb {
@@ -179,7 +176,7 @@ body {
 .page-title span { color: var(--yellow-500); }
 .page-subtitle { font-size: 14px; color: var(--text-tertiary); }
 
-/* ─── STATS STRIP ─── */
+
 .stats-strip {
     display: flex;
     flex-wrap: wrap;
@@ -217,7 +214,7 @@ body {
 .stat-chip-value.emerald { color: var(--emerald-500); }
 .stat-chip-value.rose    { color: var(--rose-500); }
 
-/* ─── TABS ─── */
+
 .tabs-nav {
     display: flex;
     gap: 0;
@@ -265,11 +262,10 @@ body {
     color: var(--yellow-500);
 }
 
-/* ─── TAB CONTENT ─── */
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
-/* ─── SUBMISSION CARD ─── */
+
 .submission-card {
     background: var(--bg-surface);
     border: 1px solid var(--border-default);
@@ -301,7 +297,6 @@ body {
     line-height: 1.3;
 }
 
-/* ─── STATUS BADGES ─── */
 .status-badge {
     display: inline-flex;
     align-items: center;
@@ -342,7 +337,6 @@ body {
 }
 .status-rejected::before { background: var(--rose-500); }
 
-/* ─── CARD META ─── */
 .card-meta {
     display: flex;
     flex-wrap: wrap;
@@ -379,7 +373,7 @@ body {
     text-transform: uppercase;
 }
 
-/* ─── CARD DESCRIPTION ─── */
+
 .card-description {
     font-size: 13px;
     color: var(--text-tertiary);
@@ -397,7 +391,7 @@ body {
 .card-description.border-yellow  { border-left-color: rgba(251, 191, 36, 0.5); }
 .card-description.border-rose    { border-left-color: rgba(244, 63, 94, 0.5); }
 
-/* ─── REJECTION NOTICE ─── */
+
 .rejection-notice {
     display: flex;
     gap: 10px;
@@ -411,7 +405,7 @@ body {
 .rejection-text { font-size: 12px; color: var(--text-tertiary); line-height: 1.5; }
 .rejection-text strong { color: var(--rose-500); font-weight: 600; }
 
-/* ─── POINTS BADGE ─── */
+
 .points-badge {
     display: inline-flex;
     align-items: center;
@@ -427,7 +421,7 @@ body {
     letter-spacing: 0.04em;
 }
 
-/* ─── CARD FOOTER ─── */
+
 .card-footer {
     display: flex;
     align-items: center;
@@ -459,7 +453,7 @@ body {
     background: rgba(251, 191, 36, 0.05);
 }
 
-/* ─── EMPTY STATE ─── */
+
 .empty-state {
     display: flex;
     flex-direction: column;
@@ -516,7 +510,7 @@ body {
     box-shadow: 0 6px 16px rgba(251, 191, 36, 0.3);
 }
 
-/* ─── FOOTER ─── */
+
 .footer {
     border-top: 1px solid var(--border-default);
     padding: 28px 24px;
@@ -531,31 +525,23 @@ body {
 }
 .footer-text span { color: var(--yellow-500); }
 
-/* ─── RESPONSIVE ─── */
+
 @media (max-width: 640px) {
     .stats-strip { gap: 8px; }
     .card-footer { flex-direction: column; align-items: flex-start; }
     .tab-btn { padding: 10px 12px; font-size: 10px; gap: 6px; }
     .page-title { font-size: 21px; }
 }
-/* ================================================================
-   APPEND EVERYTHING BELOW TO YOUR EXISTING my-submissions.css
-   These are purely additive — nothing here overrides what exists.
-   ================================================================ */
 
-
-/* ----------------------------------------------------------------
-   Deleted card modifier
-   ---------------------------------------------------------------- */
 .submission-card--deleted {
     background-color: var(--bg-primary);
-    border-left-color: #4b5563;   /* muted grey border, not rose/emerald */
+    border-left-color: #4b5563;
     opacity: 0.72;
 }
 
 .card-title--deleted {
     color: var(--text-tertiary);
-    text-decoration: line-through;
+    
 }
 
 .border-deleted {
@@ -563,9 +549,7 @@ body {
 }
 
 
-/* ----------------------------------------------------------------
-   Deleted / Cipher Removed status badge
-   ---------------------------------------------------------------- */
+
 .badge-deleted {
     background-color: rgba(75, 85, 99, 0.15);
     color: #9ca3af;
@@ -573,9 +557,6 @@ body {
 }
 
 
-/* ----------------------------------------------------------------
-   Deletion notice block (inside card)
-   ---------------------------------------------------------------- */
 .deletion-notice {
     margin-top: 14px;
     padding: 12px 16px;
@@ -603,21 +584,17 @@ body {
 }
 
 
-/* ----------------------------------------------------------------
-   Stats strip — grey chip value for "Removed" count
-   ---------------------------------------------------------------- */
 .stat-chip-value.grey {
     color: #9ca3af;
 }
 .submission-card--deleted {
     background-color: var(--bg-primary);
-    border-left-color: #4b5563;   /* muted grey border, not rose/emerald */
+    border-left-color: #4b5563;  
     opacity: 0.72;
 }
 
 .card-title--deleted {
     color: var(--text-tertiary);
-    text-decoration: line-through;
 }
 
 .border-deleted {
@@ -644,7 +621,7 @@ body {
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.06em;
-    text-transform: uppercase;
+     text-transform: uppercase; 
     color: #9ca3af;
     margin-bottom: 6px;
     font-family: 'Space Mono', monospace;

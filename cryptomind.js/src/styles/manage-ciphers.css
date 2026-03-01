@@ -1,7 +1,3 @@
-/* ============================================================
-   manage-ciphers.css
-   CryptoMind — Manage Approved Ciphers Page
-============================================================ */
 @import './admin-base.css';
 
 .cipher-title-cell {
@@ -20,7 +16,6 @@
     white-space: nowrap;
 }
 
-/* Image tag indicator */
 .image-tag {
     display: inline-flex;
     align-items: center;
@@ -62,12 +57,10 @@
     color: var(--text-tertiary);
 }
 
-/* Modal visibility */
 .modal-backdrop {
     display: flex !important;
 }
 
-/* ─── EDIT MODAL SPECIFIC STYLES ─── */
 .modal-box-wide {
     max-width: 560px;
 }

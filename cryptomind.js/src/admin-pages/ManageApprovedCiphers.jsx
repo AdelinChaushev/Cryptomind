@@ -155,7 +155,7 @@ const ManageApprovedCiphers = () => {
                         <h1 className="page-title">Управление на шифри</h1>
                     </div>
 
-                    {/* Toolbar */}
+                   
                     <div className="table-toolbar">
                         <div className="toolbar-left">
                             <div className="filter-tabs">
@@ -193,6 +193,7 @@ const ManageApprovedCiphers = () => {
                                 value={tagsFilter}
                                 onChange={(e) => setTagsFilter(parseInt(e.target.value))}
                             >
+                                <option value="0" onClick={e => setTagsFilter(0) }>Никакъв</option>
                                 {AVAILABLE_TAGS.map((tag) => (
                                     <option key={tag.value} value={tag.value} onClick={e => setTagsFilter(tag.value)}>{tag.label}</option>)
                                 )}
@@ -213,7 +214,7 @@ const ManageApprovedCiphers = () => {
                         </div>
                     </div>
 
-                    {/* Table */}
+                    
                     {error ? (
                         <div className="data-table-wrapper">
                             <div className="empty-state">
@@ -327,7 +328,7 @@ const ManageApprovedCiphers = () => {
                 </div>
             </main>
 
-            {/* Edit Modal */}
+           
             {editModal.open && (
                 <div className="modal-backdrop" onClick={closeEditModal}>
                     <div className="modal-box modal-box-wide" onClick={(e) => e.stopPropagation()}>
@@ -343,7 +344,7 @@ const ManageApprovedCiphers = () => {
                                     onChange={(e) => setEditTitle(e.target.value)}
                                 />
                             </div>
-
+                            { editModal.cipher.challengeType &&
                             <div className="form-group">
                                 <label className="form-label">Разрешения за AI помощ</label>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
@@ -378,7 +379,7 @@ const ManageApprovedCiphers = () => {
                                     </label>
                                 </div>
                             </div>
-
+                            }
                             <div className="form-group">
                                 <label className="form-label">Етикети</label>
                                 <div className="edit-tag-cloud" style={{ marginTop: '8px' }}>
@@ -404,7 +405,7 @@ const ManageApprovedCiphers = () => {
                 </div>
             )}
 
-            {/* Delete Confirm Modal */}
+            
             {deleteModal.open && (
                 <div className="modal-backdrop" onClick={closeDeleteModal}>
                     <div className="modal-box" onClick={(e) => e.stopPropagation()}>

@@ -2,9 +2,8 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import "../styles/cipher-tool.css";
 
-// ─── КОНСТАНТИ ───────────────────────────────────────────────────────────────
 const ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const SIMPLE_SUB_KEY = "QWERTYUIOPASDFGHJKLZXCVBNM"; // фиксирано образователно съпоставяне
+const SIMPLE_SUB_KEY = "QWERTYUIOPASDFGHJKLZXCVBNM"; 
 
 const MORSE = {
   A:".-",B:"-...",C:"-.-.",D:"-..",E:".",F:"..-.",G:"--.",H:"....",I:"..",J:".---",
@@ -59,7 +58,7 @@ const FAMILIES = [
   },
 ];
 
-// ─── ЕНДЖИНИ ЗА ШИФРОВАНЕ ──────────────────────────────────────────────────
+
 function isLetter(ch) { return /[A-Za-z]/.test(ch); }
 function ai(ch) { return ALPHA.indexOf(ch.toUpperCase()); }
 
@@ -95,11 +94,11 @@ function stepTrithemius(ch, pos) {
     {shift, pos});
 }
 
-// ─── СЪЗДАВАНЕ НА ДАННИ ЗА ВИЗУАЛИЗАЦИЯ ───────────────────────────────────────
+
 function buildVizData(text, cipher, params) {
   const T = text.toUpperCase();
 
-  // ── ЗАМЕСТВАЩИ ──
+ 
   if (["caesar","rot13","atbash","simpleSubstitution"].includes(cipher)) {
     const steps = T.split("").map(ch => {
       if (cipher==="caesar")             return stepCaesar(ch, params.shift);
@@ -110,7 +109,7 @@ function buildVizData(text, cipher, params) {
     return { type:"sub", steps };
   }
 
-  // ── ПОЛИАЗБУЧНИ ──
+  
   if (["vigenere","autokey","trithemius"].includes(cipher)) {
     const kw = (params.keyword||"KEY").replace(/[^A-Za-z]/g,"").toUpperCase()||"KEY";
     const steps=[];
@@ -138,7 +137,7 @@ function buildVizData(text, cipher, params) {
     return { type:"poly", steps, keyword:kw };
   }
 
-  // ── ЖЕЛЕЗОПЪТНА ОГРАДА ──
+  
   if (cipher==="railFence") {
     const rails = params.rails||3;
     const assign=[];
@@ -155,7 +154,7 @@ function buildVizData(text, cipher, params) {
     return { type:"trans", subtype:"railFence", grid, readOrder, totalCols:T.length, rails };
   }
 
-  // ── КОЛОНЕН ──
+  
   if (cipher==="columnar") {
     const kw=(params.colKey||params.keyword||"CODE").replace(/[^A-Za-z]/g,"").toUpperCase().slice(0,8)||"CODE";
     const cols=kw.length, rows=Math.ceil(T.length/cols);
@@ -176,7 +175,7 @@ function buildVizData(text, cipher, params) {
     return { type:"trans", subtype:"columnar", grid:grid2d, readOrder, cols, rows, keyword:kw, colOrder };
   }
 
-  // ── МАРШРУТЕН ──
+  
   if (cipher==="route") {
     const len=T.length;
     const cols=Math.ceil(Math.sqrt(len)), rows=Math.ceil(len/cols);
@@ -200,7 +199,7 @@ function buildVizData(text, cipher, params) {
     return { type:"trans", subtype:"route", grid:grid2d, readOrder, cols, rows };
   }
 
-  // ── КОДИРАНЕ ──
+  
   if (cipher==="morse")
     return { type:"encode", subtype:"morse",
       steps:T.split("").map(ch=>({ in:ch, code:MORSE[ch]??"?", label:ch===" "?"(интервал)":null })) };
@@ -222,17 +221,17 @@ function buildVizData(text, cipher, params) {
   return { type:"sub", steps:[] };
 }
 
-// ─── ТЕМА / ЦВЕТОВЕ ──────────────────────────────────────────────────────────
+
 const BG0="#020617",BG1="#0c1428",BG2="#1e293b",BGI="#0a1120";
 const T1="#f8fafc",T2="#cbd5e1",T3="#94a3b8",TD="#475569";
 const EM="#10b981",EMD="rgba(16,185,129,0.12)";
 const BD="rgba(203,213,225,0.08)",BDH="rgba(203,213,225,0.15)",BDY="rgba(251,191,36,0.28)";
 const MONO="'Space Mono',monospace",BODY="'Sora',sans-serif",DISP="'Orbitron',monospace";
 
-// ─── КОМПОНЕНТИ ЗА ВИЗУАЛИЗАЦИЯ ───────────────────────────────────────────────
+
 
 function LetterRow({ steps, cur, mode }) {
-  // mode: 'plain' | 'cipher'
+
   return (
     <div className="ct-letter-row">
       {steps.map((s, i) => {
@@ -485,7 +484,7 @@ function EncodingViz({ meta, cur }) {
   );
 }
 
-// ─── ГЛАВЕН КОМПОНЕНТ ────────────────────────────────────────────────────────
+
 export default function CipherTool() {
   const [family,   setFamily]   = useState("substitution");
   const [cipher,   setCipher]   = useState("caesar");
@@ -499,7 +498,7 @@ export default function CipherTool() {
   const [speed,    setSpeed]    = useState(700);
   const timer = useRef(null);
 
-  // ─── ЧЕТЕНЕ НА ROUTER STATE ОТ БИБЛИОТЕКАТА ──────────────────────────────
+
   const location = useLocation();
 
   useEffect(() => {
@@ -512,8 +511,6 @@ export default function CipherTool() {
       setCipher(cipherId);
     }
   }, []);
-  // ─────────────────────────────────────────────────────────────────────────
-
   const text    = PRESETS[presetIdx].text;
   const famDef  = FAMILIES.find(f=>f.id===family);
   const cipDef  = FAMILIES.flatMap(f=>f.ciphers).find(c=>c.id===cipher);
@@ -560,14 +557,14 @@ export default function CipherTool() {
     <>
       <div className="ct" style={{"--cc":cc,"--cb":cb,"--cg":cg}}>
 
-        {/* HEADER */}
+       
         <div className="ct-hdr">
           <div className="ct-hdr-tag">// интерактивен инструмент за шифроване</div>
           <h1>КРИПТИРАНЕ СТЪПКА ПО СТЪПКА</h1>
           <p>Наблюдавайте как всеки знак се трансформира чрез шифъра — стъпка по стъпка.</p>
         </div>
 
-        {/* CIPHER PICKER */}
+       
         <div className="ct-panel">
           <div className="ct-ptag">// 01 — изберете шифър</div>
           <div className="ct-fam-tabs">
@@ -585,7 +582,7 @@ export default function CipherTool() {
           <div className="ct-cipher-grid">
             {famDef?.ciphers.map(c=>(
               <div key={c.id} className="ct-cb-wrap" style={{"--cc":c.color}}>
-                {/* tooltip */}
+             
                 <div className="ct-cb-tip">{c.tip}</div>
                 <button className={`ct-cb ${cipher===c.id?"act":""}`}
                   style={{"--cc":c.color,"--cb":c.color+"18"}}
@@ -605,7 +602,7 @@ export default function CipherTool() {
           </div>
         </div>
 
-        {/* CONFIGURE */}
+        
         <div className="ct-panel">
           <div className="ct-ptag">// 02 — конфигурация</div>
           <div className="ct-ctrl-row">
@@ -666,7 +663,7 @@ export default function CipherTool() {
           </div>
         </div>
 
-        {/* PLAYBACK */}
+        
         <div className="ct-panel">
           <div className="ct-ptag">// 03 — управление</div>
           <div className="ct-pb">
@@ -687,10 +684,10 @@ export default function CipherTool() {
           </div>
         </div>
 
-        {/* VISUALIZATION */}
+       
         <div className="ct-viz">
 
-          {/* SUB / POLY */}
+         
           {(viz.type==="sub"||viz.type==="poly") && (<>
             <div className="ct-row-tag">// чист текст</div>
             <LetterRow steps={viz.steps} cur={cur} mode="plain"/>
@@ -724,7 +721,7 @@ export default function CipherTool() {
             )}
           </>)}
 
-          {/* TRANSPOSITION */}
+         
           {viz.type==="trans" && (<>
             {cur<0 && <div className="ct-idle">Натиснете СТАРТ или СЛЕДВАЩ — всяка стъпка показва един прочетен символ от мрежата</div>}
             {viz.subtype==="railFence" && <RailFenceViz meta={viz} cur={cur}/>}
@@ -732,10 +729,10 @@ export default function CipherTool() {
             {viz.subtype==="route"     && <RouteViz     meta={viz} cur={cur}/>}
           </>)}
 
-          {/* ENCODING */}
+          
           {viz.type==="encode" && <EncodingViz meta={viz} cur={cur}/>}
 
-          {/* DONE BANNER */}
+         
           {done && (
             <div className="ct-done">
               <div className="ct-done-tag">// криптирането завърши</div>

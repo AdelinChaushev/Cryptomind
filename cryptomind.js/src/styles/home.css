@@ -1,36 +1,29 @@
 :root {
-    /* Navy & Electric Yellow Palette */
-    /* Base Colors */
+
     --bg-primary: #020617;
     --bg-surface: #0c1428;
     --bg-elevated: #1e293b;
 
-    /* Primary Accent - Electric Yellow */
     --yellow-500: #fbbf24;
     --yellow-600: #f59e0b;
     --yellow-700: #d97706;
-    
-    /* Blue accents */
+
     --blue-500: #3b82f6;
     --blue-600: #2563eb;
 
-    /* Secondary Accents */
     --orange-400: #fb923c;
     --emerald-500: #10b981;
     --amber-400: #fbbf24;
     --rose-500: #f43f5e;
     --cyan-400: #22d3ee;
 
-    /* Text */
     --text-primary: #f8fafc;
     --text-secondary: #cbd5e1;
     --text-tertiary: #94a3b8;
 
-    /* Borders */
     --border-default: rgba(203, 213, 225, 0.1);
     --border-hover: rgba(203, 213, 225, 0.2);
 
-    /* Gradients */
     --gradient-primary: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
     --gradient-hero: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #3b82f6 100%);
 }
@@ -50,7 +43,6 @@ body {
     line-height: 1.6;
 }
 
-/* Navbar */
 .navbar {
     background: rgba(30, 41, 59, 0.8);
     backdrop-filter: blur(12px);
@@ -150,7 +142,6 @@ body {
     box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
 }
 
-/* Hero Section */
 .hero {
     max-width: 1400px;
     margin: 0 auto;
@@ -191,7 +182,6 @@ body {
     border-radius: 12px;
 }
 
-/* Section Styling */
 .featured-section,
 .how-it-works,
 .features-section {
@@ -218,7 +208,6 @@ body {
     color: var(--text-secondary);
 }
 
-/* Featured Ciphers */
 .cipher-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -321,9 +310,6 @@ body {
     font-size: 14px;
 }
 
-
-/* How It Works - Vertical Timeline */
-/* How It Works - Vertical Timeline */
 .steps-timeline {
     max-width: 800px;
     margin: 0 auto;
@@ -402,7 +388,6 @@ body {
     line-height: 1.7;
 }
 
-/* Features */
 .features-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -461,7 +446,6 @@ body {
     line-height: 1.7;
 }
 
-/* CTA Section */
 .cta-section {
     max-width: 1400px;
     margin: 0 auto;
@@ -535,7 +519,6 @@ body {
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
-/* Footer */
 .footer {
     margin-top: 100px;
     background: rgba(30, 41, 59, 0.5);
@@ -604,7 +587,6 @@ body {
     font-size: 14px;
 }
 
-/* Tablet and Below (1024px and down) */
 @media (max-width: 1024px) {
     .navbar-container {
         padding: 0 30px;
@@ -634,9 +616,8 @@ body {
     }
 }
 
-/* Tablet (768px and down) */
 @media (max-width: 768px) {
-    /* Hide nav links and buttons by default on mobile */
+
     .nav-links {
         position: fixed;
         top: 70px;
@@ -700,7 +681,6 @@ body {
         font-size: 20px;
     }
 
-    /* Hero */
     .hero {
         padding: 80px 20px;
     }
@@ -724,7 +704,6 @@ body {
         width: 100%;
     }
 
-    /* Sections */
     .featured-section,
     .how-it-works,
     .features-section,
@@ -740,7 +719,6 @@ body {
         font-size: 16px;
     }
 
-    /* Cipher Grid */
     .cipher-grid {
         grid-template-columns: 1fr;
         gap: 20px;
@@ -750,7 +728,6 @@ body {
         padding: 24px;
     }
 
-    /* How It Works Timeline */
     .step-node {
         grid-template-columns: 60px 1fr;
         gap: 20px;
@@ -780,7 +757,6 @@ body {
         font-size: 15px;
     }
 
-    /* Features */
     .features-grid {
         grid-template-columns: 1fr;
         gap: 24px;
@@ -790,7 +766,6 @@ body {
         padding: 32px;
     }
 
-    /* CTA */
     .cta-box {
         padding: 60px 30px;
     }
@@ -803,7 +778,6 @@ body {
         font-size: 18px;
     }
 
-    /* Footer */
     .footer {
         padding: 50px 20px 30px;
     }
@@ -826,13 +800,11 @@ body {
     }
 }
 
-/* Mobile (480px and down) */
 @media (max-width: 480px) {
     .logo {
         font-size: 18px;
     }
 
-    /* Hero */
     .hero {
         padding: 60px 16px;
     }
@@ -853,7 +825,6 @@ body {
         font-size: 15px;
     }
 
-    /* Sections */
     .featured-section,
     .how-it-works,
     .features-section,
@@ -873,7 +844,6 @@ body {
         font-size: 15px;
     }
 
-    /* Cipher Cards */
     .cipher-card {
         padding: 20px;
     }
@@ -891,7 +861,6 @@ body {
         padding: 5px 10px;
     }
 
-    /* How It Works */
     .step-node {
         grid-template-columns: 50px 1fr;
         gap: 16px;
@@ -899,31 +868,30 @@ body {
         max-width: 100%;
         padding: 0 8px;
     }
-    
+
     .node-circle {
         width: 50px;
         height: 50px;
     }
-    
+
     .node-number {
         font-size: 20px;
     }
-    
+
     .node-connector {
         left: 25px;
         top: 50px;
         bottom: -40px;
     }
-    
+
     .node-title {
         font-size: 18px;
     }
-    
+
     .node-description {
         font-size: 14px;
     }
 
-    /* Features */
     .feature-card {
         padding: 24px;
     }
@@ -943,7 +911,6 @@ body {
         font-size: 14px;
     }
 
-    /* CTA */
     .cta-box {
         padding: 40px 20px;
         border-radius: 20px;
@@ -965,7 +932,6 @@ body {
         width: 100%;
     }
 
-    /* Footer */
     .footer-brand h3 {
         font-size: 20px;
     }
@@ -987,7 +953,6 @@ body {
     }
 }
 
-/* Landscape Mobile */
 @media (max-width: 768px) and (orientation: landscape) {
     .hero {
         padding: 60px 20px;
@@ -1003,7 +968,6 @@ body {
     }
 }
 
-/* Large Desktop (1400px+) */
 @media (min-width: 1400px) {
     .navbar-container,
     .hero,
@@ -1016,7 +980,6 @@ body {
     }
 }
 
-/* Print Styles */
 @media print {
     .navbar,
     .hero-buttons,
@@ -1206,10 +1169,9 @@ body::before {
     display: inline-block;
     opacity: 0.3;
 }
-/* ─── FLUID RESPONSIVE ─── */
+
 body { overflow-x: hidden; }
 
-/* All major containers constrained fluidly */
 .navbar-container,
 .hero,
 .featured-section,
@@ -1224,7 +1186,6 @@ body { overflow-x: hidden; }
     max-width: min(1400px, 94vw);
 }
 
-/* Fluid navbar */
 .navbar-container {
     padding: 0 clamp(16px, 3vw, 40px);
 }
@@ -1237,7 +1198,6 @@ body { overflow-x: hidden; }
     font-size: clamp(13px, 1.2vw, 15px);
 }
 
-/* Hero scales continuously */
 .hero {
     padding: clamp(60px, 9vw, 120px) clamp(16px, 3vw, 40px);
 }
@@ -1250,7 +1210,6 @@ body { overflow-x: hidden; }
     font-size: clamp(15px, 1.5vw, 20px);
 }
 
-/* Section spacing */
 .featured-section,
 .how-it-works,
 .features-section,
@@ -1266,7 +1225,6 @@ body { overflow-x: hidden; }
     font-size: clamp(14px, 1.3vw, 18px);
 }
 
-/* Cipher grid */
 .cipher-grid {
     grid-template-columns: repeat(auto-fit, minmax(clamp(240px, 25vw, 360px), 1fr));
     gap: clamp(14px, 2vw, 24px);
@@ -1284,7 +1242,6 @@ body { overflow-x: hidden; }
     font-size: clamp(13px, 1.1vw, 15px);
 }
 
-/* CTA */
 .cta-box {
     padding: clamp(40px, 6vw, 80px) clamp(20px, 4vw, 60px);
     border-radius: clamp(16px, 2.5vw, 32px);
@@ -1298,7 +1255,6 @@ body { overflow-x: hidden; }
     font-size: clamp(15px, 1.4vw, 20px);
 }
 
-/* Features grid */
 .features-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: clamp(14px, 2vw, 24px);
@@ -1308,7 +1264,6 @@ body { overflow-x: hidden; }
     padding: clamp(24px, 3vw, 40px);
 }
 
-/* Footer */
 .footer {
     padding: clamp(36px, 5vw, 60px) clamp(16px, 3vw, 40px) clamp(20px, 3vw, 40px);
 }
@@ -1318,7 +1273,6 @@ body { overflow-x: hidden; }
     margin-bottom: clamp(20px, 3vw, 40px);
 }
 
-/* Nav collapse — only structural breakpoint needed */
 @media (max-width: 48em) {
     .nav-links {
         position: fixed;
@@ -1367,3 +1321,4 @@ body { overflow-x: hidden; }
     .footer-container { grid-template-columns: 1fr; }
     .footer-brand, .footer-column { text-align: center; }
 }
+

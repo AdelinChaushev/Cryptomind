@@ -6,11 +6,10 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    /* Pointer events only on the toasts themselves, not the gap between them */
     pointer-events: none;
 }
 
-/* Each toast gets pointer-events back individually */
+
 .toast-container > * {
     pointer-events: auto;
 }

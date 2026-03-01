@@ -88,7 +88,7 @@ const CipherReview = () => {
                 switch (status) {
                     case 404:
                         setLocalError('Шифърът не е намерен');
-                        navigate('/not-found');
+                     
                         break;
                     default:
                         setLocalError(serverMessage || 'Неуспешно зареждане на шифъра');
@@ -96,7 +96,7 @@ const CipherReview = () => {
                         break;    
                 };
                 console.error('Failed to fetch cipher:', err);
-                setLocalError(err.response?.data?.message || err.message);
+                setLocalError(err.response?.data?.error || err.message);
             })
             .finally(() => setLoading(false));
         };
@@ -219,10 +219,10 @@ const CipherReview = () => {
                     </div>
 
                     <div className="review-layout">
-                        {/* ─── Left: Main Review Panels ─── */}
+                        
                         <div className="review-main">
                             
-                            {/* 1. Cipher Content */}
+                           
                             <div className="admin-card review-card">
                                 <div className="admin-card-header">
                                     <div className="review-card-title-row">
@@ -283,7 +283,7 @@ const CipherReview = () => {
                                 </div>
                             </div>
 
-                            {/* 2. ML Analysis */}
+                           
                             <div className="admin-card review-card">
                                 <div className="admin-card-header">
                                     <div className="review-card-title-row">
@@ -327,7 +327,7 @@ const CipherReview = () => {
                                 </div>
                             </div>
 
-                            {/* 3. LLM Assistant */}
+                           
                             <LlmAssistantSection
                                 result={llmResult}
                                 isLoading={isLlmLoading}
@@ -335,7 +335,7 @@ const CipherReview = () => {
                             />
                         </div>
 
-                        {/* ─── Right: Admin Actions ─── */}
+                    
                         <div className="actions-column">
 
                             <div className="admin-card">

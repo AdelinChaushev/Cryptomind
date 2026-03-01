@@ -72,7 +72,7 @@ const PendingCiphers = () => {
                         </p>
                     </div>
 
-                    {/* Search Bar */}
+                   
                     <div className="table-toolbar">
                         <div className="toolbar-left">
                             <div className="search-input-wrap">
@@ -93,7 +93,7 @@ const PendingCiphers = () => {
                         </div>
                     </div>
 
-                    {/* Table */}
+                   
                     {error ? (
                         <div className="data-table-wrapper">
                             <div className="empty-state">

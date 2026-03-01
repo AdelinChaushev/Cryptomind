@@ -1,15 +1,14 @@
-// hooks/useLogout.js
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useError } from "../ErrorContext.jsx";
 import { useContext } from "react";
-import { AuthorizationContext } from '../App.jsx' ; // example (see below)
+import { AuthorizationContext } from '../App.jsx' ; 
 
 export default function useLogout() {
     const navigate = useNavigate();
     const { setError } = useError();
     const {state,setState} = useContext(AuthorizationContext)
-     // your auth state provider
+   
 
     const logout = async () => {
         try {
@@ -22,7 +21,7 @@ export default function useLogout() {
             window.location.href = "/";
 
         } catch (error) {
-            setError(error.response?.data?.error ?? "Logout failed");
+            setError(error.response?.data?.error ?? "Неуспешно излизане");
         }
     };
 

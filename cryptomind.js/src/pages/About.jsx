@@ -3,7 +3,7 @@ import "../styles/about.css";
 import { useContext } from "react";
 import { AuthorizationContext } from "../App.jsx";
 import { Link } from "react-router-dom";
-// ─── Cipher Reveal Hook ───────────────────────────────────────────────────────
+
 function useCipherReveal(text) {
     const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%";
     const [displayed, setDisplayed] = useState("");
@@ -28,7 +28,7 @@ function useCipherReveal(text) {
     return displayed || text;
 }
 
-// ─── Stat Counter ─────────────────────────────────────────────────────────────
+
 function StatCounter({ value, label, suffix = "" }) {
     const [count, setCount] = useState(0);
     const ref = useRef(null);
@@ -60,7 +60,7 @@ function StatCounter({ value, label, suffix = "" }) {
     );
 }
 
-// ─── Section Header ───────────────────────────────────────────────────────────
+
 function SectionHeader({ tag, title }) {
     return (
         <>
@@ -71,7 +71,7 @@ function SectionHeader({ tag, title }) {
     );
 }
 
-// ─── Cipher Card ──────────────────────────────────────────────────────────────
+
 function CipherCard({ family, types, accuracy, icon, partial }) {
     const [hovered, setHovered] = useState(false);
 
@@ -101,7 +101,7 @@ function CipherCard({ family, types, accuracy, icon, partial }) {
     );
 }
 
-// ─── Step Cell ────────────────────────────────────────────────────────────────
+
 function StepCell({ number, title, desc, delay }) {
     const [visible, setVisible] = useState(false);
     const ref = useRef(null);
@@ -130,7 +130,7 @@ function StepCell({ number, title, desc, delay }) {
     );
 }
 
-// ─── Limit Card ───────────────────────────────────────────────────────────────
+
 function LimitCard({ icon, title, desc }) {
     return (
         <div className="about-limit-card">
@@ -143,7 +143,7 @@ function LimitCard({ icon, title, desc }) {
     );
 }
 
-// ─── Hero ─────────────────────────────────────────────────────────────────────
+
 function Hero() {
     const headline = useCipherReveal("CRYPTOMIND");
 
@@ -176,7 +176,6 @@ function Hero() {
     );
 }
 
-// ─── Mission ──────────────────────────────────────────────────────────────────
 function Mission() {
     return (
         <section className="about-section">
@@ -224,21 +223,7 @@ function Mission() {
     );
 }
 
-// ─── Stats ────────────────────────────────────────────────────────────────────
-function Stats() {
-    return (
-        <section className="about-stats-section">
-            <div className="about-stats-grid">
-                <StatCounter value={90}    label="Обща точност"            suffix="%" />
-                <StatCounter value={14}    label="Поддържани шифри"                  />
-                <StatCounter value={99}    label="Точност — Слой 1"        suffix="%" />
-                <StatCounter value={47668} label="Тренировъчни изречения"            />
-            </div>
-        </section>
-    );
-}
 
-// ─── Cipher Families ──────────────────────────────────────────────────────────
 function CipherFamilies() {
     const families = [
         { family: "ЗАМЕСТВАНЕ",   types: ["Цезар (Caesar)", "ROT13 (ROT13)", "Атбаш (Atbash)", "Просто замяна (Simple Substitution)"], icon: "⟳", partial: false },
@@ -262,7 +247,7 @@ function CipherFamilies() {
     );
 }
 
-// ─── How It Works ─────────────────────────────────────────────────────────────
+
 function HowItWorks() {
     const steps = [
         { number: 1, title: "ПОДАЙ ТЕКСТ",      desc: "Въведи или качи криптиран текст (минимум 150 знака). Поддържат се текстов вход и изображения с автоматично OCR разпознаване.", delay: 0    },
@@ -283,7 +268,7 @@ function HowItWorks() {
     );
 }
 
-// ─── Limitations ──────────────────────────────────────────────────────────────
+
 function Limitations() {
     const limits = [
         { icon: "🇬🇧", title: "САМО АНГЛИЙСКИ ТЕКСТ",   desc: "ML моделът е трениран на английски корпус. Индексът на съвпадение приема английски честоти (~0.065). Друг език ще даде неверни резултати." },
@@ -309,7 +294,6 @@ function Limitations() {
     );
 }
 
-// ─── Roles ────────────────────────────────────────────────────────────────────
 function Roles() {
     const userPerms  = ["Разглежда и решава шифри", "Подава собствени предизвикателства", "Ползва AI подсказки и пълни решения", "Участва в класацията", "Преглежда своята история"];
     const adminPerms = ["Одобрява или отхвърля шифри", "Одобрява или отхвърля предложени отговори", "Преглежда ML и AI анализи при проверка", "Управлява и деактивира потребители", "Промотира до администратор"];
@@ -352,7 +336,7 @@ function Roles() {
     );
 }
 
-// ─── CTA ──────────────────────────────────────────────────────────────────────
+
 function CTA() {
      const { state ,setState} = useContext(AuthorizationContext);
     return (
@@ -371,13 +355,12 @@ function CTA() {
     );
 }
 
-// ─── Page Root ────────────────────────────────────────────────────────────────
 export default function AboutPage() {
     return (
         <div className="about-page">
             <Hero />
             <Mission />
-            {/* <Stats /> */}
+            
             <CipherFamilies />
             <HowItWorks />
             <Limitations />
