@@ -5,13 +5,6 @@ import ToastContainer from './notifications/ToastContainer';
 
 export const NotificationProvider = ({ children, isLoggedIn }) => {
     const notifications = useNotifications(isLoggedIn);
-
-    useEffect(() => {
-        if (isLoggedIn) {
-            notifications.refetch();
-        }
-    }, [isLoggedIn, notifications]);
-
     return (
         <NotificationContext.Provider value={notifications}>
             {children}

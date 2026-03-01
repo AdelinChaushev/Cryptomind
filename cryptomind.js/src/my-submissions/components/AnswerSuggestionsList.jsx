@@ -10,7 +10,7 @@ const AnswerSuggestionsList = ({ answers = [], onViewCipher, onViewDetails }) =>
                 title="Няма предложени отговори"
                 subtitle="Разгледайте експерименталните шифри и изпратете вашето решение за проверка."
                 ctaLabel="Разгледай експерименталните"
-                ctaHref="/browse?type=experimental"
+                ctaHref="/?type=experimental"
             />
         );
     }
