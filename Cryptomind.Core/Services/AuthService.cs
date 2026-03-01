@@ -1,4 +1,5 @@
-﻿using Cryptomind.Common.Exceptions;
+﻿using Cryptomind.Common.Constants;
+using Cryptomind.Common.Exceptions;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -61,6 +62,11 @@ namespace Cryptomind.Core.Services
 			if (userExist != null)
 			{
 				throw new ConflictException("Потребител с този имейл вече съществува");
+			}
+
+			if (string.Equals(userName, CipherErrorConstants.AnonymousUser, StringComparison.OrdinalIgnoreCase))
+			{
+				throw new ConflictException($"Не може да създадете потребител с име: {userName}");
 			}
 
 			if (await userManager.FindByNameAsync(userName) != null)

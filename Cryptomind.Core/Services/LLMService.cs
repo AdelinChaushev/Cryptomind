@@ -157,6 +157,7 @@ namespace Cryptomind.Core.Services
 
 			return result;
 		}
+
 		#endregion
 
 		#region Private methods
