@@ -19,7 +19,7 @@ namespace Cryptomind.Core.Middlewares
 		{
 			var path = context.Request.Path.Value?.ToLower();
 
-			if (path.StartsWith("/api/auth/logout"))
+			if (path.StartsWith("/api/auth/logout") || path.StartsWith("/notificationhub"))
 			{
 				await _next(context);
 				return;
