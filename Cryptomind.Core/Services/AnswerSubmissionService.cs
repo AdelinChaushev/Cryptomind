@@ -14,7 +14,7 @@ namespace Cryptomind.Core.Services
 		IRepository<Cipher, int> cipherRepo,
 		IRepository<AnswerSuggestion, int> answerRepo) : IAnswerSubmissionService
 	{
-		private const string DateFormat = "ddd, dd MMM yyyy h:mm";
+		private const string DateFormat = "ddd, dd MMM yyyy HH:mm";
 
 		public async Task SuggestAnswerAsync(SuggestAnswerDTO dto, string userId, int cipherId)
 		{

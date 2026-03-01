@@ -24,7 +24,7 @@ namespace Cryptomind.Core.Services
 		INotificationService notificationService,
 		UserManager<ApplicationUser> userManager) : IAdminCipherService
 	{
-		private const string DateFormat = "ddd, dd MMM yyyy h:mm";
+		private const string DateFormat = "ddd, dd MMM yyyy HH:mm";
 
 		private readonly Dictionary<CipherType, int> PointsForType = new Dictionary<CipherType, int>()
 		{
