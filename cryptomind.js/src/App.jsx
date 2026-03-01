@@ -33,6 +33,7 @@ import ToastContainer from './notifications/ToastContainer';
 import { ErrorProvider } from "./ErrorContext";
 import PageTransition from "./PageTransition";
 import AccountInfo from './account-page/AccountInfo.jsx';
+import { NotificationProvider } from './NotificationProvider.jsx';
 export const AuthorizationContext = createContext({roles : [], isLoggedIn: false , isBanned : false , bannedMessage : ""});
 export const NotificationContext = createContext(null);
 export const useNotificationContext = () => useContext(NotificationContext);
@@ -42,12 +43,6 @@ function App() {
    axios.defaults.baseURL = 'http://localhost:5115';
    const [state, setState] = useState({roles : [], isLoggedIn: false, isBanned : false});
    const[loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        if (state.isLoggedIn) {
-            notifications.refetch();
-        }
-    }, [state.isLoggedIn]);
   
    useEffect(() => {
     axios.get('http://localhost:5115/api/user/get-roles').then(response => {
@@ -70,7 +65,7 @@ function App() {
     <>
     <AuthorizationContext.Provider value={{ state, setState }}>
     <ErrorProvider>
-    <NotificationContext.Provider value={notifications}>
+    <NotificationProvider isLoggedIn={state.isLoggedIn}>
      <PageTransition>
     <Routes >
       <Route path="/banned" element={<RequireNotBanned><BannedPage/></RequireNotBanned>} />
@@ -100,12 +95,7 @@ function App() {
       </Route>
     </Routes>
     </PageTransition> 
-    <ToastContainer
-            toasts={notifications.toasts}
-            onDismiss={notifications.dismissToast}
-            onNotificationClick={notifications.handleNotificationClick}
-        />
-    </NotificationContext.Provider>
+    </NotificationProvider>
     </ErrorProvider>  
     </AuthorizationContext.Provider>
     </>
