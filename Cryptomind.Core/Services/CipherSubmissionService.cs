@@ -29,7 +29,7 @@ namespace Cryptomind.Core.Services
 			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.Title == model.Title && !x.IsDeleted))
 				throw new ConflictException(CipherErrorConstants.DuplicateTitleMessage);
 
-			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.EncryptedText == model.EncryptedText))
+			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.EncryptedText == model.EncryptedText && !x.IsDeleted && x.Status != ApprovalStatus.Rejected))
 				throw new ConflictException(CipherErrorConstants.DuplicateCipherContent);
 
 			if (string.IsNullOrWhiteSpace(model.DecryptedText) && model.CipherType == null)
@@ -149,7 +149,8 @@ namespace Cryptomind.Core.Services
 				userProvidedType: model.CipherType != null,
 				userProvidedSolution: !string.IsNullOrWhiteSpace(model.DecryptedText),
 				isPlaintextValid: cipher.IsPlaintextValid,
-				typesMatch: model.CipherType?.ToString().ToLower() == mlResult.TopPrediction.Type.ToLower()
+				typesMatch: model.CipherType?.ToString().ToLower() == mlResult.TopPrediction.Type.ToLower(),
+				textLength: cipher.EncryptedText.Length
 			);
 
 			await cipherRepo.AddAsync(cipher);
@@ -237,27 +238,28 @@ namespace Cryptomind.Core.Services
 			bool userProvidedType,
 			bool userProvidedSolution,
 			bool isPlaintextValid,
-			bool typesMatch)
+			bool typesMatch,
+			int textLength)
 		{
 			bool isProblematic = ProblematicCipherTypes.Contains(mlType.ToLower());
 
-			if (userProvidedType && userProvidedSolution)
+			if (userProvidedType && userProvidedSolution) //Case 1
 			{
-				if (mlConfidence > 85 && typesMatch && isPlaintextValid)
+				if (mlConfidence > 85 && typesMatch && isPlaintextValid && textLength >= 200)
 				{
 					return false;
 				}
 				return true;
 			}
 
-			if (userProvidedType && !userProvidedSolution)
+			if (userProvidedType && !userProvidedSolution) // Case 2
 			{
 				return true;
 			}
 
-			if (!userProvidedType && userProvidedSolution)
+			if (!userProvidedType && userProvidedSolution) // Case 3
 			{
-				if (mlConfidence > 85 && !isProblematic && isPlaintextValid)
+				if (mlConfidence > 85 && !isProblematic && isPlaintextValid && textLength >= 200)
 				{
 					return false;
 				}
