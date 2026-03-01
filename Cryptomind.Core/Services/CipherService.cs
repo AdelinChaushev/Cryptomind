@@ -118,7 +118,7 @@ namespace Cryptomind.Core.Services
 			if (cipher.UserSolutions.FirstOrDefault(x => x.UserId == userId && x.IsCorrect) != null)
 				throw new ConflictException(CipherErrorConstants.AlreadySolvedConflict);
 
-			if (cipher.UserSolutions.Any(x => x.Solution == input))
+			if (cipher.UserSolutions.Any(x => x.Solution == input && x.UserId != userId))
 				throw new ConflictException(CipherErrorConstants.AlreadyTriedWithThatAnswer);
 
 			var userNow = await userManager.FindByIdAsync(userId);
