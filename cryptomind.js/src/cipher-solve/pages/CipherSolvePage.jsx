@@ -104,7 +104,7 @@ function CipherSolvePage() {
         setResult(res.data ? "correct" : "incorrect");
         return true;
       } catch (e) {
-        setError(e.response?.data?.error || "Failed to submit answer.");
+        setError(e.response?.data?.error || "Изпращането на отговора не бе успешно.");
         return false;
       }
     } else if (cipher.challengeTypeDisplay === "Experimental") {
@@ -119,15 +119,15 @@ function CipherSolvePage() {
         );
         
 
-        return true; // SUCCESS
+        return true; 
       } catch (e) {
         console.log(e);
         setError(
           e.response?.data?.error ||
             e.response?.data?.title ||
-            "Failed to submit answer."
+            "Изпращането на отговора не бе успешно."
         );
-        return false; // FAILURE
+        return false; 
       }
     }
     return false;
@@ -139,10 +139,7 @@ function CipherSolvePage() {
       numeric: "auto",
     });
 
-    // -----------------------------
-    // 1. Handle .NET TimeSpan string
-    // format: [days.]hh:mm:ss(.ffff)
-    // -----------------------------
+  
     if (typeof dateValue === "string" && dateValue.includes(":")) {
       const match = dateValue.match(/(?:(\d+)\.)?(\d{2}):(\d{2}):(\d{2})/);
 
@@ -176,9 +173,7 @@ function CipherSolvePage() {
       }
     }
 
-    // -----------------------------
-    // 2. Handle DateTime
-    // -----------------------------
+  
     const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
 
     if (isNaN(date.getTime())) return "—";

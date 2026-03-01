@@ -103,6 +103,7 @@ namespace Cryptomind.Core.Services
 				{
 					Title = model.Title,
 					DecryptedText = model.DecryptedText,
+					TypeOfCipher = model.CipherType,
 					ImagePath = relativePath,
 					AllowHint = false,
 					AllowSolution = false,

@@ -83,7 +83,7 @@ const PendingAnswers = () => {
                         </p>
                     </div>
 
-                    {/* Filters */}
+                  
                     <div className="table-toolbar">
                         <div className="toolbar-left">
                             <div className="search-input-wrap">
@@ -117,7 +117,7 @@ const PendingAnswers = () => {
                         </div>
                     </div>
 
-                    {/* Table */}
+                    
                     {error ? (
                         <div className="data-table-wrapper">
                             <div className="empty-state">
@@ -160,12 +160,7 @@ const PendingAnswers = () => {
                                             </td>
 
                                             <td>
-                                                <p
-                                                    // href={`/cipher/${answer.cipherId}`}
-                                                    // className="cipher-ref"
-                                                    // target="_blank"
-                                                    // rel="noreferrer"
-                                                >
+                                                <p>
                                                 
                                                     {answer.cipherName || `Шифър #${answer.cipherId}`}
                                                 </p>

@@ -1,18 +1,6 @@
 import React from 'react';
 
-/* ───────────────────────────────────────────
-   MlAnalysisSection.jsx
-   
-   Displays the ML classification result for a submitted cipher.
-   This data comes from your Python ML service via the C# API.
-   
-   The endpoint that triggers ML classification is called when
-   the admin opens the review page:
-     GET /api/cipherAdmin/cipherAdmin/:id
-   which should return mlPrediction, mlConfidence, mlFamily,
-   llmRecommended, and typeMismatch (if user claimed a type and ML
-   disagrees).
-─────────────────────────────────────────── */
+
 
 const MlAnalysisSection = ({
     mlFamily,
@@ -46,19 +34,19 @@ const MlAnalysisSection = ({
 
             {mlPrediction ? (
                 <div className="ml-result-grid">
-                    {/* ─── Family ─── */}
+                  
                     <div className="ml-metric">
                         <span className="ml-metric-label">Cipher Family</span>
                         <span className="ml-metric-value">{mlFamily ?? '—'}</span>
                     </div>
 
-                    {/* ─── Predicted Type ─── */}
+                  
                     <div className="ml-metric">
                         <span className="ml-metric-label">Predicted Type</span>
                         <span className="ml-metric-value text-yellow">{mlPrediction}</span>
                     </div>
 
-                    {/* ─── Confidence ─── */}
+                   
                     <div className="ml-metric ml-metric-wide">
                         <span className="ml-metric-label">Confidence</span>
                         <div className="ml-confidence-row">
@@ -77,7 +65,7 @@ const MlAnalysisSection = ({
                         </div>
                     </div>
 
-                    {/* ─── Layer 1 accuracy note ─── */}
+                   
                     <div className="ml-metric">
                         <span className="ml-metric-label">Layer 1 (Family)</span>
                         <span className="ml-metric-value text-xs text-dim">99.97% accuracy</span>
@@ -90,7 +78,7 @@ const MlAnalysisSection = ({
                 </div>
             )}
 
-            {/* ─── Type Mismatch Warning ─── */}
+            
             {typeMismatch && userProvidedType && mlPrediction && (
                 <div className="admin-notice notice-warning" style={{ marginTop: '14px' }}>
                     <svg className="admin-notice-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -103,7 +91,6 @@ const MlAnalysisSection = ({
                 </div>
             )}
 
-            {/* ─── Known confusion note for Columnar vs RailFence ─── */}
             {(mlPrediction === 'Columnar' || mlPrediction === 'RailFence') && (
                 <div className="admin-notice notice-info" style={{ marginTop: '14px' }}>
                     <svg className="admin-notice-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">

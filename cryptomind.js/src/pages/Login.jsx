@@ -25,7 +25,7 @@ export default function Login() {
     }).then(res => {
       setState({isLoggedIn: true,roles: res.data});
      setTimeout(() => {
-            navigate('/banned');
+            navigate('/');
           }, 0); 
     } ).catch(error => {  
     if (error.response?.status === 403) {
@@ -34,7 +34,7 @@ export default function Login() {
         return;
     }
     setState({ isLoggedIn: false, roles: [] });
-    setError(error.response?.data?.title || 'Влизането е неуспешно. Моля, проверете данните си и опитайте отново.');
+    setError('Влизането е неуспешно. Моля, проверете данните си и опитайте отново.');
 });
     
    }

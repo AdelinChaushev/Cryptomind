@@ -1,8 +1,3 @@
-/* ============================================================
-   CRYPTOMIND — Register Page
-   register.css
-   ============================================================ */
-
 :root {
     --bg-primary:    #020617;
     --bg-surface:    #0c1428;
@@ -32,7 +27,6 @@
     --transition-fast: 0.2s ease;
 }
 
-/* ─── Reset ──────────────────────────────────────────────── */
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
@@ -51,7 +45,6 @@ body {
 
 a { text-decoration: none; color: inherit; }
 
-/* ─── Background ─────────────────────────────────────────── */
 .bg-grid {
     position: fixed;
     inset: 0;
@@ -75,7 +68,6 @@ a { text-decoration: none; color: inherit; }
     pointer-events: none;
 }
 
-/* ─── Layout ─────────────────────────────────────────────── */
 .auth-main {
     position: relative;
     z-index: 10;
@@ -86,7 +78,6 @@ a { text-decoration: none; color: inherit; }
     padding: 40px 20px;
 }
 
-/* ─── Card ───────────────────────────────────────────────── */
 .auth-card {
     position: relative;
     width: 100%;
@@ -108,7 +99,6 @@ a { text-decoration: none; color: inherit; }
     to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* ─── Top Accent Bar ─────────────────────────────────────── */
 .card-top-bar {
     position: absolute;
     top: 0; left: 0; right: 0;
@@ -134,7 +124,6 @@ a { text-decoration: none; color: inherit; }
     60%, 100% { left: 160%; }
 }
 
-/* ─── Header ─────────────────────────────────────────────── */
 .auth-header {
     text-align: center;
     margin-bottom: 28px;
@@ -212,7 +201,6 @@ a { text-decoration: none; color: inherit; }
     50%       { opacity: 1; }
 }
 
-/* ─── Form Title ─────────────────────────────────────────── */
 .form-title-block {
     margin-bottom: 24px;
     animation: fadeUp 0.65s ease both;
@@ -234,7 +222,6 @@ a { text-decoration: none; color: inherit; }
     font-weight: 300;
 }
 
-/* ─── Form ───────────────────────────────────────────────── */
 .auth-form {
     display: flex;
     flex-direction: column;
@@ -278,7 +265,6 @@ a { text-decoration: none; color: inherit; }
     padding-left: 2px;
 }
 
-/* ─── Inputs ─────────────────────────────────────────────── */
 .input-wrapper {
     position: relative;
     display: flex;
@@ -353,7 +339,6 @@ a { text-decoration: none; color: inherit; }
     width: 100%;
 }
 
-/* ─── Password Strength ──────────────────────────────────── */
 .strength-bar {
     display: flex;
     align-items: center;
@@ -375,7 +360,6 @@ a { text-decoration: none; color: inherit; }
     transition: width 0.4s ease, background 0.3s ease;
 }
 
-/* JS will toggle these classes on #strength-fill */
 .strength-fill.weak   { width: 25%; background: var(--rose-500); }
 .strength-fill.fair   { width: 50%; background: var(--orange-400); }
 .strength-fill.good   { width: 75%; background: var(--yellow-500); }
@@ -391,7 +375,6 @@ a { text-decoration: none; color: inherit; }
     text-align: right;
 }
 
-/* ─── Terms Row ──────────────────────────────────────────── */
 .terms-group { margin-top: 4px; }
 
 .checkbox-label {
@@ -461,7 +444,6 @@ a { text-decoration: none; color: inherit; }
     text-underline-offset: 2px;
 }
 
-/* ─── Submit Button ──────────────────────────────────────── */
 .btn-submit {
     position: relative;
     width: 100%;
@@ -525,7 +507,6 @@ a { text-decoration: none; color: inherit; }
     50%, 100% { left: 160%; }
 }
 
-/* ─── Card Footer ────────────────────────────────────────── */
 .auth-card-footer {
     margin-top: 24px;
     text-align: center;
@@ -551,13 +532,12 @@ a { text-decoration: none; color: inherit; }
     text-underline-offset: 3px;
 }
 
-/* ─── Responsive ─────────────────────────────────────────── */
 @media (max-width: 520px) {
     .auth-card { padding: 28px 20px 24px; }
     .logo-text  { font-size: 1.2rem; }
     .auth-main  { padding: 20px 14px; }
 }
-/* ─── FLUID RESPONSIVE ─── */
+
 body { overflow-x: hidden; }
 
 .auth-main {
@@ -585,3 +565,4 @@ body { overflow-x: hidden; }
 .btn-text {
     font-size: clamp(0.66rem, 0.75vw, 0.72rem);
 }
+

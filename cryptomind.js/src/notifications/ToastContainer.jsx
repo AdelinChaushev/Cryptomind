@@ -3,12 +3,12 @@ import Toast, { DISMISS_MS } from './Toast';
 import { useEffect, useRef } from 'react';
 
 const ToastContainer = ({ toasts, onDismiss, onNotificationClick }) => {
-    // Track running timers so we can cancel if the user dismisses early
+
     const timersRef = useRef({});
 
     useEffect(() => {
         toasts.forEach(toast => {
-            // Only start a timer for toasts that don't have one yet
+
             if (!timersRef.current[toast.id] && !toast.isLeaving) {
                 timersRef.current[toast.id] = setTimeout(() => {
                     onDismiss(toast.id);
@@ -17,7 +17,6 @@ const ToastContainer = ({ toasts, onDismiss, onNotificationClick }) => {
             }
         });
 
-        // Clean up timers for toasts that were manually dismissed
         const activeIds = new Set(toasts.map(t => t.id));
         Object.keys(timersRef.current).forEach(id => {
             if (!activeIds.has(id)) {
@@ -27,7 +26,6 @@ const ToastContainer = ({ toasts, onDismiss, onNotificationClick }) => {
         });
     }, [toasts, onDismiss]);
 
-    // Clear all timers on unmount
     useEffect(() => {
         return () => {
             Object.values(timersRef.current).forEach(clearTimeout);

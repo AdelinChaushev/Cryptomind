@@ -11,7 +11,7 @@
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    /* Entry animation — slides in from right */
+
     animation: toast-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -20,7 +20,6 @@
     to   { opacity: 1; transform: translateX(0)    scale(1); }
 }
 
-/* Exit animation added via JS by toggling .toast--leaving */
 .toast--leaving {
     animation: toast-out 0.22s cubic-bezier(0.4, 0, 1, 1) forwards;
 }
@@ -35,7 +34,6 @@
     background: #111e35;
 }
 
-/* Coloured left accent stripe */
 .toast__stripe {
     position: absolute;
     left: 0;
@@ -50,7 +48,6 @@
 .toast--info     .toast__stripe { background: #38bdf8; }
 .toast--badge    .toast__stripe { background: #a855f7; }
 
-/* Icon bubble */
 .toast__icon {
     width: 34px;
     height: 34px;
@@ -60,7 +57,7 @@
     justify-content: center;
     flex-shrink: 0;
     margin-top: 1px;
-    margin-left: 4px; /* offset for the stripe */
+    margin-left: 4px; 
 }
 
 .toast--approved .toast__icon { background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.2); }
@@ -75,11 +72,10 @@
 .toast--badge .toast__icon { background: rgba(168,85,247,0.12); border: 1px solid rgba(168,85,247,0.2); }
 .toast--badge .toast__icon svg { color: #a855f7; }
 
-/* Text area */
 .toast__body {
     flex: 1;
     min-width: 0;
-    padding-right: 20px; /* space for close button */
+    padding-right: 20px; 
 }
 
 .toast__label {
@@ -101,7 +97,7 @@
     line-height: 1.45;
     color: #cbd5e1;
     margin: 0;
-    /* Clamp to 2 lines so long messages don't make a huge card */
+
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -109,7 +105,6 @@
     overflow: hidden;
 }
 
-/* Close button */
 .toast__close {
     position: absolute;
     top: 10px;
@@ -133,7 +128,6 @@
     background: rgba(255,255,255,0.06);
 }
 
-/* Progress bar that drains over the auto-dismiss duration */
 .toast__progress {
     position: absolute;
     bottom: 0;
@@ -141,7 +135,7 @@
     height: 2px;
     border-radius: 0 0 12px 12px;
     animation: toast-progress linear forwards;
-    /* Duration is set inline via style prop to match DISMISS_MS */
+
     animation-duration: var(--toast-duration, 4000ms);
 }
 

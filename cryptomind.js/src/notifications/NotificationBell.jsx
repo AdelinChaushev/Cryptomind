@@ -19,7 +19,7 @@ const NotificationBell = () => {
         handleNotificationClick,
     } = useNotificationContext();
 
-    // Shake the bell when a new notification arrives
+  
     useEffect(() => {
         if (unreadCount > prevCountRef.current) {
             setDidShake(true);

@@ -89,7 +89,7 @@ namespace Cryptomind.Core.Services
 					.ThenInclude(x => x.Tag)
 				.FirstOrDefaultAsync(x => x.Id == id);
 
-			if (cipher == null || cipher.Status != ApprovalStatus.Approved)
+			if (cipher == null || cipher.Status != ApprovalStatus.Approved || cipher.IsDeleted)
 				throw new NotFoundException(CipherErrorConstants.CipherNotFoundMessage);
 
 			if (cipher.IsDeleted)
@@ -259,7 +259,7 @@ namespace Cryptomind.Core.Services
 			if (cipher is ImageCipher imageCipher)
 			{
 				string imagePath = Path.Combine(PathHelper.GetImagesBasePath(), imageCipher.ImagePath);
-				model.ImageBase64 = $"data:image/jpg;base64{Convert.ToBase64String(await File.ReadAllBytesAsync(imagePath))}";
+				model.ImageBase64 = $"data:image/jpg;base64,{Convert.ToBase64String(await File.ReadAllBytesAsync(imagePath))}";
 			}
 			return model;
 		}

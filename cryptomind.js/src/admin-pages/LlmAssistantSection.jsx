@@ -23,7 +23,7 @@ const LlmAssistantSection = ({
                 {result && <span className="badge badge-approved">Анализът е завършен</span>}
             </div>
 
-            {/* Run Button */}
+            
             {!result && (
                 <div>
                     <p style={{ fontSize: '13px', color: 'var(--text-tertiary)', lineHeight: '1.6', marginBottom: '12px' }}>
@@ -54,10 +54,10 @@ const LlmAssistantSection = ({
                 </div>
             )}
 
-            {/* LLM Result */}
+            
             {result && (
                 <div className="llm-result">
-                    {/* Recommendation Banner */}
+                    
                     <div className={`llm-recommendation-banner recommendation-${isApproved ? 'approve' : 'reject'}`}>
                         <div className="recommendation-icon">
                             {isApproved ? '✓' : '✕'}
@@ -72,7 +72,7 @@ const LlmAssistantSection = ({
                         </div>
                     </div>
 
-                    {/* Analysis Grid */}
+                    
                     <div className="llm-analysis-grid">
                         <div className="llm-result-block">
                             <span className="llm-result-label">Предвиден вид</span>
@@ -114,7 +114,7 @@ const LlmAssistantSection = ({
                         )}
                     </div>
 
-                    {/* Issues */}
+                   
                     {result.issues && result.issues.length > 0 && (
                         <div className="llm-result-block">
                             <span className="llm-result-label">Открити проблеми</span>

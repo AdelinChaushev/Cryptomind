@@ -39,7 +39,7 @@
     --transition: 0.18s ease;
 }
 
-/* ─── BASE ─── */
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 .account-page {
@@ -54,7 +54,7 @@
     padding: 40px 20px 80px;
 }
 
-/* ─── PAGE HEADER ─── */
+
 .account-page-header {
     max-width: 900px;
     margin: 0 auto 36px;
@@ -96,7 +96,7 @@
     color: var(--text-tertiary);
 }
 
-/* ─── LAYOUT ─── */
+
 .account-layout {
     max-width: 900px;
     margin: 0 auto;
@@ -106,7 +106,7 @@
     align-items: start;
 }
 
-/* ─── PROFILE CARD ─── */
+
 .profile-card {
     background: var(--bg-surface);
     border: 1px solid var(--border-default);
@@ -196,7 +196,7 @@
     50%       { opacity: 0.4; }
 }
 
-/* ─── PROFILE META ─── */
+
 .profile-meta {
     display: flex;
     flex-direction: column;
@@ -237,7 +237,7 @@
     word-break: break-all;
 }
 
-/* ─── DEACTIVATE BUTTON ─── */
+
 .btn-deactivate {
     width: 100%;
     display: flex;
@@ -269,14 +269,14 @@
     cursor: not-allowed;
 }
 
-/* ─── RIGHT COLUMN ─── */
+
 .account-right {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-/* ─── SECTION PANEL ─── */
+
 .section-panel {
     background: var(--bg-surface);
     border: 1px solid var(--border-default);
@@ -309,7 +309,7 @@
     padding: 22px;
 }
 
-/* ─── STATS GRID ─── */
+
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -380,7 +380,7 @@
     margin-top: 4px;
 }
 
-/* ─── LEADERBOARD RANK ─── */
+
 .rank-display {
     display: flex;
     align-items: center;
@@ -413,7 +413,7 @@
     color: var(--text-secondary);
 }
 
-/* ─── BADGES ─── */
+
 .badges-grid {
     display: flex;
     flex-wrap: wrap;
@@ -443,7 +443,7 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
-    transform: scale(2.5); /* 🔑 THIS */
+    transform: scale(2.5); 
 }
 
 .badge-item:hover .badge-icon-wrap {
@@ -452,7 +452,7 @@
     transform: translateY(-3px);
 }
 
-/* ─── TOOLTIP ─── */
+
 .badge-tooltip {
     position: fixed;
     background: var(--bg-elevated);
@@ -520,7 +520,7 @@
     font-family: var(--font-mono);
 }
 
-/* ─── MODAL ─── */
+
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -634,7 +634,7 @@
     cursor: not-allowed;
 }
 
-/* ─── LOADING / ERROR ─── */
+
 .account-loading,
 .account-error {
     max-width: 900px;
@@ -675,7 +675,7 @@
     font-family: var(--font-mono);
 }
 
-/* ─── RESPONSIVE ─── */
+
 @media (max-width: 720px) {
     .account-layout {
         grid-template-columns: 1fr;

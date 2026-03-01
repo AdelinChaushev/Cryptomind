@@ -33,7 +33,7 @@ const AdminActions = ({
 }) => {
     return (
         <div className="actions-column">
-            {/* ─── Edit Details ─── */}
+            
             <div className="admin-card">
                 <div className="admin-card-header">
                     <span className="admin-card-title">Cipher Details</span>
@@ -51,7 +51,7 @@ const AdminActions = ({
                 </div>
             </div>
 
-            {/* ─── Permissions ─── */}
+            
             <div className="admin-card">
                 <div className="admin-card-header">
                     <span className="admin-card-title">AI Assistance Permissions</span>
@@ -78,7 +78,7 @@ const AdminActions = ({
                 </div>
             </div>
 
-            {/* ─── Tags ─── */}
+           
             <div className="admin-card">
                 <div className="admin-card-header">
                     <span className="admin-card-title">Tags</span>
@@ -97,7 +97,7 @@ const AdminActions = ({
                 </div>
             </div>
 
-            {/* ─── Challenge Type ─── */}
+            
             <div className="admin-card">
                 <div className="admin-card-header">
                     <span className="admin-card-title">Challenge Type</span>
@@ -123,7 +123,7 @@ const AdminActions = ({
                 </div>
             </div>
 
-            {/* ─── Actions ─── */}
+            
             <div className="admin-card">
                 <div className="admin-card-header">
                     <span className="admin-card-title">Review Decision</span>
