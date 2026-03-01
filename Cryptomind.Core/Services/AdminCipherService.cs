@@ -94,7 +94,7 @@ namespace Cryptomind.Core.Services
 			var result = await cipherRepo.GetAllAttached()
 				.Include(x => x.CipherTags)
 				.ThenInclude(x => x.Tag)
-		        .Include(c => c.CreatedByUser)
+				.Include(c => c.CreatedByUser)
 				.Include(c => c.UserSolutions)
 		.Where(c => c.Status == ApprovalStatus.Approved && !c.IsDeleted)
 				.ToListAsync();
@@ -142,8 +142,8 @@ namespace Cryptomind.Core.Services
 		.Include(c => c.UserSolutions)
 		.Include(c => c.CreatedByUser)
 		.Include(c => c.CipherTags)
-        .ThenInclude(x => x.Tag)
-        .Where(c => c.IsDeleted)
+		.ThenInclude(x => x.Tag)
+		.Where(c => c.IsDeleted)
 		.ToListAsync();
 
 			if (!result.Any())
@@ -205,10 +205,13 @@ namespace Cryptomind.Core.Services
 				throw new NotFoundException(CipherErrorConstants.CipherNotFoundMessage);
 
 			if (cipher.Status != ApprovalStatus.Pending)
-				throw new ConflictException("Можете да анализирате само шифри, които са в състояние на чакане");
+				throw new ConflictException(CipherErrorConstants.CannotAnalyzeResolvedCiphers);
 
 			if (cipher.IsDeleted)
 				throw new ConflictException(CipherErrorConstants.CipherDeletedConflict);
+
+			cipher.LLMData.Reasoning = null;
+			cipher.LLMData = null;
 
 			if (cipher.LLMData != null && cipher.LLMData.Reasoning != null)
 				return new CipherValidationResultDTO
@@ -268,7 +271,7 @@ namespace Cryptomind.Core.Services
 			else if (cipher.IsDeleted)
 				throw new ConflictException(CipherErrorConstants.CipherDeletedConflict);
 			else if (cipher.Status != ApprovalStatus.Pending)
-				throw new ConflictException("Само чакащи шифри могат да бъдат одобрява");
+				throw new ConflictException(CipherErrorConstants.CanApproveOnlyPendingCiphers);
 
 			string userId = cipher.CreatedByUserId;
 
@@ -283,7 +286,7 @@ namespace Cryptomind.Core.Services
 
 			//When type is not given we cannot approve it
 			if (model.TypeOfCipher == null)
-				throw new ConflictException("Шифър с неизвестен тип не може да бъде одобрен, защото точките за всеки шифър се базират на неговия тип.");
+				throw new ConflictException(CipherErrorConstants.CanApproveOnlyCiphersWithType);
 
 			cipher.ChallengeType = string.IsNullOrWhiteSpace(cipher.DecryptedText)
 				? ChallengeType.Experimental
@@ -301,7 +304,7 @@ namespace Cryptomind.Core.Services
 			cipher.TypeOfCipher = model.TypeOfCipher;
 
 			if (!PointsForType.ContainsKey(model.TypeOfCipher.Value))
-				throw new ConflictException("Невалиден тип шифър");
+				throw new ConflictException(CipherErrorConstants.InvalidCipherType);
 
 			cipher.Points = cipher.TypeOfCipher.HasValue
 				? PointsForType[cipher.TypeOfCipher.Value]
@@ -327,9 +330,9 @@ namespace Cryptomind.Core.Services
 			else if (cipher.IsDeleted)
 				throw new ConflictException(CipherErrorConstants.CipherDeletedConflict);
 			else if (cipher.Status == ApprovalStatus.Approved)
-				throw new ConflictException("Шифърът вече е одобрен");
+				throw new ConflictException(CipherErrorConstants.CipherIsAlreadyApproved);
 			else if (cipher.Status == ApprovalStatus.Rejected)
-				throw new ConflictException("Шифърът вече е отхвърлен");
+				throw new ConflictException(CipherErrorConstants.CipherIsAlreadyRejected);
 
 			string userId = cipher.CreatedByUserId;
 
@@ -344,7 +347,7 @@ namespace Cryptomind.Core.Services
 			await notificationService.CreateAndSendNotification(
 				userId,
 				NotificationType.CipherRejected,
-				$"Вашият шифър {cipher.Title} беше отхвърлено. Причина:" + reason,
+				$"Вашият шифър {cipher.Title} беше отхвърлен. Причина:" + reason,
 		CipherErrorConstants.MySubmissionsPath);
 		}
 		public async Task UpdateApprovedCipher(int id, UpdateCipherViewModel model)
@@ -358,7 +361,7 @@ namespace Cryptomind.Core.Services
 			else if (cipher.IsDeleted)
 				throw new ConflictException(CipherErrorConstants.CipherDeletedConflict);
 			else if (cipher.Status != ApprovalStatus.Approved)
-				throw new ConflictException("Шифърът не е одобрен");
+				throw new ConflictException(CipherErrorConstants.CipherIsNotApproved);
 
 			if (string.IsNullOrEmpty(model.Title))
 				throw new CustomValidationException(CipherErrorConstants.TitleRequiredMessage);
@@ -379,10 +382,10 @@ namespace Cryptomind.Core.Services
 			{
 				cipher.CipherTags = new HashSet<CipherTag>();
 
-            }
+			}
 
 
-				await cipherRepo.UpdateAsync(cipher);
+			await cipherRepo.UpdateAsync(cipher);
 
 			await notificationService.CreateAndSendNotification(
 				cipher.CreatedByUserId,
@@ -399,9 +402,9 @@ namespace Cryptomind.Core.Services
 			if (cipher == null)
 				throw new NotFoundException(CipherErrorConstants.CipherNotFoundMessage);
 			else if (cipher.IsDeleted)
-				throw new ConflictException("Шифърът вече е изтрит");
+				throw new ConflictException(CipherErrorConstants.CipherIsAlreadyDeleted);
 			else if (cipher.Status == ApprovalStatus.Rejected)
-				throw new ConflictException("Няма смисъл да се изтрива отхвърлен шифър.");
+				throw new ConflictException(CipherErrorConstants.CipherIsAlreadyRejected);
 
 			if (cipher.AnswerSuggestions.Any(x => x.Status == ApprovalStatus.Pending))
 			{
