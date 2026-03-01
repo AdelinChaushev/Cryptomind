@@ -210,9 +210,6 @@ namespace Cryptomind.Core.Services
 			if (cipher.IsDeleted)
 				throw new ConflictException(CipherErrorConstants.CipherDeletedConflict);
 
-			cipher.LLMData.Reasoning = null;
-			cipher.LLMData = null;
-
 			if (cipher.LLMData != null && cipher.LLMData.Reasoning != null)
 				return new CipherValidationResultDTO
 				{
