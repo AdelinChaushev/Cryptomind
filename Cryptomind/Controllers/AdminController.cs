@@ -1,4 +1,5 @@
-﻿using Cryptomind.Common.DTOs;
+﻿using Cryptomind.Common.Constants;
+using Cryptomind.Common.DTOs;
 using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.ViewModels.AdminViewModels;
 using Cryptomind.Core.Contracts;
@@ -59,7 +60,7 @@ namespace Cryptomind.Controllers
 			var cipher = await adminCipherService.GetCipherById(id);
 			if (cipher.Status != ApprovalStatus.Pending.ToString())
 			{
-				throw new ConflictException("Шифърът не очаква одобрение");
+				throw new ConflictException(CipherErrorConstants.CipherIsResolved);
 			}
 			return Ok(cipher);
 		}
