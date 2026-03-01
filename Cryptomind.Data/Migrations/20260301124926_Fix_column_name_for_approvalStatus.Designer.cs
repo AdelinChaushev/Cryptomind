@@ -4,6 +4,7 @@ using Cryptomind.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cryptomind.Data.Migrations
 {
     [DbContext(typeof(CryptomindDbContext))]
-    partial class CryptomindDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260301124926_Fix_column_name_for_approvalStatus")]
+    partial class Fix_column_name_for_approvalStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -264,7 +267,7 @@ namespace Cryptomind.Data.Migrations
                         {
                             Id = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "0fea5c1f-3a61-40f1-b176-417bf1089f88",
+                            ConcurrencyStamp = "b3a15630-f862-400f-8441-498c538c852d",
                             Email = "admin@cryptomind.com",
                             EmailConfirmed = true,
                             IsBanned = false,
@@ -273,7 +276,7 @@ namespace Cryptomind.Data.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@CRYPTOMIND.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEPsttWeceXIx4AA3MuRdtEts0dVyiesAAPpLEbvMIwagBqWtKQAhx4/g20Qu5JS9xQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEHJeR9GFpWnAeRE9YI4IzixucxWG3soslM7MS52YAstUz0eMWRxFx4Ah9Qomigepag==",
                             PhoneNumberConfirmed = false,
                             RegisteredAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Score = 0,
@@ -285,7 +288,7 @@ namespace Cryptomind.Data.Migrations
                         {
                             Id = "b2c3d4e5-f6a7-8901-bcde-f12345678901",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "78dcec41-4d08-4e7b-b85b-202f420ebff1",
+                            ConcurrencyStamp = "a76e6128-c778-45c0-8dc7-0a81da24ef0c",
                             Email = "user@cryptomind.com",
                             EmailConfirmed = true,
                             IsBanned = false,
@@ -294,7 +297,7 @@ namespace Cryptomind.Data.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "USER@CRYPTOMIND.COM",
                             NormalizedUserName = "USER",
-                            PasswordHash = "AQAAAAIAAYagAAAAEH3mHrzna4lcFH2BDTCg7hXpAq7QHCUJgxQPb2ue143AunW5UvH5BBZWK4WJhLaldg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEIhVhDCRdj7saPdDBY+lVgGJsoos+N+STDKH5aVi9pazEn4hiAEZkPv61fRBLLQ21Q==",
                             PhoneNumberConfirmed = false,
                             RegisteredAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Score = 0,
@@ -1369,10 +1372,6 @@ namespace Cryptomind.Data.Migrations
                     b.Property<int>("PointsEarned")
                         .HasColumnType("int");
 
-                    b.Property<string>("Solution")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<DateTime>("TimeSolved")
                         .HasColumnType("datetime2");
 
@@ -1396,10 +1395,6 @@ namespace Cryptomind.Data.Migrations
                     b.HasIndex("UserId", "CipherId")
                         .IsUnique()
                         .HasFilter("[IsCorrect] = 1");
-
-                    b.HasIndex("UserId", "CipherId", "Solution")
-                        .IsUnique()
-                        .HasFilter("[IsCorrect] = 0");
 
                     b.ToTable("UserSolution");
                 });
