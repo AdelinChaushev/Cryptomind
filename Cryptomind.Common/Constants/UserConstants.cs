@@ -13,5 +13,5 @@ namespace Cryptomind.Common.Constants
 		public const string UserNotBanned = "Този потребител не е блокиран.";
 		public const string AdminCannotBeBanned = "Администратори не могат да бъдат блокирани.";
 		public const string UserNotFound = "Потребителят не беше намерен";
-     }
+	}
 }

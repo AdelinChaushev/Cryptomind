@@ -72,8 +72,8 @@ namespace Cryptomind.Core.Services
 					AvailablePoints = availablePoints
 				};
 			}
-			string cachedHint = GetCachedHint(cipher, hintType);
 
+			string cachedHint = GetCachedHint(cipher, hintType);
 			if (!string.IsNullOrEmpty(cachedHint))
 				hintContent = cachedHint;
 			else
