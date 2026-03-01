@@ -59,6 +59,7 @@ namespace Cryptomind.Core.Services
 					CipherTags = new List<CipherTag>(),
 					HintsRequested = new List<HintRequest>(),
 					CreatedAt = DateTime.UtcNow.AddHours(2),
+					LLMData = new CipherLLMData(),
 				};
 			}
 			else if (model.CipherDefinition == CipherDefinition.ImageCipher)
@@ -119,7 +120,8 @@ namespace Cryptomind.Core.Services
 					HintsRequested = new List<HintRequest>(),
 					EncryptedText = finalText,
 					OCRConfidence = ocrConfidence ?? 0,
-					CreatedAt = DateTime.UtcNow.AddHours(2)
+					CreatedAt = DateTime.UtcNow.AddHours(2),
+					LLMData = new CipherLLMData(),
 				};
 
 			}

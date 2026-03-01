@@ -22,7 +22,7 @@ public abstract class Cipher
 	[MaxLength(450)]
 	public string EncryptedText { get; set; }
 	public string MLPrediction { get; set; }
-	public CipherLLMData? LLMData { get; set; }
+	public CipherLLMData LLMData { get; set; } = null!;
 	public CipherType? TypeOfCipher { get; set; }
 	public ChallengeType ChallengeType { get; set; }
 	public DateTime CreatedAt { get; set; }
@@ -50,7 +50,7 @@ public abstract class Cipher
 [Owned]
 public class CipherLLMData
 {
-	public string Recommendation { get; set; }
+	public string? Recommendation { get; set; }
 	public string? Reasoning { get; set; }
 	public List<string>? Issues { get; set; }
 	public string? PredictedType { get; set; }
