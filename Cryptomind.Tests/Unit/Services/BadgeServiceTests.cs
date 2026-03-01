@@ -754,11 +754,12 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var solutions = new[]
 			{
-				new UserSolution { UserId = "u1", UsedFullSolution = false, UsedTypeHint = false, UsedSolutionHint = false },
-				new UserSolution { UserId = "u1", UsedFullSolution = false, UsedTypeHint = false, UsedSolutionHint = false },
-				new UserSolution { UserId = "u1", UsedFullSolution = true,  UsedTypeHint = false, UsedSolutionHint = false },
-				new UserSolution { UserId = "u1", UsedFullSolution = false, UsedTypeHint = true,  UsedSolutionHint = false },
-				new UserSolution { UserId = "u1", UsedFullSolution = false, UsedTypeHint = false, UsedSolutionHint = true  },
+				new UserSolution { UserId = "u1", IsCorrect = true,  UsedFullSolution = false, UsedTypeHint = false, UsedSolutionHint = false },
+				new UserSolution { UserId = "u1", IsCorrect = true,  UsedFullSolution = false, UsedTypeHint = false, UsedSolutionHint = false },
+				new UserSolution { UserId = "u1", IsCorrect = true,  UsedFullSolution = true,  UsedTypeHint = false, UsedSolutionHint = false },
+				new UserSolution { UserId = "u1", IsCorrect = true,  UsedFullSolution = false, UsedTypeHint = true,  UsedSolutionHint = false },
+				new UserSolution { UserId = "u1", IsCorrect = true,  UsedFullSolution = false, UsedTypeHint = false, UsedSolutionHint = true  },
+				new UserSolution { UserId = "u1", IsCorrect = false, UsedFullSolution = false, UsedTypeHint = false, UsedSolutionHint = false },
 			};
 			SetupAttachedSolutions(solutions);
 
@@ -787,8 +788,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var solutions = new[]
 			{
-				new UserSolution { UserId = "u1", UsedFullSolution = false, UsedTypeHint = false, UsedSolutionHint = false },
-				new UserSolution { UserId = "u2", UsedFullSolution = false, UsedTypeHint = false, UsedSolutionHint = false },
+				new UserSolution { UserId = "u1", IsCorrect = true, UsedFullSolution = false, UsedTypeHint = false, UsedSolutionHint = false },
+				new UserSolution { UserId = "u2", IsCorrect = true, UsedFullSolution = false, UsedTypeHint = false, UsedSolutionHint = false },
 			};
 			SetupAttachedSolutions(solutions);
 
@@ -922,30 +923,14 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task GetRareSolves_CountsCiphers_WithThreeOrFewerCorrectSolversTotal()
 		{
-			var rareCipher = new ConcreteCipher
-			{
-				Id = 1,
-				UserSolutions = new List<UserSolution>
-				{
-					new() { IsCorrect = true },
-					new() { IsCorrect = true },
-				}
-			};
-			var commonCipher = new ConcreteCipher
-			{
-				Id = 2,
-				UserSolutions = new List<UserSolution>
-				{
-					new() { IsCorrect = true },
-					new() { IsCorrect = true },
-					new() { IsCorrect = true },
-					new() { IsCorrect = true },
-				}
-			};
 			var solutions = new[]
 			{
-				new UserSolution { UserId = "u1", CipherId = 1, IsCorrect = true, Cipher = rareCipher },
-				new UserSolution { UserId = "u1", CipherId = 2, IsCorrect = true, Cipher = commonCipher },
+				new UserSolution { UserId = "u1", CipherId = 1, IsCorrect = true },
+				new UserSolution { UserId = "u1", CipherId = 2, IsCorrect = true },
+				new UserSolution { UserId = "u2", CipherId = 1, IsCorrect = true },
+				new UserSolution { UserId = "u2", CipherId = 2, IsCorrect = true },
+				new UserSolution { UserId = "u3", CipherId = 2, IsCorrect = true },
+				new UserSolution { UserId = "u4", CipherId = 2, IsCorrect = true },
 			};
 			SetupAttachedSolutions(solutions);
 
@@ -981,20 +966,12 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task GetRareSolves_DoesNotCountCipher_WhenFourOrMoreCorrectSolversTotal()
 		{
-			var cipher = new ConcreteCipher
-			{
-				Id = 1,
-				UserSolutions = new List<UserSolution>
-				{
-					new() { IsCorrect = true },
-					new() { IsCorrect = true },
-					new() { IsCorrect = true },
-					new() { IsCorrect = true },
-				}
-			};
 			var solutions = new[]
 			{
-				new UserSolution { UserId = "u1", CipherId = 1, IsCorrect = true, Cipher = cipher },
+				new UserSolution { UserId = "u1", CipherId = 1, IsCorrect = true },
+				new UserSolution { UserId = "u2", CipherId = 1, IsCorrect = true },
+				new UserSolution { UserId = "u3", CipherId = 1, IsCorrect = true },
+				new UserSolution { UserId = "u4", CipherId = 1, IsCorrect = true },
 			};
 			SetupAttachedSolutions(solutions);
 
