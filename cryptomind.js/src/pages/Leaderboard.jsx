@@ -90,11 +90,10 @@ export default function Leaderboard() {
     fetchLeaderboard();
   }, []);
 
-  // Prepare data
+
   const top3 = entries.filter((e) => e.place <= 3);
   const rest = entries.filter((e) => e.place > 3);
 
-  // Podium order: 2nd | 1st | 3rd (classic visual layout)
   const podiumOrder = [
     top3.find((e) => e.place === 2),
     top3.find((e) => e.place === 1),

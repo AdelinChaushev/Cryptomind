@@ -1,4 +1,4 @@
-/* ─── EXPERIMENTAL NOTICE ─── */
+
 .experimental-notice {
     padding: 14px 16px;
     background: var(--violet-dim);
@@ -26,7 +26,7 @@
     color: var(--violet-400);
 }
 
-/* ─── FIELDS ─── */
+
 .experimental-field {
     margin-bottom: 14px;
 }
@@ -40,7 +40,6 @@
     margin-bottom: 8px;
 }
 
-/* ─── SUCCESS MESSAGE ─── */
 .experimental-success {
     color: #10b981;
     font-size: 13px;

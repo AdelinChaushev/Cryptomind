@@ -19,7 +19,7 @@ const PendingAnswerApproval = () => {
     const {  id } = useParams();
     const navigate = useNavigate();
      const { setError: setGlobalError } = useError();
-    // Fetch answer submission
+   
     useEffect(() => {
         const fetchAnswer = async () => {
             if (!id || isNaN(id)) {
@@ -29,7 +29,7 @@ const PendingAnswerApproval = () => {
             }
 
             try {
-                // Fetch the answer suggestion
+               
                 const { data } = await axios.get(`${API_BASE}/answer/${id}`);
                 console.log('Answer suggestion:', data);
                 setAnswerSubmission(data);
@@ -44,7 +44,7 @@ const PendingAnswerApproval = () => {
         fetchAnswer();
     }, [id]);
 
-    // Approve answer
+    
     const handleApprove = useCallback(async () => {
       
         try {
@@ -57,7 +57,7 @@ const PendingAnswerApproval = () => {
         }
     }, [id]);
 
-    // Reject answer
+    
     const handleReject = useCallback(async () => {
         console.log('Rejection reason:', rejectionReason);
        
@@ -136,19 +136,9 @@ const PendingAnswerApproval = () => {
 
                     <div className="answer-approval-layout">
                         <div className="answer-approval-main">
-                            {/* Original Cipher Context */}
+                           
                             <div className="admin-card">
-                                {/* <div className="admin-card-header">
-                                    <span className="admin-card-title">Оригинален шифър</span>
-                                    <a
-                                        href={`/cipher/${answerSubmission.cipherId}`}
-                                        className="btn btn-ghost btn-sm"
-                                        target="_blank"
-                                        rel="noreferrer"
-                                    >
-                                        Виж шифъра →
-                                    </a>
-                                </div> */}
+                              
 
                                 {(answerSubmission.cipherName) && (
                                     <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)', marginBottom: '8px' }}>
@@ -179,7 +169,7 @@ const PendingAnswerApproval = () => {
                                 
                             </div>
 
-                            {/* The Suggested Answer */}
+                           
                             <div className="admin-card">
                                 <div className="admin-card-header">
                                     <span className="admin-card-title">Предложен отговор</span>
@@ -206,7 +196,7 @@ const PendingAnswerApproval = () => {
                             </div>
                         </div>
 
-                        {/* Decision sidebar */}
+                    
                         <div className="answer-approval-sidebar">
                             <div className="admin-card">
                                 <div className="admin-card-header">

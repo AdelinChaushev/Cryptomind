@@ -18,7 +18,6 @@
     background: rgba(251, 191, 36, 0.04);
 }
 
-/* Unread variants */
 .nm-item--unread {
     background: rgba(251, 191, 36, 0.05);
 }
@@ -39,7 +38,6 @@
     background: rgba(168, 85, 247, 0.05);
 }
 
-/* Left accent bar */
 .nm-item__bar {
     position: absolute;
     left: 0;
@@ -60,7 +58,6 @@
 .nm-item--info     .nm-item__bar  { background: #38bdf8; }
 .nm-item--badge    .nm-item__bar  { background: #a855f7; }
 
-/* Icon bubble */
 .nm-item__icon {
     width: 36px;
     height: 36px;
@@ -84,7 +81,6 @@
 .nm-item--badge .nm-item__icon { background: rgba(168,85,247,0.12); border: 1px solid rgba(168,85,247,0.22); }
 .nm-item--badge .nm-item__icon svg { color: #a855f7; }
 
-/* Body text */
 .nm-item__body {
     flex: 1;
     min-width: 0;
