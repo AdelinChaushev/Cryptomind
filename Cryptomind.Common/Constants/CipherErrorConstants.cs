@@ -4,7 +4,6 @@
 	{
 		public const string MySubmissionsPath = "my_submissions";
 
-
 		public const string CipherNotFoundMessage = "Шифърът не е намерен.";
 		public const string CipherDeletedConflict = "Шифърът е изтрит.";
 		public const string UserNotFoundMessage = "Потребителят не е намерен.";
@@ -35,5 +34,16 @@
 		public const string InvalidFileType = "Невалиден тип файл. Разрешени: .jpg, .jpeg, .png, .webp";
 		public const string EmptyFileError = "Файлът не може да бъде празен.";
 		public const string FileTooLarge = "Размерът на файла не може да надвишава 5MB.";
+
+		public const string CipherIsResolved = "Шифърът не очаква одобрение";
+		public const string CannotAnalyzeResolvedCiphers = "Можете да анализирате само шифри, които са в състояние на чакане";
+		public const string CanApproveOnlyPendingCiphers = "Само чакащи шифри могат да бъдат одобрявани";
+		public const string CanApproveOnlyCiphersWithType = "Шифър с неизвестен тип не може да бъде одобрен, защото точките за всеки шифър се базират на неговия тип.";
+		public const string InvalidCipherType = "Невалиден тип шифър";
+		public const string CipherIsAlreadyApproved = "Шифърът вече е одобрен";
+		public const string CipherIsAlreadyRejected = "Шифърът е вече отхвърлен";
+
+		public const string CipherIsAlreadyDeleted = "Шифърът вече е изтрит";
+		public const string CipherIsNotApproved = "Шифърът не е одобрен";
 	}
 }
