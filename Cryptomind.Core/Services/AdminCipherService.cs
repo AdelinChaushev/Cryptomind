@@ -210,7 +210,7 @@ namespace Cryptomind.Core.Services
 			if (cipher.IsDeleted)
 				throw new ConflictException(CipherErrorConstants.CipherDeletedConflict);
 
-			if (cipher.LLMData != null && cipher.LLMData.Reasoning != null)
+			if (cipher.LLMData.Reasoning != null)
 				return new CipherValidationResultDTO
 				{
 					PredictedType = cipher.LLMData.PredictedType,
@@ -222,8 +222,6 @@ namespace Cryptomind.Core.Services
 					IsSolvable = cipher.LLMData.IsSolvable,
 					Recommendation = cipher.LLMData.Recommendation
 				};
-			else
-				cipher.LLMData = new CipherLLMData();
 
 			var mlPredictionJson = cipher.MLPrediction;
 			var mlPredictionData = JsonSerializer.Deserialize<MlPredictionData>(mlPredictionJson);
