@@ -11,6 +11,7 @@
 		public const string DuplicateTitleMessage = "Вече има шифър с това заглавие.";
 		public const string HintExperimentalConflict = "Подсказките не могат да се използват за експериментални шифри.";
 		public const string NotDeleted = "Шифърът не е изтрит";
+		public const string EncryptedTextShouldNotBeEmpty = "Шифрованият текст е задължителен";
 
 		public const string ApprovedOnlySuggestion = "Можете да предлагате отговори само за одобрени шифри.";
 		public const string AlreadyHasAnswer = "Шифърът вече има официален отговор.";
