@@ -71,7 +71,7 @@ const SubmitCipherPage = () => {
         const formData = new FormData();
         formData.append("Title", fields.title);
         formData.append("DecryptedText", fields.decryptedText || "");
-        formData.append("EncryptedText", fields.encryptedText);
+        formData.append("EncryptedText", fields.encryptedText || ocrText);
         formData.append("CipherType", fields.cipherType.toString());
         formData.append("CipherDefinition", (fields.image != null ? 1 : 0).toString());
 
