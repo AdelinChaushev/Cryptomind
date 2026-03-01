@@ -19,7 +19,6 @@ namespace Cryptomind.Core.Services
 {
 	public class AdminCipherService(
 		IRepository<Cipher, int> cipherRepo,
-		IRepository<UserSolution, int> solutionRepo,
 		IRepository<Tag, int> tagRepo,
 		ILLMService llmService,
 		INotificationService notificationService,
@@ -220,8 +219,10 @@ namespace Cryptomind.Core.Services
 					Issues = cipher.LLMData.Issues,
 					SolutionCorrect = cipher.LLMData.SolutionCorrect,
 					IsAppropriate = cipher.LLMData.IsAppropriate ?? true,
-					IsSolvable = cipher.LLMData.IsSolvable
-				};
+					IsSolvable = cipher.LLMData.IsSolvable,
+					Recommendation = cipher.IsLLMRecommended ? "approve" : "reject"
+
+                };
 			else
 				cipher.LLMData = new CipherLLMData();
 
