@@ -29,7 +29,7 @@ namespace Cryptomind.Core.Services
 			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.Title == model.Title && !x.IsDeleted))
 				throw new ConflictException(CipherErrorConstants.DuplicateTitleMessage);
 
-			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.EncryptedText == model.EncryptedText))
+			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.EncryptedText == model.EncryptedText && !x.IsDeleted && x.Status != ApprovalStatus.Rejected))
 				throw new ConflictException(CipherErrorConstants.DuplicateCipherContent);
 
 			if (string.IsNullOrWhiteSpace(model.DecryptedText) && model.CipherType == null)
