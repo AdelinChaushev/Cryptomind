@@ -254,10 +254,12 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupMlResult("Caesar", "Substitution", 0.95);
 			englishValidationMock.Setup(e => e.IsLikelyEnglishAsync(It.IsAny<string>(), It.IsAny<double>()))
 				.ReturnsAsync(true);
-
 			var result = await service.SubmitCipherAsync(
-				TextModel(decryptedText: "hello world", cipherType: CipherType.Caesar), "u1");
-
+				TextModel(
+					decryptedText: "hello world",
+					cipherType: CipherType.Caesar,
+					encryptedText: "encryptedText: \"WKLV LV D ORQJ FDHVDU FLSKHU WHAW XVHG IRU WHVWLQJ FODVVLILFDWLRQ DQG WUDLQLQJ PDFKLQH OHDUQLQJ PRGHOV LQ D FLSKHU VROYHU DSSOLFDWLRQ WKH JRDO LV WR HQVXUH WKH WHAW OHQJWK LV VXIILFLHQW IRU VWDEOH SUHGLFWLRQV\""
+				), "u1");
 			Assert.False(result.IsLLMRecommended);
 		}
 
@@ -305,7 +307,11 @@ namespace Cryptomind.Tests.Unit.Services
 				.ReturnsAsync(true);
 
 			var result = await service.SubmitCipherAsync(
-				TextModel(decryptedText: "hello world", cipherType: null), "u1");
+				TextModel(
+					decryptedText: "hello world",
+					cipherType: null,
+					encryptedText: "encryptedText: \"WKLV LV D ORQJ FDHVDU FLSKHU WHAW XVHG IRU WHVWLQJ FODVVLILFDWLRQ DQG WUDLQLQJ PDFKLQH OHDUQLQJ PRGHOV LQ D FLSKHU VROYHU DSSOLFDWLRQ WKH JRDO LV WR HQVXUH WKH WHAW OHQJWK LV VXIILFLHQW IRU VWDEOH SUHGLFWLRQV\""
+				), "u1");
 
 			Assert.False(result.IsLLMRecommended);
 		}

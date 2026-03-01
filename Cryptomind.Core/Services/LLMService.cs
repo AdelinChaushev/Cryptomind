@@ -72,6 +72,8 @@ namespace Cryptomind.Core.Services
 				};
 			}
 
+			Console.WriteLine(encryptedText.Length);
+
 			string prompt;
 			if (hasType && hasSolution)
 				prompt = BuildCase1Prompt(encryptedText, decryptedText!, mlResult, userProvidedType!);
@@ -279,7 +281,7 @@ JSON RESPONSE FORMAT
   ""confidence"": ""висока"" | ""средна"" | ""ниска"",
   ""solution_correct"": true | false,
   ""is_appropriate"": true | false,
-  ""issues"": [""Write all issues in Bulgarian. If text is below 150 characters always add in Bulgarian: 'Текстът е под 150 символа — надеждността на ML предсказването е намалена.'""],
+  ""issues"": [""List ALL problems found in Bulgarian. Always include specific issues like inappropriate content, solution mismatch, wrong type etc. ONLY add 'Текстът е под 150 символа — надеждността на ML предсказването е намалена.' if the current text length is actually below 150 characters. Current length is {textLength} chars.""],
   ""recommendation"": ""approve"" | ""reject"",
   ""reasoning"": ""2-3 sentences in Bulgarian explaining your decision, referencing confusion patterns if relevant.""
 }}
@@ -364,7 +366,6 @@ Examples of ciphers that require a key:
 
 is_solvable MUST always be true or false, never null.
 
-
 ================================================================================
 JSON RESPONSE FORMAT
 ================================================================================
@@ -375,7 +376,7 @@ IMPORTANT: DO NOT include a ""solution_correct"" field in your response. This su
   ""confidence"": ""висока"" | ""средна"" | ""ниска"",
   ""is_appropriate"": true | false,
   ""is_solvable"": true | false,
-  ""issues"": [""Write all issues in Bulgarian. If text is below 150 characters always add in Bulgarian: 'Текстът е под 150 символа — надеждността на ML предсказването е намалена.'""],
+  ""issues"": [""List ALL problems found in Bulgarian. Always include specific issues like inappropriate content, solution mismatch, wrong type etc. ONLY add 'Текстът е под 150 символа — надеждността на ML предсказването е намалена.' if the current text length is actually below 150 characters. Current length is {textLength} chars.""],
   ""recommendation"": ""approve"" | ""reject"",
   ""reasoning"": ""2-3 sentences in Bulgarian. If rejecting, explain why. If approving, briefly note the solvability assessment and type confidence.""
 }}
@@ -458,7 +459,7 @@ JSON RESPONSE FORMAT
   ""confidence"": ""висока"" | ""средна"" | ""ниска"",
   ""solution_correct"": true | false,
   ""is_appropriate"": true | false,
-  ""issues"": [""Write all issues in Bulgarian. If text is below 150 characters always add in Bulgarian: 'Текстът е под 150 символа — надеждността на ML предсказването е намалена.'""],
+  ""issues"": [""List ALL problems found in Bulgarian. Always include specific issues like inappropriate content, solution mismatch, wrong type etc. ONLY add 'Текстът е под 150 символа — надеждността на ML предсказването е намалена.' if the current text length is actually below 150 characters. Current length is {textLength} chars.""],
   ""recommendation"": ""approve"" | ""reject"",
   ""reasoning"": ""2-3 sentences in Bulgarian. The user provided NO type — do not reference the user providing a wrong type. State whether you agree with ML, reference confusion patterns if relevant, and note solution validity.""
 }}

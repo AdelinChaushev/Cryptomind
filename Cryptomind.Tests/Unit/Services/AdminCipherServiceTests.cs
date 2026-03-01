@@ -36,7 +36,6 @@ namespace Cryptomind.Tests.Unit.Services
 
 			service = new AdminCipherService(
 				cipherRepoMock.Object,
-				solutionRepoMock.Object,
 				tagRepoMock.Object,
 				llmServiceMock.Object,
 				notificationMock.Object,
