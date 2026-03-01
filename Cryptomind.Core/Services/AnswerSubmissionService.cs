@@ -14,7 +14,7 @@ namespace Cryptomind.Core.Services
 	public class AnswerSubmissionService(
 		IRepository<Cipher, int> cipherRepo,
 		IRepository<AnswerSuggestion, int> answerRepo,
-		UserManager<ApplicationUser> userManager) : IAnswerSubmissionService
+        UserManager<ApplicationUser> userManager) : IAnswerSubmissionService
 	{
 		private const string DateFormat = "ddd, dd MMM yyyy h:mm";
 
@@ -49,12 +49,14 @@ namespace Cryptomind.Core.Services
             var userNow = await userManager.FindByIdAsync(userId);
             if (userNow == null)
                 throw new Exception(UserConstants.UserNotFound);
-
-			if(!userNow.CipherAnswers.Any(c => c.CipherId == cipherId))
+            bool alreadyAttempted = await answerRepo
+            .GetAllAttached()
+            .AnyAsync(x => x.UserId == userId && x.CipherId == cipherId);
+            if (!alreadyAttempted)
 			{
 				userNow.AttemptedCiphers += 1;
-
-			}
+                await userManager.UpdateAsync(userNow);
+            }
             AnswerSuggestion answer = new AnswerSuggestion
 			{
 				UserId = userId,
