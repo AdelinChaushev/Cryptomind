@@ -55,6 +55,8 @@ namespace Cryptomind.Tests.Integration
 				CreatedByUserId = user.Id,
 				LLMData = new CipherLLMData
 				{
+					Recommendation = "",
+					Reasoning = "",
 					CachedHint = "",
 					CachedSolution = "",
 					CachedTypeHint = ""
