@@ -32,7 +32,6 @@ namespace Cryptomind.Core.Services
 				.FirstOrDefaultAsync(x => x.Id == id);
 
 			ICollection<BadgeViewModel> badges = new List<BadgeViewModel>();
-			int attemptedCiphersCount = user.CipherAnswers.DistinctBy(c => c.CipherId).Count();
 
 			int rank = await userRepo.GetAllAttached()
 				.CountAsync(u => u.Score > user.Score && !u.IsDeactivated && !u.IsBanned) + 1;
@@ -73,7 +72,7 @@ namespace Cryptomind.Core.Services
 				RegisteredAt = user.RegisteredAt,
 				SolvedCount = user.SolvedCount,
 				Score = user.Score,
-				AttemptedCiphers = attemptedCiphersCount,
+				AttemptedCiphers = user.AttemptedCiphersCount,
 				LeaderBoardPlace = rank,
 				SuccessRate = user.SuccessRate,
 				Badges = badges,

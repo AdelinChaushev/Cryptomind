@@ -52,7 +52,7 @@ namespace Cryptomind.Data
 
 			builder.Entity<Cipher>()
 				.HasIndex(c => c.EncryptedText)
-				.HasFilter("IsDeleted = 0 AND ApprovalStatus != 2")
+				.HasFilter("IsDeleted = 0 AND Status != 2")
 				.IsUnique();
 
 			builder.Entity<Cipher>()
@@ -69,6 +69,11 @@ namespace Cryptomind.Data
 				.WithMany(c => c.UserSolutions)
 				.HasForeignKey(us => us.CipherId)
 				.OnDelete(DeleteBehavior.Restrict);
+
+			builder.Entity<UserSolution>()
+				.HasIndex(us => new { us.UserId, us.CipherId, us.Solution })
+				.HasFilter("[IsCorrect] = 0")
+				.IsUnique();
 
 			builder.Entity<UserSolution>()
 				.HasIndex(us => new { us.UserId, us.CipherId })
