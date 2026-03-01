@@ -78,7 +78,6 @@ namespace Cryptomind.Core.Services
 			}
 			return result;
 		}
-
 		public async Task<CipherDetailedOutputViewModel?> GetCipherAsync(int id, string userId)
 		{
 			Cipher? cipher = await cipherRepo.GetAllAttached()
@@ -97,7 +96,6 @@ namespace Cryptomind.Core.Services
 
 			return await ToDetailedOutputViewModel(cipher, userId);
 		}
-
 		public async Task<bool> SolveCipherAsync(string userId, string input, int cipherId)
 		{
 			Cipher? cipher = await cipherRepo.GetAllAttached()
@@ -187,7 +185,6 @@ namespace Cryptomind.Core.Services
 
 			return model;
 		}
-
 		private async Task<CipherDetailedOutputViewModel> ToDetailedOutputViewModel(Cipher cipher, string userId)
 		{
 			double successfullSolutionCount = cipher.UserSolutions.Count(x => x.IsCorrect);
@@ -266,7 +263,6 @@ namespace Cryptomind.Core.Services
 			}
 			return model;
 		}
-
 		private TimeSpan GetTimeSpan(DateTime solvedAt)
 		{
 			return DateTime.UtcNow.AddHours(2) - solvedAt;
