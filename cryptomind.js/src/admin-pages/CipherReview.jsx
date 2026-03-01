@@ -85,16 +85,16 @@ const CipherReview = () => {
             }).catch(err => {
                 const status = err.response?.status;
                 const serverMessage = err?.data?.title;
-                switch (status) {
-                    case 404:
-                        setLocalError('Шифърът не е намерен');
+                // switch (status) {
+                //     case 404:
+                //         setLocalError('Шифърът не е намерен');
                      
-                        break;
-                    default:
-                        setLocalError(serverMessage || 'Неуспешно зареждане на шифъра');
-                        setError(serverMessage || 'Неуспешно зареждане на шифъра');
-                        break;    
-                };
+                //         break;
+                //     default:
+                //         setLocalError(serverMessage || 'Неуспешно зареждане на шифъра');
+                //         setError(serverMessage || 'Неуспешно зареждане на шифъра');
+                //         break;    
+                // };
                 console.error('Failed to fetch cipher:', err);
                 setLocalError(err.response?.data?.error || err.message);
             })
