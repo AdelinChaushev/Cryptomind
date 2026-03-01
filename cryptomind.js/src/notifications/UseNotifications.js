@@ -17,24 +17,13 @@ export const NotificationType = {
 const API_BASE = 'http://localhost:5115/api/notifications';
 const HUB_URL  = 'http://localhost:5115/notificationHub';
 
-/*
- * parseCreatedSince
- *
- * The API returns `createdSince` as a .NET TimeSpan string.
- * Formats:
- *   "00:00:14.5678303"    →  14 seconds ago
- *   "07:36:05.4820075"    →  7 hours ago
- *   "1.03:43:27.4695859"  →  1 day ago
- */
 export function parseCreatedSince(createdSince) {
     if (!createdSince) return '';
 
-   
     const match = createdSince.match(/(?:(\d+)\.)?(\d{1,2}):(\d{2}):(\d{2})/);
 
     if (!match) return createdSince;
 
-  
     const daysPart = parseInt(match[1] || 0, 10);
     const hoursPart = parseInt(match[2], 10);
     const minutesPart = parseInt(match[3], 10);
@@ -42,7 +31,6 @@ export function parseCreatedSince(createdSince) {
 
     const totalSeconds = (daysPart * 86400) + (hoursPart * 3600) + (minutesPart * 60) + secondsPart;
 
-  
     if (totalSeconds < 60) return 'just now';
 
     const mins = Math.floor(totalSeconds / 60);
@@ -63,20 +51,30 @@ function resolveLink(notification) {
         const raw = notification.link;
         return raw.startsWith('/') ? raw : `/${raw}`;
     }
-   
+
      switch (notification.type) {
-        case 0: // CipherApproved
-        case 1: // CipherRejected
-        case 2: // CipherDeleted
-        case 3: // CipherRestored
-        case 4: // CipherUpdated
+        case 0: 
+
+        case 1: 
+
+        case 2: 
+
+        case 3: 
+
+        case 4: 
+
             return '/my-submissions';
-        case 5: // AnswerApproved
-        case 6: // AnswerRejected
-        case 7: // AnswerCipherDeleted
-        case 8: // AnswerCipherRestored
+        case 5: 
+
+        case 6: 
+
+        case 7: 
+
+        case 8: 
+
             return '/my-submissions';
-        case 9: // BadgeEarned
+        case 9: 
+
             return '/profile';
         default:
             return null;
@@ -91,7 +89,6 @@ export function useNotifications(isAuthenticated) {
     const [toasts, setToasts]               = useState([]);
     const connectionRef                     = useRef(null);
 
-    // ── Toast dismiss ──────────────────────────────────────────
     const dismissToast = useCallback((toastId) => {
         setToasts(prev =>
             prev.map(t => t.id === toastId ? { ...t, isLeaving: true } : t)
@@ -101,15 +98,15 @@ export function useNotifications(isAuthenticated) {
         }, 220);
     }, []);
 
- 
     const authHeaders = () => ({ 'Content-Type': 'application/json' });
     const didStartRef = useRef(false);
-    // ── Fetch notification history ─────────────────────────────
+
     const fetchNotifications = useCallback(async () => {
         try {
             const res = await fetch(API_BASE, {
                 headers: authHeaders(),
-                credentials: 'include', // sends the HttpOnly cookie automatically
+                credentials: 'include', 
+
             });
             if (!res.ok) {
                 console.error('[Notifications] GET returned', res.status);
@@ -125,15 +122,14 @@ export function useNotifications(isAuthenticated) {
         }
     }, []);
 
-  
-    
     useEffect(() => {
         if (!isAuthenticated) return;
         if (didStartRef.current) return;
         didStartRef.current = true;
         const connection = new signalR.HubConnectionBuilder()
             .withUrl(HUB_URL, {
-                withCredentials: true, // sends HttpOnly cookie on negotiate
+                withCredentials: true, 
+
                 transport:
                     signalR.HttpTransportType.WebSockets       |
                     signalR.HttpTransportType.ServerSentEvents |
@@ -195,7 +191,6 @@ export function useNotifications(isAuthenticated) {
         fetchNotifications();
     }, [fetchNotifications,isAuthenticated]);
 
-    // ── Mark one as read ───────────────────────────────────────
     const markAsRead = useCallback(async (notificationId) => {
         setNotifications(prev =>
             prev.map(n => n.id === notificationId ? { ...n, isRead: true } : n)
@@ -208,7 +203,7 @@ export function useNotifications(isAuthenticated) {
                 method: 'PUT',
                 headers: authHeaders(),
                 credentials: 'include',
-               
+
             });
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
         } catch (err) {
@@ -220,7 +215,6 @@ export function useNotifications(isAuthenticated) {
         }
     }, []);
 
-    // ── Mark all as read ───────────────────────────────────────
     const markAllAsRead = useCallback(async () => {
         const unreadIds = notifications.filter(n => !n.isRead).map(n => n.id);
         if (unreadIds.length === 0) return;
@@ -243,7 +237,6 @@ export function useNotifications(isAuthenticated) {
         }
     }, [notifications]);
 
-    // ── Click: mark read + navigate ────────────────────────────
     const handleNotificationClick = useCallback(async (notification) => {
         if (!notification.isRead) {
             await markAsRead(notification.id);
