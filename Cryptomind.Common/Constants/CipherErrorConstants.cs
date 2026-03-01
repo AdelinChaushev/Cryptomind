@@ -18,6 +18,7 @@
 		public const string EmptyAnswerSuggestion = "Не можете да изпратите празен отговор.";
 		public const string OwnCipherSuggestionConflict = "Не можете да предлагате отговори на шифри, създадени от Вас.";
 		public const string DuplicateSuggestion = "Вече сте предложили този отговор.";
+		public const string AlreadyTriedWithThatAnswer = "Вече пробвахте с този отговор";
 
 		public const string OwnCipherSolveConflict = "Потребителят не може да решава собствените си шифри.";
 		public const string ExperimentalSolveConflict = "Експерименталните шифри не могат да бъдат решавани.";

@@ -118,12 +118,12 @@ namespace Cryptomind.Core.Services
 			if (cipher.UserSolutions.FirstOrDefault(x => x.UserId == userId && x.IsCorrect) != null)
 				throw new ConflictException(CipherErrorConstants.AlreadySolvedConflict);
 
+			if (cipher.UserSolutions.Any(x => x.Solution == input))
+				throw new ConflictException(CipherErrorConstants.AlreadyTriedWithThatAnswer);
+
 			var userNow = await userManager.FindByIdAsync(userId);
 			if (userNow == null)
 				throw new Exception(GeneralErrorConstants.MatchDataIntegrityError(userId, cipherId));
-
-			if (!userNow.CipherAnswers.Any(x => x.CipherId == cipherId))
-				userNow.AttemptedCiphers += 1;
 
 			string correctAnswer = cipher.DecryptedText;
 
@@ -150,7 +150,9 @@ namespace Cryptomind.Core.Services
 				UsedFullSolution = usedFullSolution,
 				PointsEarned = 0,
 				IsCorrect = false,
+				Solution = input
 			};
+
 
 			if (isCorrect)
 			{
@@ -165,6 +167,7 @@ namespace Cryptomind.Core.Services
 
 				userNow.Score += pointsEarned;
 			}
+
 			await userManager.UpdateAsync(userNow);
 			await solutionRepo.AddAsync(userSolution);
 			return isCorrect;

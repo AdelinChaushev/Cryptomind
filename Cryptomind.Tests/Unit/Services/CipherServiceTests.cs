@@ -79,7 +79,6 @@ namespace Cryptomind.Tests.Unit.Services
 				UserName = "testuser",
 				Score = score,
 				CipherAnswers = cipherAnswers ?? new List<UserSolution>(),
-				AttemptedCiphers = 0,
 			};
 
 		private static CipherFilter NoFilter() => new CipherFilter
@@ -405,10 +404,15 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupAttachedCiphers(MakeCipher(1, decryptedText: "hello world"));
 			var user = MakeUser("u1", cipherAnswers: new List<UserSolution>());
 			userManagerMock.Setup(m => m.FindByIdAsync("u1")).ReturnsAsync(user);
+			UserSolution? captured = null;
+			solutionRepoMock.Setup(r => r.AddAsync(It.IsAny<UserSolution>()))
+				.Callback<UserSolution>(s => captured = s)
+				.Returns(Task.CompletedTask);
 
 			await service.SolveCipherAsync("u1", "wrong answer", 1);
 
-			Assert.Equal(1, user.AttemptedCiphers);
+			Assert.NotNull(captured);
+			Assert.Equal(1, captured.CipherId);
 		}
 
 		[Fact]
@@ -423,7 +427,7 @@ namespace Cryptomind.Tests.Unit.Services
 
 			await service.SolveCipherAsync("u1", "wrong answer", 1);
 
-			Assert.Equal(0, user.AttemptedCiphers);
+			Assert.Equal(1, user.CipherAnswers.Select(x => x.CipherId).Distinct().Count());
 		}
 
 		[Fact]
