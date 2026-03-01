@@ -220,8 +220,7 @@ namespace Cryptomind.Core.Services
 					SolutionCorrect = cipher.LLMData.SolutionCorrect,
 					IsAppropriate = cipher.LLMData.IsAppropriate ?? true,
 					IsSolvable = cipher.LLMData.IsSolvable,
-					Recommendation = cipher.IsLLMRecommended ? "approve" : "reject"
-
+					Recommendation = cipher.LLMData.Recommendation
                 };
 			else
 				cipher.LLMData = new CipherLLMData();
@@ -255,6 +254,7 @@ namespace Cryptomind.Core.Services
 			cipher.LLMData.SolutionCorrect = validation.SolutionCorrect;
 			cipher.LLMData.IsAppropriate = validation.IsAppropriate;
 			cipher.LLMData.IsSolvable = validation.IsSolvable;
+			cipher.LLMData.Recommendation = validation.Recommendation;
 
 			await cipherRepo.UpdateAsync(cipher);
 			return validation;
