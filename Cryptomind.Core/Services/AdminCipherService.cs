@@ -221,7 +221,7 @@ namespace Cryptomind.Core.Services
 					IsAppropriate = cipher.LLMData.IsAppropriate ?? true,
 					IsSolvable = cipher.LLMData.IsSolvable,
 					Recommendation = cipher.LLMData.Recommendation
-                };
+				};
 			else
 				cipher.LLMData = new CipherLLMData();
 

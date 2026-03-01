@@ -82,7 +82,7 @@ namespace Cryptomind.Core.Services
 				}
 
 				encryptedTextForAnalysis = finalText;
-				
+
 				string imageFolderPath = Path.Combine(PathHelper.GetImagesBasePath(), "Ciphers");
 				Directory.CreateDirectory(imageFolderPath);
 				string originalExtension = Path.GetExtension(model.Image.FileName).ToLowerInvariant();
