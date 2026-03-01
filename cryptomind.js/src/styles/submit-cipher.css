@@ -78,7 +78,7 @@
 
 .cipher-types-panel {
     position: relative;
-    top: calc(var(--navbar-height, 60px) - 62px);
+    top: calc(var(--navbar-height, 60px) - 64px);
 }
 
 @media (max-width: 1024px) {
