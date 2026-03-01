@@ -268,7 +268,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedCiphers(MakeCipher(1, isDeleted: true));
 
-			await Assert.ThrowsAsync<ConflictException>(
+			await Assert.ThrowsAsync<NotFoundException>(
 				() => service.GetCipherAsync(1, "u1"));
 		}
 
