@@ -19,7 +19,6 @@ namespace Cryptomind.Core.Services
 {
 	public class AdminCipherService(
 		IRepository<Cipher, int> cipherRepo,
-		IRepository<UserSolution, int> solutionRepo,
 		IRepository<Tag, int> tagRepo,
 		ILLMService llmService,
 		INotificationService notificationService,
@@ -206,7 +205,7 @@ namespace Cryptomind.Core.Services
 				throw new NotFoundException(CipherErrorConstants.CipherNotFoundMessage);
 
 			if (cipher.Status != ApprovalStatus.Pending)
-				throw new ConflictException("Можете да анализирате само шифри, които са в състояние на чакане");
+				throw new ConflictException(CipherErrorConstants.CannotAnalyzeResolvedCiphers);
 
 			if (cipher.IsDeleted)
 				throw new ConflictException(CipherErrorConstants.CipherDeletedConflict);
@@ -267,7 +266,7 @@ namespace Cryptomind.Core.Services
 			else if (cipher.IsDeleted)
 				throw new ConflictException(CipherErrorConstants.CipherDeletedConflict);
 			else if (cipher.Status != ApprovalStatus.Pending)
-				throw new ConflictException("Само чакащи шифри могат да бъдат одобрява");
+				throw new ConflictException(CipherErrorConstants.CanApproveOnlyPendingCiphers);
 
 			string userId = cipher.CreatedByUserId;
 
@@ -282,7 +281,7 @@ namespace Cryptomind.Core.Services
 
 			//When type is not given we cannot approve it
 			if (model.TypeOfCipher == null)
-				throw new ConflictException("Шифър с неизвестен тип не може да бъде одобрен, защото точките за всеки шифър се базират на неговия тип.");
+				throw new ConflictException(CipherErrorConstants.CanApproveOnlyCiphersWithType);
 
 			cipher.ChallengeType = string.IsNullOrWhiteSpace(cipher.DecryptedText)
 				? ChallengeType.Experimental
@@ -300,7 +299,7 @@ namespace Cryptomind.Core.Services
 			cipher.TypeOfCipher = model.TypeOfCipher;
 
 			if (!PointsForType.ContainsKey(model.TypeOfCipher.Value))
-				throw new ConflictException("Невалиден тип шифър");
+				throw new ConflictException(CipherErrorConstants.InvalidCipherType);
 
 			cipher.Points = cipher.TypeOfCipher.HasValue
 				? PointsForType[cipher.TypeOfCipher.Value]
@@ -326,9 +325,9 @@ namespace Cryptomind.Core.Services
 			else if (cipher.IsDeleted)
 				throw new ConflictException(CipherErrorConstants.CipherDeletedConflict);
 			else if (cipher.Status == ApprovalStatus.Approved)
-				throw new ConflictException("Шифърът вече е одобрен");
+				throw new ConflictException(CipherErrorConstants.CipherIsAlreadyApproved);
 			else if (cipher.Status == ApprovalStatus.Rejected)
-				throw new ConflictException("Шифърът вече е отхвърлен");
+				throw new ConflictException(CipherErrorConstants.CipherIsAlreadyRejected);
 
 			string userId = cipher.CreatedByUserId;
 
@@ -343,7 +342,7 @@ namespace Cryptomind.Core.Services
 			await notificationService.CreateAndSendNotification(
 				userId,
 				NotificationType.CipherRejected,
-				$"Вашият шифър {cipher.Title} беше отхвърлено. Причина:" + reason,
+				$"Вашият шифър {cipher.Title} беше отхвърлен. Причина:" + reason,
 		CipherErrorConstants.MySubmissionsPath);
 		}
 		public async Task UpdateApprovedCipher(int id, UpdateCipherViewModel model)
@@ -357,7 +356,7 @@ namespace Cryptomind.Core.Services
 			else if (cipher.IsDeleted)
 				throw new ConflictException(CipherErrorConstants.CipherDeletedConflict);
 			else if (cipher.Status != ApprovalStatus.Approved)
-				throw new ConflictException("Шифърът не е одобрен");
+				throw new ConflictException(CipherErrorConstants.CipherIsNotApproved);
 
 			if (string.IsNullOrEmpty(model.Title))
 				throw new CustomValidationException(CipherErrorConstants.TitleRequiredMessage);
@@ -398,9 +397,9 @@ namespace Cryptomind.Core.Services
 			if (cipher == null)
 				throw new NotFoundException(CipherErrorConstants.CipherNotFoundMessage);
 			else if (cipher.IsDeleted)
-				throw new ConflictException("Шифърът вече е изтрит");
+				throw new ConflictException(CipherErrorConstants.CipherIsAlreadyDeleted);
 			else if (cipher.Status == ApprovalStatus.Rejected)
-				throw new ConflictException("Няма смисъл да се изтрива отхвърлен шифър.");
+				throw new ConflictException(CipherErrorConstants.CipherIsAlreadyRejected);
 
 			if (cipher.AnswerSuggestions.Any(x => x.Status == ApprovalStatus.Pending))
 			{
