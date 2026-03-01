@@ -73,7 +73,7 @@ namespace Cryptomind.Core.Services
 				RegisteredAt = user.RegisteredAt,
 				SolvedCount = user.SolvedCount,
 				Score = user.Score,
-				AttemptedCiphers = attemptedCiphersCount,
+				AttemptedCiphers = user.AttemptedCiphers,
 				LeaderBoardPlace = rank,
 				SuccessRate = user.SuccessRate,
 				Badges = badges,

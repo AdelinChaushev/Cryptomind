@@ -84,7 +84,7 @@ function resolveLink(notification) {
     }
 }
 
-export function useNotifications() {
+export function useNotifications(isAuthenticated) {
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount]     = useState(0);
     const [isConnected, setIsConnected]     = useState(false);
@@ -129,8 +129,9 @@ export function useNotifications() {
   
     
     useEffect(() => {
-        if (didStartRef.current) return; // StrictMode guard
-       didStartRef.current = true;
+        if (!isAuthenticated) return;
+        if (didStartRef.current) return;
+        didStartRef.current = true;
         const connection = new signalR.HubConnectionBuilder()
             .withUrl(HUB_URL, {
                 withCredentials: true, // sends HttpOnly cookie on negotiate
@@ -188,11 +189,12 @@ export function useNotifications() {
         connectionRef.current = connection;
 
         return () => connection.stop();
-    }, []);
+    }, [isAuthenticated]);
 
     useEffect(() => {
+        if (!isAuthenticated) return;
         fetchNotifications();
-    }, [fetchNotifications]);
+    }, [fetchNotifications,isAuthenticated]);
 
     // ── Mark one as read ───────────────────────────────────────
     const markAsRead = useCallback(async (notificationId) => {
