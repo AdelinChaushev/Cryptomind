@@ -94,7 +94,7 @@ namespace Cryptomind.Core.Services
 			var result = await cipherRepo.GetAllAttached()
 				.Include(x => x.CipherTags)
 				.ThenInclude(x => x.Tag)
-		        .Include(c => c.CreatedByUser)
+				.Include(c => c.CreatedByUser)
 				.Include(c => c.UserSolutions)
 		.Where(c => c.Status == ApprovalStatus.Approved && !c.IsDeleted)
 				.ToListAsync();
@@ -142,8 +142,8 @@ namespace Cryptomind.Core.Services
 		.Include(c => c.UserSolutions)
 		.Include(c => c.CreatedByUser)
 		.Include(c => c.CipherTags)
-        .ThenInclude(x => x.Tag)
-        .Where(c => c.IsDeleted)
+		.ThenInclude(x => x.Tag)
+		.Where(c => c.IsDeleted)
 		.ToListAsync();
 
 			if (!result.Any())
@@ -209,6 +209,9 @@ namespace Cryptomind.Core.Services
 
 			if (cipher.IsDeleted)
 				throw new ConflictException(CipherErrorConstants.CipherDeletedConflict);
+
+			cipher.LLMData.Reasoning = null;
+			cipher.LLMData = null;
 
 			if (cipher.LLMData != null && cipher.LLMData.Reasoning != null)
 				return new CipherValidationResultDTO
@@ -377,10 +380,10 @@ namespace Cryptomind.Core.Services
 			{
 				cipher.CipherTags = new HashSet<CipherTag>();
 
-            }
+			}
 
 
-				await cipherRepo.UpdateAsync(cipher);
+			await cipherRepo.UpdateAsync(cipher);
 
 			await notificationService.CreateAndSendNotification(
 				cipher.CreatedByUserId,
