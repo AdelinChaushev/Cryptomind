@@ -4,7 +4,7 @@ import { useNotifications } from './notifications/UseNotifications';
 import ToastContainer from './notifications/ToastContainer';
 
 export const NotificationProvider = ({ children, isLoggedIn }) => {
-    const notifications = useNotifications();
+    const notifications = useNotifications(isLoggedIn);
 
     useEffect(() => {
         if (isLoggedIn) {
