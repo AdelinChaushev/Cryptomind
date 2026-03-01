@@ -50,6 +50,7 @@ public abstract class Cipher
 [Owned]
 public class CipherLLMData
 {
+	public string Recommendation { get; set; }
 	public string? Reasoning { get; set; }
 	public List<string>? Issues { get; set; }
 	public string? PredictedType { get; set; }

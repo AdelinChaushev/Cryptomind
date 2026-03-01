@@ -28,8 +28,6 @@ import NotFoundPage from './pages/NotFoundPage.jsx';
 import BannedPage from './pages/BannedPage.jsx';
 import RequireNotBanned from './RequiresNotBanned.jsx';
 import NotificationsPage from './notifications/NotificationsPage.jsx';
-import { useNotifications } from './notifications/UseNotifications';
-import ToastContainer from './notifications/ToastContainer';
 import { ErrorProvider } from "./ErrorContext";
 import PageTransition from "./PageTransition";
 import AccountInfo from './account-page/AccountInfo.jsx';
@@ -38,7 +36,6 @@ export const AuthorizationContext = createContext({roles : [], isLoggedIn: false
 export const NotificationContext = createContext(null);
 export const useNotificationContext = () => useContext(NotificationContext);
 function App() {
-   const notifications = useNotifications();
    axios.defaults.withCredentials =  true
    axios.defaults.baseURL = 'http://localhost:5115';
    const [state, setState] = useState({roles : [], isLoggedIn: false, isBanned : false});
