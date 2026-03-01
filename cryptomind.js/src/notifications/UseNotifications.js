@@ -29,13 +29,12 @@ const HUB_URL  = 'http://localhost:5115/notificationHub';
 export function parseCreatedSince(createdSince) {
     if (!createdSince) return '';
 
-    // Regex to capture: [days].hours:minutes:seconds
-    // Supports formats: "5.12:30:00" or "12:30:00"
+   
     const match = createdSince.match(/(?:(\d+)\.)?(\d{1,2}):(\d{2}):(\d{2})/);
 
     if (!match) return createdSince;
 
-    // Extract parts: group 1 is days (optional), 2 is hours, 3 is minutes, 4 is seconds
+  
     const daysPart = parseInt(match[1] || 0, 10);
     const hoursPart = parseInt(match[2], 10);
     const minutesPart = parseInt(match[3], 10);
@@ -43,7 +42,7 @@ export function parseCreatedSince(createdSince) {
 
     const totalSeconds = (daysPart * 86400) + (hoursPart * 3600) + (minutesPart * 60) + secondsPart;
 
-    // Determine the largest unit for human-readable output
+  
     if (totalSeconds < 60) return 'just now';
 
     const mins = Math.floor(totalSeconds / 60);
