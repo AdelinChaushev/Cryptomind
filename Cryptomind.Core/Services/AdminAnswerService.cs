@@ -72,7 +72,7 @@ namespace Cryptomind.Core.Services
 					CipherId = answer.CipherId,
 					CipherName = answer.Cipher.Title,
 					Username = user.UserName,
-					SubmittedAt = answer.UploadedTime.ToString("ddd, dd MMM yyyy h:mm")
+					SubmittedAt = answer.UploadedTime.ToString("ddd, dd MMM yyyy HH:mm")
 				});
 			}
 
