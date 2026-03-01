@@ -4,6 +4,7 @@ using Cryptomind.Core.Services;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Cryptomind.Data.Repositories;
+using Microsoft.AspNetCore.Identity;
 using MockQueryable.Moq;
 using Moq;
 using System;
@@ -22,6 +23,8 @@ namespace Cryptomind.Tests.Unit.Services
 
 		public AnswerSubmissionServiceTests()
 		{
+			var store = new Mock<IUserStore<ApplicationUser>>();
+
 			service = new AnswerSubmissionService(
 				cipherRepoMock.Object,
 				answerRepoMock.Object);

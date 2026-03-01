@@ -21,7 +21,7 @@ namespace Cryptomind.Core.Services
 		public async Task<int> GetDistinctCipherTypesSolved(string userId)
 		{
 			return await solutionRepo.GetAllAttached()
-				.Where(s => s.UserId == userId && s.Cipher.Status == ApprovalStatus.Approved)
+				.Where(s => s.UserId == userId && s.IsCorrect && s.Cipher.Status == ApprovalStatus.Approved)
 				.Select(s => s.Cipher.TypeOfCipher)
 				.Distinct()
 				.CountAsync();
@@ -41,17 +41,22 @@ namespace Cryptomind.Core.Services
 		public async Task<int> GetSolvedWithoutHintCount(string userId)
 		{
 			return await solutionRepo.GetAllAttached()
-				.CountAsync(s => s.UserId == userId && (!s.UsedFullSolution && !s.UsedTypeHint && !s.UsedSolutionHint));
+				.CountAsync(s => s.UserId == userId && s.IsCorrect
+					&& !s.UsedFullSolution && !s.UsedTypeHint && !s.UsedSolutionHint);
 		}
 		public async Task<int> GetSolvedOnFirstAttemptCount(string userId)
 		{
-			return await solutionRepo.GetAllAttached()
+			var groups = await solutionRepo.GetAllAttached()
 				.Where(s => s.UserId == userId)
 				.GroupBy(s => s.CipherId)
-				.CountAsync(g =>
-					g.Count() == 1 &&
-					g.Any(s => s.IsCorrect)
-				);
+				.Select(g => new
+				{
+					Count = g.Count(),
+					HasCorrect = g.Any(s => s.IsCorrect)
+				})
+				.ToListAsync();
+
+			return groups.Count(g => g.Count == 1 && g.HasCorrect);
 		}
 		public async Task<int> GetUsedHints(string userId)
 		{
@@ -63,12 +68,20 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<int> GetRareSolves(string userId)
 		{
-			return await solutionRepo.GetAllAttached()
+			var solvedCipherIds = await solutionRepo.GetAllAttached()
 				.Where(s => s.UserId == userId && s.IsCorrect)
-				.GroupBy(s => s.CipherId)
-				.CountAsync(g =>
-					g.First().Cipher.UserSolutions
-						.Count(us => us.IsCorrect) <= 3);
+				.Select(s => s.CipherId)
+				.ToListAsync();
+
+			int count = 0;
+			foreach (var cipherId in solvedCipherIds)
+			{
+				int totalSolvers = await solutionRepo.GetAllAttached()
+					.CountAsync(s => s.CipherId == cipherId && s.IsCorrect);
+				if (totalSolvers <= 3)
+					count++;
+			}
+			return count;
 		}
 	}
 }

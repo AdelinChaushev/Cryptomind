@@ -13,8 +13,7 @@ namespace Cryptomind.Core.Services
 {
 	public class AnswerSubmissionService(
 		IRepository<Cipher, int> cipherRepo,
-		IRepository<AnswerSuggestion, int> answerRepo,
-        UserManager<ApplicationUser> userManager) : IAnswerSubmissionService
+		IRepository<AnswerSuggestion, int> answerRepo) : IAnswerSubmissionService
 	{
 		private const string DateFormat = "ddd, dd MMM yyyy h:mm";
 
@@ -46,18 +45,8 @@ namespace Cryptomind.Core.Services
 			if (cipher.AnswerSuggestions.Any(x => x.UserId == userId &&
 				x.DecryptedText.Trim().ToLower() == dto.DecryptedText.Trim().ToLower()))
 				throw new ConflictException(CipherErrorConstants.DuplicateSuggestion);
-            var userNow = await userManager.FindByIdAsync(userId);
-            if (userNow == null)
-                throw new Exception(UserConstants.UserNotFound);
-            bool alreadyAttempted = await answerRepo
-            .GetAllAttached()
-            .AnyAsync(x => x.UserId == userId && x.CipherId == cipherId);
-            if (!alreadyAttempted)
-			{
-				userNow.AttemptedCiphers += 1;
-                await userManager.UpdateAsync(userNow);
-            }
-            AnswerSuggestion answer = new AnswerSuggestion
+
+			AnswerSuggestion answer = new AnswerSuggestion
 			{
 				UserId = userId,
 				CipherId = cipherId,
@@ -69,7 +58,6 @@ namespace Cryptomind.Core.Services
 
 			await answerRepo.AddAsync(answer);
 		}
-
 		public async Task<List<AnswerSubmissionViewModel>> SubmittedAnswers(string userId)
 		{
 			var answers = await answerRepo.GetAllAttached()

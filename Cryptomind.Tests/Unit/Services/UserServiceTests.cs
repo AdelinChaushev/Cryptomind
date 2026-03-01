@@ -106,7 +106,7 @@ namespace Cryptomind.Tests.Unit.Services
 			// because CipherAnswers is accessed before the null guard
 			SetupAttachedUsers();
 
-			await Assert.ThrowsAsync<System.NullReferenceException>(
+			await Assert.ThrowsAsync<NotFoundException>(
 				() => service.GetUserAccountInfo("ghost"));
 		}
 

@@ -164,6 +164,7 @@ namespace Cryptomind.Core.Services
 				PointsEarned = pointsGranted,
 				TimeSolved = DateTime.UtcNow.AddHours(2).AddHours(2),
 				IsCorrect = true,
+				Solution = firstCorrectAnswerSuggestion.DecryptedText
 			};
 
 			cipher.DecryptedText = firstCorrectAnswerSuggestion.DecryptedText;
@@ -194,6 +195,7 @@ namespace Cryptomind.Core.Services
 					PointsEarned = pointsGrantedForOtherCorrectSolutions,
 					TimeSolved = DateTime.UtcNow.AddHours(2),
 					IsCorrect = true,
+					Solution = correctAnswer.DecryptedText
 				};
 				currentUser.Score += pointsGrantedForOtherCorrectSolutions;
 				userIds.Add(currentUser.Id);
@@ -244,6 +246,7 @@ namespace Cryptomind.Core.Services
 
 			await RejectAnswer(reason, answer);
 		}
+
 		#region Private methods
 		private async Task RejectAnswer(string reason, AnswerSuggestion? answer)
 		{
@@ -259,6 +262,17 @@ namespace Cryptomind.Core.Services
 			if (await userManager.FindByIdAsync(answer.UserId) == null)
 				throw new Exception(GeneralErrorConstants.MatchDataIntegrityError(answer.UserId, answer.Id));
 
+			var userSolution = new UserSolution
+			{
+				CipherId = answer.CipherId,
+				UserId = answer.UserId,
+				PointsEarned = 0,
+				TimeSolved = DateTime.UtcNow.AddHours(2).AddHours(2),
+				IsCorrect = false,
+				Solution = answer.DecryptedText
+			};
+
+			await solutionRepo.AddAsync(userSolution);
 			await answerRepo.UpdateAsync(answer);
 			await notificationService.CreateAndSendNotification(
 				answer.UserId,
