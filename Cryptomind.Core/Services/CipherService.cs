@@ -19,7 +19,7 @@ namespace Cryptomind.Core.Services
 		IRepository<UserSolution, int> solutionRepo,
 		UserManager<ApplicationUser> userManager) : ICipherService
 	{
-		private const string DateFormat = "ddd, dd MMM yyyy h:mm";
+		private const string DateFormat = "ddd, dd MMM yyyy HH:mm";
 
 		public async Task<List<CipherOutputViewModel>> GetApprovedAsync(CipherFilter filter, string userId)
 		{

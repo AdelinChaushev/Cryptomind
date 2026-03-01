@@ -183,18 +183,18 @@ namespace Cryptomind.Core.Services
 					Id = cipher.Id,
 					Title = cipher.Title,
 					CipherText = cipher.EncryptedText,
-					SubmittedTime = cipher.CreatedAt.ToString("ddd, dd MMM yyyy h:mm"),
+					SubmittedTime = cipher.CreatedAt.ToString("ddd, dd MMM yyyy HH:mm"),
 					Status = cipher.Status.ToString(),
 				};
 
 				if (cipher.IsDeleted)
 				{
 					model.Status = "CipherDeleted";
-					model.DeletedTime = cipher.DeletedAt?.ToString("ddd, dd MMM yyyy h:mm");
+					model.DeletedTime = cipher.DeletedAt?.ToString("ddd, dd MMM yyyy HH:mm");
 				}
 				else if (cipher.Status == ApprovalStatus.Approved)
 				{
-					model.ApprovedTime = cipher.ApprovedAt?.ToString("ddd, dd MMM yyyy h:mm");
+					model.ApprovedTime = cipher.ApprovedAt?.ToString("ddd, dd MMM yyyy HH:mm");
 					model.ApprovedAs = cipher.ChallengeType.ToString();
 					model.AssignedTags = cipher.CipherTags.Select(x => x.Tag).ToList();
 					model.SolvedByCount = cipher.UserSolutions.Count(x => x.IsCorrect);
@@ -202,7 +202,7 @@ namespace Cryptomind.Core.Services
 				}
 				else if (cipher.Status == ApprovalStatus.Rejected)
 				{
-					model.RejectionTime = cipher.RejectedAt?.ToString("ddd, dd MMM yyyy h:mm");
+					model.RejectionTime = cipher.RejectedAt?.ToString("ddd, dd MMM yyyy HH:mm");
 					model.RejectionReason = cipher.RejectionReason;
 				}
 
