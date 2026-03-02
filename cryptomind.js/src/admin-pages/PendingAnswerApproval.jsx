@@ -3,7 +3,7 @@ import axios from 'axios';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
 import '../styles/answer-approval.css';
-const API_BASE = 'http://localhost:5115/api/admin';
+const API_BASE =`${import.meta.env.VITE_API_URL}/api/admin`;
 import { useParams,useNavigate } from "react-router-dom";
 import { useError } from '../ErrorContext.jsx';
 

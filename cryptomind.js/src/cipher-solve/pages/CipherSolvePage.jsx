@@ -11,7 +11,7 @@ import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import ExperimentalCipherPanel from "../components/ExperimentalCipherPanel";
 import { useError } from "../../ErrorContext.jsx";
-
+const API_BASE = import.meta.env.VITE_API_URL
 function CipherSolvePage() {
   const navigation = useNavigate();
   const [answer, setAnswer] = useState("");
@@ -52,7 +52,7 @@ function CipherSolvePage() {
   const { id } = useParams();
   useEffect(() => {
     axios
-      .get(`http://localhost:5115/api/ciphers/cipher/${id}`, {
+      .get(`/api/ciphers/cipher/${id}`, {
         withCredentials: true,
       })
       .then((c) => {
@@ -94,7 +94,7 @@ function CipherSolvePage() {
 
       try {
         const res = await axios.post(
-          `http://localhost:5115/api/ciphers/cipher/${id}/solve`,
+          `/api/ciphers/cipher/${id}/solve`,
           {
             UserSolution: answer,
           },
@@ -110,7 +110,7 @@ function CipherSolvePage() {
     } else if (cipher.challengeTypeDisplay === "Experimental") {
       try {
         await axios.post(
-          `http://localhost:5115/api/ciphers/cipher/${id}/suggest-answer`,
+          `/api/ciphers/cipher/${id}/suggest-answer`,
           {
             description: expDescription,
             decryptedText: expDecryptedText,
@@ -204,7 +204,7 @@ function CipherSolvePage() {
   async function requestAI(mode) {
     setAiMode(mode);
     setAiLoading(true);
-    const endPoint = `http://localhost:5115/api/ciphers/cipher/${id}/hint`;
+    const endPoint = `/api/ciphers/cipher/${id}/hint`;
 
     axios
       .post(
