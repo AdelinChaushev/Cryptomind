@@ -66,10 +66,10 @@ function App() {
      <PageTransition>
     <Routes >
       <Route path="/banned" element={<RequireNotBanned><BannedPage/></RequireNotBanned>} />
+      <Route path="login" element={<RequireAuth mustNotBeLogged={true} ><Login /></RequireAuth>} />
+      <Route path="register" element={<RequireAuth mustNotBeLogged={true}><Register /></RequireAuth>} /> 
       <Route path="*" element={<NotFoundPage />} />
-      <Route path="/" element={<RequireNotBanned mustNotBeBanned={true}><Layout /></RequireNotBanned>}>
-        <Route path="login" element={<RequireAuth mustNotBeLogged={true} ><Login /></RequireAuth>} />
-        <Route path="register" element={<RequireAuth mustNotBeLogged={true}><Register /></RequireAuth>} />    
+      <Route path="/" element={<RequireNotBanned mustNotBeBanned={true}><Layout /></RequireNotBanned>}>   
         <Route path="leaderboard" element={<Leaderboard />} /> 
         <Route path="cipher-tool" element={<CipherTool />} /> 
         <Route path="about" element={<About />} />
