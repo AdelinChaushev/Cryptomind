@@ -19,6 +19,7 @@ namespace Cryptomind.Data.Entities
 		public bool UsedTypeHint { get; set; } = false;
 		public bool UsedSolutionHint { get; set; } = false;
 		public bool UsedFullSolution { get; set; } = false;
+		public bool IsRareSolved { get; set; }
 		public int PointsEarned { get; set; }
 	}
 }

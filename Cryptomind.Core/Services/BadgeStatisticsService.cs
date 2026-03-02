@@ -18,14 +18,6 @@ namespace Cryptomind.Core.Services
 				.SelectMany(u => u.UploadedCiphers)
 				.CountAsync(c => c.Status == ApprovalStatus.Approved);
 		}
-		public async Task<int> GetDistinctCipherTypesSolved(string userId)
-		{
-			return await solutionRepo.GetAllAttached()
-				.Where(s => s.UserId == userId && s.IsCorrect && s.Cipher.Status == ApprovalStatus.Approved)
-				.Select(s => s.Cipher.TypeOfCipher)
-				.Distinct()
-				.CountAsync();
-		}
 		public async Task<int> GetApprovedAnswersCount(string userId)
 		{
 			return await userRepo.GetAllAttached()
@@ -37,6 +29,14 @@ namespace Cryptomind.Core.Services
 		{
 			return await solutionRepo.GetAllAttached()
 				.CountAsync(s => s.UserId == userId && s.IsCorrect);
+		}
+		public async Task<int> GetDistinctCipherTypesSolved(string userId)
+		{
+			return await solutionRepo.GetAllAttached()
+				.Where(s => s.UserId == userId && s.IsCorrect && s.Cipher.Status == ApprovalStatus.Approved)
+				.Select(s => s.Cipher.TypeOfCipher)
+				.Distinct()
+				.CountAsync();
 		}
 		public async Task<int> GetSolvedWithoutHintCount(string userId)
 		{
@@ -68,20 +68,8 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<int> GetRareSolves(string userId)
 		{
-			var solvedCipherIds = await solutionRepo.GetAllAttached()
-				.Where(s => s.UserId == userId && s.IsCorrect)
-				.Select(s => s.CipherId)
-				.ToListAsync();
-
-			int count = 0;
-			foreach (var cipherId in solvedCipherIds)
-			{
-				int totalSolvers = await solutionRepo.GetAllAttached()
-					.CountAsync(s => s.CipherId == cipherId && s.IsCorrect);
-				if (totalSolvers <= 3)
-					count++;
-			}
-			return count;
+			return await solutionRepo.GetAllAttached()
+				.CountAsync(s => s.UserId == userId && s.IsCorrect && s.IsRareSolved);
 		}
 	}
 }
