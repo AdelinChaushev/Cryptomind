@@ -124,6 +124,7 @@ namespace Cryptomind.Core.Services
 		{
 			string encryptedText = cipher.EncryptedText.Replace("#", "");
 			string decryptedText = cipher.DecryptedText;
+
 			if (cipher.TypeOfCipher == null)
 				throw new ConflictException("Не може да се генерира подсказка за шифър без тип");
 
@@ -508,24 +509,36 @@ No markdown, no headers, no bullet points. No more than 250 words total.";
 			string actualType,
 			string decryptedText)
 		{
-			return $@"You are a cryptography expert explaining a solved cipher to a student.			
+			return $@"You are an expert cryptography instructor reviewing a fully solved cipher with a student.
 IMPORTANT: Respond only in Bulgarian.
 
-ENCRYPTED TEXT:
+The solution is already known.
+Your explanation MUST be tightly grounded in the provided texts.
+Generic or purely theoretical explanations are NOT acceptable.
+
+ENCRYPTED TEXT (full):
 {encryptedText}
 
-CIPHER TYPE: {actualType}
-SOLUTION: {decryptedText}
+CIPHER TYPE:
+{actualType}
 
-Write a detailed educational walkthrough covering:
-- What visual or statistical features in THIS specific ciphertext identify it as a {actualType} cipher
-- A step-by-step explanation of how to decrypt THIS specific ciphertext, referencing the actual letters and structure
-- The general mechanics of how {actualType} encryption and decryption works
-- One interesting historical or practical fact about {actualType} ciphers
+DECRYPTED TEXT (full):
+{decryptedText}
 
-Be specific and reference the actual ciphertext and solution provided, not generic examples.
-No markdown, no headers, no bullet points. No more than 300 words.
-Write naturally like you are explaining to a friend, not writing an essay.";
+Requirements for your explanation:
+- Explicitly reference multiple concrete fragments from the encrypted text (beginning, middle, and end)
+- Explain how these specific fragments transform into the corresponding parts of the decrypted text
+- Describe the decryption logic in sequence, making clear how the key or rule evolves during the process in THIS exact ciphertext
+- If a key or starting word exists, explain how it is applied and then how the decrypted text itself continues the process
+- Demonstrate why the decrypted text is correct by tying meaning and structure back to the encrypted text
+- Do NOT rely on abstract descriptions alone — the explanation must be impossible to write without having this exact ciphertext
+
+You are allowed to paraphrase fragments if the text is long, but you must clearly indicate which part of the ciphertext you are referring to.
+Assume the student wants to fully reconstruct the solution from your explanation.
+Do not hide steps.
+Do not use markdown, headers, or bullet points.
+Maximum 300 words.
+Write naturally, like a careful teacher reviewing the entire solution.";
 		}
 		#endregion
 
