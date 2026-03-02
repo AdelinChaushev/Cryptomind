@@ -162,7 +162,7 @@ namespace Cryptomind.Core.Services
 				CipherId = firstCorrectAnswerSuggestion.CipherId,
 				UserId = firstCorrectAnswerSuggestion.UserId,
 				PointsEarned = pointsGranted,
-				TimeSolved = DateTime.UtcNow.AddHours(2),
+				TimeSolved = firstCorrectAnswerSuggestion.UploadedTime,
 				IsCorrect = true,
 				Solution = firstCorrectAnswerSuggestion.DecryptedText,
 				IsRareSolved = true
@@ -194,7 +194,7 @@ namespace Cryptomind.Core.Services
 					CipherId = correctAnswer.CipherId,
 					UserId = correctAnswer.UserId,
 					PointsEarned = pointsGrantedForOtherCorrectSolutions,
-					TimeSolved = DateTime.UtcNow.AddHours(2),
+					TimeSolved = correctAnswer.UploadedTime,
 					IsCorrect = true,
 					Solution = correctAnswer.DecryptedText,
 					IsRareSolved = true

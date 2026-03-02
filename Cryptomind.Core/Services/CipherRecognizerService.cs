@@ -1,4 +1,5 @@
-﻿using Cryptomind.Common.Exceptions;
+﻿using Cryptomind.Common.Constants;
+using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
 using Cryptomind.Core.Contracts;
 using Microsoft.Extensions.Configuration;
@@ -27,7 +28,7 @@ namespace Cryptomind.Core.Services
 		{
 			if (string.IsNullOrWhiteSpace(inputText))
 			{
-				throw new CustomValidationException("Въведеният текст не може да бъде празен");
+				throw new CustomValidationException(CipherRecognitionConstants.InputTextCannotBeEmpty);
 			}
 
 			try
@@ -46,7 +47,7 @@ namespace Cryptomind.Core.Services
 				if (!response.IsSuccessStatusCode)
 				{
 					var errorContent = await response.Content.ReadAsStringAsync();
-					throw new Exception($"ML API върна грешка(Статус{response.StatusCode}): {errorContent}");
+					throw new Exception(string.Format(CipherRecognitionConstants.MLApiError, response.StatusCode, errorContent));
 				}
 
 				var responseJson = await response.Content.ReadAsStringAsync();
@@ -61,12 +62,12 @@ namespace Cryptomind.Core.Services
 
 				if (pythonResponse == null)
 				{
-					throw new Exception("Неуспешно анализиране на отговора на ML API");
+					throw new Exception(CipherRecognitionConstants.InvalidAnalysis);
 				}
 
 				if (pythonResponse.TopPrediction == null)
 				{
-					throw new Exception("Невалиден отговор от ML API - липсва най-добрата прогноза");
+					throw new Exception(CipherRecognitionConstants.BestPredictionMissing);
 				}
 
 				var result = new CipherRecognitionResultViewModel
@@ -81,24 +82,15 @@ namespace Cryptomind.Core.Services
 			}
 			catch (HttpRequestException ex)
 			{
-				throw new Exception(
-					$"Услугата за машинно обучение не е налична. Моля, уверете се, че Python ML API работи на {mlApiUrl}",
-					ex
-				);
+				throw new Exception(string.Format(CipherRecognitionConstants.MLServiceNotAvailable, mlApiUrl));
 			}
 			catch (TaskCanceledException ex)
 			{
-				throw new Exception(
-					$"ML услугата не отговори в рамките на {ApiTimeoutSeconds} секунди",
-					ex
-				);
+				throw new Exception(string.Format(CipherRecognitionConstants.MLTimeoutExpired, ApiTimeoutSeconds));
 			}
 			catch (JsonException ex)
 			{
-				throw new Exception(
-					"Неуспешно анализиране на отговора от услугата за машинно обучение. Възможно е услугата да връща невалидни данни.",
-					ex
-				);
+				throw new Exception(CipherRecognitionConstants.InvalidAnalysis);
 			}
 		}
 		public async Task<bool> IsServiceHealthyAsync()
