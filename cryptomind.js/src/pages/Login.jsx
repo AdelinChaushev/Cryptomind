@@ -23,10 +23,9 @@ export default function Login() {
         email: data.email,
         password: data.password,
     }).then(res => {
+      navigate('/');
       setState({isLoggedIn: true,roles: res.data});
-     setTimeout(() => {
-            navigate('/');
-          }, 0); 
+         
     } ).catch(error => {  
     if (error.response?.status === 403) {
         setState({ isLoggedIn: false, roles: [], isBanned: true, bannedMessage: error.response?.data?.error });
