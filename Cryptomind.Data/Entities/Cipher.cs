@@ -15,6 +15,7 @@ public abstract class Cipher
 
 	[Key]
 	public int Id { get; set; }
+	public int DisplayOrder { get; set; }
 
 	[MaxLength(50), MinLength(3)]
 	public string Title { get; set; }

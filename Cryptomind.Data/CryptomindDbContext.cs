@@ -11,7 +11,6 @@ namespace Cryptomind.Data
 
 		public CryptomindDbContext(DbContextOptions<CryptomindDbContext> options)
 		: base(options) { }
-
 		public DbSet<ApplicationUser> Users { get; set; }
 		public DbSet<ImageCipher> ImageCiphers { get; set; }
 		public DbSet<TextCipher> TextCiphers { get; set; }
@@ -233,6 +232,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 200,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 1,
 					},
 					new TextCipher
 					{
@@ -254,6 +254,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 75,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 2,
 					},
 					new TextCipher
 					{
@@ -275,6 +276,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 50,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 3,
 					},
 					new TextCipher
 					{
@@ -296,6 +298,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 400,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 4,
 					},
 					new TextCipher
 					{
@@ -317,6 +320,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 125,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 5,
 					},
 					new TextCipher
 					{
@@ -338,6 +342,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 50,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 6,
 					},
 					new TextCipher
 					{
@@ -359,6 +364,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 500,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 7,
 					},
 					new TextCipher
 					{
@@ -380,6 +386,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 50,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 8,
 					},
 					new TextCipher
 					{
@@ -401,6 +408,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 50,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 9,
 					},
 					new TextCipher
 					{
@@ -422,6 +430,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 350,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 10,
 					},
 					new TextCipher
 					{
@@ -443,6 +452,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 100,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 11,
 					},
 					new TextCipher
 					{
@@ -464,6 +474,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 250,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 12,
 					},
 					new TextCipher
 					{
@@ -485,6 +496,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 50,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 13,
 					},
 					new TextCipher
 					{
@@ -506,6 +518,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 400,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 14,
 					},
 					new TextCipher
 					{
@@ -527,6 +540,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 100,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 15,
 					},
 					new TextCipher
 					{
@@ -548,6 +562,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 50,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 16,
 					},
 					new TextCipher
 					{
@@ -569,6 +584,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 375,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 17,
 					},
 					new TextCipher
 					{
@@ -590,6 +606,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 200,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 18,
 					},
 					new TextCipher
 					{
@@ -611,6 +628,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 125,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 19,
 					},
 					new TextCipher
 					{
@@ -632,6 +650,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 50,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 20,
 					},
 					new TextCipher
 					{
@@ -653,6 +672,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 400,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 21,
 					},
 					new TextCipher
 					{
@@ -674,6 +694,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 50,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 22,
 					},
 					new TextCipher
 					{
@@ -695,6 +716,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 375,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 23,
 					},
 					new TextCipher
 					{
@@ -716,6 +738,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 275,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 24,
 					},
 					new TextCipher
 					{
@@ -737,6 +760,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 50,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 25,
 					},
 					new TextCipher
 					{
@@ -758,6 +782,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 500,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 26,
 					},
 					new TextCipher
 					{
@@ -779,6 +804,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 75,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 27,
 					},
 					new TextCipher
 					{
@@ -800,6 +826,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 250,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 28,
 					},
 					new TextCipher
 					{
@@ -821,6 +848,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 100,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 29,
 					},
 					new TextCipher
 					{
@@ -842,6 +870,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 50,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 30,
 					},
 					new TextCipher
 					{
@@ -863,6 +892,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 275,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 31,
 					},
 					new TextCipher
 					{
@@ -884,6 +914,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 350,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 32,
 					},
 					new TextCipher
 					{
@@ -905,6 +936,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 500,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 33,
 					},
 					new TextCipher
 					{
@@ -926,6 +958,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 100,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 34,
 					},
 					new TextCipher
 					{
@@ -947,6 +980,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 50,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 35,
 					},
 					new TextCipher
 					{
@@ -968,6 +1002,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 500,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 36,
 					},
 					new TextCipher
 					{
@@ -989,6 +1024,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 125,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 37,
 					},
 					new TextCipher
 					{
@@ -1010,6 +1046,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 275,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 38,
 					},
 					new TextCipher
 					{
@@ -1031,6 +1068,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 75,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 39,
 					},
 					new TextCipher
 					{
@@ -1052,6 +1090,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 350,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 40,
 					},
 					new TextCipher
 					{
@@ -1073,6 +1112,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 200,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 41,
 					},
 					new TextCipher
 					{
@@ -1094,6 +1134,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 200,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 42,
 					},
 					new TextCipher
 					{
@@ -1115,6 +1156,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 100,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 43,
 					},
 					new TextCipher
 					{
@@ -1136,6 +1178,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 250,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 44,
 					},
 					new TextCipher
 					{
@@ -1157,6 +1200,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 375,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 45,
 					},
 					new TextCipher
 					{
@@ -1178,6 +1222,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 400,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 46,
 					},
 					new TextCipher
 					{
@@ -1199,6 +1244,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 250,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 47,
 					},
 					new TextCipher
 					{
@@ -1220,6 +1266,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = false,
 						Points = 50,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 48,
 					},
 					new TextCipher
 					{
@@ -1241,6 +1288,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 400,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 49,
 					},
 					new TextCipher
 					{
@@ -1262,6 +1310,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 350,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 50,
 					},
 					new TextCipher
 					{
@@ -1283,6 +1332,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 250,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 51,
 					},
 					new TextCipher
 					{
@@ -1304,6 +1354,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 400,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 52,
 					},
 					new TextCipher
 					{
@@ -1325,6 +1376,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 500,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 53,
 					},
 					new TextCipher
 					{
@@ -1346,6 +1398,7 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 350,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 54,
 					},
 					new TextCipher
 					{
@@ -1367,10 +1420,10 @@ namespace Cryptomind.Data
 						IsLLMRecommended = true,
 						Points = 375,
 						CreatedByUserId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+						DisplayOrder = 55,
 					}
 				);
 			});
-
 
 			builder.Entity<Badge>().HasData(
 				new Badge { Id = 1, Title = "First Blood", Description = "Реши първия си шифър", Category = BadgeCategory.OnSolve, ImagePath = "../Images/Badges/Badge_1.png" },
