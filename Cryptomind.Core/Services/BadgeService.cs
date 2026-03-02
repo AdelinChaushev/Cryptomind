@@ -1,4 +1,5 @@
-﻿using Cryptomind.Common.Exceptions;
+﻿using Cryptomind.Common.Constants;
+using Cryptomind.Common.Exceptions;
 using Cryptomind.Core.Badges;
 using Cryptomind.Core.Badges.Criteria;
 using Cryptomind.Core.Contracts;
@@ -69,17 +70,17 @@ namespace Cryptomind.Core.Services
 				.FirstOrDefaultAsync(x => x.Id == userId);
 
 			if (user == null)
-				throw new Exception($"Грешка в целостта на данните: потребителят не е намерен за отговора, присъждащ значка{badgeId}.");
+				throw new Exception(string.Format(BadgeErrorConstants.UserNotFoundForBadge, badgeId));
 
 			if (user.Badges.Any(x => x.BadgeId == badgeId)) //Second time checking
-				throw new ConflictException("Вече имате тази значка");
+				throw new ConflictException(BadgeErrorConstants.AlreadyHaveThisBadge);
 
 			var badge = await badgeRepo.GetAllAttached()
 				.Include(x => x.UserBadges)
 				.FirstOrDefaultAsync(x => x.Id == badgeId);
 
 			if (badge == null)
-				throw new NotFoundException("Значката не е намерена");
+				throw new NotFoundException(BadgeErrorConstants.BadgeNotFound);
 
 			var userBadge = new UserBadge
 			{
