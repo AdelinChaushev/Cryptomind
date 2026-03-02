@@ -48,19 +48,18 @@ const CipherBrowsePage = () => {
     setChallengeType(0);
     setSelectedTags([]);
   };
-
-  
    
-  const fetchCiphers = async (filtersParam) => {
+   
+  const fetchCiphers = async () => {
     setIsLoading(true);
 
     try {
       const res = await axios.get('http://localhost:5115/api/ciphers/all', {
         withCredentials: true,
         params: {
-          SearchTerm: filtersParam.searchTerm ?? searchTerm,
-          Tags: filtersParam.selectedTags ?? selectedTags,
-          ChallengeType: filtersParam.challengeType ?? challengeType,
+          SearchTerm:  searchTerm,
+          Tags:  selectedTags,
+          ChallengeType: challengeType,
           OrderTerm: sortBy
         },
         paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' })
@@ -78,7 +77,9 @@ const CipherBrowsePage = () => {
     }
   };
 
-  useEffect(() => { fetchCiphers({ searchTerm: null, tags: null, challengeType: challengeType }); }, []);
+  useEffect(() => { 
+    fetchCiphers(); }
+  ,[sortBy]);
 
   return (
     <>
@@ -101,8 +102,7 @@ const CipherBrowsePage = () => {
             setSearchTerm(filters.searchTerm);
             setChallengeType(filters.challengeType);
             setSelectedTags(filters.selectedTags);
-            setCurrentPage(1);
-            fetchCiphers(filters);
+            fetchCiphers();
           }}
         />
 
