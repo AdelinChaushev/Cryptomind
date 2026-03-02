@@ -55,16 +55,16 @@ namespace Cryptomind.Core.Services
 			switch (filter.OrderTerm)
 			{
 				case CipherOrderTerm.Newest:
-					query = query.OrderByDescending(x => x.CreatedAt);
+					query = query.OrderByDescending(x => x.CreatedAt).ThenBy(x => x.DisplayOrder);
 					break;
 				case CipherOrderTerm.Oldest:
-					query = query.OrderBy(x => x.CreatedAt);
+					query = query.OrderBy(x => x.CreatedAt).ThenBy(x => x.DisplayOrder);
 					break;
 				case CipherOrderTerm.MostPopular:
-					query = query.OrderByDescending(x => x.UserSolutions.Count);
+					query = query.OrderByDescending(x => x.UserSolutions.Count).ThenBy(x => x.DisplayOrder);
 					break;
 				case CipherOrderTerm.LeastPopular:
-					query = query.OrderBy(x => x.UserSolutions.Count);
+					query = query.OrderBy(x => x.UserSolutions.Count).ThenBy(x => x.DisplayOrder);
 					break;
 			}
 

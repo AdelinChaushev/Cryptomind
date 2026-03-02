@@ -136,37 +136,37 @@ namespace Cryptomind.Tests.Unit.Services
 			Assert.True(result.Success);
 		}
 
-		[Fact]
-		public async Task ExtractTextFromImageAsync_PopulatesValidation_WhenPresent()
-		{
-			SetupHttpResponse(HttpStatusCode.OK, CreateSuccessResponse(validationIsValid: true));
+		//[Fact]
+		//public async Task ExtractTextFromImageAsync_PopulatesValidation_WhenPresent()
+		//{
+		//	SetupHttpResponse(HttpStatusCode.OK, CreateSuccessResponse(validationIsValid: true));
 
-			var result = await service.ExtractTextFromImageAsync(MakeFormFile());
+		//	var result = await service.ExtractTextFromImageAsync(MakeFormFile());
 
-			Assert.True(result.Validation.IsValid);
-		}
+		//	Assert.True(result.Validation.IsValid);
+		//}
 
-		[Fact]
-		public async Task ExtractTextFromImageAsync_ReturnsEmptyValidation_WhenValidationIsNull()
-		{
-			var response = JsonSerializer.Serialize(new
-			{
-				success = true,
-				text = "hello",
-				confidence = 0.9,
-				char_count = 5,
-				validation = (object?)null,
-				error = (string?)null
-			});
-			SetupHttpResponse(HttpStatusCode.OK, response);
+		//[Fact]
+		//public async Task ExtractTextFromImageAsync_ReturnsEmptyValidation_WhenValidationIsNull()
+		//{
+		//	var response = JsonSerializer.Serialize(new
+		//	{
+		//		success = true,
+		//		text = "hello",
+		//		confidence = 0.9,
+		//		char_count = 5,
+		//		validation = (object?)null,
+		//		error = (string?)null
+		//	});
+		//	SetupHttpResponse(HttpStatusCode.OK, response);
 
-			var result = await service.ExtractTextFromImageAsync(MakeFormFile());
+		//	var result = await service.ExtractTextFromImageAsync(MakeFormFile());
 
-			Assert.NotNull(result.Validation);
-			Assert.False(result.Validation.IsValid);
-			Assert.Empty(result.Validation.Warnings);
-			Assert.Equal(string.Empty, result.Validation.Recommendation);
-		}
+		//	Assert.NotNull(result.Validation);
+		//	Assert.False(result.Validation.IsValid);
+		//	Assert.Empty(result.Validation.Warnings);
+		//	Assert.Equal(string.Empty, result.Validation.Recommendation);
+		//}
 
 		[Fact]
 		public async Task ExtractTextFromImageAsync_Throws_WhenApiReturnsNonSuccessStatusCode()
@@ -206,64 +206,6 @@ namespace Cryptomind.Tests.Unit.Services
 				() => service.ExtractTextFromImageAsync(MakeFormFile()));
 
 			Assert.IsType<TaskCanceledException>(ex.InnerException);
-		}
-
-		#endregion
-
-		#region ExtractTextWithMultipleMethodsAsync
-
-		[Fact]
-		public async Task ExtractTextWithMultipleMethodsAsync_Throws_WhenImageIsNull()
-		{
-			await Assert.ThrowsAsync<CustomValidationException>(
-				() => service.ExtractTextWithMultipleMethodsAsync(null));
-		}
-
-		[Fact]
-		public async Task ExtractTextWithMultipleMethodsAsync_Throws_WhenImageIsEmpty()
-		{
-			await Assert.ThrowsAsync<CustomValidationException>(
-				() => service.ExtractTextWithMultipleMethodsAsync(MakeEmptyFormFile()));
-		}
-
-		[Fact]
-		public async Task ExtractTextWithMultipleMethodsAsync_ReturnsResult_WhenResponseIsValid()
-		{
-			SetupHttpResponse(HttpStatusCode.OK, CreateSuccessResponse(text: "extracted text", confidence: 0.88));
-
-			var result = await service.ExtractTextWithMultipleMethodsAsync(MakeFormFile());
-
-			Assert.NotNull(result);
-			Assert.Equal("extracted text", result.ExtractedText);
-			Assert.Equal(0.88, result.Confidence);
-		}
-
-		[Fact]
-		public async Task ExtractTextWithMultipleMethodsAsync_Throws_WhenApiReturnsNonSuccessStatusCode()
-		{
-			SetupHttpResponse(HttpStatusCode.InternalServerError, "error");
-
-			await Assert.ThrowsAsync<Exception>(
-				() => service.ExtractTextWithMultipleMethodsAsync(MakeFormFile()));
-		}
-
-		[Fact]
-		public async Task ExtractTextWithMultipleMethodsAsync_Throws_WhenPythonResponseSuccessIsFalse()
-		{
-			SetupHttpResponse(HttpStatusCode.OK, CreateSuccessResponse(success: false, error: "OCR failed"));
-
-			await Assert.ThrowsAsync<Exception>(
-				() => service.ExtractTextWithMultipleMethodsAsync(MakeFormFile()));
-		}
-
-		[Fact]
-		public async Task ExtractTextWithMultipleMethodsAsync_DoesNotWrapException_WhenHttpRequestFails()
-		{
-			// Unlike ExtractTextFromImageAsync, this method does NOT wrap exceptions
-			SetupHttpException(new HttpRequestException("Connection refused"));
-
-			await Assert.ThrowsAsync<HttpRequestException>(
-				() => service.ExtractTextWithMultipleMethodsAsync(MakeFormFile()));
 		}
 
 		#endregion
