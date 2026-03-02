@@ -162,6 +162,9 @@ namespace Cryptomind.Core.Services
 				userSolution.PointsEarned = pointsEarned;
 				userSolution.IsCorrect = true;
 
+				var currentSolverCount = cipher.UserSolutions.Count(x => x.IsCorrect);
+				userSolution.IsRareSolved = currentSolverCount <= 3;
+
 				userNow.Score += pointsEarned;
 			}
 
