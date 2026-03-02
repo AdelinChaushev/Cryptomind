@@ -29,23 +29,23 @@ namespace Cryptomind.Core.Services
 			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.Title == model.Title && !x.IsDeleted))
 				throw new ConflictException(CipherErrorConstants.DuplicateTitleMessage);
 
-			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.EncryptedText == model.EncryptedText && !x.IsDeleted && x.Status != ApprovalStatus.Rejected))
-				throw new ConflictException(CipherErrorConstants.DuplicateCipherContent);
-
 			if (string.IsNullOrWhiteSpace(model.DecryptedText) && model.CipherType == null)
 				throw new ConflictException(CipherErrorConstants.UnknownCipherSolutionConflict);
-
-			if (string.IsNullOrEmpty(model.EncryptedText))
-				throw new ConflictException(CipherErrorConstants.EncryptedTextShouldNotBeEmpty);
-
-			if (model.EncryptedText.Length >= 450)
-				throw new CustomValidationException(CipherErrorConstants.MaxLengthExceeded);
 
 			Cipher? cipher = null;
 			string? encryptedTextForAnalysis = model.EncryptedText;
 
 			if (model.CipherDefinition == CipherDefinition.TextCipher)
 			{
+				if (string.IsNullOrEmpty(model.EncryptedText))
+					throw new ConflictException(CipherErrorConstants.EncryptedTextShouldNotBeEmpty);
+
+				if (model.EncryptedText.Length >= 450)
+					throw new CustomValidationException(CipherErrorConstants.MaxLengthExceeded);
+
+				if (await cipherRepo.GetAllAttached().AnyAsync(x => x.EncryptedText == model.EncryptedText && !x.IsDeleted && x.Status != ApprovalStatus.Rejected))
+					throw new ConflictException(CipherErrorConstants.DuplicateCipherContent);
+
 				cipher = new TextCipher()
 				{
 					Title = model.Title,
@@ -78,6 +78,7 @@ namespace Cryptomind.Core.Services
 					var result = await ocrService.ExtractTextFromImageAsync(model.Image);
 					if (string.IsNullOrWhiteSpace(result.ExtractedText))
 						throw new CustomValidationException(CipherErrorConstants.OCRFailedMessage);
+
 					finalText = result.ExtractedText;
 					ocrConfidence = result.Confidence;
 				}
@@ -100,11 +101,14 @@ namespace Cryptomind.Core.Services
 
 				string relativePath = Path.Combine("Ciphers", safeTitle + originalExtension);
 
-				if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.EncryptedText == finalText) != null)
-					throw new ConflictException(CipherErrorConstants.DuplicateCipherContent);
-
 				if (string.IsNullOrEmpty(finalText))
 					throw new ConflictException(CipherErrorConstants.EncryptedTextShouldNotBeEmpty);
+
+				if (finalText.Length >= 450)
+					throw new CustomValidationException(CipherErrorConstants.MaxLengthExceeded);
+
+				if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.EncryptedText == finalText) != null)
+					throw new ConflictException(CipherErrorConstants.DuplicateCipherContent);
 
 				cipher = new ImageCipher()
 				{
