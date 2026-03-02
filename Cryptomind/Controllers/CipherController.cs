@@ -43,7 +43,9 @@ namespace Cryptomind.Controllers
 			string? userId = GetUserId();
 
 			bool result = await cipherService.SolveCipherAsync(userId, dto.UserSolution, id);
-			await badgeService.CheckBadgesByCategory(userId, BadgeCategory.OnSolve);
+			if (result)
+				await badgeService.CheckBadgesByCategory(userId, BadgeCategory.OnSolve);
+
 			return Ok(result);
 		}
 
@@ -80,6 +82,8 @@ namespace Cryptomind.Controllers
 			string? userId = GetUserId();
 
 			var hintResult = await hintService.RequestHintAsync(userId, id, request.HintType);
+			await badgeService.CheckBadgesByCategory(userId, BadgeCategory.OnHintRequesting);
+
 			return Ok(new { hintResult });
 		}
 		#region Private methods
