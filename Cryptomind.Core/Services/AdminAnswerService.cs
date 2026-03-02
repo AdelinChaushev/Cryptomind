@@ -214,7 +214,7 @@ namespace Cryptomind.Core.Services
 					currentUser.Id,
 					NotificationType.AnswerApproved,
 					$"Предложението ви за отговор беше одобрено +{pointsGrantedForOtherCorrectSolutions} точки",
-					$"cipher/{cipher.Id}");
+                     CipherErrorConstants.MySubmissionsPath + "?tab=answers");
 			}
 
 			foreach (var wrongAnswer in wrongAnswerSuggestions)
@@ -238,7 +238,7 @@ namespace Cryptomind.Core.Services
 				user.Id,
 				NotificationType.AnswerApproved,
 				$"Вашият отговор беше одобрен +{pointsGranted} точки",
-				$"cipher/{cipher.Id}");
+                CipherErrorConstants.MySubmissionsPath + "?tab=answers");
 
 			return userIds;
 		}
@@ -280,7 +280,7 @@ namespace Cryptomind.Core.Services
 				answer.UserId,
 				NotificationType.AnswerRejected,
 				$"Вашият отговор беше отхвърлен: {reason}",
-				"my_submissions");
+                "my_submissions?tab=answers");
 		}
 
 		#endregion
