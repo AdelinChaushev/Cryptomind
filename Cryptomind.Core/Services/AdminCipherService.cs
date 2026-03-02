@@ -343,7 +343,7 @@ namespace Cryptomind.Core.Services
 				userId,
 				NotificationType.CipherRejected,
 				$"Вашият шифър {cipher.Title} беше отхвърлен. Причина:" + reason,
-		CipherErrorConstants.MySubmissionsPath);
+		CipherErrorConstants.MySubmissionsPath + "?tab=ciphers");
 		}
 		public async Task UpdateApprovedCipher(int id, UpdateCipherViewModel model)
 		{
@@ -409,7 +409,7 @@ namespace Cryptomind.Core.Services
 						answer.UserId,
 						NotificationType.AnswerCipherDeleted,
 						string.Format(CipherNotificationsText.AnswerDeletedNotification, cipher.Title),
-			CipherErrorConstants.MySubmissionsPath);
+			CipherErrorConstants.MySubmissionsPath + "tab=answers");
 				}
 			}
 
@@ -420,7 +420,7 @@ namespace Cryptomind.Core.Services
 				cipher.CreatedByUserId,
 				NotificationType.CipherDeleted,
 				string.Format(CipherNotificationsText.CipherDeletedNotification, cipher.Title),
-		CipherErrorConstants.MySubmissionsPath);
+		CipherErrorConstants.MySubmissionsPath+ "?tab=ciphers");
 			await cipherRepo.UpdateAsync(cipher);
 		}
 		public async Task RestoreCipher(int id, string? newTitle = null)
@@ -461,8 +461,9 @@ namespace Cryptomind.Core.Services
 					await notificationService.CreateAndSendNotification(
 						answer.UserId,
 						NotificationType.AnswerCipherRestored,
-						string.Format(CipherNotificationsText.AnswerDeletedNotification, answer.Cipher.Title),
-						$"cipher/{cipher.Id}");
+						string.Format(CipherNotificationsText.AnswerRestoredNotification, answer.Cipher.Title),
+						CipherErrorConstants.MySubmissionsPath + "?tab=answers"
+                        );
 				}
 			}
 
