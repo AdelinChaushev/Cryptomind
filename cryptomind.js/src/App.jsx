@@ -37,12 +37,12 @@ export const NotificationContext = createContext(null);
 export const useNotificationContext = () => useContext(NotificationContext);
 function App() {
    axios.defaults.withCredentials =  true
-   axios.defaults.baseURL = 'http://localhost:5115';
+   axios.defaults.baseURL = import.meta.env.VITE_API_URL;
    const [state, setState] = useState({roles : [], isLoggedIn: false, isBanned : false});
    const[loading, setLoading] = useState(true);
   
    useEffect(() => {
-    axios.get('http://localhost:5115/api/user/get-roles').then(response => {
+    axios.get('/api/user/get-roles').then(response => {
       setState({roles: response.data, isLoggedIn: true});
     }).catch(error => {
       console.log("Error fetching user roles:", error.response?.status);
@@ -66,8 +66,8 @@ function App() {
      <PageTransition>
     <Routes >
       <Route path="/banned" element={<RequireNotBanned><BannedPage/></RequireNotBanned>} />
-      <Route path="login" element={<RequireAuth mustNotBeLogged={true} ><Login /></RequireAuth>} />
-      <Route path="register" element={<RequireAuth mustNotBeLogged={true}><Register /></RequireAuth>} /> 
+      <Route path="login" element={<RequireNotBanned mustNotBeBanned={true}><RequireAuth mustNotBeLogged={true} ><Login /></RequireAuth></RequireNotBanned>} />
+      <Route path="register" element={<RequireNotBanned mustNotBeBanned={true}><RequireAuth mustNotBeLogged={true}><Register /></RequireAuth></RequireNotBanned>} /> 
       <Route path="*" element={<NotFoundPage />} />
       <Route path="/" element={<RequireNotBanned mustNotBeBanned={true}><Layout /></RequireNotBanned>}>   
         <Route path="leaderboard" element={<Leaderboard />} /> 

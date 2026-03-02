@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "../styles/leaderboard.css";
 
-const API_URL = "http://localhost:5115/api/leaderboard";
+const API_URL = `${import.meta.env.VITE_API_URL}/api/leaderboard`;
 
 const MEDALS = ["🥇", "🥈", "🥉"];
 const RANK_CLASSES = ["rank-1", "rank-2", "rank-3"];

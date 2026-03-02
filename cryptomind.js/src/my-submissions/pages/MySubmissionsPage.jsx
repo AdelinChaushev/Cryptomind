@@ -12,7 +12,8 @@ const MySubmissionsPage = () => {
     const navigate = useNavigate();
     const [submissions,setSubmissions ] = useState({ciphers : [], suggestions : []});
     useEffect(() => {
-    axios.get('http://localhost:5115/api/submissions',{withCredentials : true})
+    
+    axios.get(`${import.meta.env.VITE_API_URL}/api/submissions`,{withCredentials : true})
     .then(response => {
         setSubmissions({
             ciphers : response.data.ciphers,

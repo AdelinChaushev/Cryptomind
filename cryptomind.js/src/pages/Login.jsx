@@ -19,7 +19,7 @@ export default function Login() {
    const handleSubmit = (e) => {
     e.preventDefault()
     console.log("IN submit")
-    axios.post('http://localhost:5115/api/auth/login',{
+    axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`,{
         email: data.email,
         password: data.password,
     }).then(res => {
