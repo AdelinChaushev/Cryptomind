@@ -68,20 +68,8 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<int> GetRareSolves(string userId)
 		{
-			var solvedCipherIds = await solutionRepo.GetAllAttached()
-				.Where(s => s.UserId == userId && s.IsCorrect)
-				.Select(s => s.CipherId)
-				.ToListAsync();
-
-			int count = 0;
-			foreach (var cipherId in solvedCipherIds)
-			{
-				int totalSolvers = await solutionRepo.GetAllAttached()
-					.CountAsync(s => s.CipherId == cipherId && s.IsCorrect);
-				if (totalSolvers <= 3)
-					count++;
-			}
-			return count;
+			return await solutionRepo.GetAllAttached()
+				.CountAsync(s => s.UserId == userId && s.IsCorrect && s.IsRareSolved);
 		}
 	}
 }
