@@ -35,18 +35,20 @@ namespace Cryptomind.Core.Services
 			if (string.IsNullOrWhiteSpace(model.DecryptedText) && model.CipherType == null)
 				throw new ConflictException(CipherErrorConstants.UnknownCipherSolutionConflict);
 
-			if (string.IsNullOrEmpty(model.EncryptedText))
-				throw new ConflictException(CipherErrorConstants.EncryptedTextShouldNotBeEmpty);
-
-			if (model.EncryptedText.Length >= 450)
-				throw new CustomValidationException(CipherErrorConstants.MaxLengthExceeded);
+			
 
 			Cipher? cipher = null;
 			string? encryptedTextForAnalysis = model.EncryptedText;
 
 			if (model.CipherDefinition == CipherDefinition.TextCipher)
 			{
-				cipher = new TextCipher()
+                if (string.IsNullOrEmpty(model.EncryptedText))
+                    throw new ConflictException(CipherErrorConstants.EncryptedTextShouldNotBeEmpty);
+
+                if (model.EncryptedText.Length >= 450)
+                    throw new CustomValidationException(CipherErrorConstants.MaxLengthExceeded);
+
+                cipher = new TextCipher()
 				{
 					Title = model.Title,
 					DecryptedText = model.DecryptedText,
@@ -68,8 +70,8 @@ namespace Cryptomind.Core.Services
 
 				string finalText;
 				double? ocrConfidence = null;
-
-				if (!string.IsNullOrWhiteSpace(model.ReviewedText))
+             
+                if (!string.IsNullOrWhiteSpace(model.ReviewedText))
 				{
 					finalText = model.ReviewedText;
 				}
@@ -102,8 +104,10 @@ namespace Cryptomind.Core.Services
 
 				if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.EncryptedText == finalText) != null)
 					throw new ConflictException(CipherErrorConstants.DuplicateCipherContent);
+                if (finalText.Length >= 450)
+                    throw new CustomValidationException(CipherErrorConstants.MaxLengthExceeded);
 
-				if (string.IsNullOrEmpty(finalText))
+                if (string.IsNullOrEmpty(finalText))
 					throw new ConflictException(CipherErrorConstants.EncryptedTextShouldNotBeEmpty);
 
 				cipher = new ImageCipher()
