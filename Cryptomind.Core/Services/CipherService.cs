@@ -68,7 +68,7 @@ namespace Cryptomind.Core.Services
 					break;
 			}
 
-			List<Cipher> approved = await query.ToListAsync();
+			List<Cipher> approved = await query.OrderBy(x => x.DisplayOrder).ToListAsync();
 
 			List<CipherOutputViewModel> result = new List<CipherOutputViewModel>();
 			foreach (var cipher in approved)
