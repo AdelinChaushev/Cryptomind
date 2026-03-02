@@ -1,4 +1,5 @@
-﻿using Cryptomind.Common.Exceptions;
+﻿using Cryptomind.Common.Constants;
+using Cryptomind.Common.Exceptions;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Core.Hubs;
 using Cryptomind.Data.Entities;
@@ -62,7 +63,7 @@ namespace Cryptomind.Core.Services
 			foreach (var notification in userNotifications)
 			{
 				if (notification == null)
-					throw new NotFoundException("Известието не е намерено");
+					throw new NotFoundException(NotificationErrorConstants.NotificationNotFound);
 
 				notification.IsRead = true;
 				await notificationRepo.UpdateAsync(notification);
@@ -74,7 +75,7 @@ namespace Cryptomind.Core.Services
 			var notification = await notificationRepo.GetAllAttached()
 				.FirstOrDefaultAsync(c => c.UserId == userId && c.Id == notificationId);
 			if (notification == null)
-				throw new NotFoundException("Известието не е намерено");
+				throw new NotFoundException(NotificationErrorConstants.NotificationNotFound);
 
 			notification.IsRead = true;
 			await notificationRepo.UpdateAsync(notification);

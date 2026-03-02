@@ -30,26 +30,21 @@ namespace Cryptomind.Core.Services.OCR
 			try
 			{
 				var result = await SendOCRRequestAsync(imageFile, "ocr/extract");
-
-				if (string.IsNullOrEmpty(result.ExtractedText))
-					throw new Exception();
-
 				return result;
 			}
-			catch (Exception ex)
+			catch (CustomValidationException)
+			{
+				throw; // preserve validation errors
+			}
+			catch (HttpRequestException ex)
 			{
 				throw new Exception(
-					$"Услугата за OCR не е налична. Моля, уверете се, че Python OCR работи на {ocrApiUrl}",
-					ex
-				);
+					string.Format(OCRServiceConstants.OCRServiceUnavailable, ocrApiUrl), ex);
 			}
-		}
-		public async Task<OCRResultDTO> ExtractTextWithMultipleMethodsAsync(IFormFile imageFile)
-		{
-			if (imageFile == null || imageFile.Length == 0)
-				throw new CustomValidationException(CipherErrorConstants.ImageRequired);
-
-			return await SendOCRRequestAsync(imageFile, "ocr/extract-multiple");
+			catch (TaskCanceledException ex)
+			{
+				throw new Exception(OCRServiceConstants.OCRServiceTimeout, ex);
+			}
 		}
 		public async Task<bool> IsServiceHealthyAsync()
 		{
@@ -73,27 +68,7 @@ namespace Cryptomind.Core.Services.OCR
 				ExtractedText = pythonResponse.Text ?? string.Empty,
 				Confidence = pythonResponse.Confidence,
 				CharCount = pythonResponse.CharCount,
-				Validation = ConvertToValidationDTO(pythonResponse.Validation),
 				ErrorMessage = pythonResponse.Error
-			};
-		}
-		private OCRValidationDTO ConvertToValidationDTO(PythonValidation pythonValidation)
-		{
-			if (pythonValidation == null)
-			{
-				return new OCRValidationDTO
-				{
-					IsValid = false,
-					Warnings = new List<string>(),
-					Recommendation = string.Empty
-				};
-			}
-
-			return new OCRValidationDTO
-			{
-				IsValid = pythonValidation.IsValid,
-				Warnings = pythonValidation.Warnings ?? new List<string>(),
-				Recommendation = pythonValidation.Recommendation ?? string.Empty
 			};
 		}
 		private async Task<OCRResultDTO> SendOCRRequestAsync(IFormFile imageFile, string endpoint)
@@ -110,19 +85,30 @@ namespace Cryptomind.Core.Services.OCR
 			if (!response.IsSuccessStatusCode)
 			{
 				var errorContent = await response.Content.ReadAsStringAsync();
-				throw new Exception($"OCR API върна грешка (Статус {response.StatusCode}): {errorContent}");
+				throw new Exception(string.Format(
+					OCRServiceConstants.OCRApiError,
+					(int)response.StatusCode,
+					errorContent));
 			}
 
 			var responseJson = await response.Content.ReadAsStringAsync();
 			var pythonResponse = JsonSerializer.Deserialize<PythonOCRResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
 			if (pythonResponse == null)
-				throw new Exception("Неуспешен анализ на отговора на OCR API");
+				throw new Exception(OCRServiceConstants.OCRApiInvalidResponse);
 
 			if (!pythonResponse.Success)
-				throw new Exception($"OCR извличането е неуспешно: {pythonResponse.Error ?? "Неизвестна грешка"}");
+				throw new CustomValidationException(
+					string.Format(
+						OCRServiceConstants.OCRExtractionFailed,
+						pythonResponse.Error ?? "Неизвестна грешка"));
 
-			return ConvertToDTO(pythonResponse);
+			var result = ConvertToDTO(pythonResponse);
+
+			if (string.IsNullOrWhiteSpace(result.ExtractedText))
+				throw new CustomValidationException(OCRServiceConstants.OCRNoTextExtracted);
+
+			return result;
 		}
 		#endregion
 
@@ -141,22 +127,8 @@ namespace Cryptomind.Core.Services.OCR
 			[JsonPropertyName("char_count")]
 			public int CharCount { get; set; }
 
-			[JsonPropertyName("validation")]
-			public PythonValidation Validation { get; set; }
-
 			[JsonPropertyName("error")]
 			public string Error { get; set; }
-		}
-		private class PythonValidation
-		{
-			[JsonPropertyName("is_valid")]
-			public bool IsValid { get; set; }
-
-			[JsonPropertyName("warnings")]
-			public List<string> Warnings { get; set; }
-
-			[JsonPropertyName("recommendation")]
-			public string Recommendation { get; set; }
 		}
 		#endregion
 	}
