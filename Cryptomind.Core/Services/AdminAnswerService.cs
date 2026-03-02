@@ -280,7 +280,7 @@ namespace Cryptomind.Core.Services
 				answer.UserId,
 				NotificationType.AnswerRejected,
 				$"Вашият отговор беше отхвърлен: {reason}",
-                "my_submissions?tab=answers");
+                CipherErrorConstants.MySubmissionsPath + "?tab=answers");
 		}
 
 		#endregion

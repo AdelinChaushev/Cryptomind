@@ -409,7 +409,7 @@ namespace Cryptomind.Core.Services
 						answer.UserId,
 						NotificationType.AnswerCipherDeleted,
 						string.Format(CipherNotificationsText.AnswerDeletedNotification, cipher.Title),
-			CipherErrorConstants.MySubmissionsPath + "tab=answers");
+						CipherErrorConstants.MySubmissionsPath + "?tab=answers");
 				}
 			}
 
@@ -420,7 +420,7 @@ namespace Cryptomind.Core.Services
 				cipher.CreatedByUserId,
 				NotificationType.CipherDeleted,
 				string.Format(CipherNotificationsText.CipherDeletedNotification, cipher.Title),
-		CipherErrorConstants.MySubmissionsPath+ "?tab=ciphers");
+				CipherErrorConstants.MySubmissionsPath + "?tab=ciphers");
 			await cipherRepo.UpdateAsync(cipher);
 		}
 		public async Task RestoreCipher(int id, string? newTitle = null)
@@ -463,7 +463,7 @@ namespace Cryptomind.Core.Services
 						NotificationType.AnswerCipherRestored,
 						string.Format(CipherNotificationsText.AnswerRestoredNotification, answer.Cipher.Title),
 						CipherErrorConstants.MySubmissionsPath + "?tab=answers"
-                        );
+						);
 				}
 			}
 
