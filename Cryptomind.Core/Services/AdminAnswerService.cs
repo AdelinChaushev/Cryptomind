@@ -164,7 +164,8 @@ namespace Cryptomind.Core.Services
 				PointsEarned = pointsGranted,
 				TimeSolved = DateTime.UtcNow.AddHours(2),
 				IsCorrect = true,
-				Solution = firstCorrectAnswerSuggestion.DecryptedText
+				Solution = firstCorrectAnswerSuggestion.DecryptedText,
+				IsRareSolved = true
 			};
 
 			cipher.DecryptedText = firstCorrectAnswerSuggestion.DecryptedText;
@@ -195,7 +196,8 @@ namespace Cryptomind.Core.Services
 					PointsEarned = pointsGrantedForOtherCorrectSolutions,
 					TimeSolved = DateTime.UtcNow.AddHours(2),
 					IsCorrect = true,
-					Solution = correctAnswer.DecryptedText
+					Solution = correctAnswer.DecryptedText,
+					IsRareSolved = true
 				};
 				currentUser.Score += pointsGrantedForOtherCorrectSolutions;
 				userIds.Add(currentUser.Id);
