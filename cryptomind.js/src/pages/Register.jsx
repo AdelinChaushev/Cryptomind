@@ -39,8 +39,8 @@ export default function Register() {
           confirmPassword : data.confirmPassword
          }).then(e => 
           {console.log(e.data)
-          navigate('/');
-          setState({roles: e.data, isLoggedIn: true})
+            setState({roles: e.data, isLoggedIn: true})
+            navigate('/');
          }).catch(e => {
     const data = e.response?.data;
 
