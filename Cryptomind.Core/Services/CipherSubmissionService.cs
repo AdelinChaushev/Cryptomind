@@ -69,20 +69,15 @@ namespace Cryptomind.Core.Services
 				string finalText;
 				double? ocrConfidence = null;
 
-				if (!string.IsNullOrWhiteSpace(model.ReviewedText))
-				{
-					finalText = model.ReviewedText;
-				}
+				if (string.IsNullOrWhiteSpace(model.ReviewedText))
+					throw new ConflictException(CipherErrorConstants.EncryptedTextShouldNotBeEmpty);
 				else
 				{
 					var result = await ocrService.ExtractTextFromImageAsync(model.Image);
-					if (string.IsNullOrWhiteSpace(result.ExtractedText))
-						throw new CustomValidationException(CipherErrorConstants.OCRFailedMessage);
-
-					finalText = result.ExtractedText;
 					ocrConfidence = result.Confidence;
 				}
 
+				finalText = model.ReviewedText;
 				encryptedTextForAnalysis = finalText;
 
 				string imageFolderPath = Path.Combine(PathHelper.GetImagesBasePath(), "Ciphers");
@@ -100,9 +95,6 @@ namespace Cryptomind.Core.Services
 				}
 
 				string relativePath = Path.Combine("Ciphers", safeTitle + originalExtension);
-
-				if (string.IsNullOrEmpty(finalText))
-					throw new ConflictException(CipherErrorConstants.EncryptedTextShouldNotBeEmpty);
 
 				if (finalText.Length >= 450)
 					throw new CustomValidationException(CipherErrorConstants.MaxLengthExceeded);
