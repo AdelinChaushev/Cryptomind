@@ -21,9 +21,9 @@ namespace Cryptomind.Core.Services
 			bool passwordValid = user != null && await userManager.CheckPasswordAsync(user, password);
 
 			if (!passwordValid)
-				throw new UnauthorizedException("Невалидни данни");
+				throw new UnauthorizedException(UserConstants.InvalidCredentials);
 			if (user.IsDeactivated)
-				throw new ConflictException("Този акаунт е деактивиран");
+				throw new ConflictException(UserConstants.ThisAcountIsDeactivated);
 			return user;
 		}
 		public async Task<string> GenerateJSONWebToken(ApplicationUser user)
@@ -61,24 +61,24 @@ namespace Cryptomind.Core.Services
 			var userExist = await userManager.FindByEmailAsync(email);
 			if (userExist != null)
 			{
-				throw new ConflictException("Потребител с този имейл вече съществува");
+				throw new ConflictException(UserConstants.ThisEmailAlreadyExists);
 			}
 
 			if (string.Equals(userName, CipherErrorConstants.AnonymousUser, StringComparison.OrdinalIgnoreCase))
 			{
-				throw new ConflictException($"Не може да създадете потребител с име: {userName}");
+				throw new ConflictException(string.Format(UserConstants.CannotCreateUsernameAnonymous, userName));
 			}
 
 			if (await userManager.FindByNameAsync(userName) != null)
 			{
-				throw new ConflictException("Вече съществува потребител с това име");
+				throw new ConflictException(UserConstants.ThisUsernameAlreadyExists);
 			}
 
 			if (userName.Length < 3 || userName.Length > 16)
-				throw new CustomValidationException("Спазвайте ограниченията за името");
+				throw new CustomValidationException(UserConstants.KeepUsernameConstraints);
 
 			if (password.Length < 8)
-				throw new CustomValidationException("Спазвайте ограниченията на паролата");
+				throw new CustomValidationException(UserConstants.KeepPasswordConstraints);
 
 			ApplicationUser user = new ApplicationUser()
 			{
@@ -101,13 +101,13 @@ namespace Cryptomind.Core.Services
 			var user = await userManager.FindByIdAsync(userId);
 
 			if (user == null)
-				throw new NotFoundException("Потребителят не е намерен");
+				throw new NotFoundException(UserConstants.UserNotFound);
 
 			if (user.IsDeactivated)
-				throw new ConflictException("Този акаунт е деактивиран");
+				throw new ConflictException(UserConstants.ThisAcountIsDeactivated);
 
 			if (await userManager.IsInRoleAsync(user, "Admin"))
-				throw new ConflictException("Администраторите не могат да деактивират собствения си акаунт");
+				throw new ConflictException(UserConstants.AdminsCannotDeactivate);
 
 			user.IsDeactivated = true;
 			user.DeactivatedAt = DateTime.UtcNow.AddHours(2);

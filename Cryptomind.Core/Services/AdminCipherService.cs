@@ -432,7 +432,7 @@ namespace Cryptomind.Core.Services
 			if (cipher == null)
 				throw new NotFoundException(CipherErrorConstants.CipherNotFoundMessage);
 			else if (!cipher.IsDeleted)
-				throw new ConflictException("Шифърът не е изтрит");
+				throw new ConflictException(CipherErrorConstants.NotDeleted);
 
 			bool titleConflict = (await cipherRepo.GetAllAsync())
 				.Any(x => x.Title == cipher.Title && x.Id != cipher.Id && !x.IsDeleted);
