@@ -39,11 +39,11 @@ namespace Cryptomind.Core.Services.OCR
 			catch (HttpRequestException ex)
 			{
 				throw new Exception(
-					string.Format(OCRServiceErrorTexts.OCRServiceUnavailable, ocrApiUrl), ex);
+					string.Format(OCRServiceConstants.OCRServiceUnavailable, ocrApiUrl), ex);
 			}
 			catch (TaskCanceledException ex)
 			{
-				throw new Exception(OCRServiceErrorTexts.OCRServiceTimeout, ex);
+				throw new Exception(OCRServiceConstants.OCRServiceTimeout, ex);
 			}
 		}
 		public async Task<bool> IsServiceHealthyAsync()
@@ -86,7 +86,7 @@ namespace Cryptomind.Core.Services.OCR
 			{
 				var errorContent = await response.Content.ReadAsStringAsync();
 				throw new Exception(string.Format(
-					OCRServiceErrorTexts.OCRApiError,
+					OCRServiceConstants.OCRApiError,
 					(int)response.StatusCode,
 					errorContent));
 			}
@@ -95,18 +95,18 @@ namespace Cryptomind.Core.Services.OCR
 			var pythonResponse = JsonSerializer.Deserialize<PythonOCRResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
 			if (pythonResponse == null)
-				throw new Exception(OCRServiceErrorTexts.OCRApiInvalidResponse);
+				throw new Exception(OCRServiceConstants.OCRApiInvalidResponse);
 
 			if (!pythonResponse.Success)
 				throw new CustomValidationException(
 					string.Format(
-						OCRServiceErrorTexts.OCRExtractionFailed,
+						OCRServiceConstants.OCRExtractionFailed,
 						pythonResponse.Error ?? "Неизвестна грешка"));
 
 			var result = ConvertToDTO(pythonResponse);
 
 			if (string.IsNullOrWhiteSpace(result.ExtractedText))
-				throw new CustomValidationException(OCRServiceErrorTexts.OCRNoTextExtracted);
+				throw new CustomValidationException(OCRServiceConstants.OCRNoTextExtracted);
 
 			return result;
 		}
