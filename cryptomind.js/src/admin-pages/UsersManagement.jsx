@@ -3,7 +3,7 @@ import axios from 'axios';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
 import '../styles/users-management.css';
-const API_BASE = 'http://localhost:5115/api/admin';
+const API_BASE = `${import.meta.env.VITE_API_URL}/api/admin`;
 
 import {useError} from '../ErrorContext'
 axios.defaults.withCredentials = true;
@@ -100,7 +100,7 @@ const UsersManagement = () => {
             formData.append("reason", banReason);
         
             await axios.put(
-                `http://localhost:5115/api/admin/user/${banModal.userId}/ban`,
+                `${API_BASE}/user/${banModal.userId}/ban`,
                 formData,
                 {
                     headers: {

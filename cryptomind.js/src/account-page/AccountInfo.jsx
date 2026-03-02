@@ -9,7 +9,7 @@ import BadgesSection  from './BadgesSection';
 import DeactivateModal from './DeactivateModal';
 import { useContext } from 'react';
 import { AuthorizationContext } from '../App';
-const API_BASE = 'http://localhost:5115';
+const API_BASE = import.meta.env.VITE_API_URL ;
 
 function AccountInfo() {
     const [user, setUser]               = useState(null);

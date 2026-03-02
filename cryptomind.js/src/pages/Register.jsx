@@ -32,7 +32,7 @@ export default function Register() {
           return;
          }
          
-         axios.post('http://localhost:5115/api/auth/register',{
+         axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register`,{
           username: data.username,
           email : data.email,
           password: data.password,

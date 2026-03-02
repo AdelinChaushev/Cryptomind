@@ -7,7 +7,7 @@ import '../styles/submit-cipher.css';
 import axios from 'axios';
 import { useError } from '../ErrorContext.jsx';
 import CipherTypesPanel from './CipherTypesPanel';
-
+const API_BASE = import.meta.env.VITE_API_URL
 const SubmitCipherPage = () => {
 
     const [useImage, setUseImage] = useState(false);
@@ -49,7 +49,7 @@ const SubmitCipherPage = () => {
         const preview = new FormData();
         preview.append('image', file);
 
-        axios.post('http://localhost:5115/api/ciphers/ocr-preview', preview, {
+        axios.post(`${API_BASE}/api/ciphers/ocr-preview`, preview, {
             withCredentials: true,
             headers: { 'Content-Type': 'multipart/form-data' }
         })
@@ -80,7 +80,7 @@ const SubmitCipherPage = () => {
             formData.append("ReviewedText", ocrText);
         }
 
-        axios.post('http://localhost:5115/api/ciphers/submit', formData, {
+        axios.post(`${API_BASE}/api/ciphers/submit`, formData, {
             withCredentials: true,
             headers: { 'Content-Type': 'multipart/form-data' }
         })

@@ -1,8 +1,9 @@
 services:
 
   frontend:
-    build:
-      context: ./cryptomind.js
+    # build:
+    #   context: ./cryptomind.js
+    image: cryptomindacr.azurecr.io/frontend:latest 
     ports:
       - "5173:80"
     depends_on:
@@ -11,9 +12,10 @@ services:
       - cryptomind-network
 
   backend:
-    build:
-      context: .
-      dockerfile: Cryptomind/Dockerfile
+    # build:
+    #   context: .
+    #   dockerfile: Cryptomind/Dockerfile
+    image: cryptomindacr.azurecr.io/backend:latest  
     ports:
       - "5115:8080"
     volumes:
@@ -33,16 +35,18 @@ services:
       - cryptomind-network
 
   ml-server:
-    build:
-      context: ./Cryptomind.AI
+    # build:
+    #   context: ./Cryptomind.AI
+    image: cryptomindacr.azurecr.io/ml-server:latest  
     ports:
       - "5002:5002"
     networks:
       - cryptomind-network
 
   ocr-server:
-    build:
-      context: ./Cryptomind.OCR
+    # build:
+    #   context: ./Cryptomind.OCR
+    image: cryptomindacr.azurecr.io/ocr-server:latest  
     ports:
       - "5001:5001"
     volumes:
