@@ -7,7 +7,7 @@ namespace Cryptomind.Core.Badges.Criteria
 	{
 		private readonly IBadgeStatisticsService statsService;
 		private readonly int requiredCount;
-		public BadgeCategory Category => BadgeCategory.OnSolve;
+		public BadgeCategory Category => BadgeCategory.OnHintRequesting;
 		public HintUsageCountCriteria(IBadgeStatisticsService statsService, int requiredCount)
 		{
 			this.statsService = statsService;
