@@ -79,6 +79,7 @@ namespace Cryptomind.Tests.Unit.Services
 				AnswerSuggestions = answerSuggestions ?? new List<AnswerSuggestion>(),
 				CreatedAt = DateTime.UtcNow,
 				CreatedByUser = new ApplicationUser { Id = userId, UserName = "testuser" },
+				LLMData = new CipherLLMData(),
 			};
 
 		private static ApproveCipherViewModel ApproveModel(
@@ -318,7 +319,7 @@ namespace Cryptomind.Tests.Unit.Services
 		public async Task AnalyzeWithLLM_CallsLLMAndUpdates_WhenNoCacheExists()
 		{
 			var cipher = MakeCipher(1);
-			cipher.LLMData = null;
+			cipher.LLMData.Reasoning = null;
 
 			var llmResult = new CipherValidationResultDTO
 			{
