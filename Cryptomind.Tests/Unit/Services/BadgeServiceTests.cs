@@ -360,7 +360,7 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupAttachedUsers(MakeUser("u1"));
 			SetupAttachedBadges(MakeBadge(14));
 
-			await service.CheckBadgesByCategory("u1", BadgeCategory.OnSolve);
+			await service.CheckBadgesByCategory("u1", BadgeCategory.OnHintRequesting);
 
 			userBadgeRepoMock.Verify(r => r.AddAsync(It.Is<UserBadge>(b => b.BadgeId == 14)), Times.Once);
 		}
@@ -925,12 +925,8 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			var solutions = new[]
 			{
-				new UserSolution { UserId = "u1", CipherId = 1, IsCorrect = true },
-				new UserSolution { UserId = "u1", CipherId = 2, IsCorrect = true },
-				new UserSolution { UserId = "u2", CipherId = 1, IsCorrect = true },
-				new UserSolution { UserId = "u2", CipherId = 2, IsCorrect = true },
-				new UserSolution { UserId = "u3", CipherId = 2, IsCorrect = true },
-				new UserSolution { UserId = "u4", CipherId = 2, IsCorrect = true },
+				new UserSolution { UserId = "u1", CipherId = 1, IsCorrect = true, IsRareSolved = true },
+				new UserSolution { UserId = "u1", CipherId = 2, IsCorrect = true, IsRareSolved = false },
 			};
 			SetupAttachedSolutions(solutions);
 
@@ -942,19 +938,9 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task GetRareSolves_CountsCipher_WhenExactlyThreeCorrectSolversTotal()
 		{
-			var cipher = new ConcreteCipher
-			{
-				Id = 1,
-				UserSolutions = new List<UserSolution>
-				{
-					new() { IsCorrect = true },
-					new() { IsCorrect = true },
-					new() { IsCorrect = true },
-				}
-			};
 			var solutions = new[]
 			{
-				new UserSolution { UserId = "u1", CipherId = 1, IsCorrect = true, Cipher = cipher },
+				new UserSolution { UserId = "u1", CipherId = 1, IsCorrect = true, IsRareSolved = true },
 			};
 			SetupAttachedSolutions(solutions);
 
