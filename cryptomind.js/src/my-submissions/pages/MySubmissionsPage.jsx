@@ -7,7 +7,7 @@ import AnswerSuggestionsList from '../components/AnswerSuggestionsList';
 import '../styles/my-submissions.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-
+import { useLocation } from 'react-router-dom';
 const MySubmissionsPage = () => {
     const navigate = useNavigate();
     const [submissions,setSubmissions ] = useState({ciphers : [], suggestions : []});
@@ -24,7 +24,14 @@ const MySubmissionsPage = () => {
         console.error('Error fetching submissions:', error);
     });
 }, []);
-    const [activeTab,setActiveTab] = useState('ciphers'); 
+const location = useLocation();
+
+     const getInitialTab = () => {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get('tab');
+    return tab === 'answers' ? 'answers' : 'ciphers';
+    };
+    const [activeTab,setActiveTab] = useState(getInitialTab); 
 
     const cipherSubmissions = submissions.ciphers;
     const answerSuggestions = submissions.suggestions;
