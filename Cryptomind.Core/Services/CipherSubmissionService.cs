@@ -68,7 +68,7 @@ namespace Cryptomind.Core.Services
 
 				string finalText;
 				double? ocrConfidence = null;
-        
+
 				if (string.IsNullOrWhiteSpace(model.ReviewedText))
 					throw new ConflictException(CipherErrorConstants.EncryptedTextShouldNotBeEmpty);
 				else
@@ -101,10 +101,10 @@ namespace Cryptomind.Core.Services
 
 				if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.EncryptedText == finalText) != null)
 					throw new ConflictException(CipherErrorConstants.DuplicateCipherContent);
-                if (finalText.Length >= 450)
-                    throw new CustomValidationException(CipherErrorConstants.MaxLengthExceeded);
+				if (finalText.Length >= 450)
+					throw new CustomValidationException(CipherErrorConstants.MaxLengthExceeded);
 
-        if (string.IsNullOrEmpty(finalText))
+				if (string.IsNullOrEmpty(finalText))
 					throw new ConflictException(CipherErrorConstants.EncryptedTextShouldNotBeEmpty);
 				cipher = new ImageCipher()
 				{
@@ -160,6 +160,9 @@ namespace Cryptomind.Core.Services
 				typesMatch: model.CipherType?.ToString().ToLower() == mlResult.TopPrediction.Type.ToLower(),
 				textLength: cipher.EncryptedText.Length
 			);
+
+			int nextOrder = await cipherRepo.GetAllAttached().MaxAsync(c => c.DisplayOrder) + 1;
+			cipher.DisplayOrder = nextOrder;
 
 			await cipherRepo.AddAsync(cipher);
 			return cipher;

@@ -25,7 +25,7 @@
 			if (multiplier < 0.05)
 				multiplier = 0.05;
 
-			return (int)Math.Max(0, basePoints * multiplier);
+			return (int)Math.Round(Math.Max(0, basePoints * multiplier));
 		}
 	}
 }

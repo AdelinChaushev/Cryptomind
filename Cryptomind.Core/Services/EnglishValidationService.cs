@@ -26,7 +26,7 @@ namespace Cryptomind.Core.Services
 		{
 			if (string.IsNullOrWhiteSpace(plaintext))
 			{
-				throw new CustomValidationException("Декриптириният текст не може да бъде празен");
+				throw new CustomValidationException(EnglishValidationConstants.DecryptionTextCannotBeEmpty);
 			}
 
 			try
@@ -47,9 +47,7 @@ namespace Cryptomind.Core.Services
 				if (!response.IsSuccessStatusCode)
 				{
 					var errorContent = await response.Content.ReadAsStringAsync();
-					throw new Exception(
-						$"API за валидиране на английски език върна грешка (Статус{response.StatusCode}): {errorContent}"
-					);
+					throw new Exception(string.Format(EnglishValidationConstants.APIError, response.StatusCode, errorContent));
 				}
 
 				var responseJson = await response.Content.ReadAsStringAsync();
@@ -64,31 +62,22 @@ namespace Cryptomind.Core.Services
 
 				if (result == null)
 				{
-					throw new Exception("Неуспешен анализ на отговора за валидиране на английски език");
+					throw new Exception(EnglishValidationConstants.InvalidAnalysis);
 				}
 
 				return result;
 			}
 			catch (HttpRequestException ex)
 			{
-				throw new Exception(
-					$"Услугата за валидиране на английски език не е налична. Моля, уверете се, че Python ML API работи на {mlApiUrl}",
-					ex
-				);
+				throw new Exception(string.Format(EnglishValidationConstants.EnglishServiceNotAvailable, mlApiUrl));
 			}
 			catch (TaskCanceledException ex)
 			{
-				throw new Exception(
-					$"Проверката на английския език не получи навременен отговор в рамките на  {ApiTimeoutSeconds} секунди",
-					ex
-				);
+				throw new Exception(string.Format(EnglishValidationConstants.TimeoutExpired, ApiTimeoutSeconds));
 			}
 			catch (JsonException ex)
 			{
-				throw new Exception(
-					"Неуспешен анализ на отговора от услугата за валидиране на английски език",
-					ex
-				);
+				throw new Exception(EnglishValidationConstants.InvalidAnalysis);
 			}
 		}
 
