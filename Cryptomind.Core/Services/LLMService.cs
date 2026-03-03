@@ -97,6 +97,13 @@ namespace Cryptomind.Core.Services
 				if (result == null)
 					throw new Exception(LLMConstants.InvalidDeserialization);
 
+				if (!SupportedCipherTypes.Contains(result.PredictedType ?? string.Empty))
+				{
+					result.Recommendation = "reject";
+					result.Issues ??= new List<string>();
+					result.Issues.Add($"Предсказаният тип '{result.PredictedType}' не съответства на нито един от 14-те поддържани типа шифри — автоматично отхвърлен.");
+				}
+
 				if (result.Recommendation != "approve" && result.Recommendation != "reject")
 				{
 					result.Recommendation = "reject";
