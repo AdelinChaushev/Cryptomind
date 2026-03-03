@@ -12,6 +12,8 @@ ENV/
 uploads/*
 !uploads/.gitkeep
 
+images/*
+
 # Testing
 test_uploads/
 *.log

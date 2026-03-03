@@ -62,7 +62,6 @@ namespace Cryptomind.Core.Services
 				};
 				badges.Add(badgeViewModel);
 			}
-			;
 
 			AccountViewModel result = new AccountViewModel()
 			{

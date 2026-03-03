@@ -13,8 +13,7 @@ namespace Cryptomind.Core.Services
 	public class HintService(
 		IRepository<Cipher, int> cipherRepo,
 		IRepository<HintRequest, int> hintRequestRepo,
-		ILLMService llmService
-		) : IHintService
+		ILLMService llmService) : IHintService
 	{
 		public async Task<HintResultDTO> RequestHintAsync(string userId, int cipherId, HintType hintType)
 		{

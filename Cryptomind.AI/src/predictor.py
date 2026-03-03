@@ -19,17 +19,19 @@ class CipherPredictor:
     def load_models(self):     
         # Load Layer 1 model
         if os.path.exists(Config.LAYER1_MODEL_PATH):
-            self.layer1_model = keras.models.load_model(Config.LAYER1_MODEL_PATH)
-            
+            self.layer1_model = keras.models.load_model(
+                Config.LAYER1_MODEL_PATH, compile=False
+            )
+
             label_map_path = os.path.join(Config.LAYER1_TRAINING_DIR, 'label_map.json')
             with open(label_map_path, 'r') as f:
                 label_map = json.load(f)
                 self.layer1_labels = {int(k): v for k, v in label_map.items()}
-            
+
             print(f"Layer 1 model loaded")
         else:
             print("Layer 1 model not found!")
-        
+
         # Load Layer 2 models
         for family in Config.FAMILIES.keys():
             if len(Config.FAMILIES[family]) == 1:
@@ -37,38 +39,34 @@ class CipherPredictor:
             
             model_path = os.path.join(Config.LAYER2_MODELS_DIR, family.lower(), 
                                      f'{family.lower()}_classifier.h5')
-            
+
             if os.path.exists(model_path):
-                self.layer2_models[family] = keras.models.load_model(model_path)
-                
+                self.layer2_models[family] = keras.models.load_model(
+                    model_path, compile=False
+                )
+
                 label_map_path = os.path.join(Config.LAYER2_TRAINING_DIR, 
                                               family.lower(), 'label_map.json')
                 with open(label_map_path, 'r') as f:
                     label_map = json.load(f)
                     self.layer2_labels[family] = {int(k): v for k, v in label_map.items()}
-                
+
                 print(f"{family} model loaded")
-        
+
         print("All models loaded!\n")
 
     def detect_encoding(self, text):
-
-        # Remove whitespace for analysis
         text_no_space = text.replace(' ', '').replace('\n', '')
 
-        # Morse: only dots, dashes, slashes
         if all(c in '.-/ ' for c in text):
             return 'Morse'
 
-        # Binary: only 0, 1, and spaces
         if all(c in '01 ' for c in text) and len(text_no_space) > 20:
             return 'Binary'
 
-        # Hex: only 0-9, a-f, A-F
         if all(c in '0123456789abcdefABCDEF' for c in text_no_space) and len(text_no_space) % 2 == 0:
             return 'Hex'
 
-        # Base64: ends with = padding, uses Base64 charset
         base64_chars = set('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=')
         if all(c in base64_chars for c in text_no_space):
             if text_no_space.endswith('=') or text_no_space.endswith('=='):
@@ -77,7 +75,7 @@ class CipherPredictor:
         return None
     
     def predict(self, ciphertext, return_top_k=True):
-            # Check for encoding types first (rule-based)
+        # Check for encoding types first (rule-based)
         encoding_type = self.detect_encoding(ciphertext)
         if encoding_type:
             return {
@@ -126,7 +124,6 @@ class CipherPredictor:
             current_family = family_info['family']
             family_conf = family_info['confidence']
             
-            # If family has only one type
             if len(Config.FAMILIES[current_family]) == 1:
                 cipher_type = Config.FAMILIES[current_family][0]
                 predictions.append({
@@ -137,16 +134,13 @@ class CipherPredictor:
                     'type_confidence': 1.0
                 })
             else:
-                # Use Layer 2 model
                 if current_family in self.layer2_models:
                     type_probs = self.layer2_models[current_family].predict(features, verbose=0)[0]
                     
-                    # Get top type
                     type_idx = np.argmax(type_probs)
                     cipher_type = self.layer2_labels[current_family][type_idx]
                     type_confidence = float(type_probs[type_idx])
                     
-                    # Combined confidence
                     combined_confidence = family_conf * type_confidence
                     
                     predictions.append({
@@ -157,10 +151,8 @@ class CipherPredictor:
                         'type_confidence': type_confidence
                     })
         
-        # Sort by combined confidence
         predictions.sort(key=lambda x: x['confidence'], reverse=True)
         
-        # Return results
         result = {
             'top_prediction': predictions[0] if predictions else None,
             'all_predictions': predictions[:Config.TOP_K_PREDICTIONS] if return_top_k else predictions[:1],
