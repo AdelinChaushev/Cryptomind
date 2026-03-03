@@ -18,7 +18,7 @@ const API_BASE = `${import.meta.env.VITE_API_URL}/api/notifications`;
 const HUB_URL  = `${import.meta.env.VITE_API_URL}/notificationHub`;
 
 export function parseCreatedSince(createdSince) {
-    if (!createdSince) return '';
+    if (!createdSince) return 'just now';
 
     const match = createdSince.match(/(?:(\d+)\.)?(\d{1,2}):(\d{2}):(\d{2})/);
 
@@ -141,13 +141,17 @@ export function useNotifications(isAuthenticated) {
 
         connection.on('ReceiveNotification', (incoming) => {
             console.log('[SignalR] ReceiveNotification:', incoming);
+            const normalized = {
+                ...incoming,
+                createdSince: incoming.createdSince ?? '0:00:00',
+             };
             setNotifications(prev => [incoming, ...prev]);
             setUnreadCount(prev => prev + 1);
             setToasts(prev => [
                 ...prev,
                 {
                     id: `toast-${incoming.id}-${Date.now()}`,
-                    notification: incoming,
+                    notification: normalized,
                     isLeaving: false,
                 },
             ]);

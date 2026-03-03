@@ -6,5 +6,7 @@ namespace Cryptomind.Core.Contracts
 	{
 		Task<IEnumerable<string>> GetRolesUsers(string id);
 		Task<AccountViewModel?> GetUserAccountInfo(string id);
+
+		Task<string> GetEmail(string id);
 	}
 }
