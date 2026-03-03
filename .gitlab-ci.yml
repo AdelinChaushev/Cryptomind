@@ -10,10 +10,8 @@ production:
     - if: $DEPLOY == "prod"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "push"
   script:
-    - apk add --no-cache git-lfs
-    - git lfs pull
     - docker compose pull
-    - docker compose build --no-cache
+    - docker compose build
     - docker compose up -d
     - docker image prune -f
   tags:
