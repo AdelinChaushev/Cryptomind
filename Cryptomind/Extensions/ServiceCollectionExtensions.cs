@@ -71,7 +71,7 @@ public static class ServiceCollectionExtensions
 
 	public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
 	{
-		var key = Encoding.ASCII.GetBytes(configuration["JWT:Secret"]);
+		var key = Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET"));
 
 		services.AddAuthentication(options =>
 		{
@@ -88,8 +88,8 @@ public static class ServiceCollectionExtensions
 			{
 				ValidateIssuer = true,
 				ValidateAudience = true,
-				ValidAudience = configuration["JWT:ValidAudience"],
-				ValidIssuer = configuration["JWT:ValidIssuer"],
+				ValidAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE"),
+				ValidIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER"),
 				IssuerSigningKey = new SymmetricSecurityKey(key),
 				RoleClaimType = ClaimTypes.Role
 			};
