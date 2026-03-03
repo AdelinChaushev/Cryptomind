@@ -19,7 +19,7 @@ const AdminDashboard = ({ recentActivity = [] }) => {
     });
    
     useEffect(() => {
-        axios.get('http://localhost:5115/api/admin/dashboard')
+        axios.get(`${import.meta.env.VITE_API_URL}/api/admin/dashboard`)
         .then(res => {
             setStats({
                 pendingCiphersCount: res.data.pendingCiphersCount,

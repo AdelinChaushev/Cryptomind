@@ -41,7 +41,6 @@ namespace Cryptomind.Core.Services
 			{ 14, new HintUsageCountCriteria(statsService, 25)},
 			{ 15, new RareSolveCriteria(statsService, 25)},
 		};
-
 		public async Task CheckBadgesByCategory(string userId, BadgeCategory category)
 		{
 			var userBadgeIds = await userBadgeRepo.GetAllAttached()

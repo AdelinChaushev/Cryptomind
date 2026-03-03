@@ -13,13 +13,11 @@ namespace Cryptomind.Core.Services
 		private readonly HttpClient httpClient;
 		private readonly string mlApiUrl;
 		private const int ApiTimeoutSeconds = EnglishValidationConstants.ApiTimeoutSeconds;
-		public EnglishValidationService(
-			IHttpClientFactory httpClientFactory,
-			IConfiguration configuration)
+		public EnglishValidationService(IHttpClientFactory httpClientFactory)
 		{
 			httpClient = httpClientFactory.CreateClient();
 			httpClient.Timeout = TimeSpan.FromSeconds(ApiTimeoutSeconds);
-			mlApiUrl = configuration["MLService:ApiUrl"] ?? "http://localhost:5002";
+			mlApiUrl = Environment.GetEnvironmentVariable("ML_URL") ?? "http://localhost:5002";
 		}
 
 		public async Task<EnglishValidationResult> ValidatePlaintextAsync(string plaintext)
