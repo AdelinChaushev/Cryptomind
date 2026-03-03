@@ -40,7 +40,14 @@ namespace Cryptomind.Controllers
 			{
 				throw new BannedException(user.BanReason);
 			}
-			return Ok(await userService.GetRolesUsers(user.Id));
+			var roles = await userService.GetRolesUsers(user.Id);
+			var email = await userService.GetEmail(user.Id);
+
+            return Ok(new
+            {
+                Roles = roles,
+                Email = email
+            });
 		}
 
 		[HttpPost("logout")]

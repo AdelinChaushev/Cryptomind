@@ -24,7 +24,7 @@ export default function Login() {
         password: data.password,
     }).then(res => {
       navigate('/');
-      setState({isLoggedIn: true,roles: res.data});
+      setState({isLoggedIn: true,roles: res.data.roles,email : res.data.email});
          
     } ).catch(error => {  
     if (error.response?.status === 403) {
