@@ -15,13 +15,11 @@ namespace Cryptomind.Core.Services.OCR
 
 		private const int ApiTimeoutSeconds = OCRServiceConstants.ApiTimeoutSeconds;
 
-		public OCRService(
-			IHttpClientFactory httpClientFactory,
-			IConfiguration configuration)
+		public OCRService(IHttpClientFactory httpClientFactory)
 		{
 			httpClient = httpClientFactory.CreateClient();
 			httpClient.Timeout = TimeSpan.FromSeconds(ApiTimeoutSeconds);
-			ocrApiUrl = configuration["OCRService:ApiUrl"] ?? "http://localhost:5001";
+			ocrApiUrl = Environment.GetEnvironmentVariable("OCR_URL") ?? "http://localhost:5001";
 		}
 		public async Task<OCRResultDTO> ExtractTextFromImageAsync(IFormFile imageFile)
 		{

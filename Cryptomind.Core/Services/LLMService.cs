@@ -22,21 +22,21 @@ namespace Cryptomind.Core.Services
 
 		private const int ApiTimeoutSeconds = LLMConstants.ApiTimeoutSeconds;
 
-		public LLMService(
-			IHttpClientFactory httpClientFactory,
-			IConfiguration configuration)
+		public LLMService(IHttpClientFactory httpClientFactory)
 		{
 			httpClient = httpClientFactory.CreateClient();
 			httpClient.Timeout = TimeSpan.FromSeconds(ApiTimeoutSeconds);
 
-			apiUrl = configuration["LLMService:ApiUrl"]
-				?? throw new Exception("LLMService:ApiUrl not configured");
-			apiKey = configuration["LLMService:ApiKey"]
-				?? throw new Exception("LLMService:ApiKey not configured");
+			apiUrl = Environment.GetEnvironmentVariable("OPENAI_API_URL")
+				?? throw new Exception("LLMService: ApiUrl not configured");
+			apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY")
+				?? throw new Exception("LLMService: ApiKey not configured");
 
 			// Use cheap model for admin validation, better model for user content
-			validationModel = configuration["LLMService:ValidationModel"] ?? "gpt-4o-mini";
-			educationalModel = configuration["LLMService:EducationalModel"] ?? "gpt-4o";
+			validationModel = Environment.GetEnvironmentVariable("VALIDATION_MODEL") 
+				?? throw new Exception("LLMService: Validation model not configured");
+			educationalModel = Environment.GetEnvironmentVariable("EDUCATIONAL_MODEL") 
+				?? throw new Exception("LLMService: Educational model not configured");
 
 			httpClient.DefaultRequestHeaders.Authorization =
 				new AuthenticationHeaderValue("Bearer", apiKey);
