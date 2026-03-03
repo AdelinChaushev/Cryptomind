@@ -46,7 +46,7 @@ def predict():
     
     except Exception as e:
         import traceback
-        traceback.print_exc()  # ← prints full traceback to docker logs
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
     
 @app.route('/api/validate-english', methods=['POST'])
@@ -69,7 +69,7 @@ def validate_english():
     
     except Exception as e:
         import traceback
-        traceback.print_exc()  # ← prints full traceback to docker logs
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/cipher-families', methods=['GET'])
