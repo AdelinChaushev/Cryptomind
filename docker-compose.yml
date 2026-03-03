@@ -72,6 +72,10 @@ services:
     extends:
       file: docker-compose.yml
       service: frontend-base
+    build:
+      context: ./cryptomind.js
+      args:
+        VITE_API_URL: http://localhost:5115
     profiles:
       - development
     ports:
@@ -131,6 +135,10 @@ services:
     extends:
       file: docker-compose.yml
       service: frontend-base
+    build:
+      context: ./cryptomind.js
+      args:
+        VITE_API_URL: https://api.cryptomind.techlab.cloud
     profiles:
       - production
     restart: always
