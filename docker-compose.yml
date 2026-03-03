@@ -33,6 +33,7 @@ services:
   ml-server-base:
     build:
       context: ./Cryptomind.AI
+    platform: linux/amd64
     profiles:
       - base
     networks:
