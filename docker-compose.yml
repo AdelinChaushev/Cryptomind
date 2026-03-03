@@ -14,7 +14,7 @@ services:
     profiles:
       - base
     volumes:
-      - cipher-images:/app/Images
+      - cipher-images:/app/Images/Ciphers
     environment:
     - ASPNETCORE_ENVIRONMENT=Production
     - ASPNETCORE_URLS=http://+:8080
