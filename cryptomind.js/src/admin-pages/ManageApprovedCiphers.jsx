@@ -4,7 +4,7 @@ import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
 import '../styles/manage-ciphers.css';
 import { useError } from '../ErrorContext.jsx';
-const API_BASE = 'http://localhost:5115/api/admin';
+const API_BASE = `${import.meta.env.VITE_API_URL}/api/admin`;
 const AVAILABLE_TAGS = [          
     { value: 1, label: 'Изображение',mapValue : 'Image'},
     { value: 2, label: 'Пъзел', mapValue : 'Puzzle' },

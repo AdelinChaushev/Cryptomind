@@ -52,9 +52,9 @@ const CipherBrowsePage = () => {
    
   const fetchCiphers = async () => {
     setIsLoading(true);
-
+    const path = import.meta.env.VITE_API_URL
     try {
-      const res = await axios.get('http://localhost:5115/api/ciphers/all', {
+      const res = await axios.get(`${path}/api/ciphers/all`, {
         withCredentials: true,
         params: {
           SearchTerm:  searchTerm,

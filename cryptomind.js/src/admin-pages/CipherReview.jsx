@@ -4,7 +4,7 @@ import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
 import LlmAssistantSection from './LlmAssistantSection';
 import '../styles/cipher-review.css';
-const API_BASE = 'http://localhost:5115/api/admin';
+const API_BASE = `${import.meta.env.VITE_API_URL}/api/admin`;
 import { useParams } from "react-router-dom";
 import "../styles/cipher-review.css";
 import { useNavigate } from 'react-router-dom';
