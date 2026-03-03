@@ -13,7 +13,7 @@ production:
     - apk add --no-cache git-lfs
     - git lfs pull
     - docker compose pull
-    - docker compose build
+    - docker compose build --no-cache
     - docker compose up -d
     - docker image prune -f
   tags:
