@@ -9,7 +9,7 @@ RUN npm ci
 
 # Copy source and build
 COPY . .
-RUN npm run build -- --mode production
+RUN npm run build
 
 # Stage 2: Serve with Nginx
 # The build output (dist/) is copied into Nginx which serves it as static files
