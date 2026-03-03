@@ -363,20 +363,8 @@ MigrationBackup/
 .ionide/
 
 
-# Fody - auto-generated XML schema
-FodyWeavers.xsd
-/Images/*
-!/Images/.keep
+Images/Ciphers/*
 
-# From GitHub's Images.gitignore template
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.svg
-*.ico
-*.tif
-*.tiff
 /venv
 /Cryptomind/appsettings.json
 /Cryptomind.Data/DbContextFactory.cs
