@@ -42,13 +42,13 @@ namespace Cryptomind.Core.Services
 				authClaims.Add(new Claim(ClaimTypes.Role, role));
 			}
 
-			string jwtSecret = configuration["JWT:Secret"];
+			string jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
 			byte[] jwtSecretBytes = Encoding.UTF8.GetBytes(jwtSecret);
 			var authSigningKey = new SymmetricSecurityKey(jwtSecretBytes);
 
 			var token = new JwtSecurityToken(
-				issuer: configuration["JWT:ValidIssuer"],
-				audience: configuration["JWT:ValidAudience"],
+				issuer: Environment.GetEnvironmentVariable("JWT_ISSUER"),
+				audience: Environment.GetEnvironmentVariable("JWT_AUDIENCE"),
 				expires: DateTime.UtcNow.AddHours(5),
 				claims: authClaims,
 				signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256));
