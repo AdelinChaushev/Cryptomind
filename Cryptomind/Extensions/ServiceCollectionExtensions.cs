@@ -86,8 +86,8 @@ public static class ServiceCollectionExtensions
 			options.RequireHttpsMetadata = false;
 			options.TokenValidationParameters = new TokenValidationParameters
 			{
-				ValidateIssuer = false,
-				ValidateAudience = false,
+				ValidateIssuer = true,
+				ValidateAudience = true,
 				ValidAudience = configuration["JWT:ValidAudience"],
 				ValidIssuer = configuration["JWT:ValidIssuer"],
 				IssuerSigningKey = new SymmetricSecurityKey(key),
@@ -132,7 +132,7 @@ public static class ServiceCollectionExtensions
 		{
 			c.AddPolicy("AllowAll", builder =>
 			{
-				builder.WithOrigins("http://localhost:5173", "http://localhost:5174")
+				builder.WithOrigins("http://localhost:5173", "http://localhost:5174" , "https://frontend.yellowdesert-07ab3932.westus2.azurecontainerapps.io")
 						.AllowAnyHeader()
 						.AllowAnyMethod()
 						.AllowCredentials();
