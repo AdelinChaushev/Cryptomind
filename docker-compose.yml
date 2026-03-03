@@ -19,6 +19,9 @@ services:
     - ASPNETCORE_ENVIRONMENT=Production
     - ASPNETCORE_URLS=http://+:8080
     - LLMService__ApiKey=${OPENAI_API_KEY}
+    - JWT_SECRET=${JWT_SECRET}
+    - JWT_AUDIENCE=${JWT_AUDIENCE}
+    - JWT_ISSUER=${JWT_ISSUER}
     networks:
       - cryptomind-network
 
