@@ -38,8 +38,7 @@ public class ExceptionHandlingMiddleware
 		}
 		catch (Exception ex)
 		{
-			await WriteResponse(context, StatusCodes.Status500InternalServerError, "Възникна неочаквана грешка");
-			Console.WriteLine(ex.Message);
+			await WriteResponse(context, StatusCodes.Status500InternalServerError, ex.Message);
 		}
 	}
 
