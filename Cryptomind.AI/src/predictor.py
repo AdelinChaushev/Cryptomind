@@ -19,17 +19,19 @@ class CipherPredictor:
     def load_models(self):     
         # Load Layer 1 model
         if os.path.exists(Config.LAYER1_MODEL_PATH):
-            self.layer1_model = keras.models.load_model(Config.LAYER1_MODEL_PATH)
-            
+            self.layer1_model = keras.models.load_model(
+                Config.LAYER1_MODEL_PATH, compile=False
+            )
+
             label_map_path = os.path.join(Config.LAYER1_TRAINING_DIR, 'label_map.json')
             with open(label_map_path, 'r') as f:
                 label_map = json.load(f)
                 self.layer1_labels = {int(k): v for k, v in label_map.items()}
-            
+
             print(f"Layer 1 model loaded")
         else:
             print("Layer 1 model not found!")
-        
+
         # Load Layer 2 models
         for family in Config.FAMILIES.keys():
             if len(Config.FAMILIES[family]) == 1:
@@ -37,19 +39,11 @@ class CipherPredictor:
             
             model_path = os.path.join(Config.LAYER2_MODELS_DIR, family.lower(), 
                                      f'{family.lower()}_classifier.h5')
-            
+
             if os.path.exists(model_path):
-                self.layer2_models[family] = keras.models.load_model(model_path)
-                
-                label_map_path = os.path.join(Config.LAYER2_TRAINING_DIR, 
-                                              family.lower(), 'label_map.json')
-                with open(label_map_path, 'r') as f:
-                    label_map = json.load(f)
-                    self.layer2_labels[family] = {int(k): v for k, v in label_map.items()}
-                
-                print(f"{family} model loaded")
-        
-        print("All models loaded!\n")
+                self.layer2_models[family] = keras.models.load_model(
+                    model_path, compile=False
+                )
 
     def detect_encoding(self, text):
 
