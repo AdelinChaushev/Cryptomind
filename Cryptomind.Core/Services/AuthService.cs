@@ -11,9 +11,7 @@ using System.Text;
 
 namespace Cryptomind.Core.Services
 {
-	public class AuthService(
-		UserManager<ApplicationUser> userManager,
-		IConfiguration configuration) : IAuthService
+	public class AuthService(UserManager<ApplicationUser> userManager) : IAuthService
 	{
 		public async Task<ApplicationUser> Authenticate(string email, string password)
 		{

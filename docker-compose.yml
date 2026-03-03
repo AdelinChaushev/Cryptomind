@@ -18,10 +18,15 @@ services:
     environment:
     - ASPNETCORE_ENVIRONMENT=Production
     - ASPNETCORE_URLS=http://+:8080
-    - LLMService__ApiKey=${OPENAI_API_KEY}
+    - OPENAI_API_KEY=${OPENAI_API_KEY}
+    - OPENAI_API_URL=${OPENAI_API_URL}
     - JWT_SECRET=${JWT_SECRET}
     - JWT_AUDIENCE=${JWT_AUDIENCE}
     - JWT_ISSUER=${JWT_ISSUER}
+    - ML_URL=${ML_URL}
+    - OCR_URL=${OCR_URL}
+    - VALIDATION_MODEL=${VALIDATION_MODEL}
+    - EDUCATIONAL_MODEL=${EDUCATIONAL_MODEL}
     networks:
       - cryptomind-network
 

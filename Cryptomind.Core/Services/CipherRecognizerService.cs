@@ -16,13 +16,11 @@ namespace Cryptomind.Core.Services
 
 		private const int ApiTimeoutSeconds = Common.Constants.CipherRecognitionConstants.ApiTimeoutSeconds;
 
-		public CipherRecognizerService(
-			IHttpClientFactory httpClientFactory,
-			IConfiguration configuration)
+		public CipherRecognizerService(IHttpClientFactory httpClientFactory)
 		{
 			httpClient = httpClientFactory.CreateClient();
 			httpClient.Timeout = TimeSpan.FromSeconds(ApiTimeoutSeconds);
-			mlApiUrl = configuration["MLService:ApiUrl"] ?? "http://localhost:5002";
+			mlApiUrl = Environment.GetEnvironmentVariable("ML_URL") ?? "http://localhost:5002";
 		}
 		public async Task<CipherRecognitionResultViewModel> ClassifyCipher(string inputText)
 		{
