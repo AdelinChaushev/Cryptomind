@@ -7,7 +7,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useError } from "../ErrorContext";
 
-const AdminDashboard = ({ recentActivity = [] }) => {
+const AdminDashboard = () => {
     const { setError } = useError(null);
     const [stats, setStats] = useState({  
         pendingCiphersCount: 0,
@@ -17,7 +17,7 @@ const AdminDashboard = ({ recentActivity = [] }) => {
         deletedCiphersCount: 0,
         pendingCipherTitles: []
     });
-   
+  
     useEffect(() => {
         axios.get(`${import.meta.env.VITE_API_URL}/api/admin/dashboard`)
         .then(res => {

@@ -32,18 +32,19 @@ import { ErrorProvider } from "./ErrorContext";
 import PageTransition from "./PageTransition";
 import AccountInfo from './account-page/AccountInfo.jsx';
 import { NotificationProvider } from './NotificationProvider.jsx';
-export const AuthorizationContext = createContext({roles : [], isLoggedIn: false , isBanned : false , bannedMessage : ""});
+export const AuthorizationContext = createContext({roles : [], isLoggedIn: false , isBanned : false , bannedMessage : "",email : ""});
 export const NotificationContext = createContext(null);
 export const useNotificationContext = () => useContext(NotificationContext);
 function App() {
    axios.defaults.withCredentials =  true
    axios.defaults.baseURL = import.meta.env.VITE_API_URL;
-   const [state, setState] = useState({roles : [], isLoggedIn: false, isBanned : false});
+   const [state, setState] = useState({roles : [], isLoggedIn: false, isBanned : false , email : ""});
    const[loading, setLoading] = useState(true);
   
    useEffect(() => {
     axios.get('/api/user/get-roles').then(response => {
-      setState({roles: response.data, isLoggedIn: true});
+      console.log(response.data)
+      setState({roles: response.data.roles, isLoggedIn: true , email: response.data.email });
     }).catch(error => {
       console.log("Error fetching user roles:", error.response?.status);
      if (error.response?.status === 403) {
