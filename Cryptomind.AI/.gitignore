@@ -17,9 +17,6 @@ build/
 *.swo
 .DS_Store
 
-# Models - Download separately from Google Drive
-models/
-
 # Training data - KEEP label maps, exclude everything else
 data/training/*.npy
 data/training/*.npz
