@@ -26,7 +26,7 @@ def ensure_upload_folder():
         os.makedirs(app.config['UPLOAD_FOLDER'])
 
 
-@app.route('/health', methods=['GET'])
+@app.route('/health', methods=['GET'],strict_slashes=False)
 def health_check():
     return jsonify({
         'status': 'healthy',
@@ -35,7 +35,7 @@ def health_check():
     }), 200
 
 
-@app.route('/ocr/extract', methods=['POST'])
+@app.route('/ocr/extract', methods=['POST'],strict_slashes=False)
 def extract_text():
     if 'image' not in request.files:
         return jsonify({'success': False, 'error': 'No image file provided'}), 400

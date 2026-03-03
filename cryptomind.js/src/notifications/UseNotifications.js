@@ -14,8 +14,8 @@ export const NotificationType = {
     BadgeEarned:           9,
 };
 
-const API_BASE = 'http://localhost:5115/api/notifications';
-const HUB_URL  = 'http://localhost:5115/notificationHub';
+const API_BASE = `${import.meta.env.VITE_API_URL}/api/notifications`;
+const HUB_URL  = `${import.meta.env.VITE_API_URL}/notificationHub`;
 
 export function parseCreatedSince(createdSince) {
     if (!createdSince) return '';
