@@ -132,7 +132,7 @@ public static class ServiceCollectionExtensions
 		{
 			c.AddPolicy("AllowAll", builder =>
 			{
-				builder.WithOrigins("http://localhost:5173", "http://localhost:5174" , "https://frontend.yellowdesert-07ab3932.westus2.azurecontainerapps.io")
+				builder.WithOrigins("http://localhost:5173", "http://localhost:5174", "https://cryptomind.techlab.cloud")
 						.AllowAnyHeader()
 						.AllowAnyMethod()
 						.AllowCredentials();

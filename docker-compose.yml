@@ -1,67 +1,54 @@
 services:
-
-  frontend:
-    # build:
-    #   context: ./cryptomind.js
-    image: cryptomindacr.azurecr.io/frontend:latest 
-    ports:
-      - "5173:80"
-    depends_on:
-      - backend
+  frontend-base:
+    build:
+      context: ./cryptomind.js
+    profiles:
+      - base
     networks:
       - cryptomind-network
 
-  backend:
-    # build:
-    #   context: .
-    #   dockerfile: Cryptomind/Dockerfile
-    image: cryptomindacr.azurecr.io/backend:latest  
-    ports:
-      - "5115:8080"
+  backend-base:
+    build:
+      context: .
+      dockerfile: Cryptomind/Dockerfile
+    profiles:
+      - base
     volumes:
       - cipher-images:/app/Images
     environment:
     - ASPNETCORE_ENVIRONMENT=Production
     - ASPNETCORE_URLS=http://+:8080
     - LLMService__ApiKey=${OPENAI_API_KEY}
-    depends_on:
-      db:
-        condition: service_healthy
-      ml-server:
-        condition: service_started
-      ocr-server:
-        condition: service_started
     networks:
       - cryptomind-network
 
-  ml-server:
-    # build:
-    #   context: ./Cryptomind.AI
-    image: cryptomindacr.azurecr.io/ml-server:latest  
-    ports:
-      - "5002:5002"
+  ml-server-base:
+    build:
+      context: ./Cryptomind.AI
+    profiles:
+      - base
     networks:
       - cryptomind-network
 
-  ocr-server:
-    # build:
-    #   context: ./Cryptomind.OCR
-    image: cryptomindacr.azurecr.io/ocr-server:latest  
-    ports:
-      - "5001:5001"
+  ocr-server-base:
+    build:
+      context: ./Cryptomind.OCR
+    profiles:
+      - base
     volumes:
       - ocr-uploads:/app/uploads
     networks:
       - cryptomind-network
 
-  db:
+  db-base:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    profiles:
+      - base
     environment:
       ACCEPT_EULA: Y
       SA_PASSWORD: CryptoM1nd#Dev
       MSSQL_PID: Developer
-    ports:
-      - "1433:1433"
+    restart: always
     volumes:
       - sqlserver-data:/var/opt/mssql
     networks:
@@ -73,9 +60,134 @@ services:
       retries: 10
       start_period: 30s
 
+  frontend-development:
+    extends:
+      file: docker-compose.yml
+      service: frontend-base
+    profiles:
+      - development
+    ports:
+      - "5173:80"
+
+  backend-development:
+    extends:
+      file: docker-compose.yml
+      service: backend-base
+    profiles:
+      - development
+    depends_on:
+      frontend-development:
+        condition: service_started
+      db-development:
+        condition: service_healthy
+      ml-server-development:
+        condition: service_started
+      ocr-server-development:
+        condition: service_started
+    links:
+      - frontend-development:frontend
+      - db-development:db
+      - ml-server-development:ml-server
+      - ocr-server-development:ocr-server
+    ports:
+      - "5115:8080"
+
+  ml-server-development:
+    extends:
+      file: docker-compose.yml
+      service: ml-server-base
+    profiles:
+      - development
+    ports:
+      - "5002:5002"
+
+  ocr-server-development:
+    extends:
+      file: docker-compose.yml
+      service: ocr-server-base
+    profiles:
+      - development
+    ports:
+      - "5001:5001"
+
+  db-development:
+    extends:
+      file: docker-compose.yml
+      service: db-base
+    profiles:
+      - development
+    ports:
+      - "1433:1433"
+
+  frontend-production:
+    extends:
+      file: docker-compose.yml
+      service: frontend-base
+    profiles:
+      - production
+    restart: always
+    networks:
+      - proxy
+
+  backend-production:
+    extends:
+      file: docker-compose.yml
+      service: backend-base
+    profiles:
+      - production
+    restart: always
+    depends_on:
+      frontend-production:
+        condition: service_started
+      db-production:
+        condition: service_healthy
+      ml-server-production:
+        condition: service_started
+      ocr-server-production:
+        condition: service_started
+    links:
+      - frontend-production:frontend
+      - db-production:db
+      - ml-server-production:ml-server
+      - ocr-server-production:ocr-server
+    networks:
+      - proxy
+
+  ml-server-production:
+    extends:
+      file: docker-compose.yml
+      service: ml-server-base
+    profiles:
+      - production
+    restart: always
+    networks:
+      - proxy
+
+  ocr-server-production:
+    extends:
+      file: docker-compose.yml
+      service: ocr-server-base
+    profiles:
+      - production
+    restart: always
+    networks:
+      - proxy
+
+  db-production:
+    extends:
+      file: docker-compose.yml
+      service: db-base
+    profiles:
+      - production
+    restart: always
+    networks:
+      - proxy
+
 networks:
   cryptomind-network:
     driver: bridge
+  proxy:
+    external: true
 
 volumes:
   sqlserver-data:
