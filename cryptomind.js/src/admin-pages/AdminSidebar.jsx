@@ -1,7 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import useLogout from '../components/Logout';
+import { useContext } from 'react';
+import { AuthorizationContext } from '../App';
 const AdminSidebar = ({ activePage }) => {
+      const {state} = useContext(AuthorizationContext)
     const logout = useLogout()
     const navItems = [
         {
@@ -65,7 +68,7 @@ const AdminSidebar = ({ activePage }) => {
             <div className="sidebar-footer">
                 <div className="sidebar-user">
                     <div className="sidebar-user-info">
-                        <span className="sidebar-user-name">admin@cryptomind.com</span>
+                        <span className="sidebar-user-name">{state.email}</span>
                         <span className="sidebar-user-role">АДМИН</span>
                     </div>
                 </div>
