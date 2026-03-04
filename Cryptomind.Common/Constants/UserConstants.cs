@@ -14,6 +14,7 @@ namespace Cryptomind.Common.Constants
 		public const string AdminCannotBeBanned = "Администратори не могат да бъдат блокирани.";
 		public const string UserNotFound = "Потребителят не беше намерен";
 		public const string AdminsCannotDeactivate = "Администраторите не могат да деактивират собствения си акаунт";
+		public const string UsernameCannotContainSpaces = "Потребителското име не може да съдържа интервали.";
 
 		public const string InvalidCredentials = "Невалидни данни";
 		public const string ThisAcountIsDeactivated = "Този акаунт е деактивиран";
