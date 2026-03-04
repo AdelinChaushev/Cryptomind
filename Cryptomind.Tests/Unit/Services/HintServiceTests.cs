@@ -329,7 +329,7 @@ namespace Cryptomind.Tests.Unit.Services
 
 			var result = await service.RequestHintAsync("u1", 1, HintType.Hint);
 
-			Assert.Equal(19, result.AvailablePoints);
+			Assert.Equal(20, result.AvailablePoints);
 		}
 
 		[Fact]

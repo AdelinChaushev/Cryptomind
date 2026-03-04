@@ -1,6 +1,5 @@
 ﻿using Cryptomind.Common.Exceptions;
 using Cryptomind.Core.Services;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.Protected;
 using System;
@@ -16,12 +15,13 @@ namespace Cryptomind.Tests.Unit.Services
 	public class CipherRecognizerServiceTests
 	{
 		private readonly Mock<IHttpClientFactory> httpClientFactoryMock;
-		private readonly Mock<IConfiguration> configurationMock;
 		private readonly Mock<HttpMessageHandler> httpMessageHandlerMock;
 		private readonly CipherRecognizerService service;
 
 		public CipherRecognizerServiceTests()
 		{
+			Environment.SetEnvironmentVariable("ML_URL", "http://localhost:5002");
+
 			httpMessageHandlerMock = new Mock<HttpMessageHandler>();
 			var httpClient = new HttpClient(httpMessageHandlerMock.Object);
 
@@ -29,13 +29,7 @@ namespace Cryptomind.Tests.Unit.Services
 			httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>()))
 				.Returns(httpClient);
 
-			configurationMock = new Mock<IConfiguration>();
-			configurationMock.Setup(c => c["MLService:ApiUrl"])
-				.Returns("http://localhost:5002");
-
-			service = new CipherRecognizerService(
-				httpClientFactoryMock.Object,
-				configurationMock.Object);
+			service = new CipherRecognizerService(httpClientFactoryMock.Object);
 		}
 
 		private void SetupHttpResponse(HttpStatusCode statusCode, string content)
