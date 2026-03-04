@@ -61,9 +61,14 @@ namespace Cryptomind.Core.Services
 			email = email.Trim();
 			userName = userName.Trim();
 
+
 			if (userExist != null)
 			{
 				throw new ConflictException(UserConstants.ThisEmailAlreadyExists);
+			}
+			if (userName.Contains(' '))
+			{
+				throw new CustomValidationException(UserConstants.UsernameCannotContainSpaces);
 			}
 
 			if (string.Equals(userName, CipherErrorConstants.AnonymousUser, StringComparison.OrdinalIgnoreCase))
