@@ -26,9 +26,6 @@ namespace Cryptomind.Core.Services
 			if (cipher == null)
 				throw new NotFoundException(CipherErrorConstants.CipherNotFoundMessage);
 
-			if (cipher.Status != ApprovalStatus.Approved)
-				throw new ConflictException(CipherErrorConstants.ApprovedOnlySuggestion);
-
 			if (!string.IsNullOrWhiteSpace(cipher.DecryptedText))
 				throw new ConflictException(CipherErrorConstants.AlreadyHasAnswer);
 
@@ -50,7 +47,7 @@ namespace Cryptomind.Core.Services
 				UserId = userId,
 				CipherId = cipherId,
 				Description = dto.Description,
-				DecryptedText = dto.DecryptedText,
+				DecryptedText = dto.DecryptedText.Trim(),
 				UploadedTime = DateTime.UtcNow.AddHours(2),
 				Status = ApprovalStatus.Pending,
 			};
