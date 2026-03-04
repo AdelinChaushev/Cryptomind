@@ -1,7 +1,6 @@
 ﻿using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
 using Cryptomind.Core.Services;
 using Cryptomind.Data.Enums;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.Protected;
 using System;
@@ -18,12 +17,16 @@ namespace Cryptomind.Tests.Unit.Services
 	public class LLMServiceTests
 	{
 		private readonly Mock<IHttpClientFactory> httpClientFactoryMock;
-		private readonly Mock<IConfiguration> configurationMock;
 		private readonly Mock<HttpMessageHandler> httpMessageHandlerMock;
 		private readonly LLMService service;
 
 		public LLMServiceTests()
 		{
+			Environment.SetEnvironmentVariable("OPENAI_API_URL", "https://api.openai.com/v1");
+			Environment.SetEnvironmentVariable("OPENAI_API_KEY", "test-api-key");
+			Environment.SetEnvironmentVariable("VALIDATION_MODEL", "gpt-4o-mini");
+			Environment.SetEnvironmentVariable("EDUCATIONAL_MODEL", "gpt-4o");
+
 			httpMessageHandlerMock = new Mock<HttpMessageHandler>();
 			var httpClient = new HttpClient(httpMessageHandlerMock.Object);
 
@@ -31,19 +34,7 @@ namespace Cryptomind.Tests.Unit.Services
 			httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>()))
 				.Returns(httpClient);
 
-			configurationMock = new Mock<IConfiguration>();
-			configurationMock.Setup(c => c["LLMService:ApiUrl"])
-				.Returns("https://api.openai.com/v1");
-			configurationMock.Setup(c => c["LLMService:ApiKey"])
-				.Returns("test-api-key");
-			configurationMock.Setup(c => c["LLMService:ValidationModel"])
-				.Returns("gpt-4o-mini");
-			configurationMock.Setup(c => c["LLMService:EducationalModel"])
-				.Returns("gpt-4o");
-
-			service = new LLMService(
-				httpClientFactoryMock.Object,
-				configurationMock.Object);
+			service = new LLMService(httpClientFactoryMock.Object);
 		}
 
 		private void SetupHttpResponse(HttpStatusCode statusCode, string content)
@@ -301,23 +292,23 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public void Constructor_Throws_WhenApiUrlNotConfigured()
 		{
-			var config = new Mock<IConfiguration>();
-			config.Setup(c => c["LLMService:ApiUrl"]).Returns((string)null);
-			config.Setup(c => c["LLMService:ApiKey"]).Returns("key");
+			Environment.SetEnvironmentVariable("OPENAI_API_URL", null);
 
 			Assert.Throws<Exception>(
-				() => new LLMService(httpClientFactoryMock.Object, config.Object));
+				() => new LLMService(httpClientFactoryMock.Object));
+
+			Environment.SetEnvironmentVariable("OPENAI_API_URL", "https://api.openai.com/v1");
 		}
 
 		[Fact]
 		public void Constructor_Throws_WhenApiKeyNotConfigured()
 		{
-			var config = new Mock<IConfiguration>();
-			config.Setup(c => c["LLMService:ApiUrl"]).Returns("https://api.openai.com");
-			config.Setup(c => c["LLMService:ApiKey"]).Returns((string)null);
+			Environment.SetEnvironmentVariable("OPENAI_API_KEY", null);
 
 			Assert.Throws<Exception>(
-				() => new LLMService(httpClientFactoryMock.Object, config.Object));
+				() => new LLMService(httpClientFactoryMock.Object));
+
+			Environment.SetEnvironmentVariable("OPENAI_API_KEY", "test-api-key");
 		}
 
 		#endregion

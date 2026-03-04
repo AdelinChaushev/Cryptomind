@@ -35,8 +35,10 @@ namespace Cryptomind.Tests.Unit.Services
 
 			cipherRepoMock.Setup(r => r.AddAsync(It.IsAny<Cipher>()))
 				.Returns(Task.CompletedTask);
+
 			cipherRepoMock.Setup(r => r.GetAllAttached())
-				.Returns(new List<Cipher>().AsQueryable().BuildMock());
+				.Returns(new List<Cipher> { MakeCipher() }.AsQueryable().BuildMock());
+
 			cipherRepoMock.Setup(r => r.GetAllAsync())
 				.ReturnsAsync(new List<Cipher>());
 
@@ -79,8 +81,12 @@ namespace Cryptomind.Tests.Unit.Services
 
 		private void SetupAttachedCiphers(params Cipher[] ciphers)
 		{
+			var all = ciphers.ToList();
+			if (!all.Any())
+				all.Add(MakeCipher(id: 999, title: "__dummy__", encryptedText: "__dummy__", userId: "__system__"));
+
 			cipherRepoMock.Setup(r => r.GetAllAttached())
-				.Returns(ciphers.AsQueryable().BuildMock());
+				.Returns(all.AsQueryable().BuildMock());
 		}
 
 		private static TextCipher MakeCipher(
@@ -90,7 +96,8 @@ namespace Cryptomind.Tests.Unit.Services
 			ApprovalStatus status = ApprovalStatus.Pending,
 			bool isDeleted = false,
 			ChallengeType challengeType = ChallengeType.Standard,
-			string encryptedText = "encrypted") => new()
+			string encryptedText = "encrypted",
+			int displayOrder = 0) => new()
 			{
 				Id = id,
 				Title = title,
@@ -100,6 +107,7 @@ namespace Cryptomind.Tests.Unit.Services
 				ChallengeType = challengeType,
 				EncryptedText = encryptedText,
 				MLPrediction = "",
+				DisplayOrder = displayOrder,
 				CipherTags = new List<CipherTag>(),
 				UserSolutions = new List<UserSolution>(),
 				AnswerSuggestions = new List<AnswerSuggestion>(),
@@ -250,23 +258,23 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task SubmitCipherAsync_SetsLLMRecommendedFalse_WhenHighConfidenceTypesMatchAndPlaintextValid()
 		{
-			// userProvidedType=true, userProvidedSolution=true, mlConfidence>85, typesMatch=true, isPlaintextValid=true
 			SetupMlResult("Caesar", "Substitution", 0.95);
 			englishValidationMock.Setup(e => e.IsLikelyEnglishAsync(It.IsAny<string>(), It.IsAny<double>()))
 				.ReturnsAsync(true);
+
 			var result = await service.SubmitCipherAsync(
 				TextModel(
 					decryptedText: "hello world",
 					cipherType: CipherType.Caesar,
-					encryptedText: "encryptedText: \"WKLV LV D ORQJ FDHVDU FLSKHU WHAW XVHG IRU WHVWLQJ FODVVLILFDWLRQ DQG WUDLQLQJ PDFKLQH OHDUQLQJ PRGHOV LQ D FLSKHU VROYHU DSSOLFDWLRQ WKH JRDO LV WR HQVXUH WKH WHAW OHQJWK LV VXIILFLHQW IRU VWDEOH SUHGLFWLRQV\""
+					encryptedText: "WKLV LV D ORQJ FDHVDU FLSKHU WHAW XVHG IRU WHVWLQJ FODVVLILFDWLRQ DQG WUDLQLQJ PDFKLQH OHDUQLQJ PRGHOV LQ D FLSKHU VROYHU DSSOLFDWLRQ WKH JRDO LV WR HQVXUH WKH WHAW OHQJWK LV VXIILFLHQW IRU VWDEOH SUHGLFWLRQV"
 				), "u1");
+
 			Assert.False(result.IsLLMRecommended);
 		}
 
 		[Fact]
 		public async Task SubmitCipherAsync_SetsLLMRecommendedTrue_WhenTypesDoNotMatch()
 		{
-			// userProvidedType=true, userProvidedSolution=true, but typesMatch=false
 			SetupMlResult("Vigenere", "Polyalphabetic", 0.95);
 
 			var result = await service.SubmitCipherAsync(
@@ -278,7 +286,6 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task SubmitCipherAsync_SetsLLMRecommendedTrue_WhenTypeProvidedButNoSolution()
 		{
-			// userProvidedType=true, userProvidedSolution=false → always true
 			var result = await service.SubmitCipherAsync(
 				TextModel(decryptedText: null, cipherType: CipherType.Caesar), "u1");
 
@@ -286,10 +293,8 @@ namespace Cryptomind.Tests.Unit.Services
 		}
 
 		[Fact]
-		public async Task SubmitCipherAsync_SetsLLMRecommendedTrue_WhenNoTypeAndNoSolution()
+		public async Task SubmitCipherAsync_SetsLLMRecommendedTrue_WhenNoTypeAndLowConfidence()
 		{
-			// Both null → ConflictException, but this case is caught by earlier validation
-			// Instead test: no type provided, solution provided, low confidence
 			SetupMlResult("Caesar", "Substitution", 0.70);
 
 			var result = await service.SubmitCipherAsync(
@@ -301,7 +306,6 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task SubmitCipherAsync_SetsLLMRecommendedFalse_WhenNoTypeHighConfidenceNotProblematicAndPlaintextValid()
 		{
-			// userProvidedType=false, userProvidedSolution=true, mlConfidence>85, not problematic type, isPlaintextValid=true
 			SetupMlResult("Caesar", "Substitution", 0.95);
 			englishValidationMock.Setup(e => e.IsLikelyEnglishAsync(It.IsAny<string>(), It.IsAny<double>()))
 				.ReturnsAsync(true);
@@ -310,7 +314,7 @@ namespace Cryptomind.Tests.Unit.Services
 				TextModel(
 					decryptedText: "hello world",
 					cipherType: null,
-					encryptedText: "encryptedText: \"WKLV LV D ORQJ FDHVDU FLSKHU WHAW XVHG IRU WHVWLQJ FODVVLILFDWLRQ DQG WUDLQLQJ PDFKLQH OHDUQLQJ PRGHOV LQ D FLSKHU VROYHU DSSOLFDWLRQ WKH JRDO LV WR HQVXUH WKH WHAW OHQJWK LV VXIILFLHQW IRU VWDEOH SUHGLFWLRQV\""
+					encryptedText: "WKLV LV D ORQJ FDHVDU FLSKHU WHAW XVHG IRU WHVWLQJ FODVVLILFDWLRQ DQG WUDLQLQJ PDFKLQH OHDUQLQJ PRGHOV LQ D FLSKHU VROYHU DSSOLFDWLRQ WKH JRDO LV WR HQVXUH WKH WHAW OHQJWK LV VXIILFLHQW IRU VWDEOH SUHGLFWLRQV"
 				), "u1");
 
 			Assert.False(result.IsLLMRecommended);
@@ -319,10 +323,9 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task SubmitCipherAsync_SetsLLMRecommendedTrue_WhenTypeIsProblematic()
 		{
-			// Vigenere is in ProblematicCipherTypes
 			SetupMlResult("vigenere", "Polyalphabetic", 0.95);
 			englishValidationMock.Setup(e => e.IsLikelyEnglishAsync(It.IsAny<string>(), It.IsAny<double>()))
-					.ReturnsAsync(true);
+				.ReturnsAsync(true);
 
 			var result = await service.SubmitCipherAsync(
 				TextModel(decryptedText: "hello world", cipherType: null), "u1");
@@ -421,7 +424,6 @@ namespace Cryptomind.Tests.Unit.Services
 		[Fact]
 		public async Task SubmittedCiphers_SetsDeletedStatus_EvenWhenApproved()
 		{
-			// IsDeleted check takes priority over status in the service
 			var cipher = MakeCipher(1, userId: "u1",
 				status: ApprovalStatus.Approved, isDeleted: true);
 			cipher.DeletedAt = DateTime.UtcNow;
