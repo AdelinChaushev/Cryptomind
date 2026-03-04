@@ -21,6 +21,8 @@ namespace Cryptomind.Tests.Unit.Services
 		private readonly Mock<IRepository<AnswerSuggestion, int>> answerRepoMock = new();
 		private readonly AnswerSubmissionService service;
 
+		private const string DateFormat = "ddd, dd MMM yyyy HH:mm";
+
 		public AnswerSubmissionServiceTests()
 		{
 			var store = new Mock<IUserStore<ApplicationUser>>();
@@ -216,7 +218,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var result = await service.SubmittedAnswers("u1");
 
 			Assert.Equal(150, result[0].PointsEarned);
-			//Assert.Equal(approvedDate, result[0].ApprovedDate);
+			Assert.Equal(approvedDate.ToString(DateFormat), result[0].ApprovedDate);
 		}
 
 		[Fact]
@@ -232,7 +234,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var result = await service.SubmittedAnswers("u1");
 
 			Assert.Equal("incorrect", result[0].RejectionReason);
-			//Assert.Equal(rejectionDate, result[0].RejectionDate);
+			Assert.Equal(rejectionDate.ToString(DateFormat), result[0].RejectionDate);
 		}
 
 		[Fact]
@@ -248,7 +250,7 @@ namespace Cryptomind.Tests.Unit.Services
 			var result = await service.SubmittedAnswers("u1");
 
 			Assert.Equal("CipherDeleted", result[0].Status);
-			//Assert.Equal(deletedAt, result[0].CipherDeletedAt);
+			Assert.Equal(deletedAt.ToString(DateFormat), result[0].CipherDeletedAt);
 		}
 
 		[Fact]
