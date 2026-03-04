@@ -360,7 +360,7 @@ namespace Cryptomind.Core.Services
 
 			if (string.IsNullOrEmpty(model.Title))
 				throw new CustomValidationException(CipherErrorConstants.TitleRequiredMessage);
-			if (cipherRepo.GetAll().FirstOrDefault(x => x.Title.ToLower() == model.Title.ToLower() && x.Id != id && !x.IsDeleted) != null)
+			if (cipherRepo.GetAll().FirstOrDefault(x => x.Title.Trim().ToLower() == model.Title.Trim().ToLower() && x.Id != id && !x.IsDeleted) != null)
 				throw new ConflictException(CipherErrorConstants.DuplicateTitleMessage);
 
 			if (cipher.ChallengeType == ChallengeType.Experimental && (model.AllowHint || model.AllowSolution || model.AllowTypeHint))
