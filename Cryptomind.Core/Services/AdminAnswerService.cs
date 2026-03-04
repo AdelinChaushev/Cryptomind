@@ -168,7 +168,7 @@ namespace Cryptomind.Core.Services
 				IsRareSolved = true
 			};
 
-			cipher.DecryptedText = firstCorrectAnswerSuggestion.DecryptedText;
+			cipher.DecryptedText = firstCorrectAnswerSuggestion.DecryptedText.Trim();
 			cipher.ChallengeType = ChallengeType.Standard;
 
 			firstCorrectAnswerSuggestion.Status = ApprovalStatus.Approved;

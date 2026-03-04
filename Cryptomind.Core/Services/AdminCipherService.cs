@@ -276,7 +276,7 @@ namespace Cryptomind.Core.Services
 			if (string.IsNullOrEmpty(model.Title))
 				throw new CustomValidationException(CipherErrorConstants.TitleRequiredMessage);
 
-			if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.Title == model.Title && x.Id != id && !x.IsDeleted) != null)
+			if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.Title.ToLower() == model.Title.ToLower() && x.Id != id && !x.IsDeleted) != null)
 				throw new ConflictException(CipherErrorConstants.DuplicateTitleMessage);
 
 			//When type is not given we cannot approve it
@@ -290,7 +290,7 @@ namespace Cryptomind.Core.Services
 			if (cipher.ChallengeType == ChallengeType.Experimental && (model.AllowHint || model.AllowSolution || model.AllowTypeHint))
 				throw new ConflictException(CipherErrorConstants.HintExperimentalConflict);
 
-			cipher.Title = model.Title;
+			cipher.Title = model.Title.Trim();
 			cipher.AllowHint = model.AllowHint;
 			cipher.AllowSolution = model.AllowSolution;
 			cipher.AllowTypeHint = model.AllowTypeHint;
@@ -360,13 +360,13 @@ namespace Cryptomind.Core.Services
 
 			if (string.IsNullOrEmpty(model.Title))
 				throw new CustomValidationException(CipherErrorConstants.TitleRequiredMessage);
-			if (cipherRepo.GetAll().FirstOrDefault(x => x.Title == model.Title && x.Id != id && !x.IsDeleted) != null)
+			if (cipherRepo.GetAll().FirstOrDefault(x => x.Title.ToLower() == model.Title.ToLower() && x.Id != id && !x.IsDeleted) != null)
 				throw new ConflictException(CipherErrorConstants.DuplicateTitleMessage);
 
 			if (cipher.ChallengeType == ChallengeType.Experimental && (model.AllowHint || model.AllowSolution || model.AllowTypeHint))
 				throw new ConflictException(CipherErrorConstants.HintExperimentalConflict);
 
-			cipher.Title = model.Title;
+			cipher.Title = model.Title.Trim();
 			cipher.AllowTypeHint = model.AllowTypeHint;
 			cipher.AllowHint = model.AllowHint;
 			cipher.AllowSolution = model.AllowSolution;
@@ -376,7 +376,6 @@ namespace Cryptomind.Core.Services
 			else
 			{
 				cipher.CipherTags = new HashSet<CipherTag>();
-
 			}
 
 
@@ -446,12 +445,12 @@ namespace Cryptomind.Core.Services
 					throw new CustomValidationException(CipherErrorConstants.TitleRequiredMessage);
 
 				titleConflict = (await cipherRepo.GetAllAsync())
-					.Any(x => x.Title == newTitle && x.Id != cipher.Id && !x.IsDeleted);
+					.Any(x => x.Title.ToLower() == newTitle.ToLower() && x.Id != cipher.Id && !x.IsDeleted);
 
 				if (titleConflict)
 					throw new ConflictException(CipherErrorConstants.DuplicateTitleMessage);
 
-				cipher.Title = newTitle;
+				cipher.Title = newTitle.Trim();
 			}
 
 			if (cipher.AnswerSuggestions.Any(x => x.Status == ApprovalStatus.Pending))
@@ -483,10 +482,6 @@ namespace Cryptomind.Core.Services
 			List<Tag> assignedExistingTags = (await tagRepo.GetAllAsync())
 				.Where(x => tagIds.Contains(x.Id))
 				.ToList();
-
-			//ADD THIS IN PRODUCTION!!! - Check it first.
-			//if (assignedExistingTags.Count != tagIds.Count)
-			//	throw new ConflictException("One or more tag IDs is not valid");
 
 			//This is the creation of the cipher
 			if (cipher.CipherTags.Count > 0)
