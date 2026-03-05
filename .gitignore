@@ -369,3 +369,4 @@ Images/Ciphers/*
 /venv
 /Cryptomind/appsettings.json
 /Cryptomind.Data/DbContextFactory.cs
+/Cryptomind.AI/data/training/layer2
