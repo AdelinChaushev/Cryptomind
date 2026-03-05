@@ -369,6 +369,7 @@ Images/Ciphers/*
 /venv
 /Cryptomind/appsettings.json
 /Cryptomind.Data/DbContextFactory.cs
+/Cryptomind.AI/data/training/layer2
 /Ciphers
 /Images
 /Cryptomind.AI/testing/external_validation_data.json
