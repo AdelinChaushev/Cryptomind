@@ -145,7 +145,8 @@ class CipherGenerator:
         # Pad text
         num_cols = len(key)
         num_rows = (len(text) + num_cols - 1) // num_cols
-        padded_text = text + '#' * (num_rows * num_cols - len(text))
+        padded_text = text + 'X' * (num_rows * num_cols - len(text))
+        # Those paddings are used only in training, it doesn't affect the user's experience in any way, we consider that he will send his transposition ciphers without paddings.
         
         # Create grid
         grid = [padded_text[i:i+num_cols] for i in range(0, len(padded_text), num_cols)]
@@ -165,7 +166,8 @@ class CipherGenerator:
         
         # Determine grid size
         size = int(len(text) ** 0.5) + 1
-        padded = text + '#' * (size * size - len(text))
+        padded = text + 'X' * (size * size - len(text)) 
+        # Those paddings are used only in training, it doesn't affect the user's experience in any way, we consider that he will send his transposition ciphers without paddings.
         
         # Create grid
         grid = [[padded[i * size + j] for j in range(size)] for i in range(size)]

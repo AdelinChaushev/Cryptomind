@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import PageHeader    from './PageHeader';
 import SubmitForm    from './SubmitForm';
 import SubmitActions from './SubmitActions';
@@ -63,7 +63,11 @@ const SubmitCipherPage = () => {
         })
         .finally(() => setOcrLoading(false));
     };
-
+    useEffect(() => {
+    if (!submitted) return;
+    const timer = setTimeout(() => setSubmitted(false), 4000);
+    return () => clearTimeout(timer);
+}, [submitted]);
     const handleSubmit = () => {
         setSubmitted(false);
         setError(null);
@@ -99,7 +103,6 @@ const SubmitCipherPage = () => {
             setOcrFailed(false);
             setUseImage(false);
             setSubmitted(true);
-            setTimeout(() => setIsSubmitting(false), 4000);
         })
         .catch(e => {
             setSubmitted(false);

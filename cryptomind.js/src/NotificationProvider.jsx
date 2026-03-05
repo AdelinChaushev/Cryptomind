@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { NotificationContext } from './App'; // Ensure this is exported from App.jsx
+import { NotificationContext } from './App'; 
 import { useNotifications } from './notifications/UseNotifications';
 import ToastContainer from './notifications/ToastContainer';
 
