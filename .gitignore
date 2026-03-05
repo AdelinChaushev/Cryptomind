@@ -371,3 +371,4 @@ Images/Ciphers/*
 /Cryptomind.Data/DbContextFactory.cs
 /Ciphers
 /Images
+/Cryptomind.AI/testing/external_validation_data.json
