@@ -13,7 +13,6 @@
 		public const string NotDeleted = "Шифърът не е изтрит";
 		public const string EncryptedTextShouldNotBeEmpty = "Шифрованият текст е задължителен";
 
-		public const string ApprovedOnlySuggestion = "Можете да предлагате отговори само за одобрени шифри.";
 		public const string AlreadyHasAnswer = "Шифърът вече има официален отговор.";
 		public const string StandardCipherSuggestionConflict = "Не може да се предлага отговор за стандартен шифър.";
 		public const string EmptyAnswerSuggestion = "Не можете да изпратите празен отговор.";

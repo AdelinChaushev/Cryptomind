@@ -78,5 +78,9 @@ namespace Cryptomind.Core.Services
 			};
 			return result;
 		}
-	}
+        public async  Task<string> GetEmail(string id)
+		{
+			return (await userManager.FindByIdAsync(id)).Email;
+		}
+    }
 }
