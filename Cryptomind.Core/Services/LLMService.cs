@@ -4,7 +4,6 @@ using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Enums;
-using Microsoft.Extensions.Configuration;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -33,9 +32,9 @@ namespace Cryptomind.Core.Services
 				?? throw new Exception("LLMService: ApiKey not configured");
 
 			// Use cheap model for admin validation, better model for user content
-			validationModel = Environment.GetEnvironmentVariable("VALIDATION_MODEL") 
+			validationModel = Environment.GetEnvironmentVariable("VALIDATION_MODEL")
 				?? throw new Exception("LLMService: Validation model not configured");
-			educationalModel = Environment.GetEnvironmentVariable("EDUCATIONAL_MODEL") 
+			educationalModel = Environment.GetEnvironmentVariable("EDUCATIONAL_MODEL")
 				?? throw new Exception("LLMService: Educational model not configured");
 
 			httpClient.DefaultRequestHeaders.Authorization =
@@ -379,7 +378,8 @@ IMPORTANT: DO NOT include a ""solution_correct"" field in your response. This su
   ""is_solvable"": true | false,
   ""issues"": [""List ALL problems found in Bulgarian. Always include specific issues like inappropriate content, solution mismatch, wrong type etc. ONLY add 'Текстът е под 150 символа — надеждността на ML предсказването е намалена.' if the current text length is actually below 150 characters. Current length is {textLength} chars (counting all characters including spaces).""],
   ""recommendation"": ""approve"" | ""reject"",
-  ""reasoning"": ""2-3 sentences in Bulgarian. If rejecting, explain why. If approving, briefly note the solvability assessment and type confidence.""
+  ""reasoning"": ""2-3 sentences in Bulgarian. If rejecting, explain why. If approving, briefly note the solvability assessment and type confidence."",
+  ""type_reasoning"": ""1 sentence in Bulgarian explaining why this specific type was identified""
 }}
 
 Recommendation rules:
@@ -462,7 +462,8 @@ JSON RESPONSE FORMAT
   ""is_appropriate"": true | false,
   ""issues"": [""List ALL problems found in Bulgarian. Always include specific issues like inappropriate content, solution mismatch, wrong type etc. ONLY add 'Текстът е под 150 символа — надеждността на ML предсказването е намалена.' if the current text length is actually below 150 characters. Current length is {textLength} chars (counting all characters including spaces).""],
   ""recommendation"": ""approve"" | ""reject"",
-  ""reasoning"": ""2-3 sentences in Bulgarian. The user provided NO type — do not reference the user providing a wrong type, and do not treat the missing type as an issue. State whether you agree with ML, reference confusion patterns if relevant, and note solution validity.""
+  ""reasoning"": ""2-3 sentences in Bulgarian. The user provided NO type — do not reference the user providing a wrong type, and do not treat the missing type as an issue. State whether you agree with ML, reference confusion patterns if relevant, and note solution validity."",
+  ""type_reasoning"": ""1 sentence in Bulgarian explaining why this specific type was identified""
 }}
 
 Recommendation rules:

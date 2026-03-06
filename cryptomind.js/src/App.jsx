@@ -75,7 +75,6 @@ function App() {
         <Route path="cipher-tool" element={<CipherTool />} /> 
         <Route path="about" element={<About />} />
         <Route path="cipher-library" element={<CipherLibrary />} /> 
-        {/* <Route path="browse" element={<RequireAuth> <CipherBrowsePage /> </RequireAuth>} />    */}
         <Route path="account-info" element={<RequireAuth> <AccountInfo /> </RequireAuth>} />   
         <Route path="notifications" element={<RequireAuth> <NotificationsPage /> </RequireAuth>} /> 
         <Route path="submit" element={<RequireAuth><SubmitCipherPage /></RequireAuth>} />  
