@@ -1,4 +1,3 @@
-
 .about-page {
     overflow-x: hidden;
 }
@@ -18,7 +17,6 @@
     border-top: 1px solid var(--border-default);
     border-bottom: 1px solid var(--border-default);
 }
-
 
 .about-page .about-section-tag {
     display: block;
@@ -45,6 +43,7 @@
     margin-bottom: 48px;
 }
 
+/* ── Hero ───────────────────────────────────────────────── */
 
 .about-page .about-hero {
     position: relative;
@@ -153,6 +152,7 @@
     50%       { transform: translateY(-6px); opacity: 1;   }
 }
 
+/* ── Mission ────────────────────────────────────────────── */
 
 .about-page .about-mission-layout {
     display: grid;
@@ -221,8 +221,10 @@
     color: var(--emerald-500);
     margin: 0;
     white-space: pre-wrap;
+    word-break: break-word;
 }
 
+/* ── Stats ──────────────────────────────────────────────── */
 
 .about-page .about-stats-section {
     padding: 64px 24px;
@@ -265,6 +267,7 @@
     text-transform: uppercase;
 }
 
+/* ── Cipher families ────────────────────────────────────── */
 
 .about-page .about-cipher-grid {
     display: grid;
@@ -362,6 +365,7 @@
     background: linear-gradient(90deg, var(--rose-500), #fb7185);
 }
 
+/* ── Steps ──────────────────────────────────────────────── */
 
 .about-page .about-steps-grid {
     display: grid;
@@ -412,6 +416,7 @@
     margin: 0;
 }
 
+/* ── Limitations ────────────────────────────────────────── */
 
 .about-page .about-limits-intro {
     max-width: 620px;
@@ -455,6 +460,7 @@
     line-height: 1.75;
 }
 
+/* ── Roles ──────────────────────────────────────────────── */
 
 .about-page .about-roles-grid {
     display: grid;
@@ -521,6 +527,7 @@
 
 .about-page .about-role-card--admin .about-role-card__bullet { color: var(--yellow-500); }
 
+/* ── CTA ────────────────────────────────────────────────── */
 
 .about-page .about-cta {
     position: relative;
@@ -608,19 +615,95 @@
     color: var(--yellow-500);
 }
 
+/* ── Responsive ─────────────────────────────────────────── */
 
+/* Tablet */
 @media (max-width: 900px) {
-    .about-page .about-mission-layout,
-    .about-page .about-roles-grid,
-    .about-page .about-limits-grid,
-    .about-page .about-steps-grid { grid-template-columns: 1fr; }
+    .about-page .about-section { padding: 64px 20px; }
+
+    .about-page .about-mission-layout { grid-template-columns: 1fr; gap: 36px; }
+    .about-page .about-roles-grid     { grid-template-columns: 1fr; }
+    .about-page .about-limits-grid    { grid-template-columns: 1fr; }
+    .about-page .about-steps-grid     { grid-template-columns: 1fr; }
 
     .about-page .about-cipher-grid  { grid-template-columns: 1fr 1fr; }
     .about-page .about-stats-grid   { grid-template-columns: repeat(2, 1fr); }
+
+    /* Stats: 4-col border layout breaks at 2-col — reset borders */
+    .about-page .about-stats-grid {
+        border-left: none;
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius);
+        overflow: hidden;
+    }
+    .about-page .about-stat {
+        border-right: none;
+        border-bottom: 1px solid var(--border-default);
+    }
+    .about-page .about-stat:nth-child(odd)  { border-right: 1px solid var(--border-default); }
+    .about-page .about-stat:nth-last-child(-n+2) { border-bottom: none; }
+
+    .about-page .about-cta { padding: 80px 20px; }
+
+    .about-page .about-step { padding: 28px 24px; }
+
+    .about-page .about-role-card  { padding: 24px; }
+    .about-page .about-limit-card { padding: 20px; }
+    .about-page .about-cipher-card { padding: 20px; }
+
+    .about-page .about-hero__badge {
+        font-size: 9px;
+        letter-spacing: 0.1em;
+        padding: 5px 14px;
+    }
 }
 
+/* Large phones */
 @media (max-width: 560px) {
-    .about-page .about-cipher-grid,
+    .about-page .about-section { padding: 48px 16px; }
+
+    .about-page .about-cipher-grid  { grid-template-columns: 1fr; }
     .about-page .about-stats-grid   { grid-template-columns: 1fr; }
-    .about-page .about-hero__headline { font-size: 48px; }
+
+    /* Stats: single column — all borders simple */
+    .about-page .about-stat:nth-child(odd) { border-right: none; }
+    .about-page .about-stat:nth-last-child(-n+2) { border-bottom: 1px solid var(--border-default); }
+    .about-page .about-stat:last-child { border-bottom: none; }
+    .about-page .about-stat { padding: 28px 20px; }
+    .about-page .about-stat__number { font-size: 36px; }
+
+    .about-page .about-hero { padding: 60px 16px; min-height: auto; }
+    .about-page .about-hero__headline { font-size: clamp(38px, 12vw, 56px); }
+    .about-page .about-hero__sub { font-size: 14px; }
+    .about-page .about-hero__badge { font-size: 8px; letter-spacing: 0.08em; }
+    .about-page .about-hero__meta { gap: 10px; }
+    .about-page .about-hero__meta-divider { display: none; }
+    .about-page .about-hero__meta-item { font-size: 11px; }
+    .about-page .about-hero__scroll { display: none; }
+
+    .about-page .about-terminal__code { padding: 16px; font-size: 11px; }
+
+    .about-page .about-step { padding: 20px 16px; gap: 14px; }
+    .about-page .about-step__number { font-size: 28px; }
+    .about-page .about-step__title  { font-size: 12px; }
+    .about-page .about-step__desc   { font-size: 12px; }
+
+    .about-page .about-limit-card { gap: 14px; padding: 18px 16px; }
+    .about-page .about-limit-card__icon { font-size: 20px; }
+    .about-page .about-limit-card__desc { font-size: 12px; }
+
+    .about-page .about-role-card { padding: 20px 16px; }
+    .about-page .about-role-card__name { font-size: 13px; }
+    .about-page .about-role-card__item { font-size: 12px; }
+
+    .about-page .about-cta { padding: 60px 16px; }
+    .about-page .about-cta__sub { font-size: 13px; margin-bottom: 32px; }
+    .about-page .about-cta__buttons { flex-direction: column; align-items: center; }
+    .about-page .about-cta__btn-primary,
+    .about-page .about-cta__btn-secondary { width: 100%; max-width: 280px; text-align: center; }
+
+    .about-page .about-body-text { font-size: 14px; }
+    .about-page .about-mission-quote { font-size: 13px; }
+
+    .about-page .about-section-line { margin-bottom: 32px; }
 }
