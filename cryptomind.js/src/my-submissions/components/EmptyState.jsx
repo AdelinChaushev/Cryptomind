@@ -1,3 +1,5 @@
+import React from 'react';
+
 const EmptyState = ({ icon = '📭', title, subtitle, ctaLabel, ctaHref }) => {
     return (
         <div className="empty-state">

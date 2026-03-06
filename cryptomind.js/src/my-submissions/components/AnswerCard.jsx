@@ -1,3 +1,5 @@
+import React from 'react';
+
 const AnswerCard = ({
     cipherTitle,
     status,
@@ -11,27 +13,29 @@ const AnswerCard = ({
 
 }) => {
     const isCipherRemoved = status === 'cipherdeleted';
-    console.log(isCipherRemoved)
+     console.log(isCipherRemoved)
     const statusClass =
-        status === 'approved' ? 'badge-approved' :
-            status === 'pending' ? 'badge-pending' :
-                status === 'rejected' ? 'badge-rejected' :
-                    'badge-deleted';
+        status === 'approved'        ? 'badge-approved'  :
+        status === 'pending'         ? 'badge-pending'   :
+        status === 'rejected'        ? 'badge-rejected'  :
+        'badge-deleted';
 
     const statusLabel =
-        status === 'approved' ? 'Одобрен' :
-            status === 'pending' ? 'Очаква преглед' :
-                status === 'rejected' ? 'Отхвърлен' :
-                    'Шифърът е премахнат';
+        status === 'approved'        ? 'Одобрен'              :
+        status === 'pending'         ? 'Очаква преглед'        :
+        status === 'rejected'        ? 'Отхвърлен'            :
+        'Шифърът е премахнат';
 
     const descriptionBorderClass =
-        status === 'approved' ? 'border-emerald' :
-            status === 'rejected' ? 'border-rose' :
-                isCipherRemoved ? 'border-deleted' :
-                    'border-yellow';
+        status === 'approved'        ? 'border-emerald'  :
+        status === 'rejected'        ? 'border-rose'     :
+        isCipherRemoved              ? 'border-deleted'  :
+        'border-yellow';
 
     return (
         <div className={`submission-card ${isCipherRemoved ? 'submission-card--deleted' : ''}`}>
+
+          
             <div className="card-header">
                 <div className="card-title-group">
                     <span className={`card-title ${isCipherRemoved ? 'card-title--deleted' : ''}`}>
@@ -44,6 +48,7 @@ const AnswerCard = ({
                 </span>
             </div>
 
+            
             <div className="card-meta">
                 <span className="meta-item">Предложен: {suggestedAt}</span>
 
@@ -62,10 +67,12 @@ const AnswerCard = ({
                 )}
             </div>
 
+            
             <p className={`card-description ${descriptionBorderClass}`}>
                 {description}
             </p>
 
+            
             {status === 'rejected' && rejectionReason && (
                 <div className="rejection-notice">
                     <span className="rejection-icon">⚠</span>
@@ -75,6 +82,7 @@ const AnswerCard = ({
                 </div>
             )}
 
+            
             {isCipherRemoved && (
                 <div className="deletion-notice">
                     <span className="deletion-notice__label">Шифърът е премахнат от администратор</span>
@@ -86,6 +94,7 @@ const AnswerCard = ({
                 </div>
             )}
 
+            
             {!isCipherRemoved && (
                 <div className="card-footer">
                     <div className="card-footer-left">
@@ -95,12 +104,15 @@ const AnswerCard = ({
                     </div>
 
                     <div className="card-footer-right">
-                        <button className="btn-card-action" onClick={onViewCipher}>
-                            Виж шифъра
-                        </button>
+
+                            <button className="btn-card-action" onClick={ onViewCipher}>
+                                Виж шифъра
+                            </button>
+
                     </div>
                 </div>
             )}
+
         </div>
     );
 };

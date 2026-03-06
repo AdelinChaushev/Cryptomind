@@ -1,3 +1,4 @@
+import React from 'react';
 import CipherInputToggle from './CipherInputToggle';
 
 const CIPHER_TYPES = [

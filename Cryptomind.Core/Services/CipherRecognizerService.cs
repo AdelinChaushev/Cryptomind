@@ -2,6 +2,7 @@
 using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
 using Cryptomind.Core.Contracts;
+using Microsoft.Extensions.Configuration;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;

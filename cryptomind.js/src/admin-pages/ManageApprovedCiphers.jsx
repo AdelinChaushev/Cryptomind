@@ -1,18 +1,18 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
 import '../styles/manage-ciphers.css';
 import { useError } from '../ErrorContext.jsx';
 const API_BASE = `${import.meta.env.VITE_API_URL}/api/admin`;
-const AVAILABLE_TAGS = [
-    { value: 1, label: 'Изображение', mapValue: 'Image' },
-    { value: 2, label: 'Пъзел', mapValue: 'Puzzle' },
-    { value: 3, label: 'Исторически', mapValue: 'Historical' },
-    { value: 4, label: 'Кратък', mapValue: 'Short' },
-    { value: 5, label: 'Дълъг', mapValue: 'Long' },
-    { value: 6, label: 'Подходящ за начинаещи', mapValue: 'Beginner_Friendly' },
-    { value: 7, label: 'Труден', mapValue: 'Tricky' },
+const AVAILABLE_TAGS = [          
+    { value: 1, label: 'Изображение',mapValue : 'Image'},
+    { value: 2, label: 'Пъзел', mapValue : 'Puzzle' },
+    { value: 3, label: 'Исторически',mapValue : 'Historical'},
+    { value: 4, label: 'Кратък',mapValue : 'Short'},
+    { value: 5, label: 'Дълъг' ,mapValue : 'Long'},
+    { value: 6, label: 'Подходящ за начинаещи' , mapValue : 'Beginner_Friendly'},
+    { value: 7, label: 'Труден', mapValue : 'Tricky'},
 ];
 axios.defaults.withCredentials = true;
 
@@ -76,12 +76,13 @@ const ManageApprovedCiphers = () => {
         setEditAllowHint(cipher.isHintAllowed ?? false);
         setEditAllowSolution(cipher.isSolutionAllowed ?? false);
         const tags = []
-        cipher.tags.forEach(c => {
+        cipher.tags.forEach(c =>
+        {
             console.log(c)
-            const tag = AVAILABLE_TAGS.find(t => t.mapValue == c)
-            if (tag) {
-                tags.push(tag.value)
-            }
+           const tag = AVAILABLE_TAGS.find(t => t.mapValue == c)
+           if(tag){
+            tags.push(tag.value)
+           }
         }
         )
         console.log(tags)
@@ -98,8 +99,8 @@ const ManageApprovedCiphers = () => {
     }, []);
 
     const handleEditTagToggle = useCallback((tagId) => {
-        setEditSelectedTags(prev =>
-            prev.includes(tagId)
+        setEditSelectedTags(prev => 
+            prev.includes(tagId) 
                 ? prev.filter(id => id !== tagId)
                 : [...prev, tagId]
         );
@@ -154,17 +155,17 @@ const ManageApprovedCiphers = () => {
                         <h1 className="page-title">Управление на шифри</h1>
                     </div>
 
-
+                   
                     <div className="table-toolbar">
                         <div className="toolbar-left">
                             <div className="filter-tabs">
-                                <button
+                                <button 
                                     className={`filter-tab${challengeTypeFilter === 0 ? ' active' : ''}`}
                                     onClick={() => setChallengeTypeFilter(0)}
                                 >
                                     Стандартен
                                 </button>
-                                <button
+                                <button 
                                     className={`filter-tab${challengeTypeFilter === 1 ? ' active' : ''}`}
                                     onClick={() => setChallengeTypeFilter(1)}
                                 >
@@ -174,7 +175,7 @@ const ManageApprovedCiphers = () => {
 
                             <div className="search-input-wrap">
                                 <svg className="search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                    <circle cx="7" cy="7" r="5" /><path d="M11 11l3 3" />
+                                    <circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/>
                                 </svg>
                                 <input
                                     type="text"
@@ -186,20 +187,20 @@ const ManageApprovedCiphers = () => {
                             </div>
                         </div>
                         <div className="toolbar-right">
-                            <select
-                                className="form-select"
+                            <select 
+                                className="form-select" 
                                 style={{ width: '140px' }}
                                 value={tagsFilter}
                                 onChange={(e) => setTagsFilter(parseInt(e.target.value))}
                             >
-                                <option value="0" onClick={e => setTagsFilter(0)}>Никакъв</option>
+                                <option value="0" onClick={e => setTagsFilter(0) }>Никакъв</option>
                                 {AVAILABLE_TAGS.map((tag) => (
                                     <option key={tag.value} value={tag.value} onClick={e => setTagsFilter(tag.value)}>{tag.label}</option>)
                                 )}
                             </select>
 
-                            <select
-                                className="form-select"
+                            <select 
+                                className="form-select" 
                                 style={{ width: '140px' }}
                                 value={orderTerm}
                                 onChange={(e) => setOrderTerm(parseInt(e.target.value))}
@@ -213,7 +214,7 @@ const ManageApprovedCiphers = () => {
                         </div>
                     </div>
 
-
+                    
                     {error ? (
                         <div className="data-table-wrapper">
                             <div className="empty-state">
@@ -258,9 +259,9 @@ const ManageApprovedCiphers = () => {
                                                 {cipher.isImage && (
                                                     <div className="image-tag" style={{ marginTop: '4px' }}>
                                                         <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                                            <rect x="1" y="3" width="14" height="10" rx="2" />
-                                                            <circle cx="5.5" cy="7.5" r="1.5" />
-                                                            <path d="M1 11.5l4-3 3 2.5 2.5-2.5L15 11.5" />
+                                                            <rect x="1" y="3" width="14" height="10" rx="2"/>
+                                                            <circle cx="5.5" cy="7.5" r="1.5"/>
+                                                            <path d="M1 11.5l4-3 3 2.5 2.5-2.5L15 11.5"/>
                                                         </svg>
                                                         ИЗОБРАЖЕНИЕ
                                                     </div>
@@ -303,7 +304,7 @@ const ManageApprovedCiphers = () => {
                                                         onClick={() => openEditModal(cipher)}
                                                     >
                                                         <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                                            <path d="M11 2l3 3L5 14H2v-3L11 2z" />
+                                                            <path d="M11 2l3 3L5 14H2v-3L11 2z"/>
                                                         </svg>
                                                     </button>
                                                     <button
@@ -313,7 +314,7 @@ const ManageApprovedCiphers = () => {
                                                         style={{ color: 'var(--rose-500)', borderColor: 'rgba(244,63,94,0.2)' }}
                                                     >
                                                         <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                                            <path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 10h8l1-10" />
+                                                            <path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 10h8l1-10"/>
                                                         </svg>
                                                     </button>
                                                 </div>
@@ -327,7 +328,7 @@ const ManageApprovedCiphers = () => {
                 </div>
             </main>
 
-
+           
             {editModal.open && (
                 <div className="modal-backdrop" onClick={closeEditModal}>
                     <div className="modal-box modal-box-wide" onClick={(e) => e.stopPropagation()}>
@@ -336,48 +337,48 @@ const ManageApprovedCiphers = () => {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             <div className="form-group">
                                 <label className="form-label">Заглавие</label>
-                                <input
-                                    type="text"
-                                    className="form-input"
+                                <input 
+                                    type="text" 
+                                    className="form-input" 
                                     value={editTitle}
                                     onChange={(e) => setEditTitle(e.target.value)}
                                 />
                             </div>
-                            {editModal.cipher.challengeType &&
-                                <div className="form-group">
-                                    <label className="form-label">Разрешения за AI помощ</label>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
-                                        <label className="edit-permission-toggle">
-                                            <input
-                                                type="checkbox"
-                                                checked={editAllowTypeHint}
-                                                onChange={(e) => setEditAllowTypeHint(e.target.checked)}
+                            { editModal.cipher.challengeType &&
+                            <div className="form-group">
+                                <label className="form-label">Разрешения за AI помощ</label>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
+                                    <label className="edit-permission-toggle">
+                                        <input
+                                            type="checkbox"
+                                            checked={editAllowTypeHint}
+                                            onChange={(e) => setEditAllowTypeHint(e.target.checked)} 
+                                                                              
+                                        />
+                                        <span>Позволи подсказки за вида</span>
+                                    </label>
 
-                                            />
-                                            <span>Позволи подсказки за вида</span>
-                                        </label>
+                                    <label className="edit-permission-toggle">
+                                        <input
+                                            type="checkbox"
+                                            checked={editAllowHint}
+                                            onChange={(e) => setEditAllowHint(e.target.checked)}
+                                           
+                                        />
+                                        <span>Позволи подсказки</span>
+                                    </label>
 
-                                        <label className="edit-permission-toggle">
-                                            <input
-                                                type="checkbox"
-                                                checked={editAllowHint}
-                                                onChange={(e) => setEditAllowHint(e.target.checked)}
-
-                                            />
-                                            <span>Позволи подсказки</span>
-                                        </label>
-
-                                        <label className="edit-permission-toggle">
-                                            <input
-                                                type="checkbox"
-                                                checked={editAllowSolution}
-                                                onChange={(e) => setEditAllowSolution(e.target.checked)}
-
-                                            />
-                                            <span>Позволи пълното решение</span>
-                                        </label>
-                                    </div>
+                                    <label className="edit-permission-toggle">
+                                        <input
+                                            type="checkbox"
+                                            checked={editAllowSolution}
+                                            onChange={(e) => setEditAllowSolution(e.target.checked)}
+                                      
+                                        />
+                                        <span>Позволи пълното решение</span>
+                                    </label>
                                 </div>
+                            </div>
                             }
                             <div className="form-group">
                                 <label className="form-label">Етикети</label>
@@ -404,7 +405,7 @@ const ManageApprovedCiphers = () => {
                 </div>
             )}
 
-
+            
             {deleteModal.open && (
                 <div className="modal-backdrop" onClick={closeDeleteModal}>
                     <div className="modal-box" onClick={(e) => e.stopPropagation()}>

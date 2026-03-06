@@ -21,7 +21,7 @@ const LlmAssistantSection = ({
                 {result && <span className="badge badge-approved">Анализът е завършен</span>}
             </div>
 
-
+            
             {!result && (
                 <div>
                     <p style={{ fontSize: '13px', color: 'var(--text-tertiary)', lineHeight: '1.6', marginBottom: '12px' }}>
@@ -42,8 +42,8 @@ const LlmAssistantSection = ({
                         ) : (
                             <>
                                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                    <circle cx="8" cy="8" r="6.5" />
-                                    <path d="M5 8l2 2 4-4" />
+                                    <circle cx="8" cy="8" r="6.5"/>
+                                    <path d="M5 8l2 2 4-4"/>
                                 </svg>
                                 Стартирай LLM анализ
                             </>
@@ -52,10 +52,10 @@ const LlmAssistantSection = ({
                 </div>
             )}
 
-
+            
             {result && (
                 <div className="llm-result">
-
+                    
                     <div className={`llm-recommendation-banner recommendation-${isApproved ? 'approve' : 'reject'}`}>
                         <div className="recommendation-icon">
                             {isApproved ? '✓' : '✕'}
@@ -70,7 +70,7 @@ const LlmAssistantSection = ({
                         </div>
                     </div>
 
-
+                    
                     <div className="llm-analysis-grid">
                         <div className="llm-result-block">
                             <span className="llm-result-label">Предвиден вид</span>
@@ -121,7 +121,7 @@ const LlmAssistantSection = ({
                         )}
                     </div>
 
-
+                   
                     {result.issues && result.issues.length > 0 && (
                         <div className="llm-result-block">
                             <span className="llm-result-label">Открити проблеми</span>

@@ -1,3 +1,5 @@
+import React from 'react';
+
 const SubmissionsHeader = ({ stats = {} }) => {
     const { total = 0, approved = 0, pending = 0, rejected = 0 } = stats;
 

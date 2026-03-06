@@ -3,6 +3,7 @@ using Cryptomind.Common.DTOs;
 using Cryptomind.Common.Exceptions;
 using Cryptomind.Core.Contracts;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 namespace Cryptomind.Core.Services.OCR

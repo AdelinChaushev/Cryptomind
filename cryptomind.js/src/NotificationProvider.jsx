@@ -1,4 +1,5 @@
-import { NotificationContext } from './App';
+import React, { useEffect } from 'react';
+import { NotificationContext } from './App'; 
 import { useNotifications } from './notifications/UseNotifications';
 import ToastContainer from './notifications/ToastContainer';
 
@@ -7,7 +8,7 @@ export const NotificationProvider = ({ children, isLoggedIn }) => {
     return (
         <NotificationContext.Provider value={notifications}>
             {children}
-
+           
             <ToastContainer
                 toasts={notifications.toasts}
                 onDismiss={notifications.dismissToast}

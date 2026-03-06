@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const HeroTypewriter = () => {
     const [displayText, setDisplayText] = useState('');
@@ -30,7 +30,7 @@ const HeroTypewriter = () => {
 
             if (isDeleting && currentLength === 0) {
                 setIsDeleting(false);
-                timeout = setTimeout(() => { }, pauseStart);
+                timeout = setTimeout(() => {}, pauseStart);
                 return;
             }
 

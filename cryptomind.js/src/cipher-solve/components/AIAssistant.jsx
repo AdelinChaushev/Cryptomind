@@ -1,17 +1,18 @@
 import AIResponse from "./AIResponse";
 
-function AIAssistant({ onTypeHint, onSolutionHint, onSolution, aiMode, aiText, aiLoading, allowSolution, allowTypeHint, allowSolutionHint }) {
+function AIAssistant({ onTypeHint, onSolutionHint, onSolution, aiMode, aiText, aiLoading , allowSolution,allowTypeHint,allowSolutionHint})
+{
     return (
         <div className="ai-assistant-panel">
             <h3 className="panel-heading">AI Асистент</h3>
-
+            
             <div className="ai-buttons">
-                {allowTypeHint && <button
+             {allowTypeHint &&  <button
                     className="btn-ai btn-type-hint"
                     onClick={onTypeHint}
                     disabled={aiLoading}>
                     <span className="btn-ai-left">
-
+                        
                         Тип подсказка
                     </span>
                     <span className="btn-ai-right">
@@ -20,7 +21,7 @@ function AIAssistant({ onTypeHint, onSolutionHint, onSolution, aiMode, aiText, a
                     </span>
                 </button>}
 
-                {allowSolutionHint && <button
+               {allowSolutionHint && <button
                     className="btn-ai btn-solution-hint"
                     onClick={onSolutionHint}
                     disabled={aiLoading}>
@@ -33,7 +34,7 @@ function AIAssistant({ onTypeHint, onSolutionHint, onSolution, aiMode, aiText, a
                     </span>
                 </button>}
 
-                {allowSolution && <button
+               {allowSolution && <button
                     className="btn-ai btn-solution"
                     onClick={onSolution}
                     disabled={aiLoading}>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
@@ -21,29 +21,29 @@ const AVAILABLE_TAGS = [
 ];
 
 const CIPHER_TYPES = [
-    { value: '0', label: 'Цезар (Caesar)', group: 'Substitution' },
-    { value: '1', label: 'Атбаш (Atbash)', group: 'Substitution' },
-    { value: '2', label: 'Проста замяна (SimpleSubstitution)', group: 'Substitution' },
-    { value: '3', label: 'ROT13 (ROT13)', group: 'Substitution' },
-    { value: '4', label: 'Виженер (Vigenere)', group: 'Polyalphabetic' },
-    { value: '5', label: 'Автоключ (Autokey)', group: 'Polyalphabetic' },
-    { value: '6', label: 'Тритемий (Trithemius)', group: 'Polyalphabetic' },
-    { value: '7', label: 'Железопътна ограда (RailFence)', group: 'Transposition' },
-    { value: '8', label: 'Колонна (Columnar)', group: 'Transposition' },
-    { value: '9', label: 'Маршрут (Route)', group: 'Transposition' },
-    { value: '10', label: 'Base64 (Base64)', group: 'Encoding' },
-    { value: '11', label: 'Морзов (Morse)', group: 'Encoding' },
-    { value: '12', label: 'Двоичен (Binary)', group: 'Encoding' },
-    { value: '13', label: 'Шестнадесетичен (Hex)', group: 'Encoding' },
+    { value: '0',  label: 'Цезар (Caesar)',                      group: 'Substitution' },
+    { value: '1',  label: 'Атбаш (Atbash)',                      group: 'Substitution' },
+    { value: '2',  label: 'Проста замяна (SimpleSubstitution)',   group: 'Substitution' },
+    { value: '3',  label: 'ROT13 (ROT13)',                        group: 'Substitution' },
+    { value: '4',  label: 'Виженер (Vigenere)',                   group: 'Polyalphabetic' },
+    { value: '5',  label: 'Автоключ (Autokey)',                   group: 'Polyalphabetic' },
+    { value: '6',  label: 'Тритемий (Trithemius)',                group: 'Polyalphabetic' },
+    { value: '7',  label: 'Железопътна ограда (RailFence)',       group: 'Transposition' },
+    { value: '8',  label: 'Колонна (Columnar)',                   group: 'Transposition' },
+    { value: '9',  label: 'Маршрут (Route)',                      group: 'Transposition' },
+    { value: '10', label: 'Base64 (Base64)',                      group: 'Encoding' },
+    { value: '11', label: 'Морзов (Morse)',                       group: 'Encoding' },
+    { value: '12', label: 'Двоичен (Binary)',                     group: 'Encoding' },
+    { value: '13', label: 'Шестнадесетичен (Hex)',                group: 'Encoding' },
 ];
 
 const GROUPS = ['Substitution', 'Polyalphabetic', 'Transposition', 'Encoding'];
 
 const GROUP_LABELS = {
-    'Substitution': 'Заместване',
+    'Substitution':   'Заместване',
     'Polyalphabetic': 'Полиазбучни',
-    'Transposition': 'Транспозиция',
-    'Encoding': 'Кодиране',
+    'Transposition':  'Транспозиция',
+    'Encoding':       'Кодиране',
 };
 
 const CipherReview = () => {
@@ -55,7 +55,7 @@ const CipherReview = () => {
     const [llmResult, setLlmResult] = useState(null);
     const [isLlmLoading, setIsLlmLoading] = useState(false);
     const [typeConflictModal, setTypeConflictModal] = useState(false);
-
+    
     const [title, setTitle] = useState('');
     const [selectedTags, setSelectedTags] = useState([]);
     const [allowHint, setAllowHint] = useState(true);
@@ -72,23 +72,23 @@ const CipherReview = () => {
                 setLocalError('Невалидно ID на шифър');
                 setLoading(false);
                 return;
-            }
+            }          
             axios.get(`${API_BASE}/cipher/${cipherId}`)
-                .then(res => {
-                    setCipher(res.data);
-                    setTitle(res.data.title || '');
-                    setAllowHint(res.data.allowTypeHint ?? false);
-                    setAllowSolutionHint(res.data.allowsSolutionHint ?? false);
-                    setAllowSolution(res.data.allowSolution ?? false);
-                    setCipherType(res.data.setCipherType)
-                    console.log('Fetched cipher:', res.data);
-                }).catch(err => {
-                    const status = err.response?.status;
-                    const serverMessage = err?.data?.title;
-                    console.error('Failed to fetch cipher:', err);
-                    setLocalError(err.response?.data?.error || err.message);
-                })
-                .finally(() => setLoading(false));
+            .then(res => {
+                setCipher(res.data);
+                setTitle(res.data.title || '');
+                setAllowHint(res.data.allowTypeHint ?? false);
+                setAllowSolutionHint(res.data.allowsSolutionHint ?? false);
+                setAllowSolution(res.data.allowSolution ?? false);
+                setCipherType(res.data.setCipherType)
+                console.log('Fetched cipher:', res.data);
+            }).catch(err => {
+                const status = err.response?.status;
+                const serverMessage = err?.data?.title;
+                console.error('Failed to fetch cipher:', err);
+                setLocalError(err.response?.data?.error || err.message);
+            })
+            .finally(() => setLoading(false));
         };
 
         fetchCipher();
@@ -109,8 +109,8 @@ const CipherReview = () => {
     }, [cipherId]);
 
     const handleTagToggle = useCallback((tagId) => {
-        setSelectedTags(prev =>
-            prev.includes(tagId)
+        setSelectedTags(prev => 
+            prev.includes(tagId) 
                 ? prev.filter(id => id !== tagId)
                 : [...prev, tagId]
         );
@@ -130,7 +130,7 @@ const CipherReview = () => {
                 tagIds: selectedTags
             });
             console.log(`Шифърът е одобрен като ${typeLabel}!`);
-            navigate('/admin/pending-ciphers');
+            navigate('/admin/pending-ciphers'); 
         } catch (err) {
             const errorMsg = err.response?.data.error || err.message;
             setError(`Неуспешно одобрение: ${errorMsg}`);
@@ -223,7 +223,7 @@ const CipherReview = () => {
                     </div>
 
                     <div className="review-layout">
-
+                        
                         <div className="review-main">
                             <div className="admin-card review-card">
                                 <div className="admin-card-header">
@@ -313,11 +313,12 @@ const CipherReview = () => {
                                         <span className="ml-metric-label">Увереност</span>
                                         <div className="ml-confidence-row">
                                             <div className="ml-confidence-bar">
-                                                <div
-                                                    className={`ml-confidence-fill ${cipher.percentageOfConfidence >= 85 ? 'confidence-high' :
-                                                            cipher.percentageOfConfidence >= 65 ? 'confidence-mid' :
-                                                                'confidence-low'
-                                                        }`}
+                                                <div 
+                                                    className={`ml-confidence-fill ${
+                                                        cipher.percentageOfConfidence >= 85 ? 'confidence-high' : 
+                                                        cipher.percentageOfConfidence >= 65 ? 'confidence-mid' : 
+                                                        'confidence-low'
+                                                    }`}
                                                     style={{ width: `${cipher.percentageOfConfidence}%` }}
                                                 />
                                             </div>
@@ -352,7 +353,7 @@ const CipherReview = () => {
                                 </div>
                             </div>
 
-                            {cipher.decryptedText && (
+                            {cipher.decryptedText && ( 
                                 <div className="admin-card">
                                     <div className="admin-card-header">
                                         <span className="admin-card-title">Разрешения за AI помощ</span>
@@ -464,10 +465,10 @@ const CipherReview = () => {
                                         className="btn btn-success"
                                         style={{ justifyContent: 'center' }}>
                                         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
-                                            <path d="M2 8l4 4 8-8" />
+                                            <path d="M2 8l4 4 8-8"/>
                                         </svg>
                                         Одобри
-                                    </button>
+                                    </button>                               
 
                                     <div className="reject-section">
                                         <button
@@ -476,7 +477,7 @@ const CipherReview = () => {
                                             style={{ justifyContent: 'center', width: '100%' }}
                                         >
                                             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
-                                                <path d="M3 3l10 10M13 3L3 13" />
+                                                <path d="M3 3l10 10M13 3L3 13"/>
                                             </svg>
                                             Отхвърли предложението
                                         </button>

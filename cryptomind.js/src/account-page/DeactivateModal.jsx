@@ -1,3 +1,5 @@
+import React from 'react';
+
 function DeactivateModal({ onConfirm, onCancel, loading }) {
     return (
         <div className="modal-overlay" onClick={onCancel}>

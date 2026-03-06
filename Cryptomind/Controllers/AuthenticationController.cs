@@ -43,11 +43,11 @@ namespace Cryptomind.Controllers
 			var roles = await userService.GetRolesUsers(user.Id);
 			var email = await userService.GetEmail(user.Id);
 
-			return Ok(new
-			{
-				Roles = roles,
-				Email = email
-			});
+            return Ok(new
+            {
+                Roles = roles,
+                Email = email
+            });
 		}
 
 		[HttpPost("logout")]

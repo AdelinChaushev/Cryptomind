@@ -1,4 +1,4 @@
-function ActivityLog({ solvers, timeAgo }) {
+function ActivityLog({ solvers ,timeAgo }) {
     return (
         <div className="activity-panel">
             <div className="activity-header">

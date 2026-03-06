@@ -15,12 +15,10 @@ namespace Cryptomind.Controllers
 		public async Task<IActionResult> GetUserRoles()
 		{
 			var roles = await userService.GetRolesUsers(GetUserId());
-			var email = await userService.GetEmail(GetUserId());
-			return Ok(new
-			{
-				Roles = roles,
-				Email = email
-			});
+		    var email = await userService.GetEmail(GetUserId());
+			return Ok( new { 
+			  Roles = roles,
+			  Email = email});
 
 		}
 

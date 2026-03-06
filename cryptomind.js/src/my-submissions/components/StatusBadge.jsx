@@ -1,3 +1,5 @@
+import React from 'react';
+
 const StatusBadge = ({ status }) => {
     const classMap = {
         Pending:  'badge-pending',

@@ -1,3 +1,5 @@
+import React from 'react';
+
 function ProfileCard({ user, onDeactivate, deactivating }) {
     const getInitial = (username) => {
         if (!username) return '?';
@@ -33,7 +35,7 @@ function ProfileCard({ user, onDeactivate, deactivating }) {
                         <div className="meta-value">{user.email}</div>
                     </div>
                 </div>
-
+               
                 <div className="meta-row">
                     <span className="meta-icon">🔐</span>
                     <div className="meta-content">

@@ -1,3 +1,5 @@
+import React from 'react';
+
 const SubmissionCard = ({
     title,
     status,
@@ -9,24 +11,25 @@ const SubmissionCard = ({
     description,
     rejectionReason,
     onViewCipher,
+    onViewDetails,
 }) => {
     const statusClass =
         status === 'approved' ? 'badge-approved' :
-            status === 'pending' ? 'badge-pending' :
-                status === 'rejected' ? 'badge-rejected' :
-                    'badge-deleted';
+        status === 'pending'  ? 'badge-pending'  :
+        status === 'rejected' ? 'badge-rejected' :
+        'badge-deleted';
 
     const statusLabel =
-        status === 'approved' ? 'Одобрен' :
-            status === 'pending' ? 'Очаква преглед' :
-                status === 'rejected' ? 'Отхвърлен' :
-                    'Изтрит';
+        status === 'approved' ? 'Одобрен'         :
+        status === 'pending'  ? 'Очаква преглед'   :
+        status === 'rejected' ? 'Отхвърлен'        :
+        'Изтрит';
 
     const descriptionBorderClass =
-        status === 'approved' ? 'border-emerald' :
-            status === 'rejected' ? 'border-rose' :
-                status === 'cipherdeleted' ? 'border-deleted' :
-                    'border-yellow';
+        status === 'approved'       ? 'border-emerald' :
+        status === 'rejected'       ? 'border-rose'    :
+        status === 'cipherdeleted'  ? 'border-deleted' :
+        'border-yellow';
 
     const isDeleted = status === 'deleted';
 

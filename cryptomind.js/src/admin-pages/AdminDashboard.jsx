@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
 import StatCard from './StatCard';
@@ -9,7 +9,7 @@ import { useError } from "../ErrorContext";
 
 const AdminDashboard = () => {
     const { setError } = useError(null);
-    const [stats, setStats] = useState({
+    const [stats, setStats] = useState({  
         pendingCiphersCount: 0,
         approvedCiphersCount: 0,
         pendingAnswersCount: 0,
@@ -17,23 +17,23 @@ const AdminDashboard = () => {
         deletedCiphersCount: 0,
         pendingCipherTitles: []
     });
-
+  
     useEffect(() => {
         axios.get(`${import.meta.env.VITE_API_URL}/api/admin/dashboard`)
-            .then(res => {
-                setStats({
-                    pendingCiphersCount: res.data.pendingCiphersCount,
-                    approvedCiphersCount: res.data.approvedCiphersCount,
-                    pendingAnswersCount: res.data.pendingAnswersCount,
-                    approvedAnswersCount: res.data.approvedAnswersCount,
-                    deletedCiphersCount: res.data.deletedCiphersCount,
-                    pendingCipherTitles: res.data.pendingCipherTitles
-                });
-                console.log("СТАТИСТИКА ЗА ТАБЛОТО:", res.data);
-            }).catch(err => {
-                setError(err.response?.data?.message || "Грешка при зареждане на статистиката");
-                console.error(err);
+        .then(res => {
+            setStats({
+                pendingCiphersCount: res.data.pendingCiphersCount,
+                approvedCiphersCount: res.data.approvedCiphersCount,
+                pendingAnswersCount: res.data.pendingAnswersCount,
+                approvedAnswersCount: res.data.approvedAnswersCount,
+                deletedCiphersCount: res.data.deletedCiphersCount,
+                pendingCipherTitles: res.data.pendingCipherTitles
             });
+            console.log("СТАТИСТИКА ЗА ТАБЛОТО:", res.data);
+        }).catch(err => { 
+            setError(err.response?.data?.message || "Грешка при зареждане на статистиката"); 
+            console.error(err); 
+        });
     }, [setError]);
 
     return (
@@ -48,7 +48,7 @@ const AdminDashboard = () => {
                         <h1 className="page-title">Табло за управление</h1>
                     </div>
 
-
+                    
                     <div className="stats-grid">
                         <StatCard
                             label="Изчакващи предложения"
@@ -62,7 +62,7 @@ const AdminDashboard = () => {
                             sub="Активни в платформата"
                             accent="emerald"
                         />
-
+                        
                         <StatCard
                             label="Изчакващи отговори"
                             value={stats.pendingAnswersCount ?? '—'}
@@ -84,7 +84,7 @@ const AdminDashboard = () => {
                     </div>
 
                     <div className="dashboard-grid">
-
+                        
                         <div className="admin-card">
                             <div className="admin-card-header">
                                 <span className="admin-card-title">Бързи действия</span>
@@ -94,7 +94,7 @@ const AdminDashboard = () => {
                                     <div className="qa-left">
                                         <div className="qa-icon yellow">
                                             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                                <circle cx="8" cy="8" r="6.5" /><path d="M8 4.5V8l2.5 2" />
+                                                <circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2.5 2"/>
                                             </svg>
                                         </div>
                                         <div>
@@ -109,8 +109,8 @@ const AdminDashboard = () => {
                                     <div className="qa-left">
                                         <div className="qa-icon emerald">
                                             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                                <rect x="2.5" y="7" width="11" height="8" rx="1.5" />
-                                                <path d="M5 7V5a3 3 0 0 1 6 0v2" />
+                                                <rect x="2.5" y="7" width="11" height="8" rx="1.5"/>
+                                                <path d="M5 7V5a3 3 0 0 1 6 0v2"/>
                                             </svg>
                                         </div>
                                         <div>
@@ -125,7 +125,7 @@ const AdminDashboard = () => {
                                     <div className="qa-left">
                                         <div className="qa-icon rose">
                                             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                                <path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 10h8l1-10" />
+                                                <path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 10h8l1-10"/>
                                             </svg>
                                         </div>
                                         <div>
@@ -140,7 +140,7 @@ const AdminDashboard = () => {
                                     <div className="qa-left">
                                         <div className="qa-icon sky">
                                             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                                <path d="M14 3H2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2v2.5L7 12h7a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1z" />
+                                                <path d="M14 3H2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2v2.5L7 12h7a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1z"/>
                                             </svg>
                                         </div>
                                         <div>
@@ -155,9 +155,9 @@ const AdminDashboard = () => {
                                     <div className="qa-left">
                                         <div className="qa-icon violet">
                                             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                                <circle cx="6" cy="5" r="2.5" />
-                                                <path d="M1 13c0-2.76 2.24-5 5-5s5 2.24 5 5" />
-                                                <path d="M11 3a2.5 2.5 0 0 1 0 5M15 13a4 4 0 0 0-4-4" />
+                                                <circle cx="6" cy="5" r="2.5"/>
+                                                <path d="M1 13c0-2.76 2.24-5 5-5s5 2.24 5 5"/>
+                                                <path d="M11 3a2.5 2.5 0 0 1 0 5M15 13a4 4 0 0 0-4-4"/>
                                             </svg>
                                         </div>
                                         <div>
@@ -169,7 +169,7 @@ const AdminDashboard = () => {
                             </div>
                         </div>
 
-
+                        
                         <div className="admin-card">
                             <div className="admin-card-header">
                                 <span className="admin-card-title">Последни предложения</span>
