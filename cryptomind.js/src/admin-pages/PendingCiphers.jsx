@@ -57,12 +57,11 @@ const PendingCiphers = () => {
     }, [fetchCiphers]);
 
     return (
-        <div className="admin-shell">
+        <div className="admin-shell admin-shell--pending-ciphers">
             <AdminSidebar activePage="pending-ciphers" />
 
             <main className="admin-main">
-                <AdminTopbar breadcrumbs={[{ label: 'Изчакващи предложения' }]}>
-                </AdminTopbar>
+                <AdminTopbar breadcrumbs={[{ label: 'Изчакващи предложения' }]} />
 
                 <div className="admin-content">
                     <div className="page-header">
@@ -72,7 +71,6 @@ const PendingCiphers = () => {
                         </p>
                     </div>
 
-                   
                     <div className="table-toolbar">
                         <div className="toolbar-left">
                             <div className="search-input-wrap">
@@ -93,7 +91,6 @@ const PendingCiphers = () => {
                         </div>
                     </div>
 
-                   
                     {error ? (
                         <div className="data-table-wrapper">
                             <div className="empty-state">
@@ -114,102 +111,126 @@ const PendingCiphers = () => {
                             </div>
                         </div>
                     ) : (
-                        <div className="data-table-wrapper">
-                            <table className="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Заглавие</th>
-                                        <th>Вид</th>
-                                        <th>ML увереност</th>
-                                        <th>LLM необходим</th>
-                                        <th>Предложен от</th>
-                                        <th>Дата</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {ciphers.map((cipher) => {
-                                        const confClass = getConfidenceClass(cipher.percentageOfConfidence);
-
-                                        return (
-                                            <tr key={cipher.id}>
-                                                <td className="mono" style={{ color: 'var(--text-dim)', fontSize: '11px' }}>
-                                                    #{cipher.id}
-                                                </td>
-
-                                                <td>
-                                                    <div style={{ fontWeight: 500, fontSize: '13px', color: 'var(--text-primary)' }}>
-                                                        {cipher.title || <span style={{ color: 'var(--text-dim)', fontStyle: 'italic' }}>Без заглавие</span>}
-                                                    </div>
-                                                    {cipher.isImage && (
-                                                        <div className="image-tag" style={{ marginTop: '4px' }}>
-                                                            <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                                                <rect x="1" y="3" width="14" height="10" rx="2"/>
-                                                                <circle cx="5.5" cy="7.5" r="1.5"/>
-                                                                <path d="M1 11.5l4-3 3 2.5 2.5-2.5L15 11.5"/>
-                                                            </svg>
-                                                            ИЗОБРАЖЕНИЕ
+                        <>
+                            <div className="data-table-wrapper">
+                                <table className="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Заглавие</th>
+                                            <th>Вид</th>
+                                            <th>ML увереност</th>
+                                            <th>LLM необходим</th>
+                                            <th>Предложен от</th>
+                                            <th>Дата</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {ciphers.map((cipher) => {
+                                            const confClass = getConfidenceClass(cipher.percentageOfConfidence);
+                                            return (
+                                                <tr key={cipher.id}>
+                                                    <td className="mono" style={{ color: 'var(--text-dim)', fontSize: '11px' }}>
+                                                        #{cipher.id}
+                                                    </td>
+                                                    <td>
+                                                        <div style={{ fontWeight: 500, fontSize: '13px', color: 'var(--text-primary)' }}>
+                                                            {cipher.title || <span style={{ color: 'var(--text-dim)', fontStyle: 'italic' }}>Без заглавие</span>}
                                                         </div>
-                                                    )}
-                                                </td>
-
-                                                <td>
-                                                    {cipher.cipherType ? (
-                                                        <span className="mono" style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                                                            {cipher.cipherType}
+                                                        {cipher.isImage && (
+                                                            <div className="image-tag" style={{ marginTop: '4px' }}>
+                                                                <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                                                    <rect x="1" y="3" width="14" height="10" rx="2"/>
+                                                                    <circle cx="5.5" cy="7.5" r="1.5"/>
+                                                                    <path d="M1 11.5l4-3 3 2.5 2.5-2.5L15 11.5"/>
+                                                                </svg>
+                                                                ИЗОБРАЖЕНИЕ
+                                                            </div>
+                                                        )}
+                                                    </td>
+                                                    <td>
+                                                        {cipher.cipherType ? (
+                                                            <span className="mono" style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                                                                {cipher.cipherType}
+                                                            </span>
+                                                        ) : (
+                                                            <span style={{ color: 'var(--text-dim)', fontSize: '11px' }}>Некласифициран</span>
+                                                        )}
+                                                    </td>
+                                                    <td>
+                                                        {cipher.percentageOfConfidence !== null && cipher.percentageOfConfidence !== undefined ? (
+                                                            <div className={`confidence-inline ${confClass}`}>
+                                                                <div className="confidence-top">
+                                                                    <span className="confidence-pct">{cipher.percentageOfConfidence}%</span>
+                                                                </div>
+                                                                <div className="confidence-bar">
+                                                                    <div className="confidence-bar-fill" style={{ width: `${cipher.percentageOfConfidence}%` }} />
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            <span style={{ color: 'var(--text-dim)', fontSize: '11px' }}>—</span>
+                                                        )}
+                                                    </td>
+                                                    <td>
+                                                        <span className={`badge ${cipher.isLLMRecommended ? 'badge-pending' : 'badge-approved'}`}>
+                                                            {cipher.isLLMRecommended ? 'Да' : 'Не'}
                                                         </span>
-                                                    ) : (
-                                                        <span style={{ color: 'var(--text-dim)', fontSize: '11px' }}>Некласифициран</span>
-                                                    )}
-                                                </td>
+                                                    </td>
+                                                    <td className="mono" style={{ fontSize: '12px' }}>{cipher.submittedBy || '—'}</td>
+                                                    <td className="mono" style={{ fontSize: '10px', color: 'var(--text-dim)' }}>{cipher.submittedAt || '—'}</td>
+                                                    <td>
+                                                        <a href={`/admin/cipher-review/${cipher.id}`} className="btn btn-primary btn-sm">
+                                                            Прегледай →
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
 
-                                                <td>
-                                                    {cipher.percentageOfConfidence !== null && cipher.percentageOfConfidence !== undefined ? (
-                                                        <div className={`confidence-inline ${confClass}`}>
-                                                            <div className="confidence-top">
-                                                                <span className="confidence-pct">{cipher.percentageOfConfidence}%</span>
-                                                            </div>
-                                                            <div className="confidence-bar">
-                                                                <div
-                                                                    className="confidence-bar-fill"
-                                                                    style={{ width: `${cipher.percentageOfConfidence}%` }}
-                                                                />
-                                                            </div>
+                            <div className="pending-card-list">
+                                {ciphers.map((cipher) => {
+                                    const confClass = getConfidenceClass(cipher.percentageOfConfidence);
+                                    return (
+                                        <div key={cipher.id} className="pending-card">
+                                            <div className="pending-card__row">
+                                                <span className="pending-card__label">Заглавие</span>
+                                                <span className="pending-card__value">
+                                                    {cipher.title || <span style={{ color: 'var(--text-dim)', fontStyle: 'italic' }}>Без заглавие</span>}
+                                                </span>
+                                            </div>
+                                            <div className="pending-card__row">
+                                                <span className="pending-card__label">Вид</span>
+                                                <span className="pending-card__value pending-card__value--dim">
+                                                    {cipher.cipherType || 'Некласифициран'}
+                                                </span>
+                                            </div>
+                                            {cipher.percentageOfConfidence !== null && cipher.percentageOfConfidence !== undefined && (
+                                                <div className="pending-card__row">
+                                                    <span className="pending-card__label">ML</span>
+                                                    <div className={`confidence-inline ${confClass}`} style={{ flex: 1 }}>
+                                                        <div className="confidence-top">
+                                                            <span className="confidence-pct">{cipher.percentageOfConfidence}%</span>
                                                         </div>
-                                                    ) : (
-                                                        <span style={{ color: 'var(--text-dim)', fontSize: '11px' }}>—</span>
-                                                    )}
-                                                </td>
-
-                                                <td>
-                                                    <span className={`badge ${cipher.isLLMRecommended ? 'badge-pending' : 'badge-approved'}`}>
-                                                        {cipher.isLLMRecommended ? 'Да' : 'Не'}
-                                                    </span>
-                                                </td>
-
-                                                <td className="mono" style={{ fontSize: '12px' }}>
-                                                    {cipher.submittedBy || '—'}
-                                                </td>
-
-                                                <td className="mono" style={{ fontSize: '10px', color: 'var(--text-dim)' }}>
-                                                    {cipher.submittedAt || '—'}
-                                                </td>
-
-                                                <td>
-                                                    <a
-                                                        href={`/admin/cipher-review/${cipher.id}`}
-                                                        className="btn btn-primary btn-sm"
-                                                    >
-                                                        Прегледай →
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
+                                                        <div className="confidence-bar">
+                                                            <div className="confidence-bar-fill" style={{ width: `${cipher.percentageOfConfidence}%` }} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            <div className="pending-card__actions">
+                                                <a href={`/admin/cipher-review/${cipher.id}`} className="btn btn-primary btn-sm" style={{ flex: 1, textAlign: 'center' }}>
+                                                    Прегледай →
+                                                </a>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </>
                     )}
                 </div>
             </main>

@@ -1,4 +1,10 @@
+import { Link } from 'react-router-dom';
+import { useContext } from 'react';
+import { AuthorizationContext } from '../App.jsx';
+
 const Footer = () => {
+    const { state } = useContext(AuthorizationContext);
+
     return (
         <footer className="footer">
             <div className="footer-container">
@@ -12,7 +18,7 @@ const Footer = () => {
                 <div className="footer-column">
                     <h4>Платформа</h4>
                     <ul className="footer-links">
-                        <li><a href="/browse">Разгледай шифрите</a></li>
+                        <li><Link to={state.isLoggedIn ? "/" : "/login"} onClick={() => window.scrollTo(0, 0)}>Разгледай шифрите</Link></li>
                         <li><a href="/leaderboard">Класация</a></li>
                         <li><a href="/cipher-tool">Инструмент за шифри</a></li>
                         <li><a href="/submit">Предложи шифър</a></li>
