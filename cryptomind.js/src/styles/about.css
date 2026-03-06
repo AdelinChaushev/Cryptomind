@@ -43,8 +43,6 @@
     margin-bottom: 48px;
 }
 
-/* ── Hero ───────────────────────────────────────────────── */
-
 .about-page .about-hero {
     position: relative;
     min-height: 100vh;
@@ -152,8 +150,6 @@
     50%       { transform: translateY(-6px); opacity: 1;   }
 }
 
-/* ── Mission ────────────────────────────────────────────── */
-
 .about-page .about-mission-layout {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -224,8 +220,6 @@
     word-break: break-word;
 }
 
-/* ── Stats ──────────────────────────────────────────────── */
-
 .about-page .about-stats-section {
     padding: 64px 24px;
     background: var(--bg-surface);
@@ -266,8 +260,6 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
 }
-
-/* ── Cipher families ────────────────────────────────────── */
 
 .about-page .about-cipher-grid {
     display: grid;
@@ -365,8 +357,6 @@
     background: linear-gradient(90deg, var(--rose-500), #fb7185);
 }
 
-/* ── Steps ──────────────────────────────────────────────── */
-
 .about-page .about-steps-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -416,8 +406,6 @@
     margin: 0;
 }
 
-/* ── Limitations ────────────────────────────────────────── */
-
 .about-page .about-limits-intro {
     max-width: 620px;
     margin-bottom: 40px;
@@ -459,8 +447,6 @@
     color: var(--text-tertiary);
     line-height: 1.75;
 }
-
-/* ── Roles ──────────────────────────────────────────────── */
 
 .about-page .about-roles-grid {
     display: grid;
@@ -526,8 +512,6 @@
 }
 
 .about-page .about-role-card--admin .about-role-card__bullet { color: var(--yellow-500); }
-
-/* ── CTA ────────────────────────────────────────────────── */
 
 .about-page .about-cta {
     position: relative;
@@ -614,10 +598,6 @@
     border-color: var(--border-yellow);
     color: var(--yellow-500);
 }
-
-/* ── Responsive ─────────────────────────────────────────── */
-
-/* Tablet */
 @media (max-width: 900px) {
     .about-page .about-section { padding: 64px 20px; }
 
@@ -629,7 +609,6 @@
     .about-page .about-cipher-grid  { grid-template-columns: 1fr 1fr; }
     .about-page .about-stats-grid   { grid-template-columns: repeat(2, 1fr); }
 
-    /* Stats: 4-col border layout breaks at 2-col — reset borders */
     .about-page .about-stats-grid {
         border-left: none;
         border: 1px solid var(--border-default);
@@ -658,14 +637,12 @@
     }
 }
 
-/* Large phones */
 @media (max-width: 560px) {
     .about-page .about-section { padding: 48px 16px; }
 
     .about-page .about-cipher-grid  { grid-template-columns: 1fr; }
     .about-page .about-stats-grid   { grid-template-columns: 1fr; }
 
-    /* Stats: single column — all borders simple */
     .about-page .about-stat:nth-child(odd) { border-right: none; }
     .about-page .about-stat:nth-last-child(-n+2) { border-bottom: 1px solid var(--border-default); }
     .about-page .about-stat:last-child { border-bottom: none; }

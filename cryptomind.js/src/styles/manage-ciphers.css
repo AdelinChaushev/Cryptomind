@@ -148,14 +148,11 @@
     border-color: rgba(251, 191, 36, 0.5);
 }
 
-/* ── Mobile card list (hidden on desktop) ───────────────── */
-
 .ciphers-card-list {
     display: none;
 }
 
 @media (max-width: 40em) {
-    /* ── Prevent any container from overflowing the viewport ── */
     .admin-shell--manage-ciphers,
     .admin-shell--manage-ciphers .admin-main,
     .admin-shell--manage-ciphers .admin-content {
@@ -163,7 +160,6 @@
         overflow-x: hidden;
     }
 
-    /* ── Hide table, show cards ── */
     .admin-shell--manage-ciphers .data-table-wrapper {
         display: none;
     }
@@ -177,7 +173,6 @@
         overflow: hidden;
     }
 
-    /* ── Toolbar stacking ── */
     .table-toolbar {
         flex-direction: column;
         align-items: stretch;
@@ -208,7 +203,6 @@
         width: 100%;
     }
 
-    /* ── Tag filter + Order selects side by side ── */
     .toolbar-right {
         display: flex;
         flex-direction: row;
@@ -222,7 +216,6 @@
         min-width: 0;
     }
 
-    /* ── Cipher cards ── */
     .cipher-card {
         padding: 12px 14px;
         border-bottom: 1px solid var(--border-default);

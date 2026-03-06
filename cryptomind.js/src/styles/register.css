@@ -124,8 +124,6 @@ a { text-decoration: none; color: inherit; }
     60%, 100% { left: 160%; }
 }
 
-/* ── Header ─────────────────────────────────────────────── */
-
 .auth-header {
     text-align: center;
     margin-bottom: 28px;
@@ -204,8 +202,6 @@ a { text-decoration: none; color: inherit; }
     50%       { opacity: 1; }
 }
 
-/* ── Form title ─────────────────────────────────────────── */
-
 .form-title-block {
     margin-bottom: 24px;
     animation: fadeUp 0.65s ease both;
@@ -226,8 +222,6 @@ a { text-decoration: none; color: inherit; }
     margin-top: 4px;
     font-weight: 300;
 }
-
-/* ── Form ───────────────────────────────────────────────── */
 
 .auth-form {
     display: flex;
@@ -276,7 +270,6 @@ a { text-decoration: none; color: inherit; }
     align-items: center;
 }
 
-/* No icon rendered in JSX — use symmetric padding */
 .form-input {
     width: 100%;
     background: rgba(2, 6, 23, 0.7);
@@ -290,7 +283,6 @@ a { text-decoration: none; color: inherit; }
     transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-/* Password fields need right padding for the eye toggle */
 #password,
 #confirmPassword {
     padding-right: 42px;
@@ -327,8 +319,6 @@ a { text-decoration: none; color: inherit; }
 
 .form-group:focus-within .input-focus-bar { width: 100%; }
 
-/* ── Eye toggle ─────────────────────────────────────────── */
-
 .eye-toggle {
     position: absolute;
     right: 12px;
@@ -347,8 +337,6 @@ a { text-decoration: none; color: inherit; }
 }
 
 .eye-toggle:hover { opacity: 1; }
-
-/* ── Submit button ──────────────────────────────────────── */
 
 .btn-submit {
     position: relative;
@@ -413,8 +401,6 @@ a { text-decoration: none; color: inherit; }
     50%, 100% { left: 160%; }
 }
 
-/* ── Footer ─────────────────────────────────────────────── */
-
 .auth-card-footer {
     margin-top: 24px;
     text-align: center;
@@ -439,8 +425,6 @@ a { text-decoration: none; color: inherit; }
     text-decoration: underline;
     text-underline-offset: 3px;
 }
-
-/* ── Responsive ─────────────────────────────────────────── */
 
 @media (max-width: 400px) {
     .auth-tagline {
