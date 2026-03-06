@@ -353,8 +353,28 @@
     .leaderboard-page .lb-container { padding: 40px 16px 60px; }
     .leaderboard-page .lb-header { margin-bottom: 36px; }
 
-    .leaderboard-page .lb-podium { gap: 8px; }
-    .leaderboard-page .lb-podium-card { padding: 16px 8px 14px; }
+    .leaderboard-page .lb-podium {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: center;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .leaderboard-page .lb-podium-card {
+        flex: 1;
+        width: 0;
+        max-width: none;
+        min-height: unset;
+        padding: 16px 6px 14px;
+    }
+
+    .leaderboard-page .lb-podium-card.rank-1 {
+        flex: 1;
+        max-width: none;
+        padding-top: 16px;
+    }
+
     .leaderboard-page .lb-podium-avatar { width: 36px; height: 36px; font-size: 0.8rem; }
     .leaderboard-page .lb-podium-crown  { font-size: 1rem; }
 
