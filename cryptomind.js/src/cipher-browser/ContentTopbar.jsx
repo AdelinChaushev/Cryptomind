@@ -6,6 +6,7 @@ const SORT_OPTIONS = [
 ];
 
 const ContentTopbar = ({
+    isOpen = false,
     resultsCount = 0,
     activeFilters = [],
     sortBy = 0,
@@ -48,13 +49,14 @@ const ContentTopbar = ({
                     </select>
                 </div>
             </div>
-            
+            {!isOpen &&
             <button className="mobile-filter-btn" onClick={onMobileFilterToggle}>
                 <span>⚙ Филтри</span>
                 {activeFilterCount > 0 && (
                     <span className="mobile-filter-badge">{activeFilterCount}</span>
                 )}
             </button>
+              }
         </>
     );
 };

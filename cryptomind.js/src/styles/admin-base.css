@@ -1036,4 +1036,15 @@ button.sidebar-link {
 body {
     overflow-x: hidden;
 }
+.data-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.data-table td,
+.data-table th {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 

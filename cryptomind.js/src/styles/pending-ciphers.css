@@ -1,13 +1,37 @@
 @import './admin-base.css';
 
+.admin-shell--pending-ciphers .data-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.admin-shell--pending-ciphers .data-table th:nth-child(1) { width: 52px; }
+.admin-shell--pending-ciphers .data-table th:nth-child(2) { width: 22%; }
+.admin-shell--pending-ciphers .data-table th:nth-child(3) { width: 28%; }
+.admin-shell--pending-ciphers .data-table th:nth-child(4) { width: 16%; }
+.admin-shell--pending-ciphers .data-table th:nth-child(5) { width: 14%; }
+.admin-shell--pending-ciphers .data-table th:nth-child(6) { width: 80px; }
+
+.admin-shell--pending-ciphers .data-table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-shell--pending-ciphers .data-table td:last-child {
+    white-space: normal;
+    overflow: visible;
+}
+
 .cipher-preview {
     font-family: var(--font-mono);
     font-size: 10px;
     color: var(--text-tertiary);
-    max-width: 200px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    display: block;
+    width: 100%;
 }
 
 .image-tag {
@@ -67,7 +91,6 @@
     display: flex;
     flex-direction: column;
     gap: 3px;
-    min-width: 100px;
 }
 
 .confidence-top {
@@ -92,7 +115,6 @@
     background: rgba(255,255,255,0.06);
     border-radius: 4px;
     overflow: hidden;
-    position: relative;
 }
 
 .confidence-bar-fill {
@@ -100,8 +122,6 @@
     border-radius: 4px;
     background: linear-gradient(90deg, #facc15, #fde047);
     box-shadow: 0 0 6px rgba(250, 204, 21, 0.6);
-}
-.confidence-bar-fill {
     transition: width 0.6s ease;
 }
 
@@ -112,27 +132,13 @@
 .confidence-mid .confidence-bar-fill { background: var(--yellow-500); }
 .confidence-mid .confidence-pct { color: var(--yellow-500); }
 
-.cipher-preview {
-    max-width: clamp(100px, 15vw, 200px);
-    font-size: clamp(9px, 0.8vw, 10px);
-}
-
-.confidence-inline {
-    min-width: clamp(70px, 8vw, 100px);
-}
-
-.confidence-type {
-    font-size: clamp(9px, 0.8vw, 10px);
-}
-
-.confidence-pct {
-    font-size: clamp(9px, 0.8vw, 10px);
-}
-
 @media (max-width: 40em) {
     .filter-tabs {
         overflow-x: auto;
         flex-wrap: nowrap;
     }
-}
 
+    .admin-shell--pending-ciphers .data-table-wrapper {
+        display: none;
+    }
+}

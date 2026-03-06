@@ -109,7 +109,7 @@ const DeletedCiphers = () => {
     }, [renameModal, fetchCiphers]);
 
     return (
-        <div className="admin-shell">
+        <div className="admin-shell --deleted-ciphers">
             <AdminSidebar activePage="deleted-ciphers" />
 
             <main className="admin-main">

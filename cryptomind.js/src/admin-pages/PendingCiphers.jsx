@@ -57,7 +57,7 @@ const PendingCiphers = () => {
     }, [fetchCiphers]);
 
     return (
-        <div className="admin-shell">
+        <div className="admin-shell --pending-ciphers">
             <AdminSidebar activePage="pending-ciphers" />
 
             <main className="admin-main">

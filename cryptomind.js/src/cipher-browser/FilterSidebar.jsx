@@ -33,6 +33,7 @@ const FilterSidebar = ({
         <aside className={`filter-sidebar${isOpen ? ' mobile-open' : ''}`}>
 
             <div className="sidebar-header">
+                
                 <h2 className="sidebar-title">
                     <span className="sidebar-icon">⚙</span>
                     Филтри
