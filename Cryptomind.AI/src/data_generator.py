@@ -50,16 +50,22 @@ class DataGenerator:
     def get_random_text(self, min_length, max_length):
         if not self.corpus_texts:
             self.load_corpus()
-
-        while True:
+    
+        attempts = 0
+        while attempts < 1000:
+            attempts += 1
             text = random.choice(self.corpus_texts)
-
+    
+            while len(text) < min_length:
+                text += ' ' + random.choice(self.corpus_texts)
+    
             if len(text) > max_length:
-                start = random.randint(0, len(text) - max_length)
-                text = text[start:start + max_length]
-
+                text = text[:max_length]
+    
             if min_length <= len(text) <= max_length:
                 return text
+    
+        raise RuntimeError("Could not generate text within length bounds after 1000 attempts")
 
     def generate_layer1_data(self):
         os.makedirs(Config.LAYER1_TRAINING_DIR, exist_ok=True)

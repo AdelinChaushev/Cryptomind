@@ -58,6 +58,7 @@ class Layer1Trainer:
         print(f"Train: {len(X_train)}, Val: {len(X_val)}, Test: {len(X_test)}")
 
         self.model = self.build_model(len(self.label_map))
+        self.model.summary()
 
         callbacks = [
             keras.callbacks.EarlyStopping(

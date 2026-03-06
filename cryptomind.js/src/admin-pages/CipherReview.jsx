@@ -6,7 +6,6 @@ import LlmAssistantSection from './LlmAssistantSection';
 import '../styles/cipher-review.css';
 const API_BASE = `${import.meta.env.VITE_API_URL}/api/admin`;
 import { useParams } from "react-router-dom";
-import "../styles/cipher-review.css";
 import { useNavigate } from 'react-router-dom';
 import { useError } from '../ErrorContext';
 axios.defaults.withCredentials = true;
@@ -24,18 +23,18 @@ const AVAILABLE_TAGS = [
 const CIPHER_TYPES = [
     { value: '0',  label: 'Цезар (Caesar)',                      group: 'Substitution' },
     { value: '1',  label: 'Атбаш (Atbash)',                      group: 'Substitution' },
-    { value: '2',  label: 'Проста замяна (SimpleSubstitution)',        group: 'Substitution' },
-    { value: '3',  label: 'ROT13 (ROT13)',                      group: 'Substitution' },
-    { value: '4',  label: 'Виженер (Vigenere)',                 group: 'Polyalphabetic' },
-    { value: '5',  label: 'Автоключ (Autokey)',                 group: 'Polyalphabetic' },
-    { value: '6',  label: 'Тритемий (Trithemius)',             group: 'Polyalphabetic' },
-    { value: '7',  label: 'Железопътна ограда (RailFence)',    group: 'Transposition' },
-    { value: '8',  label: 'Колонна (Columnar)',                group: 'Transposition' },
-    { value: '9',  label: 'Маршрут (Route)',                   group: 'Transposition' },
-    { value: '10', label: 'Base64 (Base64)',                   group: 'Encoding' },
-    { value: '11', label: 'Морзов (Morse)',                   group: 'Encoding' },
-    { value: '12', label: 'Двоичен (Binary)',                 group: 'Encoding' },
-    { value: '13', label: 'Шестнадесетичен (Hex)',            group: 'Encoding' },
+    { value: '2',  label: 'Проста замяна (SimpleSubstitution)',   group: 'Substitution' },
+    { value: '3',  label: 'ROT13 (ROT13)',                        group: 'Substitution' },
+    { value: '4',  label: 'Виженер (Vigenere)',                   group: 'Polyalphabetic' },
+    { value: '5',  label: 'Автоключ (Autokey)',                   group: 'Polyalphabetic' },
+    { value: '6',  label: 'Тритемий (Trithemius)',                group: 'Polyalphabetic' },
+    { value: '7',  label: 'Железопътна ограда (RailFence)',       group: 'Transposition' },
+    { value: '8',  label: 'Колонна (Columnar)',                   group: 'Transposition' },
+    { value: '9',  label: 'Маршрут (Route)',                      group: 'Transposition' },
+    { value: '10', label: 'Base64 (Base64)',                      group: 'Encoding' },
+    { value: '11', label: 'Морзов (Morse)',                       group: 'Encoding' },
+    { value: '12', label: 'Двоичен (Binary)',                     group: 'Encoding' },
+    { value: '13', label: 'Шестнадесетичен (Hex)',                group: 'Encoding' },
 ];
 
 const GROUPS = ['Substitution', 'Polyalphabetic', 'Transposition', 'Encoding'];
@@ -55,6 +54,7 @@ const CipherReview = () => {
     const { setError } = useError();
     const [llmResult, setLlmResult] = useState(null);
     const [isLlmLoading, setIsLlmLoading] = useState(false);
+    const [typeConflictModal, setTypeConflictModal] = useState(false);
     
     const [title, setTitle] = useState('');
     const [selectedTags, setSelectedTags] = useState([]);
@@ -137,6 +137,18 @@ const CipherReview = () => {
         }
     };
 
+    const handleApproveClick = () => {
+        if (llmResult?.predictedType && cipherType !== '' && cipherType !== undefined) {
+            const selectedCipherType = CIPHER_TYPES.find(t => t.value === String(cipherType));
+            const englishName = selectedCipherType?.label.match(/\(([^)]+)\)/)?.[1];
+            if (englishName && englishName.toLowerCase() !== llmResult.predictedType.toLowerCase()) {
+                setTypeConflictModal(true);
+                return;
+            }
+        }
+        handleApprove();
+    };
+
     const handleReject = useCallback(async () => {
         if (!rejectReason.trim()) {
             setError('Моля, посочете причина за отхвърлянето на този шифър.');
@@ -152,6 +164,8 @@ const CipherReview = () => {
             setError(`Неуспешно отхвърляне: ${err.response?.data?.message || err.message}`);
         }
     }, [cipherId, rejectReason]);
+
+    const selectedCipherTypeLabel = CIPHER_TYPES.find(t => t.value === String(cipherType))?.label.match(/\(([^)]+)\)/)?.[1] || '';
 
     if (loading) {
         return (
@@ -211,8 +225,6 @@ const CipherReview = () => {
                     <div className="review-layout">
                         
                         <div className="review-main">
-                            
-                           
                             <div className="admin-card review-card">
                                 <div className="admin-card-header">
                                     <div className="review-card-title-row">
@@ -273,7 +285,6 @@ const CipherReview = () => {
                                 </div>
                             </div>
 
-                           
                             <div className="admin-card review-card">
                                 <div className="admin-card-header">
                                     <div className="review-card-title-row">
@@ -317,7 +328,6 @@ const CipherReview = () => {
                                 </div>
                             </div>
 
-                           
                             <LlmAssistantSection
                                 result={llmResult}
                                 isLoading={isLlmLoading}
@@ -325,7 +335,6 @@ const CipherReview = () => {
                             />
                         </div>
 
-                    
                         <div className="actions-column">
 
                             <div className="admin-card">
@@ -452,7 +461,7 @@ const CipherReview = () => {
 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                     <button
-                                        onClick={handleApprove}
+                                        onClick={handleApproveClick}
                                         className="btn btn-success"
                                         style={{ justifyContent: 'center' }}>
                                         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -505,6 +514,41 @@ const CipherReview = () => {
                     </div>
                 </div>
             </main>
+
+            {typeConflictModal && (
+                <div className="modal-backdrop" onClick={() => setTypeConflictModal(false)}>
+                    <div className="modal-box type-conflict-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="type-conflict-header">
+                            <div className="type-conflict-icon">⚠</div>
+                            <div className="modal-title" style={{ margin: 0 }}>Различаващ се тип шифър</div>
+                        </div>
+
+                        <p style={{ fontSize: '13px', color: 'var(--text-tertiary)', lineHeight: '1.6', margin: 0 }}>
+                            Избрахте тип <span className="type-conflict-highlight">{selectedCipherTypeLabel}</span>, но LLM асистентът предвиди <span className="type-conflict-highlight">{llmResult?.predictedType}</span>.
+                        </p>
+
+                        {llmResult?.typeReasoning && (
+                            <div className="type-conflict-reasoning">
+                                <span className="type-conflict-reasoning-label">Обосновка на LLM</span>
+                                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.65', margin: 0 }}>
+                                    {llmResult.typeReasoning}
+                                </p>
+                            </div>
+                        )}
+
+                        <p style={{ fontSize: '12px', color: 'var(--text-dim)', margin: 0 }}>
+                            Сигурни ли сте, че искате да одобрите с текущия тип?
+                        </p>
+
+                        <div className="modal-actions">
+                            <button onClick={() => setTypeConflictModal(false)} className="btn btn-ghost">Отказ</button>
+                            <button onClick={() => { setTypeConflictModal(false); handleApprove(); }} className="btn btn-primary">
+                                Одобри въпреки това
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

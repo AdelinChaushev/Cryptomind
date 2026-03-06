@@ -72,7 +72,8 @@ class CipherGenerator:
 
     def autokey(self, plaintext, key=None):
         if key is None:
-            key = random.choice(self.alphabet)
+            key_length = random.randint(3, 8)
+            key = ''.join(random.choices(self.alphabet, k=key_length))
 
         plaintext_upper = plaintext.upper()
         letters_only = ''.join(c for c in plaintext_upper if c in self.alphabet)
