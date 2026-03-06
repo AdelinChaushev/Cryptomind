@@ -6,4 +6,4 @@ RUN pip install --no-cache-dir --timeout=300 \
 RUN pip install --no-cache-dir --timeout=300 -r requirements.txt
 COPY . .
 EXPOSE 5002
-CMD ["python", "run_api.py"]
+CMD ["python", "app.py"]

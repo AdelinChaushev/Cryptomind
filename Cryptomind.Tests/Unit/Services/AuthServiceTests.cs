@@ -2,7 +2,6 @@
 using Cryptomind.Core.Services;
 using Cryptomind.Data.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -17,22 +16,19 @@ namespace Cryptomind.Tests.Unit.Services
 	public class AuthServiceTests
 	{
 		private readonly Mock<UserManager<ApplicationUser>> userManagerMock;
-		private readonly Mock<IConfiguration> configurationMock;
 		private readonly AuthService service;
 
 		public AuthServiceTests()
 		{
+			Environment.SetEnvironmentVariable("JWT_SECRET", "super_secret_test_key_that_is_long_enough_32chars");
+			Environment.SetEnvironmentVariable("JWT_ISSUER", "TestIssuer");
+			Environment.SetEnvironmentVariable("JWT_AUDIENCE", "TestAudience");
+
 			var store = new Mock<IUserStore<ApplicationUser>>();
 			userManagerMock = new Mock<UserManager<ApplicationUser>>(
 				store.Object, null, null, null, null, null, null, null, null);
 
-			configurationMock = new Mock<IConfiguration>();
-			configurationMock.Setup(c => c["JWT:Secret"])
-				.Returns("super_secret_test_key_that_is_long_enough_32chars");
-			configurationMock.Setup(c => c["JWT:ValidIssuer"]).Returns("TestIssuer");
-			configurationMock.Setup(c => c["JWT:ValidAudience"]).Returns("TestAudience");
-
-			service = new AuthService(userManagerMock.Object, configurationMock.Object);
+			service = new AuthService(userManagerMock.Object);
 
 			userManagerMock.Setup(m => m.UpdateAsync(It.IsAny<ApplicationUser>()))
 				.ReturnsAsync(IdentityResult.Success);
@@ -193,6 +189,16 @@ namespace Cryptomind.Tests.Unit.Services
 		}
 
 		[Fact]
+		public async Task CreateUser_Throws_WhenUsernameIsAnonymous()
+		{
+			userManagerMock.Setup(m => m.FindByEmailAsync(It.IsAny<string>()))
+				.ReturnsAsync((ApplicationUser?)null);
+
+			await Assert.ThrowsAsync<ConflictException>(
+				() => service.CreateUser("anonymous", "new@test.com", "password123"));
+		}
+
+		[Fact]
 		public async Task CreateUser_Throws_WhenUsernameAlreadyExists()
 		{
 			userManagerMock.Setup(m => m.FindByEmailAsync("new@test.com"))
@@ -246,7 +252,6 @@ namespace Cryptomind.Tests.Unit.Services
 			userManagerMock.Setup(m => m.FindByEmailAsync("taken@test.com"))
 				.ReturnsAsync(MakeUser());
 
-			// Short username but email conflict should throw ConflictException, not CustomValidationException
 			await Assert.ThrowsAsync<ConflictException>(
 				() => service.CreateUser("ab", "taken@test.com", "password123"));
 		}

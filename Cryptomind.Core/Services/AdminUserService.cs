@@ -29,13 +29,13 @@ namespace Cryptomind.Core.Services
 			{
 				users = users
 				.Where(x => x.UserName.ToLower().Contains(filter.Username.ToLower()))
-		.ToList();
+				.ToList();
 			}
 
 
 			var adminIds = (await userManager.GetUsersInRoleAsync(UserConstants.AdminRole))
-					  .Select(x => x.Id)
-					  .ToHashSet();
+				.Select(x => x.Id)
+				.ToHashSet();
 
 			switch (filter.IsBanned)
 			{

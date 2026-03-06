@@ -1,4 +1,3 @@
-
 const LlmAssistantSection = ({
     result,
     isLoading,
@@ -109,6 +108,15 @@ const LlmAssistantSection = ({
                                 <span className={`badge ${result.isSolvable ? 'badge-approved' : 'badge-rejected'}`}>
                                     {result.isSolvable ? 'Да' : 'Не'}
                                 </span>
+                            </div>
+                        )}
+
+                        {result.typeReasoning && (
+                            <div className="llm-result-block" style={{ gridColumn: '1 / -1' }}>
+                                <span className="llm-result-label">Обосновка на вида</span>
+                                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.6', margin: 0 }}>
+                                    {result.typeReasoning}
+                                </p>
                             </div>
                         )}
                     </div>
