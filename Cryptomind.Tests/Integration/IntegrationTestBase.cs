@@ -79,6 +79,17 @@ namespace Cryptomind.Tests.Integration
 			var response = await client.PostAsJsonAsync("/api/auth/login", new { email, password });
 			response.EnsureSuccessStatusCode();
 
+			var rawBody = await response.Content.ReadAsStringAsync();
+			var body = JsonSerializer.Deserialize<JsonElement>(rawBody, JsonOptions);
+
+			if (body.TryGetProperty("token", out var tokenProp))
+			{
+				var token = tokenProp.GetString()
+					?? throw new InvalidOperationException("Token was null in login response");
+				client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+				return client;
+			}
+
 			if (response.Headers.TryGetValues("Set-Cookie", out var cookies))
 			{
 				var tokenCookie = cookies.FirstOrDefault(c => c.StartsWith("token="));
@@ -86,10 +97,11 @@ namespace Cryptomind.Tests.Integration
 				{
 					var tokenValue = tokenCookie.Split(';')[0].Substring("token=".Length);
 					client.DefaultRequestHeaders.Add("Cookie", $"token={tokenValue}");
+					return client;
 				}
 			}
 
-			return client;
+			throw new InvalidOperationException($"Could not extract token from login response: {rawBody}");
 		}
 
 		protected static StringContent JsonContent(object obj)
