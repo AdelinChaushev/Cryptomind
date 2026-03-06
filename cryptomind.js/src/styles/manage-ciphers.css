@@ -122,3 +122,81 @@
 .edit-tag-chip.tag-selected:hover {
     border-color: rgba(251, 191, 36, 0.5);
 }
+
+/* ── Mobile card list (hidden on desktop) ───────────────── */
+
+.ciphers-card-list {
+    display: none;
+}
+
+@media (max-width: 40em) {
+    .admin-shell--manage-ciphers .data-table-wrapper {
+        display: none;
+    }
+
+    .ciphers-card-list {
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius);
+        overflow: hidden;
+    }
+
+    .cipher-card {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border-default);
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .cipher-card:last-child {
+        border-bottom: none;
+    }
+
+    .cipher-card__row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .cipher-card__label {
+        font-family: var(--font-mono);
+        font-size: 9px;
+        letter-spacing: 0.1em;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        min-width: 60px;
+        flex-shrink: 0;
+    }
+
+    .cipher-card__value {
+        font-size: 12px;
+        color: var(--text-primary);
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+    }
+
+    .cipher-card__value--dim {
+        color: var(--text-secondary);
+        font-weight: 400;
+        font-family: var(--font-mono);
+        font-size: 11px;
+    }
+
+    .cipher-card__actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 4px;
+    }
+
+    .cipher-card__actions .btn-icon {
+        flex: 1;
+        justify-content: center;
+        padding: 7px;
+    }
+}
