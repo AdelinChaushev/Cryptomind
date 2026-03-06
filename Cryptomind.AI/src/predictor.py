@@ -60,8 +60,11 @@ class CipherPredictor:
             return 'Hex'
 
         base64_chars = set('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=')
-        if all(c in base64_chars for c in text_no_space):
+        if len(text_no_space) >= 16 and all(c in base64_chars for c in text_no_space):
+            has_mixed_case = any(c.islower() for c in text_no_space) and any(c.isupper() for c in text_no_space)
             if text_no_space.endswith('=') or text_no_space.endswith('=='):
+                return 'Base64'
+            if has_mixed_case:
                 return 'Base64'
 
         return None

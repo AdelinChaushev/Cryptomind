@@ -45,6 +45,8 @@ def main():
             break
         except Exception as e:
             print(f"Error: {e}\n")
+            import traceback
+            traceback.print_exc()
             continue
 
 if __name__ == "__main__":

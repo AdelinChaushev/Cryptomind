@@ -60,9 +60,9 @@ class FeatureExtractor:
         features.extend(self._bigram_disruption(letters_only))
         features.extend(self._polyalphabetic_features(letters_only))
         features.extend(self._pattern_features(text, letters_only))
-        features.append(self._normalized_length(letters_only))
         features.extend(self._discriminative_features(text, letters_only))
         features.append(self._normalized_length(letters_only))
+        features.append(self._caesar_match_score(letters_only))
 
         return np.array(features, dtype=np.float32)
 
@@ -263,3 +263,21 @@ class FeatureExtractor:
 
     def _normalized_length(self, text):
         return 1 - np.exp(-len(text) / 150.0)
+
+    def _caesar_match_score(self, text):
+        if len(text) == 0:
+            return 0.0
+
+        counter = Counter(text)
+        best_score = 0.0
+
+        for shift in range(26):
+            score = 0.0
+            for i, letter in enumerate(self.alphabet):
+                shifted = self.alphabet[(i + shift) % 26]
+                freq = counter.get(letter, 0) / len(text)
+                expected = self.english_freq[shifted]
+                score += min(freq, expected)
+            best_score = max(best_score, score)
+
+        return best_score

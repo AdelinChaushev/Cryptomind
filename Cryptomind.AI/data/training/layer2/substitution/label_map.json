@@ -1,1 +1,6 @@
-{"0": "Caesar", "1": "Atbash", "2": "SimpleSubstitution", "3": "ROT13"}
+{
+  "0": "Caesar",
+  "1": "Atbash",
+  "2": "SimpleSubstitution",
+  "3": "ROT13"
+}
