@@ -6,7 +6,7 @@ import CipherCard, { CipherCardSkeleton } from '../components/CipherCard';
 import EmptyState       from './EmptyState';
 import Pagination       from './Pagination';
 import { useState, useEffect, useContext } from 'react';
-import { AuthorizationContext } from '../App.jsx'; 
+import { AuthorizationContext } from '../App.jsx';
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import qs from 'qs';
@@ -37,9 +37,7 @@ const CipherBrowsePage = () => {
 
   const toggleTag = (tagId) => {
     setSelectedTags(prev =>
-      prev.includes(tagId)
-        ? prev.filter(t => t !== tagId)
-        : [...prev, tagId]
+      prev.includes(tagId) ? prev.filter(t => t !== tagId) : [...prev, tagId]
     );
   };
 
@@ -48,23 +46,21 @@ const CipherBrowsePage = () => {
     setChallengeType(0);
     setSelectedTags([]);
   };
-   
-   
+
   const fetchCiphers = async () => {
     setIsLoading(true);
-    const path = import.meta.env.VITE_API_URL
+    const path = import.meta.env.VITE_API_URL;
     try {
       const res = await axios.get(`${path}/api/ciphers/all`, {
         withCredentials: true,
         params: {
-          SearchTerm:  searchTerm,
-          Tags:  selectedTags,
+          SearchTerm: searchTerm,
+          Tags: selectedTags,
           ChallengeType: challengeType,
           OrderTerm: sortBy
         },
         paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' })
       });
-
       setCiphers(res.data);
       setTotalPages(res.data.totalPages);
     } catch (err) {
@@ -77,9 +73,7 @@ const CipherBrowsePage = () => {
     }
   };
 
-  useEffect(() => { 
-    fetchCiphers(); }
-  ,[sortBy]);
+  useEffect(() => { fetchCiphers(); }, [sortBy]);
 
   return (
     <>
@@ -89,6 +83,18 @@ const CipherBrowsePage = () => {
       />
 
       <main className="browse-layout">
+        {isSidebarOpen && (
+          <button
+            className="sidebar-close-btn"
+            onClick={() => setIsSidebarOpen(false)}
+          >
+            ФИЛТРИ
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 3l10 10M13 3L3 13"/>
+            </svg>
+          </button>
+        )}
+
         <FilterSidebar
           isOpen={isSidebarOpen}
           searchTerm={searchTerm}
@@ -108,12 +114,14 @@ const CipherBrowsePage = () => {
 
         <section className="cipher-content">
           <ContentTopbar
+            isOpen={isSidebarOpen}
             resultsCount={Array.isArray(ciphers) ? ciphers.length : 0}
             activeFilters={activeFilters}
             sortBy={sortBy}
             onSortChange={setSortBy}
             activeFilterCount={activeFilters.length}
             onMobileFilterToggle={() => setIsSidebarOpen(prev => !prev)}
+            isSidebarOpen={isSidebarOpen}
           />
 
           <div className="cipher-grid">

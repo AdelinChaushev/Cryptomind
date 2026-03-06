@@ -115,8 +115,6 @@ const NotificationsPage = () => {
             </div>
 
             <div className="np-content">
-
-                {/* Toolbar */}
                 <div className="np-toolbar">
                     <div className="np-filters" role="tablist">
                         {FILTERS.map(f => (
@@ -141,7 +139,6 @@ const NotificationsPage = () => {
                     </button>
                 </div>
 
-                {/* Summary */}
                 {!isLoading && unreadCount > 0 && (
                     <p className="np-summary">
                         <span className="np-summary__n">{unreadCount}</span>
@@ -149,7 +146,6 @@ const NotificationsPage = () => {
                     </p>
                 )}
 
-                {/* Body */}
                 {isLoading ? (
                     <Skeleton />
                 ) : filtered.length === 0 ? (

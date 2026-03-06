@@ -1,16 +1,16 @@
 import { useState } from "react";
 import "../styles/cipher-solve.css";
-import CipherHeader from "../components/CipherHeader";
-import CipherTextDisplay from "../components/CipherTextDisplay";
-import SolveForm from "../components/SolveForm";
-import AIAssistant from "../components/AIAssistant";
-import CipherMeta from "../components/CipherMeta";
-import ActivityLog from "../components/ActivityLog";
+import CipherHeader from "./components/CipherHeader";
+import CipherTextDisplay from "./components/CipherTextDisplay";
+import SolveForm from "./components/SolveForm";
+import AIAssistant from "./components/AIAssistant";
+import CipherMeta from "./components/CipherMeta";
+import ActivityLog from "./components/ActivityLog";
 import { useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import ExperimentalCipherPanel from "../components/ExperimentalCipherPanel";
-import { useError } from "../../ErrorContext.jsx";
+import ExperimentalCipherPanel from "./components/ExperimentalCipherPanel.jsx";
+import { useError } from "../ErrorContext.jsx";
 const API_BASE = import.meta.env.VITE_API_URL
 function CipherSolvePage() {
   const navigation = useNavigate();

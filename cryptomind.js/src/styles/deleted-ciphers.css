@@ -1,0 +1,80 @@
+@import './admin-base.css';
+
+.cipher-title-cell {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.image-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--sky-400);
+    background: var(--sky-dim);
+    border: 1px solid rgba(56, 189, 248, 0.20);
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.action-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+@media (max-width: 64em) {
+    .toolbar-right {
+        justify-content: flex-start;
+    }
+
+    .toolbar-right .form-select {
+        width: auto !important;
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+
+@media (max-width: 40em) {
+    .data-table th:nth-child(1),
+    .data-table td:nth-child(1) {
+        display: none;
+    }
+
+    .data-table th:nth-child(4),
+    .data-table td:nth-child(4) {
+        display: none;
+    }
+
+    .data-table th:nth-child(5),
+    .data-table td:nth-child(5) {
+        display: none;
+    }
+
+  
+    .data-table th:nth-child(6),
+    .data-table td:nth-child(6) {
+        display: none;
+    }
+
+    
+    .action-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .action-group .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    
+    .cipher-title-cell {
+        max-width: 140px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}

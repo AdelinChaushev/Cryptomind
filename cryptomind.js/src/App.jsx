@@ -10,8 +10,8 @@ import Register from './pages/Register.jsx';
 import RequireAuth from './RequireAuth.jsx';
 import CipherBrowsePage from './cipher-browser/CipherBrowsePage.jsx';
 import SubmitCipherPage from './submit-cipher/SubmitCipherPage.jsx';
-import CipherSolvePage from './cipher-solve/pages/CipherSolvePage.jsx';
-import MySubmissionsPage from './my-submissions/pages/MySubmissionsPage.jsx';
+import CipherSolvePage from './cipher-solve/CipherSolvePage.jsx';
+import MySubmissionsPage from './my-submissions/MySubmissionsPage.jsx';
 import AdminDashboard from './admin-pages/AdminDashboard.jsx';
 import ManageApprovedCiphers from './admin-pages/ManageApprovedCiphers.jsx';
 import PendingAnswers from './admin-pages/PendingAnswers.jsx';
@@ -75,7 +75,6 @@ function App() {
         <Route path="cipher-tool" element={<CipherTool />} /> 
         <Route path="about" element={<About />} />
         <Route path="cipher-library" element={<CipherLibrary />} /> 
-        {/* <Route path="browse" element={<RequireAuth> <CipherBrowsePage /> </RequireAuth>} />    */}
         <Route path="account-info" element={<RequireAuth> <AccountInfo /> </RequireAuth>} />   
         <Route path="notifications" element={<RequireAuth> <NotificationsPage /> </RequireAuth>} /> 
         <Route path="submit" element={<RequireAuth><SubmitCipherPage /></RequireAuth>} />  

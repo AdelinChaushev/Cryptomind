@@ -232,3 +232,56 @@
     0%, 100% { opacity: 1; }
     50%       { opacity: 0.35; }
 }
+
+@media (max-width: 600px) {
+    .np-header {
+        padding: 32px 0 24px;
+        margin-bottom: 24px;
+    }
+
+    .np-header__title {
+        font-size: 20px;
+    }
+
+    .np-header__sub {
+        font-size: 13px;
+    }
+
+    .np-content {
+        padding: 0 16px;
+    }
+
+    .np-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .np-filters {
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .np-filters::-webkit-scrollbar {
+        display: none;
+    }
+
+    .np-filter-btn {
+        font-size: 10px;
+        padding: 6px 10px;
+    }
+
+    .np-mark-all {
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+    }
+
+    .np-empty {
+        padding: 56px 16px;
+    }
+
+    .np-skeleton-row {
+        padding: 14px 16px;
+    }
+}

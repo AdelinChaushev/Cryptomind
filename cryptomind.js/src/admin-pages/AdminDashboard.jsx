@@ -6,9 +6,11 @@ import '../styles/admin-dashboard.css';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useError } from "../ErrorContext";
+import useLogout from '../components/Logout';
 
 const AdminDashboard = () => {
     const { setError } = useError(null);
+     const logout = useLogout();
     const [stats, setStats] = useState({  
         pendingCiphersCount: 0,
         approvedCiphersCount: 0,
@@ -202,10 +204,18 @@ const AdminDashboard = () => {
                                             ))}
                                         </tbody>
                                     </table>
+                                    
                                 </div>
                             )}
                         </div>
                     </div>
+                      <button className="admin-mobile-logout" onClick={logout}>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                            <path d="M6 2H2.5A1.5 1.5 0 0 0 1 3.5v9A1.5 1.5 0 0 0 2.5 14H6"/>
+                            <path d="M11 11l4-3.5L11 4M6 8.5h9"/>
+                        </svg>
+                        Изход
+                    </button>
                 </div>
             </main>
         </div>
