@@ -13,7 +13,7 @@ function AIResponse({ mode, text, isLoading }) {
         <div className="ai-response">
             <div className="ai-response-header">
                 <div className="ai-avatar">{config.icon}</div>
-                <span className="ai-label">CryptoMind AI — {config.label}</span>
+                <span className="ai-label">Cryptomind AI — {config.label}</span>
             </div>
 
             <div className="ai-response-body">

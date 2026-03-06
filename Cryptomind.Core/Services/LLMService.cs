@@ -4,7 +4,6 @@ using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.ViewModels.CipherRecognitionViewModels;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Enums;
-using Microsoft.Extensions.Configuration;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -33,9 +32,9 @@ namespace Cryptomind.Core.Services
 				?? throw new Exception("LLMService: ApiKey not configured");
 
 			// Use cheap model for admin validation, better model for user content
-			validationModel = Environment.GetEnvironmentVariable("VALIDATION_MODEL") 
+			validationModel = Environment.GetEnvironmentVariable("VALIDATION_MODEL")
 				?? throw new Exception("LLMService: Validation model not configured");
-			educationalModel = Environment.GetEnvironmentVariable("EDUCATIONAL_MODEL") 
+			educationalModel = Environment.GetEnvironmentVariable("EDUCATIONAL_MODEL")
 				?? throw new Exception("LLMService: Educational model not configured");
 
 			httpClient.DefaultRequestHeaders.Authorization =
