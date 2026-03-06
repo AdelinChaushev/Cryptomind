@@ -12,7 +12,7 @@ const Footer = () => {
                 <div className="footer-column">
                     <h4>Платформа</h4>
                     <ul className="footer-links">
-                        <li><a href="/browse">Разгледай шифрите</a></li>
+                        <li><a href="/">Разгледай шифрите</a></li>
                         <li><a href="/leaderboard">Класация</a></li>
                         <li><a href="/cipher-tool">Инструмент за шифри</a></li>
                         <li><a href="/submit">Предложи шифър</a></li>
