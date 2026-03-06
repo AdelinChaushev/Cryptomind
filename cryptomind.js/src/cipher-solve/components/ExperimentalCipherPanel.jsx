@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import '../styles/experimental-cipher-panel.css';
+import '../../styles/experimental-cipher-panel.css';
 
 function ExperimentalCipherPanel({ onSubmit }) {
     const [submitted, setSubmitted] = useState(false);

@@ -1,9 +1,9 @@
 import React, { useEffect,useState } from 'react';
-import SubmissionsPageHeader from '../components/SubmissionsPageHeader';
-import SubmissionsStatsStrip from '../components/SubmissionsStatsStrip';
-import SubmissionsTabs from '../components/SubmissionsTabs';
-import CipherSubmissionsList from '../components/CipherSubmissionsList';
-import AnswerSuggestionsList from '../components/AnswerSuggestionsList';
+import SubmissionsPageHeader from './components/SubmissionsPageHeader';
+import SubmissionsStatsStrip from './components/SubmissionsStatsStrip';
+import SubmissionsTabs from './components/SubmissionsTabs';
+import CipherSubmissionsList from './components/CipherSubmissionsList';
+import AnswerSuggestionsList from './components/AnswerSuggestionsList';
 import '../styles/my-submissions.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';

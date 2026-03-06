@@ -103,4 +103,34 @@
 .qa-label {
     font-size: clamp(11px, 0.95vw, 12px);
 }
+.admin-mobile-logout {
+    display: none;
+}
 
+@media (max-width: 768px) {
+    .admin-mobile-logout {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        margin-top: 24px;
+        padding: 14px;
+        background: transparent;
+        border: 1px solid rgba(244, 63, 94, 0.25);
+        border-radius: 8px;
+        color: #f43f5e;
+        font-family: var(--font-mono);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: background 0.18s ease, border-color 0.18s ease;
+    }
+
+    .admin-mobile-logout:hover {
+        background: rgba(244, 63, 94, 0.08);
+        border-color: rgba(244, 63, 94, 0.5);
+    }
+}
