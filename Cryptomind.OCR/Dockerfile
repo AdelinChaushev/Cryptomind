@@ -21,4 +21,4 @@ RUN mkdir -p uploads
 
 EXPOSE 5001
 
-CMD ["python", "app.py"]
+CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:5001", "services.api_service:app"]
