@@ -89,7 +89,8 @@ export default function CipherCard({ cipher, familyColor, isOpen, onToggle }) {
         <div className="cl-cta-row">
           <Link className="cl-cta cl-cta-primary"
             to="/cipher-tool"
-            state={{ cipherId: cipher.id }}>
+            state={{ cipherId: cipher.id }}
+            onClick={() => window.scrollTo(0, 0)}>
             ▶ Виж в действие
           </Link>
         </div>

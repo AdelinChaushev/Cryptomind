@@ -141,8 +141,6 @@
 .confidence-mid  .confidence-bar-fill { background: var(--yellow-500); }
 .confidence-mid  .confidence-pct      { color: var(--yellow-500); }
 
-/* ── Mobile card list (hidden on desktop) ── */
-
 .pending-card-list {
     display: none;
 }
@@ -170,7 +168,6 @@
         width: 100%;
     }
 
-    /* Hide table, show cards */
     .admin-shell--pending-ciphers .data-table-wrapper {
         display: none;
     }

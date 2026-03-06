@@ -56,7 +56,6 @@ body {
     min-height: 100vh;
 }
 
-/* Navbar background override — this page uses a darker, more opaque navbar */
 .navbar {
     background: rgba(2, 6, 23, 0.88);
     -webkit-backdrop-filter: blur(16px);
