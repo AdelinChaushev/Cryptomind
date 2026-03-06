@@ -13,62 +13,55 @@ class Layer2Trainer:
             keras.layers.Dense(128, activation='relu'),
             keras.layers.BatchNormalization(),
             keras.layers.Dropout(0.3),
-            
+
             keras.layers.Dense(64, activation='relu'),
             keras.layers.BatchNormalization(),
             keras.layers.Dropout(0.2),
-            
+
             keras.layers.Dense(32, activation='relu'),
             keras.layers.Dropout(0.2),
-            
+
             keras.layers.Dense(num_classes, activation='softmax')
         ])
-        
+
         model.compile(
             optimizer=keras.optimizers.Adam(learning_rate=Config.LEARNING_RATE),
             loss='sparse_categorical_crossentropy',
             metrics=['accuracy']
         )
-        
+
         return model
-    
+
     def train_family_model(self, family):
-        print(f"Training {family} Type Classifier")
-        
+        print(f"\nTraining {family} classifier")
+
         family_dir = os.path.join(Config.LAYER2_TRAINING_DIR, family.lower())
-        
-        # Check if data exists
+
         if not os.path.exists(family_dir):
-            print(f"No training data found for {family}")
+            print(f"  No training data found for {family}")
             return None
-        
-        # Load data
-        print("Loading training data...")
+
         X = np.load(os.path.join(family_dir, 'X.npy'))
         y = np.load(os.path.join(family_dir, 'y.npy'))
-        
+
         with open(os.path.join(family_dir, 'label_map.json'), 'r') as f:
             label_map = json.load(f)
-        
-        print(f"Loaded {len(X)} samples")
-        print(f"Classes: {len(label_map)}")
-        
-        # Split data
+
+        print(f"  {len(X)} samples, {len(label_map)} classes")
+
         X_train, X_temp, y_train, y_temp = train_test_split(
             X, y, test_size=(Config.VALIDATION_SPLIT + Config.TEST_SPLIT), random_state=42
         )
-        
+
         val_ratio = Config.VALIDATION_SPLIT / (Config.VALIDATION_SPLIT + Config.TEST_SPLIT)
         X_val, X_test, y_val, y_test = train_test_split(
             X_temp, y_temp, test_size=(1 - val_ratio), random_state=42
         )
-        
-        print(f"Training: {len(X_train)}, Validation: {len(X_val)}, Test: {len(X_test)}")
-        
-        # Build model
+
+        print(f"  Train: {len(X_train)}, Val: {len(X_val)}, Test: {len(X_test)}")
+
         model = self.build_model(len(label_map))
-        
-        # Callbacks
+
         callbacks = [
             keras.callbacks.EarlyStopping(
                 monitor='val_loss',
@@ -82,9 +75,7 @@ class Layer2Trainer:
                 min_lr=1e-6
             )
         ]
-        
-        # Train
-        print("Training...")
+
         history = model.fit(
             X_train, y_train,
             validation_data=(X_val, y_val),
@@ -93,32 +84,28 @@ class Layer2Trainer:
             callbacks=callbacks,
             verbose=1
         )
-        
-        # Evaluate
+
         test_loss, test_acc = model.evaluate(X_test, y_test, verbose=0)
-        print(f"Test Accuracy: {test_acc*100:.2f}%")
-        
-        # Save model
+        print(f"  Test accuracy: {test_acc*100:.2f}%")
+
         model_dir = os.path.join(Config.LAYER2_MODELS_DIR, family.lower())
         os.makedirs(model_dir, exist_ok=True)
         model_path = os.path.join(model_dir, f'{family.lower()}_classifier.h5')
         model.save(model_path)
-        
-        print(f"Model saved to: {model_path}")
-        
+
         return history
-    
+
     def train_all(self):
-        print("\nTraining Layer 2: Type Classifiers")
-        
+        print("Training Layer 2 type classifiers")
+
         for family in Config.FAMILIES.keys():
             if len(Config.FAMILIES[family]) == 1:
                 print(f"\nSkipping {family} (only one type)")
                 continue
-            
+
             self.train_family_model(family)
-        
-        print("\nAll Layer 2 models trained!")
+
+        print("\nDone.")
 
 def train_layer2():
     trainer = Layer2Trainer()

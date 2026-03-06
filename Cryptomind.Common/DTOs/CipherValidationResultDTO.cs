@@ -27,5 +27,8 @@ namespace Cryptomind.Common.DTOs
 
 		[JsonPropertyName("reasoning")]
 		public string Reasoning { get; set; } = string.Empty;
+
+		[JsonPropertyName("type_reasoning")]
+		public string TypeReasoning { get; set; } = string.Empty;
 	}
 }

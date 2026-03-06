@@ -1,7 +1,6 @@
 ﻿using Cryptomind.Common.Exceptions;
 using Cryptomind.Core.Services.OCR;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.Protected;
 using System;
@@ -18,12 +17,13 @@ namespace Cryptomind.Tests.Unit.Services
 	public class OCRServiceTests
 	{
 		private readonly Mock<IHttpClientFactory> httpClientFactoryMock;
-		private readonly Mock<IConfiguration> configurationMock;
 		private readonly Mock<HttpMessageHandler> httpMessageHandlerMock;
 		private readonly OCRService service;
 
 		public OCRServiceTests()
 		{
+			Environment.SetEnvironmentVariable("OCR_URL", "http://localhost:5001");
+
 			httpMessageHandlerMock = new Mock<HttpMessageHandler>();
 			var httpClient = new HttpClient(httpMessageHandlerMock.Object);
 
@@ -31,11 +31,7 @@ namespace Cryptomind.Tests.Unit.Services
 			httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>()))
 				.Returns(httpClient);
 
-			configurationMock = new Mock<IConfiguration>();
-			configurationMock.Setup(c => c["OCRService:ApiUrl"])
-				.Returns("http://localhost:5001");
-
-			service = new OCRService(httpClientFactoryMock.Object, configurationMock.Object);
+			service = new OCRService(httpClientFactoryMock.Object);
 		}
 
 		private void SetupHttpResponse(HttpStatusCode statusCode, string content)
@@ -136,38 +132,6 @@ namespace Cryptomind.Tests.Unit.Services
 			Assert.True(result.Success);
 		}
 
-		//[Fact]
-		//public async Task ExtractTextFromImageAsync_PopulatesValidation_WhenPresent()
-		//{
-		//	SetupHttpResponse(HttpStatusCode.OK, CreateSuccessResponse(validationIsValid: true));
-
-		//	var result = await service.ExtractTextFromImageAsync(MakeFormFile());
-
-		//	Assert.True(result.Validation.IsValid);
-		//}
-
-		//[Fact]
-		//public async Task ExtractTextFromImageAsync_ReturnsEmptyValidation_WhenValidationIsNull()
-		//{
-		//	var response = JsonSerializer.Serialize(new
-		//	{
-		//		success = true,
-		//		text = "hello",
-		//		confidence = 0.9,
-		//		char_count = 5,
-		//		validation = (object?)null,
-		//		error = (string?)null
-		//	});
-		//	SetupHttpResponse(HttpStatusCode.OK, response);
-
-		//	var result = await service.ExtractTextFromImageAsync(MakeFormFile());
-
-		//	Assert.NotNull(result.Validation);
-		//	Assert.False(result.Validation.IsValid);
-		//	Assert.Empty(result.Validation.Warnings);
-		//	Assert.Equal(string.Empty, result.Validation.Recommendation);
-		//}
-
 		[Fact]
 		public async Task ExtractTextFromImageAsync_Throws_WhenApiReturnsNonSuccessStatusCode()
 		{
@@ -182,7 +146,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupHttpResponse(HttpStatusCode.OK, CreateSuccessResponse(success: false, error: "OCR failed"));
 
-			await Assert.ThrowsAsync<Exception>(
+			await Assert.ThrowsAsync<CustomValidationException>(
 				() => service.ExtractTextFromImageAsync(MakeFormFile()));
 		}
 

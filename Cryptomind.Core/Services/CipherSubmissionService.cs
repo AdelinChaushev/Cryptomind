@@ -26,7 +26,7 @@ namespace Cryptomind.Core.Services
 			if (string.IsNullOrEmpty(model.Title))
 				throw new CustomValidationException(CipherErrorConstants.TitleRequiredMessage);
 
-			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.Title == model.Title && !x.IsDeleted))
+			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.Title.ToLower().Trim() == model.Title.ToLower().Trim() && !x.IsDeleted))
 				throw new ConflictException(CipherErrorConstants.DuplicateTitleMessage);
 
 			if (string.IsNullOrWhiteSpace(model.DecryptedText) && model.CipherType == null)
@@ -43,12 +43,12 @@ namespace Cryptomind.Core.Services
 				if (model.EncryptedText.Length >= 450)
 					throw new CustomValidationException(CipherErrorConstants.MaxLengthExceeded);
 
-				if (await cipherRepo.GetAllAttached().AnyAsync(x => x.EncryptedText == model.EncryptedText && !x.IsDeleted && x.Status != ApprovalStatus.Rejected))
+				if (await cipherRepo.GetAllAttached().AnyAsync(x => x.EncryptedText.Trim() == model.EncryptedText.Trim() && !x.IsDeleted && x.Status != ApprovalStatus.Rejected))
 					throw new ConflictException(CipherErrorConstants.DuplicateCipherContent);
 
 				cipher = new TextCipher()
 				{
-					Title = model.Title,
+					Title = model.Title.Trim(),
 					DecryptedText = model.DecryptedText,
 					EncryptedText = model.EncryptedText,
 					TypeOfCipher = model.CipherType,
@@ -99,16 +99,14 @@ namespace Cryptomind.Core.Services
 				if (finalText.Length >= 450)
 					throw new CustomValidationException(CipherErrorConstants.MaxLengthExceeded);
 
-				if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.EncryptedText == finalText) != null)
+				if ((await cipherRepo.GetAllAsync()).FirstOrDefault(x => x.EncryptedText.Trim() == finalText.Trim() && !x.IsDeleted && x.Status != ApprovalStatus.Rejected) != null)
 					throw new ConflictException(CipherErrorConstants.DuplicateCipherContent);
-				if (finalText.Length >= 450)
-					throw new CustomValidationException(CipherErrorConstants.MaxLengthExceeded);
 
 				if (string.IsNullOrEmpty(finalText))
 					throw new ConflictException(CipherErrorConstants.EncryptedTextShouldNotBeEmpty);
 				cipher = new ImageCipher()
 				{
-					Title = model.Title,
+					Title = model.Title.Trim(),
 					DecryptedText = model.DecryptedText,
 					TypeOfCipher = model.CipherType,
 					ImagePath = relativePath,
@@ -284,10 +282,11 @@ namespace Cryptomind.Core.Services
 		private static readonly HashSet<string> ProblematicCipherTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 		{
 			"columnar",
+			"route",
 			"railfence",
 			"vigenere",
 			"trithemius",
-			"route"
+			"autokey"
 		};
 	}
 }

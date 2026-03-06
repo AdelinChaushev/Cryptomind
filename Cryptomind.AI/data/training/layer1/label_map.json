@@ -1,1 +1,6 @@
-{"0": "Substitution", "1": "Polyalphabetic", "2": "Transposition", "3": "Plaintext"}
+{
+  "0": "Substitution",
+  "1": "Polyalphabetic",
+  "2": "Transposition",
+  "3": "Plaintext"
+}

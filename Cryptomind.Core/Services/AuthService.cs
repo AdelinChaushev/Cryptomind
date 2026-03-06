@@ -57,9 +57,18 @@ namespace Cryptomind.Core.Services
 		public async Task<ApplicationUser> CreateUser(string userName, string email, string password)
 		{
 			var userExist = await userManager.FindByEmailAsync(email);
+
+			email = email.Trim();
+			userName = userName.Trim();
+
+
 			if (userExist != null)
 			{
 				throw new ConflictException(UserConstants.ThisEmailAlreadyExists);
+			}
+			if (userName.Contains(' '))
+			{
+				throw new CustomValidationException(UserConstants.UsernameCannotContainSpaces);
 			}
 
 			if (string.Equals(userName, CipherErrorConstants.AnonymousUser, StringComparison.OrdinalIgnoreCase))

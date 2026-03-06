@@ -30,27 +30,33 @@ namespace Cryptomind.Tests.Integration.Fixtures
 	{
 		private readonly string _dbName = "CryptomindTestDb_" + Guid.NewGuid();
 		private bool _seeded = false;
-		private string? _jwtSecret;
+
+		private const string JwtSecret = "test-secret-key-long-enough-for-hmac-sha256-algorithm";
+		private const string JwtIssuer = "test-issuer";
+		private const string JwtAudience = "test-audience";
 
 		protected override void ConfigureWebHost(IWebHostBuilder builder)
 		{
+			Environment.SetEnvironmentVariable("JWT_SECRET", JwtSecret);
+			Environment.SetEnvironmentVariable("JWT_ISSUER", JwtIssuer);
+			Environment.SetEnvironmentVariable("JWT_AUDIENCE", JwtAudience);
+			Environment.SetEnvironmentVariable("OPENAI_API_URL", "https://api.openai.com/v1");
+			Environment.SetEnvironmentVariable("OPENAI_API_KEY", "test-api-key");
+			Environment.SetEnvironmentVariable("VALIDATION_MODEL", "gpt-4o-mini");
+			Environment.SetEnvironmentVariable("EDUCATIONAL_MODEL", "gpt-4o");
+			Environment.SetEnvironmentVariable("ML_URL", "http://localhost:5002");
+			Environment.SetEnvironmentVariable("OCR_URL", "http://localhost:5001");
+
 			builder.ConfigureAppConfiguration((context, config) =>
 			{
 				config.AddInMemoryCollection(new Dictionary<string, string?>
 				{
-					["JWT:Secret"] = "test-secret-key-long-enough-for-hmac-sha256-algorithm",
-					["JWT:ValidAudience"] = "test-audience",
-					["JWT:ValidIssuer"] = "test-issuer",
 					["ConnectionStrings:DefaultConnection"] = "ignored-replaced-by-inmemory",
-					["LLMService:ApiKey"] = "test-api-key"
 				});
 			});
 
 			builder.ConfigureServices((context, services) =>
 			{
-				_jwtSecret = context.Configuration["JWT:Secret"]
-					?? "test-secret-key-long-enough-for-hmac-sha256-algorithm";
-
 				var mockBadge = new Mock<IBadgeService>();
 				mockBadge
 					.Setup(b => b.CheckBadgesByCategory(It.IsAny<string>(), It.IsAny<BadgeCategory>()))
@@ -100,8 +106,10 @@ namespace Cryptomind.Tests.Integration.Fixtures
 
 				services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
 				{
-					var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtSecret));
+					var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtSecret));
 					options.TokenValidationParameters.IssuerSigningKey = key;
+					options.TokenValidationParameters.ValidIssuer = JwtIssuer;
+					options.TokenValidationParameters.ValidAudience = JwtAudience;
 
 					options.Events = new JwtBearerEvents
 					{
@@ -134,6 +142,7 @@ namespace Cryptomind.Tests.Integration.Fixtures
 
 			return client;
 		}
+
 		public IServiceScope CreateScope() => Services.CreateScope();
 
 		private static async Task SeedAsync(

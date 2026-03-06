@@ -57,7 +57,7 @@ namespace Cryptomind.Core.Services
 			CipherRecognitionResultViewModel mlResult,
 			string? userProvidedType = null)
 		{
-			encryptedText = encryptedText.Replace("#", "");
+			encryptedText = encryptedText.Replace("X", "");
 
 			bool hasType = !string.IsNullOrWhiteSpace(userProvidedType);
 			bool hasSolution = !string.IsNullOrWhiteSpace(decryptedText);
@@ -83,7 +83,7 @@ namespace Cryptomind.Core.Services
 			var jsonResponse = await CallLLMWithJsonAsync(
 				prompt,
 				model: validationModel,
-				maxTokens: 800,
+				maxTokens: 1000,
 				temperature: 0.3f
 			);
 
@@ -283,7 +283,8 @@ JSON RESPONSE FORMAT
   ""is_appropriate"": true | false,
   ""issues"": [""List ALL problems found in Bulgarian. Always include specific issues like inappropriate content, solution mismatch, wrong type etc. ONLY add 'Текстът е под 150 символа — надеждността на ML предсказването е намалена.' if the current text length is actually below 150 characters. Current length is {textLength} chars (counting all characters including spaces).""],
   ""recommendation"": ""approve"" | ""reject"",
-  ""reasoning"": ""2-3 sentences in Bulgarian explaining your decision, referencing confusion patterns if relevant.""
+  ""reasoning"": ""2-3 sentences in Bulgarian explaining your decision, referencing confusion patterns if relevant."",
+  ""type_reasoning"": ""1 sentence in Bulgarian explaining why this specific type was identified""
 }}
 
 Recommendation rules:
@@ -461,7 +462,7 @@ JSON RESPONSE FORMAT
   ""is_appropriate"": true | false,
   ""issues"": [""List ALL problems found in Bulgarian. Always include specific issues like inappropriate content, solution mismatch, wrong type etc. ONLY add 'Текстът е под 150 символа — надеждността на ML предсказването е намалена.' if the current text length is actually below 150 characters. Current length is {textLength} chars (counting all characters including spaces).""],
   ""recommendation"": ""approve"" | ""reject"",
-  ""reasoning"": ""2-3 sentences in Bulgarian. The user provided NO type — do not reference the user providing a wrong type. State whether you agree with ML, reference confusion patterns if relevant, and note solution validity.""
+  ""reasoning"": ""2-3 sentences in Bulgarian. The user provided NO type — do not reference the user providing a wrong type, and do not treat the missing type as an issue. State whether you agree with ML, reference confusion patterns if relevant, and note solution validity.""
 }}
 
 Recommendation rules:
