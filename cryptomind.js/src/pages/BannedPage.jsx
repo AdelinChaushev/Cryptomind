@@ -59,7 +59,7 @@ function BannedInfoRow({ label, value, valueStyle }) {
 
 
 function BannedInfoCard() {
-    const { state,setState} = useContext(AuthorizationContext)
+    const { state, setState } = useContext(AuthorizationContext)
     return (
         <div className="banned-card">
             <div className="banned-card__header">
@@ -97,11 +97,6 @@ function BannedInfoCard() {
     );
 }
 
-
-
-
-
-// ─── Page Root ────────────────────────────────────────────────────────────────
 export default function BannedPage() {
 
     return (

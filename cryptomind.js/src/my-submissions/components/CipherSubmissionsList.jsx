@@ -1,4 +1,3 @@
-import React from 'react';
 import SubmissionCard from './SubmissionCard';
 import EmptyState from './EmptyState';
 

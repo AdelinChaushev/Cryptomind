@@ -2,20 +2,20 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import * as signalR from '@microsoft/signalr';
 
 export const NotificationType = {
-    CipherApproved:        0,
-    CipherRejected:        1,
-    CipherDeleted:         2,
-    CipherRestored:        3,
-    CipherUpdated:         4,
-    AnswerApproved:        5,
-    AnswerRejected:        6,
-    AnswerCipherDeleted:   7,
-    AnswerCipherRestored:  8,
-    BadgeEarned:           9,
+    CipherApproved: 0,
+    CipherRejected: 1,
+    CipherDeleted: 2,
+    CipherRestored: 3,
+    CipherUpdated: 4,
+    AnswerApproved: 5,
+    AnswerRejected: 6,
+    AnswerCipherDeleted: 7,
+    AnswerCipherRestored: 8,
+    BadgeEarned: 9,
 };
 
 const API_BASE = `${import.meta.env.VITE_API_URL}/api/notifications`;
-const HUB_URL  = `${import.meta.env.VITE_API_URL}/notificationHub`;
+const HUB_URL = `${import.meta.env.VITE_API_URL}/notificationHub`;
 
 export function parseCreatedSince(createdSince) {
     if (!createdSince) return 'just now';
@@ -52,30 +52,23 @@ function resolveLink(notification) {
         return raw.startsWith('/') ? raw : `/${raw}`;
     }
 
-     switch (notification.type) {
-        case 0: 
-
-        case 1: 
-
-        case 2: 
-
-        case 3: 
-
-        case 4: 
-
+    switch (notification.type) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
             return '/my-submissions';
-        case 5: 
 
-        case 6: 
-
-        case 7: 
-
-        case 8: 
-
+        case 5:
+        case 6:
+        case 7:
+        case 8:
             return '/my-submissions';
-        case 9: 
 
+        case 9:
             return '/profile';
+
         default:
             return null;
     }
@@ -83,11 +76,11 @@ function resolveLink(notification) {
 
 export function useNotifications(isAuthenticated) {
     const [notifications, setNotifications] = useState([]);
-    const [unreadCount, setUnreadCount]     = useState(0);
-    const [isConnected, setIsConnected]     = useState(false);
-    const [isLoading, setIsLoading]         = useState(true);
-    const [toasts, setToasts]               = useState([]);
-    const connectionRef                     = useRef(null);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [isConnected, setIsConnected] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [toasts, setToasts] = useState([]);
+    const connectionRef = useRef(null);
 
     const dismissToast = useCallback((toastId) => {
         setToasts(prev =>
@@ -105,7 +98,7 @@ export function useNotifications(isAuthenticated) {
         try {
             const res = await fetch(API_BASE, {
                 headers: authHeaders(),
-                credentials: 'include', 
+                credentials: 'include',
 
             });
             if (!res.ok) {
@@ -128,10 +121,10 @@ export function useNotifications(isAuthenticated) {
         didStartRef.current = true;
         const connection = new signalR.HubConnectionBuilder()
             .withUrl(HUB_URL, {
-                withCredentials: true, 
+                withCredentials: true,
 
                 transport:
-                    signalR.HttpTransportType.WebSockets       |
+                    signalR.HttpTransportType.WebSockets |
                     signalR.HttpTransportType.ServerSentEvents |
                     signalR.HttpTransportType.LongPolling,
             })
@@ -144,7 +137,7 @@ export function useNotifications(isAuthenticated) {
             const normalized = {
                 ...incoming,
                 createdSince: incoming.createdSince ?? '0:00:00',
-             };
+            };
             setNotifications(prev => [incoming, ...prev]);
             setUnreadCount(prev => prev + 1);
             setToasts(prev => [
@@ -193,7 +186,7 @@ export function useNotifications(isAuthenticated) {
     useEffect(() => {
         if (!isAuthenticated) return;
         fetchNotifications();
-    }, [fetchNotifications,isAuthenticated]);
+    }, [fetchNotifications, isAuthenticated]);
 
     const markAsRead = useCallback(async (notificationId) => {
         setNotifications(prev =>

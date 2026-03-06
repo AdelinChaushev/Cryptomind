@@ -1,5 +1,3 @@
-import React from 'react';
-
 const CipherTypesPanel = () => {
     return (
         <div className="info-card cipher-types-panel">

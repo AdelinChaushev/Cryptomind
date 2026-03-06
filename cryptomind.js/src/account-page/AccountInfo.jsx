@@ -1,24 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import '../styles/account-info.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useError } from '../ErrorContext';
-import ProfileCard    from './ProfileCard';
-import StatsSection   from './StatsSection';
-import BadgesSection  from './BadgesSection';
+import ProfileCard from './ProfileCard';
+import StatsSection from './StatsSection';
+import BadgesSection from './BadgesSection';
 import DeactivateModal from './DeactivateModal';
 import { useContext } from 'react';
 import { AuthorizationContext } from '../App';
-const API_BASE = import.meta.env.VITE_API_URL ;
+const API_BASE = import.meta.env.VITE_API_URL;
 
 function AccountInfo() {
-    const [user, setUser]               = useState(null);
-    const [loading, setLoading]         = useState(true);
-    const {setError} = useError();
-    const [showModal, setShowModal]     = useState(false);
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const { setError } = useError();
+    const [showModal, setShowModal] = useState(false);
     const [deactivating, setDeactivating] = useState(false);
     const navigate = useNavigate();
-    const {state,setState} = useContext(AuthorizationContext)
+    const { state, setState } = useContext(AuthorizationContext)
     useEffect(() => {
         const fetchUser = () => {
             axios.get(`${API_BASE}/api/user/get-account-info`, {
@@ -37,15 +37,12 @@ function AccountInfo() {
     const handleDeactivate = async () => {
         setDeactivating(true);
         try {
-             axios.post(`${API_BASE}/api/auth/deactivate`, {}, {
+            axios.post(`${API_BASE}/api/auth/deactivate`, {}, {
                 withCredentials: true,
-            }).then( c =>{              
-                 window.location.href = "/"; 
-                
-                
-         
+            }).then(c => {
+                window.location.href = "/";
             });
-        
+
         } catch (err) {
             setError(`Неуспешно деактивиране на акаунта: ${err.message}`);
         } finally {

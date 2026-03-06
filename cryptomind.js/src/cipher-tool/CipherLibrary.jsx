@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import"../styles/cipher-library.css";
+import "../styles/cipher-library.css";
 import CipherCard from "./CipherCard";
 
 const FAMILIES = [
@@ -285,22 +285,22 @@ export default function CipherLibrary() {
       <div className="cl-scroll-bar" style={{ width: `${scrollPct}%` }} />
 
       <div className="cl">
-        
+
         <div className="cl-hero">
           <div className="cl-hero-tag">// библиотека с шифри</div>
-          <h1>ПЪЛНОТО РЪКОВОДСТВО ЗА<br/><span>КЛАСИЧЕСКИ ШИФРИ</span></h1>
+          <h1>ПЪЛНОТО РЪКОВОДСТВО ЗА<br /><span>КЛАСИЧЕСКИ ШИФРИ</span></h1>
           <p className="cl-hero-desc">
             14 вида шифри в 4 семейства — тяхната история, механика, математически
             основи и криптографски слабости.
           </p>
         </div>
 
-      
+
         <nav className="cl-nav">
           <div className="cl-nav-inner">
             {FAMILIES.map(f => (
               <button key={f.id}
-                className={`cl-nav-btn ${activeFamily===f.id?"act":""}`}
+                className={`cl-nav-btn ${activeFamily === f.id ? "act" : ""}`}
                 style={{ "--nc": f.color, "--nb": f.color + "15" }}
                 onClick={() => scrollToFamily(f.id)}>
                 {f.label.toUpperCase()}
@@ -309,7 +309,7 @@ export default function CipherLibrary() {
           </div>
         </nav>
 
-       
+
         {FAMILIES.map(fam => (
           <section key={fam.id} id={`fam-${fam.id}`} className="cl-family"
             style={{ "--fc": fam.color, "--fb": fam.color + "12" }}>

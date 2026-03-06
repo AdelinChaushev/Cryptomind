@@ -45,12 +45,12 @@ function LeaderboardRow({ entry }) {
 function StatusBar({ count, status }) {
   const dotClass =
     status === "success" ? "online" :
-    status === "error"   ? "error"  : "";
+      status === "error" ? "error" : "";
 
   const label =
     status === "loading" ? "ИЗВЛИЧАНЕ НА ДАННИ..." :
-    status === "success" ? `${count} КРИПТОАНАЛИЗАТОРА В КЛАСАЦИЯТА` :
-    "ГРЕШКА ПРИ СВЪРЗВАНЕ";
+      status === "success" ? `${count} КРИПТОАНАЛИЗАТОРА В КЛАСАЦИЯТА` :
+        "ГРЕШКА ПРИ СВЪРЗВАНЕ";
 
   return (
     <div className="lb-status">
@@ -134,7 +134,7 @@ export default function Leaderboard() {
               </div>
             )}
 
-           {hasRest && (
+            {hasRest && (
               <div className="lb-table">
                 <div className="lb-table-header">
                   <span>РАНГ</span>

@@ -19,14 +19,14 @@ function CipherTextDisplay({ encryptedText, hasImage, imageUrl }) {
                     <span className="topbar-dot dot-green"></span>
                     <span className="panel-label">encrypted_message.txt</span>
                 </div>
-                { !hasImage &&          
-                <button
-                    className={`btn-copy ${copied ? "copied" : ""}`}
-                    onClick={handleCopy}>
-                    {copied ? "✓ Копирано" : "⎘ Копирай"}
-                </button>
+                {!hasImage &&
+                    <button
+                        className={`btn-copy ${copied ? "copied" : ""}`}
+                        onClick={handleCopy}>
+                        {copied ? "✓ Копирано" : "⎘ Копирай"}
+                    </button>
                 }
-                
+
             </div>
 
             <div className="ciphertext-body">

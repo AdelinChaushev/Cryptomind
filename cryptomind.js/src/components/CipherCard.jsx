@@ -17,7 +17,7 @@ const CheckIcon = () => (
 );
 
 const CHALLENGE_TYPE_BADGE = {
-    Standard:     'badge-standard',
+    Standard: 'badge-standard',
     Experimental: 'badge-experimental',
 };
 
@@ -31,7 +31,7 @@ const CipherCard = ({ cipher }) => {
                 <div className="card-badges">
                     {typeBadgeClass && (
                         <span className={`badge ${typeBadgeClass}`}>
-                            {cipher.challengeTypeDisplay === "Standard" ? "Стандартен" : "Експериментален" }
+                            {cipher.challengeTypeDisplay === "Standard" ? "Стандартен" : "Експериментален"}
                         </span>
                     )}
 

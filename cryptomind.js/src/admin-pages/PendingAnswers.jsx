@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
@@ -83,12 +83,12 @@ const PendingAnswers = () => {
                         </p>
                     </div>
 
-                  
+
                     <div className="table-toolbar">
                         <div className="toolbar-left">
                             <div className="search-input-wrap">
                                 <svg className="search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                    <circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/>
+                                    <circle cx="7" cy="7" r="5" /><path d="M11 11l3 3" />
                                 </svg>
                                 <input
                                     type="text"
@@ -101,7 +101,7 @@ const PendingAnswers = () => {
 
                             <div className="search-input-wrap">
                                 <svg className="search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                    <circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M15 8h-2M3 8H1"/>
+                                    <circle cx="8" cy="8" r="3" /><path d="M8 1v2M8 13v2M15 8h-2M3 8H1" />
                                 </svg>
                                 <input
                                     type="text"
@@ -117,7 +117,7 @@ const PendingAnswers = () => {
                         </div>
                     </div>
 
-                    
+
                     {error ? (
                         <div className="data-table-wrapper">
                             <div className="empty-state">
@@ -129,12 +129,12 @@ const PendingAnswers = () => {
                         <div className="data-table-wrapper">
                             <div className="empty-state">
                                 <svg className="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                                 </svg>
                                 <div className="empty-state-title">Няма изчакващи предложения</div>
                                 <div className="empty-state-text">
-                                    {cipherNameFilter || usernameFilter 
-                                        ? 'Няма резултати, съответстващи на филтрите' 
+                                    {cipherNameFilter || usernameFilter
+                                        ? 'Няма резултати, съответстващи на филтрите'
                                         : 'Всички предложения от общността са прегледани'}
                                 </div>
                             </div>
@@ -161,7 +161,7 @@ const PendingAnswers = () => {
 
                                             <td>
                                                 <p>
-                                                
+
                                                     {answer.cipherName || `Шифър #${answer.cipherId}`}
                                                 </p>
                                             </td>
@@ -175,9 +175,9 @@ const PendingAnswers = () => {
                                             <td className="mono" style={{ fontSize: '12px' }}>
                                                 {answer.username}
                                             </td>
-                                             <td className="mono" style={{ fontSize: '12px' }}>
-                                                 {answer.submittedAt}
-                                             </td>
+                                            <td className="mono" style={{ fontSize: '12px' }}>
+                                                {answer.submittedAt}
+                                            </td>
                                             <td>
                                                 <Link
                                                     to={`/admin/answer-review/${answer.id}`}

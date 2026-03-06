@@ -1,5 +1,3 @@
-import React from 'react';
-
 const StepNode = ({ number, title, description, isLast }) => {
     return (
         <div className="step-node">

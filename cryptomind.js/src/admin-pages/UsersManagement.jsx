@@ -1,20 +1,18 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
 import '../styles/users-management.css';
 const API_BASE = `${import.meta.env.VITE_API_URL}/api/admin`;
 
-import {useError} from '../ErrorContext'
+import { useError } from '../ErrorContext'
 axios.defaults.withCredentials = true;
-
-
 
 const UsersManagement = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const {setError: setGlobalError} = useError()
+    const { setError: setGlobalError } = useError()
     const [usernameFilter, setUsernameFilter] = useState('');
     const [debouncedUsername, setDebouncedUsername] = useState('');
     const [showBanned, setShowBanned] = useState(false);
@@ -56,11 +54,11 @@ const UsersManagement = () => {
 
     // Promote to admin
     const handlePromote = useCallback(async (userId, username) => {
-        
+
 
         try {
             await axios.put(`${API_BASE}/user/${userId}/admin`);
-           
+
             fetchUsers();
         } catch (err) {
             console.error('Promote error:', err);
@@ -91,14 +89,14 @@ const UsersManagement = () => {
     // Confirm ban with reason
     const handleConfirmBan = useCallback(async () => {
         if (!banReason.trim()) {
-             setGlobalError('Моля, въведете причина за блокирането на потребителя.');
+            setGlobalError('Моля, въведете причина за блокирането на потребителя.');
             return;
         }
 
         try {
             const formData = new FormData();
             formData.append("reason", banReason);
-        
+
             await axios.put(
                 `${API_BASE}/user/${banModal.userId}/ban`,
                 formData,
@@ -109,7 +107,7 @@ const UsersManagement = () => {
                     withCredentials: true
                 }
             );
-            
+
             setBanModal({ open: false, userId: null, username: '' });
             setBanReason('');
             fetchUsers();
@@ -127,10 +125,10 @@ const UsersManagement = () => {
 
     // Unban user
     const handleUnban = useCallback(async (userId, username) => {
-     
+
         try {
             await axios.put(`${API_BASE}/user/${userId}/unban`, { params: { id: banModal.userId } });
-            
+
             fetchUsers();
         } catch (err) {
             console.error('Unban error:', err);
@@ -153,11 +151,11 @@ const UsersManagement = () => {
                         </p>
                     </div>
 
-                   
+
                     <div className="table-toolbar">
                         <div className="toolbar-left">
                             <div className="filter-tabs">
-                                <button 
+                                <button
                                     className={`filter-tab${!showBanned && !showDeactivated ? ' active' : ''}`}
                                     onClick={() => {
                                         setShowBanned(false);
@@ -166,7 +164,7 @@ const UsersManagement = () => {
                                 >
                                     Активни
                                 </button>
-                                <button 
+                                <button
                                     className={`filter-tab${showBanned ? ' active' : ''}`}
                                     onClick={() => {
                                         setShowBanned(true);
@@ -175,7 +173,7 @@ const UsersManagement = () => {
                                 >
                                     Блокирани
                                 </button>
-                                <button 
+                                <button
                                     className={`filter-tab${showDeactivated ? ' active' : ''}`}
                                     onClick={() => {
                                         setShowBanned(false);
@@ -188,7 +186,7 @@ const UsersManagement = () => {
 
                             <div className="search-input-wrap">
                                 <svg className="search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                    <circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/>
+                                    <circle cx="7" cy="7" r="5" /><path d="M11 11l3 3" />
                                 </svg>
                                 <input
                                     type="text"
@@ -204,7 +202,7 @@ const UsersManagement = () => {
                         </div>
                     </div>
 
-                   
+
                     {error ? (
                         <div className="data-table-wrapper">
                             <div className="empty-state">
@@ -272,7 +270,7 @@ const UsersManagement = () => {
                                                         >
                                                             Деблокирай
                                                         </button>
-                                                    )}{!user.isAdmin && !(showBanned) && !(showDeactivated) && ( 
+                                                    )}{!user.isAdmin && !(showBanned) && !(showDeactivated) && (
                                                         <>
                                                             <button
                                                                 onClick={() => openBanModal(user.id, user.username)}
@@ -280,7 +278,7 @@ const UsersManagement = () => {
                                                             >
                                                                 Блокирай
                                                             </button>
-                                                        </>                                                  
+                                                        </>
                                                     )}
                                                 </div>
                                             </td>
@@ -293,7 +291,7 @@ const UsersManagement = () => {
                 </div>
             </main>
 
-            
+
             {banModal.open && (
                 <div className="modal-backdrop" onClick={closeBanModal}>
                     <div className="modal-box" onClick={(e) => e.stopPropagation()}>

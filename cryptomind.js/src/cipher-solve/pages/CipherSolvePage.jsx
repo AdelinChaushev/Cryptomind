@@ -117,17 +117,17 @@ function CipherSolvePage() {
           },
           { withCredentials: true }
         );
-        
 
-        return true; 
+
+        return true;
       } catch (e) {
         console.log(e);
         setError(
           e.response?.data?.error ||
-            e.response?.data?.title ||
-            "Изпращането на отговора не бе успешно."
+          e.response?.data?.title ||
+          "Изпращането на отговора не бе успешно."
         );
-        return false; 
+        return false;
       }
     }
     return false;
@@ -139,7 +139,7 @@ function CipherSolvePage() {
       numeric: "auto",
     });
 
-  
+
     if (typeof dateValue === "string" && dateValue.includes(":")) {
       const match = dateValue.match(/(?:(\d+)\.)?(\d{2}):(\d{2}):(\d{2})/);
 
@@ -173,7 +173,7 @@ function CipherSolvePage() {
       }
     }
 
-  
+
     const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
 
     if (isNaN(date.getTime())) return "—";
@@ -215,7 +215,7 @@ function CipherSolvePage() {
         { withCredentials: true }
       )
       .then((res) => {
-        
+
         setAiText(res.data.hintResult.hintContent);
         setCipher((prev) => ({
           ...prev,

@@ -6,11 +6,11 @@ import { useNotificationContext } from '../App.jsx';
 import NotificationItem from './NotificationItem';
 
 const FILTERS = [
-    { key: 'all',    label: 'Всички' },
+    { key: 'all', label: 'Всички' },
     { key: 'unread', label: 'Непрочетени' },
     { key: 'cipher', label: 'Шифри' },
     { key: 'answer', label: 'Отговори' },
-    { key: 'badge',  label: 'Значки' },
+    { key: 'badge', label: 'Значки' },
 ];
 
 const CIPHER_TYPES = new Set([
@@ -29,11 +29,11 @@ const ANSWER_TYPES = new Set([
 ]);
 
 function matchesFilter(n, key) {
-    if (key === 'all')    return true;
+    if (key === 'all') return true;
     if (key === 'unread') return !n.isRead;
     if (key === 'cipher') return CIPHER_TYPES.has(n.type);
     if (key === 'answer') return ANSWER_TYPES.has(n.type);
-    if (key === 'badge')  return n.type === NotificationType.BadgeEarned;
+    if (key === 'badge') return n.type === NotificationType.BadgeEarned;
     return true;
 }
 
@@ -53,16 +53,16 @@ function parseSecondsFromTimespan(ts) {
 }
 
 function groupNotifications(notifications) {
-    const TODAY_SEC  = 24 * 3600;
-    const WEEK_SEC   = 7 * TODAY_SEC;
+    const TODAY_SEC = 24 * 3600;
+    const WEEK_SEC = 7 * TODAY_SEC;
 
     const groups = { 'Днес': [], 'Тази седмица': [], 'По-рано': [] };
 
     for (const n of notifications) {
         const sec = parseSecondsFromTimespan(n.createdSince);
-        if (sec < TODAY_SEC)     groups['Днес'].push(n);
+        if (sec < TODAY_SEC) groups['Днес'].push(n);
         else if (sec < WEEK_SEC) groups['Тази седмица'].push(n);
-        else                     groups['По-рано'].push(n);
+        else groups['По-рано'].push(n);
     }
 
     return Object.entries(groups)
@@ -99,7 +99,7 @@ const NotificationsPage = () => {
     } = useNotificationContext();
 
     const filtered = notifications.filter(n => matchesFilter(n, activeFilter));
-    const groups   = groupNotifications(filtered);
+    const groups = groupNotifications(filtered);
 
     return (
         <div className="np-page">
@@ -115,8 +115,6 @@ const NotificationsPage = () => {
             </div>
 
             <div className="np-content">
-
-                {/* Toolbar */}
                 <div className="np-toolbar">
                     <div className="np-filters" role="tablist">
                         {FILTERS.map(f => (
@@ -141,7 +139,6 @@ const NotificationsPage = () => {
                     </button>
                 </div>
 
-                {/* Summary */}
                 {!isLoading && unreadCount > 0 && (
                     <p className="np-summary">
                         <span className="np-summary__n">{unreadCount}</span>
@@ -149,7 +146,6 @@ const NotificationsPage = () => {
                     </p>
                 )}
 
-                {/* Body */}
                 {isLoading ? (
                     <Skeleton />
                 ) : filtered.length === 0 ? (
@@ -157,8 +153,8 @@ const NotificationsPage = () => {
                         <div className="np-empty__icon">
                             <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" strokeWidth="1.5">
-                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                             </svg>
                         </div>
                         <h2 className="np-empty__title">Няма нищо тук</h2>
