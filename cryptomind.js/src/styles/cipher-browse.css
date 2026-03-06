@@ -457,6 +457,8 @@ input, select, button { font-family: var(--font-body); }
 }
 .mobile-filter-btn:hover { border-color: var(--border-hover); color: var(--text-primary); }
 
+.sidebar-close-btn { display: none; }
+
 .mobile-filter-badge {
     margin-left: auto;
     background: var(--yellow-500);
@@ -784,6 +786,34 @@ input, select, button { font-family: var(--font-body); }
     .filter-sidebar { width: 100%; position: static; max-height: none; display: none; }
     .filter-sidebar.mobile-open { display: block; }
     .mobile-filter-btn { display: flex; }
+    .mobile-filter-btn--hidden { display: none !important; }
+
+    .sidebar-close-btn {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 10px 16px;
+        margin-bottom: 12px;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-default);
+        border-radius: 8px;
+        color: var(--text-secondary);
+        font-size: 13px;
+        font-family: var(--font-mono);
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        transition: border-color var(--transition), color var(--transition);
+    }
+
+    .sidebar-close-btn:hover {
+        border-color: var(--border-hover);
+        color: var(--text-primary);
+    }
+
+    .sidebar-close-btn svg {
+        color: var(--text-dim);
+    }
 
     .page-header    { flex-direction: column; align-items: flex-start; }
     .page-header-stats { width: 100%; }
