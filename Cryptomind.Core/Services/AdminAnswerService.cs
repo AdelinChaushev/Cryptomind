@@ -177,8 +177,8 @@ namespace Cryptomind.Core.Services
 
 			user.Score += pointsGranted;
 
-			var userIds = new List<string>();
-			userIds.Add(user.Id);
+			var correctAnswerUserIds = new List<string>();
+			correctAnswerUserIds.Add(user.Id);
 
 			foreach (var correctAnswer in otherCorrectAnswerSuggestions)
 			{
@@ -200,7 +200,7 @@ namespace Cryptomind.Core.Services
 					IsRareSolved = true
 				};
 				currentUser.Score += pointsGrantedForOtherCorrectSolutions;
-				userIds.Add(currentUser.Id);
+				correctAnswerUserIds.Add(currentUser.Id);
 
 				correctAnswer.Status = ApprovalStatus.Approved;
 				correctAnswer.ApprovalDate = DateTime.UtcNow.AddHours(2);
@@ -219,9 +219,7 @@ namespace Cryptomind.Core.Services
 
 			foreach (var wrongAnswer in wrongAnswerSuggestions)
 			{
-				bool userAlsoHadCorrectAnswer =
-					firstCorrectAnswerSuggestion.UserId == wrongAnswer.UserId ||
-					otherCorrectAnswerSuggestions.Any(x => x.UserId == wrongAnswer.UserId);
+				bool userAlsoHadCorrectAnswer = correctAnswerUserIds.Contains(wrongAnswer.UserId);
 
 				if (userAlsoHadCorrectAnswer)
 					await RejectAnswer("Другият ви отговор беше одобрен", wrongAnswer);
@@ -240,7 +238,7 @@ namespace Cryptomind.Core.Services
 				$"Вашият отговор беше одобрен +{pointsGranted} точки",
 				CipherErrorConstants.MySubmissionsPath + "?tab=answers");
 
-			return userIds;
+			return correctAnswerUserIds;
 		}
 		public async Task RejectAnswerAsync(int id, string reason)
 		{
