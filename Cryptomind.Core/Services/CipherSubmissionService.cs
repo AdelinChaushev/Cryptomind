@@ -282,10 +282,11 @@ namespace Cryptomind.Core.Services
 		private static readonly HashSet<string> ProblematicCipherTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 		{
 			"columnar",
+			"route",
 			"railfence",
 			"vigenere",
 			"trithemius",
-			"route"
+			"autokey"
 		};
 	}
 }
