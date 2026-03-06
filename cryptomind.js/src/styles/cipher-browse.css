@@ -55,60 +55,6 @@ a { text-decoration: none; color: inherit; }
 input, select, button { font-family: var(--font-body); }
 .hidden { display: none !important; }
 
-.navbar {
-    background: rgba(30, 41, 59, 0.8);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border-default);
-    padding: clamp(12px, 1.4vw, 20px) 0;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    width: 100%;
-}
-
-.navbar-container {
-    width: 100%;
-    padding: 0 var(--gutter);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: clamp(12px, 2vw, 32px);
-}
-
-.logo {
-    font-size: clamp(18px, 1.8vw, 24px);
-    font-weight: 800;
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: -0.5px;
-    flex-shrink: 0;
-    white-space: nowrap;
-}
-
-.nav-links {
-    display: flex;
-    gap: clamp(16px, 2.5vw, 40px);
-    list-style: none;
-}
-
-.nav-links a {
-    color: var(--text-secondary);
-    font-weight: 500;
-    font-size: clamp(12px, 1vw, 15px);
-    transition: color 0.3s ease;
-    white-space: nowrap;
-}
-
-.nav-links a:hover { color: var(--text-primary); }
-
-.nav-buttons {
-    display: flex;
-    gap: clamp(8px, 1vw, 16px);
-    flex-shrink: 0;
-}
-
 .btn {
     display: inline-flex;
     align-items: center;
@@ -409,10 +355,7 @@ input, select, button { font-family: var(--font-body); }
     color: var(--yellow-500);
 }
 
-.cipher-content {
-    flex: 1;
-    min-width: 0;
-}
+.cipher-content { flex: 1; min-width: 0; }
 
 .content-topbar {
     display: flex;
@@ -589,6 +532,24 @@ input, select, button { font-family: var(--font-body); }
     background: rgba(251, 191, 36, 0.12);
     color: var(--yellow-500);
     border: 1px solid rgba(251, 191, 36, 0.25);
+}
+
+.badge-image {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(139, 92, 246, 0.12);
+    color: #a78bfa;
+    border: 1px solid rgba(139, 92, 246, 0.25);
+}
+
+.badge-solved {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(16, 185, 129, 0.12);
+    color: var(--emerald-500);
+    border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .card-title {
@@ -815,40 +776,10 @@ input, select, button { font-family: var(--font-body); }
     font-size: clamp(12px, 0.9vw, 14px);
 }
 
+.cipher-card--solved { border-left: 3px solid rgba(16, 185, 129, 0.5); }
+.cipher-card--solved:hover { border-color: rgba(16, 185, 129, 0.8); }
+
 @media (max-width: 768px) {
-    .nav-links {
-        position: fixed;
-        top: 64px;
-        left: -100%;
-        width: 100%;
-        height: calc(100vh - 64px);
-        background: var(--bg-surface);
-        flex-direction: column;
-        gap: 0;
-        padding: 40px 0;
-        transition: left 0.3s ease;
-        border-top: 1px solid var(--border-default);
-        overflow-y: auto;
-    }
-    .nav-links.active { left: 0; }
-    .nav-links a { display: block; padding: 18px 40px; font-size: 16px; border-bottom: 1px solid var(--border-default); }
-
-    .nav-buttons {
-        position: fixed;
-        bottom: 0;
-        left: -100%;
-        width: 100%;
-        background: var(--bg-surface);
-        flex-direction: column;
-        gap: 12px;
-        padding: 20px 40px;
-        border-top: 1px solid var(--border-default);
-        transition: left 0.3s ease;
-        z-index: 1000;
-    }
-    .nav-buttons.active { left: 0; }
-    .nav-buttons .btn   { width: 100%; text-align: center; }
-
     .browse-layout  { flex-direction: column; }
     .filter-sidebar { width: 100%; position: static; max-height: none; display: none; }
     .filter-sidebar.mobile-open { display: block; }
@@ -868,28 +799,4 @@ input, select, button { font-family: var(--font-body); }
     .cipher-grid { grid-template-columns: 1fr; }
     .footer-container { grid-template-columns: 1fr; }
     .footer-brand, .footer-column { text-align: center; }
-}.cipher-card--solved {
-    border-left: 3px solid rgba(16, 185, 129, 0.5);
-}
-
-.cipher-card--solved:hover {
-    border-color: rgba(16, 185, 129, 0.8);
-}
-
-.badge-image {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: rgba(139, 92, 246, 0.12);
-    color: #a78bfa;
-    border: 1px solid rgba(139, 92, 246, 0.25);
-}
-
-.badge-solved {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: rgba(16, 185, 129, 0.12);
-    color: var(--emerald-500);
-    border: 1px solid rgba(16, 185, 129, 0.25);
 }

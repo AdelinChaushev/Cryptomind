@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
-
+import '../styles/deleted-ciphers.css'
 import { useError } from '../ErrorContext.jsx';
 const API_BASE = `${import.meta.env.VITE_API_URL}/api/admin`;
 
