@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
@@ -72,12 +72,12 @@ const PendingCiphers = () => {
                         </p>
                     </div>
 
-                   
+
                     <div className="table-toolbar">
                         <div className="toolbar-left">
                             <div className="search-input-wrap">
                                 <svg className="search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                    <circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/>
+                                    <circle cx="7" cy="7" r="5" /><path d="M11 11l3 3" />
                                 </svg>
                                 <input
                                     type="text"
@@ -93,7 +93,7 @@ const PendingCiphers = () => {
                         </div>
                     </div>
 
-                   
+
                     {error ? (
                         <div className="data-table-wrapper">
                             <div className="empty-state">
@@ -105,7 +105,7 @@ const PendingCiphers = () => {
                         <div className="data-table-wrapper">
                             <div className="empty-state">
                                 <svg className="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                    <circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/>
+                                    <circle cx="12" cy="12" r="10" /><path d="M12 8v5M12 16h.01" />
                                 </svg>
                                 <div className="empty-state-title">Няма изчакващи предложения</div>
                                 <div className="empty-state-text">
@@ -145,9 +145,9 @@ const PendingCiphers = () => {
                                                     {cipher.isImage && (
                                                         <div className="image-tag" style={{ marginTop: '4px' }}>
                                                             <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                                                <rect x="1" y="3" width="14" height="10" rx="2"/>
-                                                                <circle cx="5.5" cy="7.5" r="1.5"/>
-                                                                <path d="M1 11.5l4-3 3 2.5 2.5-2.5L15 11.5"/>
+                                                                <rect x="1" y="3" width="14" height="10" rx="2" />
+                                                                <circle cx="5.5" cy="7.5" r="1.5" />
+                                                                <path d="M1 11.5l4-3 3 2.5 2.5-2.5L15 11.5" />
                                                             </svg>
                                                             ИЗОБРАЖЕНИЕ
                                                         </div>

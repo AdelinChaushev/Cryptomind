@@ -1,6 +1,6 @@
 import Footer from './components/Footer.jsx';
 import Navbar from './components/Navbar.jsx';
-import { Outlet,useLocation  } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 
 
 export default function Layout() {
@@ -8,14 +8,14 @@ export default function Layout() {
   const isAdmin = location.pathname.startsWith('/admin');
   return (
     <>
-     {!isAdmin && <header>
+      {!isAdmin && <header>
         <Navbar />
       </header>
-}
+      }
       <main>
         <Outlet />
       </main>
-    {!isAdmin && (
+      {!isAdmin && (
         <footer>
           <Footer />
         </footer>

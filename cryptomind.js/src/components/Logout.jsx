@@ -2,13 +2,12 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useError } from "../ErrorContext.jsx";
 import { useContext } from "react";
-import { AuthorizationContext } from '../App.jsx' ; 
+import { AuthorizationContext } from '../App.jsx';
 
 export default function useLogout() {
-    const navigate = useNavigate();
+    useNavigate();
     const { setError } = useError();
-    const {state,setState} = useContext(AuthorizationContext)
-   
+    useContext(AuthorizationContext)
 
     const logout = async () => {
         try {

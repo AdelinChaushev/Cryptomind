@@ -1,5 +1,3 @@
-import React from 'react';
-
 const SubmissionsStatsStrip = ({ totalSubmissions = 0, approved = 0, pending = 0, rejected = 0, deleted = 0 }) => {
     return (
         <div className="stats-strip">

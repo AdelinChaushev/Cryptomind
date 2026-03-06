@@ -48,7 +48,7 @@ const ContentTopbar = ({
                     </select>
                 </div>
             </div>
-            
+
             <button className="mobile-filter-btn" onClick={onMobileFilterToggle}>
                 <span>⚙ Филтри</span>
                 {activeFilterCount > 0 && (

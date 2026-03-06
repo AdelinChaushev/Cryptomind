@@ -1,5 +1,3 @@
-import React from 'react';
-
 const SubmitActions = ({ onSubmit, onCancel }) => {
     return (
         <div className="submit-card">
