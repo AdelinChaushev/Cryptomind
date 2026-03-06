@@ -1,3 +1,5 @@
+import React from 'react';
+
 const CipherInputToggle = ({ useImage, onToggle }) => {
     return (
         <div className="mode-toggle">

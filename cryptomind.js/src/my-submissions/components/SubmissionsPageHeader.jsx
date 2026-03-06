@@ -1,3 +1,5 @@
+import React from 'react';
+
 const SubmissionsPageHeader = () => {
     return (
         <div className="page-header">

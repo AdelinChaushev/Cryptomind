@@ -1,3 +1,5 @@
+import React from 'react';
+
 const StatCard = ({ label, value, sub, accent = '' }) => {
     return (
         <div className={`stat-card${accent ? ` accent-${accent}` : ''}`}>

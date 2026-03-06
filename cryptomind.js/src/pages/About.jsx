@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 function useCipherReveal(text) {
     const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%";
     const [displayed, setDisplayed] = useState("");
-    const { state, setState } = useContext(AuthorizationContext);
+    const { state ,setState} = useContext(AuthorizationContext);
     useEffect(() => {
         let frame = 0;
         const totalFrames = text.length * 4;
@@ -83,7 +83,7 @@ function CipherCard({ family, types, accuracy, icon, partial }) {
         >
             <div className="about-cipher-card__top">
                 <span className="about-cipher-card__icon">{icon}</span>
-
+               
             </div>
             <h3 className="about-cipher-card__family">{family}</h3>
             <div className="about-cipher-card__types">
@@ -226,10 +226,10 @@ function Mission() {
 
 function CipherFamilies() {
     const families = [
-        { family: "ЗАМЕСТВАНЕ", types: ["Цезар (Caesar)", "ROT13 (ROT13)", "Атбаш (Atbash)", "Просто замяна (Simple Substitution)"], icon: "⟳", partial: false },
-        { family: "ПОЛИАЗБУЧНИ", types: ["Виженер (Vigenere)", "Автоключ (Autokey)", "Тритемий (Trithemius)"], icon: "◈", partial: false },
-        { family: "ТРАНСПОЗИЦИЯ", types: ["Железопътна ограда (RailFence)", "Колонна (Columnar)", "Маршрут (Route)"], icon: "⊞", partial: false },
-        { family: "КОДИРАНЕ", types: ["Base64 (Base64)", "Морзов (Morse)", "Двоичен (Binary)", "Шестнадесетичен (Hex)"], icon: "⌬", partial: false },
+        { family: "ЗАМЕСТВАНЕ",   types: ["Цезар (Caesar)", "ROT13 (ROT13)", "Атбаш (Atbash)", "Просто замяна (Simple Substitution)"], icon: "⟳", partial: false },
+        { family: "ПОЛИАЗБУЧНИ",  types: ["Виженер (Vigenere)", "Автоключ (Autokey)", "Тритемий (Trithemius)"],                icon: "◈", partial: false },
+        { family: "ТРАНСПОЗИЦИЯ", types: ["Железопътна ограда (RailFence)", "Колонна (Columnar)", "Маршрут (Route)"],            icon: "⊞", partial: false  },
+        { family: "КОДИРАНЕ",     types: ["Base64 (Base64)", "Морзов (Morse)", "Двоичен (Binary)", "Шестнадесетичен (Hex)"],              icon: "⌬", partial: false },
     ];
 
     return (
@@ -250,10 +250,10 @@ function CipherFamilies() {
 
 function HowItWorks() {
     const steps = [
-        { number: 1, title: "ПОДАЙ ТЕКСТ", desc: "Въведи или качи криптиран текст (минимум 150 знака). Поддържат се текстов вход и изображения с автоматично OCR разпознаване.", delay: 0 },
-        { number: 2, title: "ML КЛАСИФИКАЦИЯ", desc: "Двуслойната невронна мрежа анализира статистическите характеристики — честоти на букви, индекс на съвпадение, биграми и ентропия.", delay: 0.15 },
-        { number: 3, title: "AI АСИСТЕНТ", desc: "По избор поискай подсказка или пълно решение от AI. Асистентът обяснява методологията, без да разкрива директно отговора.", delay: 0.3 },
-        { number: 4, title: "РЕШИ И СПЕЧЕЛИ", desc: "Изпрати своя отговор, натрупай точки и изкачи класацията. Стандартните шифри се проверяват автоматично за секунди.", delay: 0.45 },
+        { number: 1, title: "ПОДАЙ ТЕКСТ",      desc: "Въведи или качи криптиран текст (минимум 150 знака). Поддържат се текстов вход и изображения с автоматично OCR разпознаване.", delay: 0    },
+        { number: 2, title: "ML КЛАСИФИКАЦИЯ",  desc: "Двуслойната невронна мрежа анализира статистическите характеристики — честоти на букви, индекс на съвпадение, биграми и ентропия.", delay: 0.15 },
+        { number: 3, title: "AI АСИСТЕНТ",      desc: "По избор поискай подсказка или пълно решение от AI. Асистентът обяснява методологията, без да разкрива директно отговора.", delay: 0.3  },
+        { number: 4, title: "РЕШИ И СПЕЧЕЛИ",  desc: "Изпрати своя отговор, натрупай точки и изкачи класацията. Стандартните шифри се проверяват автоматично за секунди.", delay: 0.45 },
     ];
 
     return (
@@ -271,10 +271,10 @@ function HowItWorks() {
 
 function Limitations() {
     const limits = [
-        { icon: "🇬🇧", title: "САМО АНГЛИЙСКИ ТЕКСТ", desc: "ML моделът е трениран на английски корпус. Индексът на съвпадение приема английски честоти (~0.065). Друг език ще даде неверни резултати." },
-        { icon: "📏", title: "ОПТИМАЛНО 200–400 ЗНАКА", desc: "За най-добра точност на класификацията препоръчваме текст между 200 и 400 знака. Под 150 знака статистиката става ненадеждна и резултатите често са неточни." },
-        { icon: "🔒", title: "ЕДНО НИВО НА ШИФРОВАНЕ", desc: "Приложено е само едно ниво на криптиране. Няма допълнителни слоеве или двойно шифроване." },
-        { icon: "📜", title: "САМО КЛАСИЧЕСКИ ШИФРИ", desc: "Не е предназначена за модерни алгоритми като AES или RSA. Платформата покрива единствено исторически и образователни шифри." },
+        { icon: "🇬🇧", title: "САМО АНГЛИЙСКИ ТЕКСТ",   desc: "ML моделът е трениран на английски корпус. Индексът на съвпадение приема английски честоти (~0.065). Друг език ще даде неверни резултати." },
+        { icon: "📏",   title: "ОПТИМАЛНО 200–400 ЗНАКА",      desc: "За най-добра точност на класификацията препоръчваме текст между 200 и 400 знака. Под 150 знака статистиката става ненадеждна и резултатите често са неточни." },
+        {icon: "🔒", title: "ЕДНО НИВО НА ШИФРОВАНЕ", desc: "Приложено е само едно ниво на криптиране. Няма допълнителни слоеве или двойно шифроване." },
+        { icon: "📜",   title: "САМО КЛАСИЧЕСКИ ШИФРИ",  desc: "Не е предназначена за модерни алгоритми като AES или RSA. Платформата покрива единствено исторически и образователни шифри." },
     ];
 
     return (
@@ -295,7 +295,7 @@ function Limitations() {
 }
 
 function Roles() {
-    const userPerms = ["Разглежда и решава шифри", "Подава собствени предизвикателства", "Ползва AI подсказки и пълни решения", "Участва в класацията", "Преглежда своята история"];
+    const userPerms  = ["Разглежда и решава шифри", "Подава собствени предизвикателства", "Ползва AI подсказки и пълни решения", "Участва в класацията", "Преглежда своята история"];
     const adminPerms = ["Одобрява или отхвърля шифри", "Одобрява или отхвърля предложени отговори", "Преглежда ML и AI анализи при проверка", "Управлява и деактивира потребители", "Промотира до администратор"];
 
     return (
@@ -338,7 +338,7 @@ function Roles() {
 
 
 function CTA() {
-    const { state, setState } = useContext(AuthorizationContext);
+     const { state ,setState} = useContext(AuthorizationContext);
     return (
         <section className="about-cta">
             <div className="about-cta__glow" />
@@ -348,7 +348,7 @@ function CTA() {
                 <p className="about-cta__sub">Историята на тайните съобщения чака да бъде открита.</p>
                 <div className="about-cta__buttons">
                     {!state.isLoggedIn ? <Link to="/register" className="about-cta__btn-primary">Регистрирай се</Link>
-                        : <Link to="/" className="about-cta__btn-secondary">Разгледай шифрите</Link>}
+                   : <Link to="/"  className="about-cta__btn-secondary">Разгледай шифрите</Link>}
                 </div>
             </div>
         </section>
@@ -360,7 +360,7 @@ export default function AboutPage() {
         <div className="about-page">
             <Hero />
             <Mission />
-
+            
             <CipherFamilies />
             <HowItWorks />
             <Limitations />

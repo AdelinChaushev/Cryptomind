@@ -2,6 +2,7 @@
 using Cryptomind.Common.Exceptions;
 using Cryptomind.Common.ViewModels.EnglishValidationModels;
 using Cryptomind.Core.Contracts;
+using Microsoft.Extensions.Configuration;
 using System.Text;
 using System.Text.Json;
 

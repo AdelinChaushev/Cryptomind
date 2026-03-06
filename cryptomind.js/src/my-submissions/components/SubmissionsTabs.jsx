@@ -1,3 +1,5 @@
+import React from 'react';
+
 const SubmissionsTabs = ({ activeTab, onTabChange, cipherCount = 0, answerCount = 0 }) => {
     return (
         <div className="tabs-nav">

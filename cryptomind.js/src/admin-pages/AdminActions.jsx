@@ -1,3 +1,5 @@
+import React from 'react';
+
 const AVAILABLE_TAGS = [
     { id: 1, label: 'Image' },
     { id: 2, label: 'Puzzle' },
@@ -9,6 +11,7 @@ const AVAILABLE_TAGS = [
 ];
 
 const AdminActions = ({
+    cipher,
     title,
     onTitleChange,
     selectedTags,
@@ -30,7 +33,7 @@ const AdminActions = ({
 }) => {
     return (
         <div className="actions-column">
-
+            
             <div className="admin-card">
                 <div className="admin-card-header">
                     <span className="admin-card-title">Cipher Details</span>
@@ -48,7 +51,7 @@ const AdminActions = ({
                 </div>
             </div>
 
-
+            
             <div className="admin-card">
                 <div className="admin-card-header">
                     <span className="admin-card-title">AI Assistance Permissions</span>
@@ -75,7 +78,7 @@ const AdminActions = ({
                 </div>
             </div>
 
-
+           
             <div className="admin-card">
                 <div className="admin-card-header">
                     <span className="admin-card-title">Tags</span>
@@ -94,7 +97,7 @@ const AdminActions = ({
                 </div>
             </div>
 
-
+            
             <div className="admin-card">
                 <div className="admin-card-header">
                     <span className="admin-card-title">Challenge Type</span>
@@ -120,7 +123,7 @@ const AdminActions = ({
                 </div>
             </div>
 
-
+            
             <div className="admin-card">
                 <div className="admin-card-header">
                     <span className="admin-card-title">Review Decision</span>
@@ -133,7 +136,7 @@ const AdminActions = ({
                         style={{ justifyContent: 'center' }}
                     >
                         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
-                            <path d="M2 8l4 4 8-8" />
+                            <path d="M2 8l4 4 8-8"/>
                         </svg>
                         Approve as Standard
                     </button>
@@ -144,7 +147,7 @@ const AdminActions = ({
                         style={{ justifyContent: 'center' }}
                     >
                         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                            <circle cx="8" cy="8" r="6.5" /><path d="M8 5v3l2 2" />
+                            <circle cx="8" cy="8" r="6.5"/><path d="M8 5v3l2 2"/>
                         </svg>
                         Approve as Experimental
                     </button>
@@ -156,7 +159,7 @@ const AdminActions = ({
                             style={{ justifyContent: 'center', width: '100%' }}
                         >
                             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
-                                <path d="M3 3l10 10M13 3L3 13" />
+                                <path d="M3 3l10 10M13 3L3 13"/>
                             </svg>
                             Reject Submission
                         </button>

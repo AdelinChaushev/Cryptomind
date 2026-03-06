@@ -1,3 +1,5 @@
+import React from 'react';
+
 function StatCard({ value, label, accent, subtext }) {
     return (
         <div className={`stat-card ${accent}`}>

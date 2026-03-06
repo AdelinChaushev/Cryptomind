@@ -1,3 +1,5 @@
+import React from 'react';
+
 const AdminTopbar = ({ breadcrumbs = [], children }) => {
     return (
         <header className="admin-topbar">

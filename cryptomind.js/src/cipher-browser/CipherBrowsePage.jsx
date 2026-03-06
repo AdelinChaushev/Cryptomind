@@ -1,12 +1,12 @@
 import '../styles/cipher-browse.css';
 import BrowsePageHeader from './BrowsePageHeader';
-import FilterSidebar from './FilterSidebar';
-import ContentTopbar from './ContentTopbar';
+import FilterSidebar    from './FilterSidebar';
+import ContentTopbar    from './ContentTopbar';
 import CipherCard, { CipherCardSkeleton } from '../components/CipherCard';
-import EmptyState from './EmptyState';
-import Pagination from './Pagination';
+import EmptyState       from './EmptyState';
+import Pagination       from './Pagination';
 import { useState, useEffect, useContext } from 'react';
-import { AuthorizationContext } from '../App.jsx';
+import { AuthorizationContext } from '../App.jsx'; 
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import qs from 'qs';
@@ -48,8 +48,8 @@ const CipherBrowsePage = () => {
     setChallengeType(0);
     setSelectedTags([]);
   };
-
-
+   
+   
   const fetchCiphers = async () => {
     setIsLoading(true);
     const path = import.meta.env.VITE_API_URL
@@ -57,8 +57,8 @@ const CipherBrowsePage = () => {
       const res = await axios.get(`${path}/api/ciphers/all`, {
         withCredentials: true,
         params: {
-          SearchTerm: searchTerm,
-          Tags: selectedTags,
+          SearchTerm:  searchTerm,
+          Tags:  selectedTags,
           ChallengeType: challengeType,
           OrderTerm: sortBy
         },
@@ -77,10 +77,9 @@ const CipherBrowsePage = () => {
     }
   };
 
-  useEffect(() => {
-    fetchCiphers();
-  }
-    , [sortBy]);
+  useEffect(() => { 
+    fetchCiphers(); }
+  ,[sortBy]);
 
   return (
     <>

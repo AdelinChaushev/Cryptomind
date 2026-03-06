@@ -1,3 +1,4 @@
+import React from 'react';
 import AnswerCard from './AnswerCard';
 import EmptyState from './EmptyState';
 

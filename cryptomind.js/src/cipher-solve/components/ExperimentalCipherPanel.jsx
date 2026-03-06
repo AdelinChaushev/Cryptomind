@@ -5,13 +5,13 @@ function ExperimentalCipherPanel({ onSubmit }) {
     const [submitted, setSubmitted] = useState(false);
 
     const handleSubmit = async () => {
-        const isSuccessful = await onSubmit.onSubmit();
-
-
-        if (isSuccessful) {
-            setSubmitted(true);
-            setTimeout(() => setSubmitted(false), 4000);
-        }
+       const isSuccessful = await onSubmit.onSubmit(); 
+    
+   
+    if (isSuccessful) {
+        setSubmitted(true);
+        setTimeout(() => setSubmitted(false), 4000);
+    }
     };
 
     return (

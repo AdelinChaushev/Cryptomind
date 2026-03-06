@@ -23,7 +23,7 @@ const Footer = () => {
                     <ul className="footer-links">
                         <li><a href="/about">За нас</a></li>
                     </ul>
-                </div>
+                </div>               
             </div>
             <div className="footer-bottom">
                 &copy; 2026 Cryptomind. Само за образователни цели.

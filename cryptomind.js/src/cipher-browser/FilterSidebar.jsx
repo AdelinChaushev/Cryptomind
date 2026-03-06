@@ -24,7 +24,7 @@ const FilterSidebar = ({
     onClearAll,
     onApplyFilters,
 }) => {
-    const handleSubmit = (e) => {
+     const handleSubmit = (e) => {
         e.preventDefault();
         onApplyFilters && onApplyFilters({ searchTerm, challengeType, selectedTags });
     };
