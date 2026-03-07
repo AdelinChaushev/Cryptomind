@@ -97,11 +97,6 @@ function BannedInfoCard() {
     );
 }
 
-
-
-
-
-// ─── Page Root ────────────────────────────────────────────────────────────────
 export default function BannedPage() {
 
     return (
