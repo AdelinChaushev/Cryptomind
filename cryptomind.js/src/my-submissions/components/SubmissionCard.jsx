@@ -15,21 +15,21 @@ const SubmissionCard = ({
 }) => {
     const statusClass =
         status === 'approved' ? 'badge-approved' :
-        status === 'pending'  ? 'badge-pending'  :
-        status === 'rejected' ? 'badge-rejected' :
-        'badge-deleted';
+            status === 'pending' ? 'badge-pending' :
+                status === 'rejected' ? 'badge-rejected' :
+                    'badge-deleted';
 
     const statusLabel =
-        status === 'approved' ? 'Одобрен'         :
-        status === 'pending'  ? 'Очаква преглед'   :
-        status === 'rejected' ? 'Отхвърлен'        :
-        'Изтрит';
+        status === 'approved' ? 'Одобрен' :
+            status === 'pending' ? 'Очаква преглед' :
+                status === 'rejected' ? 'Отхвърлен' :
+                    'Изтрит';
 
     const descriptionBorderClass =
-        status === 'approved'       ? 'border-emerald' :
-        status === 'rejected'       ? 'border-rose'    :
-        status === 'cipherdeleted'  ? 'border-deleted' :
-        'border-yellow';
+        status === 'approved' ? 'border-emerald' :
+            status === 'rejected' ? 'border-rose' :
+                status === 'cipherdeleted' ? 'border-deleted' :
+                    'border-yellow';
 
     const isDeleted = status === 'deleted';
 
@@ -37,15 +37,18 @@ const SubmissionCard = ({
         <div className={`submission-card ${isDeleted ? 'submission-card--deleted' : ''}`}>
 
             <div className="card-header">
-                <div className="card-title-group">
-                    <span className={`card-title ${isDeleted ? 'card-title--deleted' : ''}`}>
+                <div className="card-title-group" style={{ minWidth: 0, flex: 1, overflow: 'hidden' }}>
+                    <span
+                        className={`card-title ${isDeleted ? 'card-title--deleted' : ''}`}
+                        style={{ display: 'block', wordBreak: 'break-all', overflowWrap: 'break-word' }}
+                    >
                         {title}
                     </span>
                     {cipherType && (
                         <span className="card-type-tag">{cipherType}</span>
                     )}
                 </div>
-                <span className={`status-badge ${statusClass}`}>
+                <span className={`status-badge ${statusClass}`} style={{ flexShrink: 0 }}>
                     <span className="status-dot" />
                     {statusLabel}
                 </span>

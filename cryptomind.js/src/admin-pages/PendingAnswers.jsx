@@ -113,7 +113,6 @@ const PendingAnswers = () => {
 
                     {emptyOrError || (
                         <>
-                            {/* Desktop table */}
                             <div className="data-table-wrapper">
                                 <table className="data-table">
                                     <thead>
@@ -145,7 +144,6 @@ const PendingAnswers = () => {
                                 </table>
                             </div>
 
-                            {/* Mobile card list */}
                             <div className="answers-card-list">
                                 {answers.map((answer) => (
                                     <div key={answer.id} className="answer-card">
