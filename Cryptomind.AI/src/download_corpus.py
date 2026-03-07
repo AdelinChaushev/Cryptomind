@@ -15,7 +15,6 @@ def download_and_clean_book(book_id, title):
         print(f"  ❌ Failed to download {title}")
         return ""
     
-    # Find start and end markers (MINIMAL cleaning)
     start_markers = [
         "*** START OF THIS PROJECT GUTENBERG",
         "*** START OF THE PROJECT GUTENBERG",
@@ -27,7 +26,6 @@ def download_and_clean_book(book_id, title):
         "*** END OF THE PROJECT GUTENBERG"
     ]
     
-    # Find actual content
     start_idx = 0
     for marker in start_markers:
         idx = text.find(marker)
@@ -44,22 +42,18 @@ def download_and_clean_book(book_id, title):
     
     text = text[start_idx:end_idx]
     
-    # Only remove obvious non-content
     lines = text.split('\n')
     cleaned_lines = []
     
     for line in lines:
         line = line.strip()
         
-        # Skip empty lines
         if not line:
             continue
         
-        # Skip chapter headings (all caps, short)
         if line.isupper() and len(line) < 50:
             continue
         
-        # Skip lines that are mostly numbers or symbols
         alpha_count = sum(c.isalpha() for c in line)
         if alpha_count < len(line) * 0.5:
             continue
@@ -68,7 +62,6 @@ def download_and_clean_book(book_id, title):
     
     cleaned_text = ' '.join(cleaned_lines)
     
-    # Just collapse multiple spaces
     cleaned_text = re.sub(r'\s+', ' ', cleaned_text)
     
     print(f"  Downloaded {len(cleaned_text):,} characters")
@@ -98,14 +91,12 @@ def create_proper_corpus():
         if text:
             all_text.append(text)
     
-    # Combine
     corpus = ' '.join(all_text)
     
     print(f"CORPUS STATISTICS")
     print(f"Total characters: {len(corpus):,}")
     print(f"Books included: {len(all_text)}")
     
-    # Verify IC
     from src.feature_extraction import FeatureExtractor
     extractor = FeatureExtractor()
     
@@ -130,7 +121,6 @@ def create_proper_corpus():
     else:
         print(f"IC is in acceptable range!")
     
-    # Save
     output_dir = Path('data/corpus')
     output_dir.mkdir(parents=True, exist_ok=True)
     

@@ -12,16 +12,11 @@
     font-family: var(--font-mono);
 }
 
-/* ── Mobile card list (hidden on desktop) ───────────────── */
-
 .users-card-list {
     display: none;
 }
 
-/* ── Responsive ─────────────────────────────────────────── */
-
 @media (max-width: 40em) {
-    /* Hide the table, show the card list */
     .admin-shell--users .data-table-wrapper {
         display: none;
     }

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthorizationContext } from '../App.jsx'; 
 import NotificationBell from '../notifications/NotificationBell.jsx';
@@ -11,6 +11,11 @@ const Navbar = () => {
     const onLogout = useLogout();
 
     const closeMenu = () => setMenuOpen(false);
+
+    useEffect(() => {
+        document.body.style.overflow = menuOpen ? 'hidden' : '';
+        return () => { document.body.style.overflow = ''; };
+    }, [menuOpen]);
 
     return (
         <nav className="navbar">
@@ -34,7 +39,6 @@ const Navbar = () => {
                     <li><Link to="/cipher-tool" onClick={closeMenu}>Тествай шифри</Link></li>
                     <li><Link to="/about" onClick={closeMenu}>За нас</Link></li>
 
-                  
                     <li className="nav-mobile-auth">
                         {state.isLoggedIn ? (
                             <>
@@ -65,7 +69,6 @@ const Navbar = () => {
                     </li>
                 </ul>
 
-               
                 <div className="nav-desktop-auth">
                     {state.isLoggedIn ? (
                         <>
@@ -86,7 +89,6 @@ const Navbar = () => {
                     )}
                 </div>
 
-               
                 <button
                     className={`hamburger ${menuOpen ? 'open' : ''}`}
                     onClick={() => setMenuOpen(prev => !prev)}
@@ -98,7 +100,6 @@ const Navbar = () => {
                 </button>
             </div>
 
-         
             {menuOpen && <div className="nav-overlay" onClick={closeMenu} />}
         </nav>
     );

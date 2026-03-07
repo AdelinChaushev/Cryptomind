@@ -232,14 +232,6 @@ function CipherSolvePage() {
   return (
     <>
       <main className="solve-page">
-        {/* <nav className="breadcrumb">
-                    <a href="/">Home</a>
-                    <span className="breadcrumb-sep">/</span>
-                    <a href="/ciphers">Browse</a>
-                    <span className="breadcrumb-sep">/</span>
-                    <span className="breadcrumb-current">#{MOCK_CIPHER.id} {MOCK_CIPHER.title}</span>
-                </nav> */}
-
         <div className="solve-grid">
           <div className="solve-main">
             <CipherHeader cipher={cipher} />

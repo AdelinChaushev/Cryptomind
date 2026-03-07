@@ -62,7 +62,6 @@ body {
 
 .btn-outline:hover { border-color: var(--yellow-500); color: var(--yellow-500); }
 
-/* Override: solve page uses a mono-font, solid-yellow nav button */
 .btn-nav-primary {
     font-family: var(--font-mono);
     font-size: 11px;

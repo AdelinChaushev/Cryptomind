@@ -1,5 +1,12 @@
 @import './admin-base.css';
 
+.admin-shell--pending-answers,
+.admin-shell--pending-answers .admin-main,
+.admin-shell--pending-answers .admin-content {
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
 .answer-preview {
     font-size: 12px;
     color: var(--text-tertiary);
@@ -63,13 +70,28 @@
     color: var(--text-secondary);
 }
 
-/* ── Mobile card list (hidden on desktop) ───────────────── */
-
 .answers-card-list {
     display: none;
 }
 
 @media (max-width: 40em) {
+    .table-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .toolbar-left {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .search-input-wrap,
+    .search-input-wrap .form-input {
+        width: 100%;
+    }
+
     .admin-shell--pending-answers .data-table-wrapper {
         display: none;
     }

@@ -3,23 +3,23 @@ import axios from 'axios';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
 import '../styles/answer-approval.css';
-const API_BASE =`${import.meta.env.VITE_API_URL}/api/admin`;
-import { useParams,useNavigate } from "react-router-dom";
+const API_BASE = `${import.meta.env.VITE_API_URL}/api/admin`;
+import { useParams, useNavigate } from "react-router-dom";
 import { useError } from '../ErrorContext.jsx';
 
 axios.defaults.withCredentials = true;
 
 const PendingAnswerApproval = () => {
     const [answerSubmission, setAnswerSubmission] = useState(null);
-    
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showRejectForm, setShowRejectForm] = useState(false);
     const [rejectionReason, setRejectionReason] = useState('');
-    const {  id } = useParams();
+    const { id } = useParams();
     const navigate = useNavigate();
-     const { setError: setGlobalError } = useError();
-   
+    const { setError: setGlobalError } = useError();
+
     useEffect(() => {
         const fetchAnswer = async () => {
             if (!id || isNaN(id)) {
@@ -29,7 +29,7 @@ const PendingAnswerApproval = () => {
             }
 
             try {
-               
+
                 const { data } = await axios.get(`${API_BASE}/answer/${id}`);
                 console.log('Answer suggestion:', data);
                 setAnswerSubmission(data);
@@ -44,12 +44,12 @@ const PendingAnswerApproval = () => {
         fetchAnswer();
     }, [id]);
 
-    
+
     const handleApprove = useCallback(async () => {
-      
+
         try {
             await axios.put(`${API_BASE}/answer/${id}/approve`);
-           
+
             navigate('/admin/pending-answers');
         } catch (err) {
             console.error('Approve error:', err);
@@ -57,14 +57,14 @@ const PendingAnswerApproval = () => {
         }
     }, [id]);
 
-    
+
     const handleReject = useCallback(async () => {
         console.log('Rejection reason:', rejectionReason);
-       
+
         try {
-            await axios.put(`${API_BASE}/answer/${id}/reject`, JSON.stringify( rejectionReason),{
+            await axios.put(`${API_BASE}/answer/${id}/reject`, JSON.stringify(rejectionReason), {
                 headers: {
-                "Content-Type": "application/json"
+                    "Content-Type": "application/json"
                 }
             });
 
@@ -73,7 +73,7 @@ const PendingAnswerApproval = () => {
             console.error('Reject error:', err);
             setGlobalError(err.response?.data?.message || err.message);
         }
-    }, [id,rejectionReason]);
+    }, [id, rejectionReason]);
 
     if (loading) {
         return (
@@ -129,16 +129,16 @@ const PendingAnswerApproval = () => {
                         <h1 className="page-title">Преглед на предложен отговор</h1>
                         <p className="page-subtitle">
                             Предложение за: <strong style={{ color: 'var(--text-secondary)' }}>
-                                {answerSubmission.cipherName  || `Шифър #${answerSubmission.cipherId}`}
+                                {answerSubmission.cipherName || `Шифър #${answerSubmission.cipherId}`}
                             </strong>
                         </p>
                     </div>
 
                     <div className="answer-approval-layout">
                         <div className="answer-approval-main">
-                           
+
                             <div className="admin-card">
-                              
+
 
                                 {(answerSubmission.cipherName) && (
                                     <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)', marginBottom: '8px' }}>
@@ -146,30 +146,30 @@ const PendingAnswerApproval = () => {
                                     </div>
                                 )}
 
-                                
-                                    <>
-                                        <div className="form-label">Шифриран текст</div>
-                                        <div className="original-cipher-block">
-                                            {answerSubmission.cipherEncryptedText}
-                                        </div>
 
-                                        <div style={{ marginTop: '12px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                                            <div>
-                                                <div className="form-label">Вид</div>
-                                                 <span className="mono" style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                                                    {answerSubmission.type ?? '—'}
-                                                </span> 
-                                            </div>
-                                            <div>
-                                                <div className="form-label">Статус</div>
-                                                <span className="badge badge-experimental">Експериментален</span>
-                                            </div>
+                                <>
+                                    <div className="form-label">Шифриран текст</div>
+                                    <div className="original-cipher-block">
+                                        {answerSubmission.cipherEncryptedText}
+                                    </div>
+
+                                    <div style={{ marginTop: '12px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                                        <div>
+                                            <div className="form-label">Вид</div>
+                                            <span className="mono" style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                                                {answerSubmission.type ?? '—'}
+                                            </span>
                                         </div>
-                                    </>
-                                
+                                        <div>
+                                            <div className="form-label">Статус</div>
+                                            <span className="badge badge-experimental">Експериментален</span>
+                                        </div>
+                                    </div>
+                                </>
+
                             </div>
 
-                           
+
                             <div className="admin-card">
                                 <div className="admin-card-header">
                                     <span className="admin-card-title">Предложен отговор</span>
@@ -196,7 +196,7 @@ const PendingAnswerApproval = () => {
                             </div>
                         </div>
 
-                    
+
                         <div className="answer-approval-sidebar">
                             <div className="admin-card">
                                 <div className="admin-card-header">
@@ -210,7 +210,7 @@ const PendingAnswerApproval = () => {
                                         style={{ justifyContent: 'center' }}
                                     >
                                         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
-                                            <path d="M2 8l4 4 8-8"/>
+                                            <path d="M2 8l4 4 8-8" />
                                         </svg>
                                         Одобри отговора
                                     </button>
@@ -227,7 +227,7 @@ const PendingAnswerApproval = () => {
                                             style={{ justifyContent: 'center', width: '100%' }}
                                         >
                                             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
-                                                <path d="M3 3l10 10M13 3L3 13"/>
+                                                <path d="M3 3l10 10M13 3L3 13" />
                                             </svg>
                                             Отхвърли отговора
                                         </button>
@@ -237,7 +237,7 @@ const PendingAnswerApproval = () => {
                                                 <label className="form-label">
                                                     Причина за отхвърляне <span style={{ color: 'var(--rose-500)' }}>*</span>
                                                 </label>
-                                               <textarea
+                                                <textarea
                                                     id="answer-reject-reason"
                                                     className="form-textarea"
                                                     placeholder="Обяснете защо отговорът е неверен..."
@@ -254,7 +254,7 @@ const PendingAnswerApproval = () => {
                                                     <button onClick={handleReject} className="btn btn-danger btn-sm" style={{ flex: 1 }}>
                                                         Потвърди отхвърлянето
                                                     </button>
-                                                    <button 
+                                                    <button
                                                         onClick={() => {
                                                             setShowRejectForm(false);
                                                             const textarea = document.getElementById('answer-reject-reason');
