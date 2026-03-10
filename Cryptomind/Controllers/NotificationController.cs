@@ -41,9 +41,10 @@ namespace Cryptomind.Controllers
 			return Ok();
 		}
 
-
-
+		#region Private-methods
 		private string GetUserId()
 		   => User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+		#endregion
 	}
 }
