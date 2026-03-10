@@ -57,7 +57,7 @@ export default function Register() {
         data?.error ||
         'Регистрацията е неуспешна. Моля, проверете въведените данни.';
     setError(errorTranslations[raw] || raw);
-})// Reload the page to reflect the new registration
+})
     }
     return (
         <>

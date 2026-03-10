@@ -153,7 +153,6 @@ const UsersManagement = () => {
 
                     {emptyOrError || (
                         <>
-                            {/* Desktop table */}
                             <div className="data-table-wrapper">
                                 <table className="data-table">
                                     <thead>
@@ -179,7 +178,6 @@ const UsersManagement = () => {
                                 </table>
                             </div>
 
-                            {/* Mobile card list */}
                             <div className="users-card-list">
                                 {users.map((user) => (
                                     <div key={user.id} className="user-card">
