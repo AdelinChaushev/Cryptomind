@@ -1,7 +1,5 @@
 import React from 'react';
 
-
-
 const MlAnalysisSection = ({
     mlFamily,
     mlPrediction,
