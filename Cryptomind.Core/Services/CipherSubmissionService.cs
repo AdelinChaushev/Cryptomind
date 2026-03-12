@@ -23,7 +23,7 @@ namespace Cryptomind.Core.Services
 	{
 		public async Task<Cipher> SubmitCipherAsync(SubmitCipherViewModel model, string userId)
 		{
-			if (string.IsNullOrEmpty(model.Title))
+			if (string.IsNullOrEmpty(model.Title)) 
 				throw new CustomValidationException(CipherErrorConstants.TitleRequiredMessage);
 
 			if (await cipherRepo.GetAllAttached().AnyAsync(x => x.Title.ToLower().Trim() == model.Title.ToLower().Trim() && !x.IsDeleted))
@@ -80,21 +80,7 @@ namespace Cryptomind.Core.Services
 				finalText = model.ReviewedText;
 				encryptedTextForAnalysis = finalText;
 
-				string imageFolderPath = Path.Combine(PathHelper.GetImagesBasePath(), "Ciphers");
-				Directory.CreateDirectory(imageFolderPath);
-				string originalExtension = Path.GetExtension(model.Image.FileName).ToLowerInvariant();
-				string safeTitle = MakeSafeFilename(model.Title);
-				string imageFilePath = Path.Combine(imageFolderPath, safeTitle + originalExtension);
-
-				using (var fileStream = new FileStream(imageFilePath, FileMode.Create))
-				{
-					using (var imageStream = model.Image.OpenReadStream())
-					{
-						await imageStream.CopyToAsync(fileStream);
-					}
-				}
-
-				string relativePath = Path.Combine("Ciphers", safeTitle + originalExtension);
+			
 
 				if (finalText.Length >= 450)
 					throw new CustomValidationException(CipherErrorConstants.MaxLengthExceeded);
@@ -109,7 +95,6 @@ namespace Cryptomind.Core.Services
 					Title = model.Title.Trim(),
 					DecryptedText = model.DecryptedText,
 					TypeOfCipher = model.CipherType,
-					ImagePath = relativePath,
 					AllowHint = false,
 					AllowSolution = false,
 					Status = ApprovalStatus.Pending,
@@ -163,6 +148,12 @@ namespace Cryptomind.Core.Services
 			cipher.DisplayOrder = nextOrder;
 
 			await cipherRepo.AddAsync(cipher);
+			if(cipher is  ImageCipher cipherImage)
+			{
+				await SaveImageFile(model.Image,cipherImage);
+				
+			}
+	
 			return cipher;
 		}
 		public async Task<List<CipherSubmissionViewModel>> SubmittedCiphers(string userId)
@@ -277,8 +268,28 @@ namespace Cryptomind.Core.Services
 
 			return true;
 		}
+		private  async Task SaveImageFile(IFormFile file , ImageCipher cipher)
+		{
+				string imageFolderPath = Path.Combine(PathHelper.GetImagesBasePath(), "Ciphers");
+				Directory.CreateDirectory(imageFolderPath);
+				string originalExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+				string imageFilePath = Path.Combine(imageFolderPath, cipher.Id.ToString() + originalExtension);
+
+				using (var fileStream = new FileStream(imageFilePath, FileMode.Create))
+				{
+					using (var imageStream = file.OpenReadStream())
+					{
+						await imageStream.CopyToAsync(fileStream);
+					}
+				}
+
+				string relativePath = Path.Combine("Ciphers", cipher.Id.ToString() + originalExtension);
+				cipher.ImagePath = relativePath;
+				await cipherRepo.UpdateAsync(cipher);
+		}
 
 		#endregion
+		
 		private static readonly HashSet<string> ProblematicCipherTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 		{
 			"columnar",
