@@ -28,6 +28,7 @@ namespace Cryptomind.Common.Helpers
 			var english = cipherType.ToString();
 			return $"{bulgarian} ({english})";
 		}
+
 		//public static string ToDisplayName(int cipherType)
 		//{
 		//	return ToDisplayName((CipherType)cipherType);
