@@ -54,9 +54,10 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<ILeaderboardService, LeaderboardService>();
 		services.AddScoped<IAuthService, AuthService>();
 
+		services.AddSingleton<IRoomService, RoomService>();
+
 		return services;
 	}
-
 	public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
 	{
 		var connectionString = configuration.GetConnectionString("DefaultConnection");
@@ -68,7 +69,6 @@ public static class ServiceCollectionExtensions
 					errorNumbersToAdd: null)));
 		return services;
 	}
-
 	public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
 	{
 		var key = Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET"));
@@ -100,7 +100,8 @@ public static class ServiceCollectionExtensions
 					context.Token = context.Request.Cookies["token"];
 					var accessToken = context.Request.Query["access_token"];
 					var path = context.HttpContext.Request.Path;
-					if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/notificationHub"))
+					if (!string.IsNullOrEmpty(accessToken) &&
+						(path.StartsWithSegments("/notificationHub") || path.StartsWithSegments("/raceRoomHub")))
 						context.Token = accessToken;
 					return Task.CompletedTask;
 				}
@@ -109,7 +110,6 @@ public static class ServiceCollectionExtensions
 
 		return services;
 	}
-
 	public static IServiceCollection AddIdentityConfiguration(this IServiceCollection services)
 	{
 		services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -125,7 +125,6 @@ public static class ServiceCollectionExtensions
 
 		return services;
 	}
-
 	public static IServiceCollection AddCorsConfiguration(this IServiceCollection services)
 	{
 		services.AddCors(c =>
