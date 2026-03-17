@@ -8,20 +8,14 @@ using Cryptomind.Core.Rooms.Enums;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
 
 namespace Cryptomind.Core.Services
 {
-	public class RoomService(IServiceScopeFactory scopeFactory) : IRoomService
+	public class RoomService(UserManager<ApplicationUser> userManager, RoomStore store) : IRoomService
 	{
-		private ConcurrentDictionary<string, RaceRoom> rooms = new ConcurrentDictionary<string, RaceRoom>();
-
 		public async Task<string> CreateRoom(string userId)
 		{
-			using var scope = scopeFactory.CreateScope();
-			var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-
 			if (await userManager.FindByIdAsync(userId) == null)
 				throw new NotFoundException(CipherErrorConstants.UserNotFoundMessage);
 
@@ -29,7 +23,7 @@ namespace Cryptomind.Core.Services
 			do
 			{
 				code = GenerateRoomCodeHelper.CodeGenerator();
-			} while (rooms.ContainsKey(code));
+			} while (store.Rooms.ContainsKey(code));
 
 			var raceRoom = new RaceRoom
 			{
@@ -44,51 +38,49 @@ namespace Cryptomind.Core.Services
 				Status = RoomStatus.WaitingForPlayers
 			};
 
-			rooms.TryAdd(code, raceRoom);
+			//We don't need to check for recurring keys because we check before this
+			store.Rooms.TryAdd(code, raceRoom);
 			return code;
 		}
-
 		public void RemoveRoom(string roomCode)
 		{
-			rooms.TryRemove(roomCode, out _);
+			store.Rooms.TryRemove(roomCode, out _);
 		}
-
 		public async Task<bool> JoinRoom(string roomCode, string userId)
 		{
-			if (!rooms.ContainsKey(roomCode))
+			if (!store.Rooms.ContainsKey(roomCode))
+			{
 				throw new NotFoundException(RoomConstants.RoomNotFound);
+			}
 
-			var room = rooms[roomCode];
+			var room = store.Rooms[roomCode];
 
 			if (room.Player2Id != null)
 				throw new ConflictException(RoomConstants.RoomAlreadyFull);
-
-			using var scope = scopeFactory.CreateScope();
-			var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-
 			if (await userManager.FindByIdAsync(userId) == null)
 				throw new NotFoundException(CipherErrorConstants.UserNotFoundMessage);
+
 
 			room.Player2Id = userId;
 			room.Status = RoomStatus.WaitingForReady;
 
 			return true;
 		}
-
 		public async Task<bool> SetReady(string roomCode, string userId)
 		{
-			if (!rooms.ContainsKey(roomCode))
+			if (!store.Rooms.ContainsKey(roomCode))
+			{
 				throw new NotFoundException(RoomConstants.RoomNotFound);
-
-			using var scope = scopeFactory.CreateScope();
-			var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+			}
 
 			if (await userManager.FindByIdAsync(userId) == null)
 				throw new NotFoundException(CipherErrorConstants.UserNotFoundMessage);
 
-			var room = rooms[roomCode];
+			var room = store.Rooms[roomCode];
 			if (room.Player1Id != userId && room.Player2Id != userId)
+			{
 				throw new NotFoundException(RoomConstants.PlayerNotInRoom);
+			}
 
 			lock (room)
 			{
@@ -102,14 +94,15 @@ namespace Cryptomind.Core.Services
 				return room.Player1Ready && room.Player2Ready;
 			}
 		}
-
 		public string StartRoom(string roomCode)
 		{
-			if (!rooms.ContainsKey(roomCode))
+			if (!store.Rooms.ContainsKey(roomCode))
+			{
 				throw new NotFoundException(RoomConstants.RoomNotFound);
-
+			}
 			var (cipherType, encryptedText) = CipherGeneratorHelper.GenerateRandom();
-			var room = rooms[roomCode];
+
+			var room = store.Rooms[roomCode];
 
 			room.Status = RoomStatus.InProgress;
 			room.CurrentRound = 1;
@@ -123,19 +116,17 @@ namespace Cryptomind.Core.Services
 
 			return encryptedText;
 		}
-
 		public async Task<RoomSubmissionResultDTO> SubmitAnwer(string roomCode, string userId, CipherType answer)
 		{
-			if (!rooms.ContainsKey(roomCode))
+			if (!store.Rooms.ContainsKey(roomCode))
+			{
 				throw new NotFoundException(RoomConstants.RoomNotFound);
-
-			using var scope = scopeFactory.CreateScope();
-			var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+			}
 
 			if (await userManager.FindByIdAsync(userId) == null)
 				throw new NotFoundException(CipherErrorConstants.UserNotFoundMessage);
 
-			var room = rooms[roomCode];
+			var room = store.Rooms[roomCode];
 			var round = room.Rounds[room.CurrentRound - 1];
 
 			string? winnerUsername = null;
@@ -144,10 +135,14 @@ namespace Cryptomind.Core.Services
 			lock (room)
 			{
 				if (round.Submissions.Any(x => x.UserId == userId))
+				{
 					throw new ConflictException(RoomConstants.AlreadySubmitted);
+				}
 
 				if (room.Player1Id != userId && room.Player2Id != userId)
+				{
 					throw new NotFoundException(RoomConstants.PlayerNotInRoom);
+				}
 
 				round.Submissions.Add(new RoomSubmission
 				{
@@ -159,7 +154,6 @@ namespace Cryptomind.Core.Services
 
 				didBothSubmit = round.Submissions.Count == 2;
 			}
-
 			bool? wasLastRound = null;
 
 			if (didBothSubmit)
@@ -174,21 +168,21 @@ namespace Cryptomind.Core.Services
 				wasLastRound = result.WasLastRound;
 			}
 
+			//Doesn't matter if one didn't submit or none got it right, we still get null as the username of the winner! - Discuss with Adelin
 			return new RoomSubmissionResultDTO
 			{
 				DidBothSubmit = didBothSubmit,
 				WinnerUsername = winnerUsername,
-				WasLastRound = wasLastRound,
+				WasLastRound = wasLastRound, //Possible null, if the submission was the first and there is no other, we don't have to keep track if this was the last round.
 			};
 		}
-
 		public string NextRound(string roomCode)
 		{
-			if (!rooms.ContainsKey(roomCode))
+			if (!store.Rooms.ContainsKey(roomCode))
 				throw new NotFoundException(RoomConstants.RoomNotFound);
 
 			var (cipherType, encryptedText) = CipherGeneratorHelper.GenerateRandom();
-			var room = rooms[roomCode];
+			var room = store.Rooms[roomCode];
 
 			room.CurrentRound++;
 			room.Rounds.Add(new Round
@@ -201,13 +195,14 @@ namespace Cryptomind.Core.Services
 
 			return encryptedText;
 		}
-
 		public async Task<RoundResultDTO?> EndRound(string roomCode, bool didTimerRanOut)
 		{
-			if (!rooms.ContainsKey(roomCode))
+			if (!store.Rooms.ContainsKey(roomCode))
+			{
 				throw new NotFoundException(RoomConstants.RoomNotFound);
+			}
 
-			var room = rooms[roomCode];
+			var room = store.Rooms[roomCode];
 			var round = room.Rounds[room.CurrentRound - 1];
 			var submissions = round.Submissions
 				.OrderBy(x => x.SubmissionTime)
@@ -219,7 +214,7 @@ namespace Cryptomind.Core.Services
 			lock (room)
 			{
 				if (round.IsFinished)
-					return null;
+					return null; // Or a specific DTO indicating already processed
 
 				round.IsFinished = true;
 
@@ -242,14 +237,12 @@ namespace Cryptomind.Core.Services
 						WinnerUsername = null,
 					};
 
+				//We handle both cases where one solution is correct and both are correct because we sort the submissions list so that means the first submission was the earlier one.
 				if (firstSubmission.IsCorrect && !secondSubmission.IsCorrect || (firstSubmission.IsCorrect && secondSubmission.IsCorrect))
 					winnerUserId = firstSubmission.UserId;
 				else
 					winnerUserId = secondSubmission.UserId;
 			}
-
-			using var scope = scopeFactory.CreateScope();
-			var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
 			var user = await userManager.FindByIdAsync(winnerUserId);
 			if (user == null)
@@ -267,37 +260,31 @@ namespace Cryptomind.Core.Services
 				WinnerUsername = user.UserName
 			};
 		}
-
 		public void SetRoundTimer(string roomCode, CancellationTokenSource cts)
 		{
-			var room = rooms[roomCode];
+			var room = store.Rooms[roomCode];
 			room.RoundTimer = cts;
 		}
-
 		public void CancelRoundTimer(string roomCode)
 		{
-			var room = rooms[roomCode];
+			var room = store.Rooms[roomCode];
 			room.RoundTimer?.Cancel();
 			room.RoundTimer = null;
 		}
-
 		public async Task<GameResultDTO> EndGame(string roomCode)
 		{
-			if (!rooms.ContainsKey(roomCode))
+			if (!store.Rooms.ContainsKey(roomCode))
 				throw new NotFoundException(RoomConstants.RoomNotFound);
 
-			var room = rooms[roomCode];
+			var room = store.Rooms[roomCode];
 			room.Status = RoomStatus.Finished;
-
-			using var scope = scopeFactory.CreateScope();
-			var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
 			var firstPlayer = await userManager.FindByIdAsync(room.Player1Id);
 			var secondPlayer = await userManager.FindByIdAsync(room.Player2Id);
 
 			if (firstPlayer == null)
 				throw new NotFoundException(CipherErrorConstants.UserNotFoundMessage);
-			if (secondPlayer == null)
+			else if (secondPlayer == null)
 				throw new NotFoundException(CipherErrorConstants.UserNotFoundMessage);
 
 			string? winnerUsername = null;
@@ -307,7 +294,7 @@ namespace Cryptomind.Core.Services
 			else if (room.Player2Score > room.Player1Score)
 				winnerUsername = secondPlayer.UserName;
 
-			rooms.TryRemove(roomCode, out _);
+			store.Rooms.TryRemove(roomCode, out _);
 
 			return new GameResultDTO
 			{

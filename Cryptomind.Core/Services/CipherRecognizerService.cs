@@ -77,15 +77,15 @@ namespace Cryptomind.Core.Services
 
 				return result;
 			}
-			catch (HttpRequestException ex)
+			catch (HttpRequestException)
 			{
 				throw new Exception(string.Format(CipherRecognitionConstants.MLServiceNotAvailable, mlApiUrl));
 			}
-			catch (TaskCanceledException ex)
+			catch (TaskCanceledException)
 			{
 				throw new Exception(string.Format(CipherRecognitionConstants.MLTimeoutExpired, ApiTimeoutSeconds));
 			}
-			catch (JsonException ex)
+			catch (JsonException)
 			{
 				throw new Exception(CipherRecognitionConstants.InvalidAnalysis);
 			}
