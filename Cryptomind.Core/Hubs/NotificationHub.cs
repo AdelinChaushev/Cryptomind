@@ -18,7 +18,6 @@ namespace Cryptomind.Core.Hubs
 
 			await base.OnConnectedAsync();
 		}
-
 		public override async Task OnDisconnectedAsync(Exception exception)
 		{
 			var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);

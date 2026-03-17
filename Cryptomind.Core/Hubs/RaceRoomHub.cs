@@ -9,7 +9,7 @@ using System.Security.Claims;
 
 namespace Cryptomind.Core.Hubs
 {
-	[Authorize]
+	[Authorize(AuthenticationSchemes = "Bearer")]
 	public class RaceRoomHub(IRoomService roomService) : Hub
 	{
 		private static ConcurrentDictionary<string, string> connectionToRoom = new();
@@ -18,7 +18,6 @@ namespace Cryptomind.Core.Hubs
 		{
 			return base.OnConnectedAsync();
 		}
-
 		public override async Task OnDisconnectedAsync(Exception? exception)
 		{
 			if (connectionToRoom.TryRemove(Context.ConnectionId, out var roomCode))
@@ -38,7 +37,6 @@ namespace Cryptomind.Core.Hubs
 
 			await base.OnDisconnectedAsync(exception);
 		}
-
 		public async Task CreateRoom()
 		{
 			try
@@ -60,7 +58,6 @@ namespace Cryptomind.Core.Hubs
 				await Clients.Caller.SendAsync("Error", "An unexpected error occurred");
 			}
 		}
-
 		public async Task JoinRoom(string roomCode)
 		{
 			try
@@ -99,13 +96,16 @@ namespace Cryptomind.Core.Hubs
 			try
 			{
 				var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+				Console.WriteLine($"[SetReady] Called by userId: {userId}, roomCode: {roomCode}");
 				if (string.IsNullOrEmpty(userId)) return;
 
 				var areBothReady = await roomService.SetReady(roomCode, userId);
+				Console.WriteLine($"[SetReady] areBothReady: {areBothReady}");
 
 				if (areBothReady)
 				{
 					var encryptedText = roomService.StartRoom(roomCode);
+					Console.WriteLine($"[SetReady] Sending GameIsStarting to room_{roomCode}");
 					await Clients.Group($"room_{roomCode}").SendAsync("GameIsStarting", encryptedText);
 					_ = StartRoundTimer(roomCode);
 				}
@@ -114,14 +114,15 @@ namespace Cryptomind.Core.Hubs
 			}
 			catch (NotFoundException ex)
 			{
+				Console.WriteLine($"[SetReady] NotFoundException: {ex.Message}");
 				await Clients.Caller.SendAsync("Error", ex.Message);
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
+				Console.WriteLine($"[SetReady] Exception: {ex.Message}");
 				await Clients.Caller.SendAsync("Error", "An unexpected error occurred");
 			}
 		}
-
 		public async Task SubmitAnswer(string roomCode, CipherType answer)
 		{
 			try

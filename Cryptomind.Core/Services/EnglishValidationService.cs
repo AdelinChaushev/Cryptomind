@@ -64,15 +64,15 @@ namespace Cryptomind.Core.Services
 
 				return result;
 			}
-			catch (HttpRequestException ex)
+			catch (HttpRequestException)
 			{
 				throw new Exception(string.Format(EnglishValidationConstants.EnglishServiceNotAvailable, mlApiUrl));
 			}
-			catch (TaskCanceledException ex)
+			catch (TaskCanceledException)
 			{
 				throw new Exception(string.Format(EnglishValidationConstants.TimeoutExpired, ApiTimeoutSeconds));
 			}
-			catch (JsonException ex)
+			catch (JsonException)
 			{
 				throw new Exception(EnglishValidationConstants.InvalidAnalysis);
 			}

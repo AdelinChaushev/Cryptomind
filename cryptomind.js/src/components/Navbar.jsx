@@ -32,6 +32,7 @@ const Navbar = () => {
                             <li><Link to="/" onClick={closeMenu}>Преглед</Link></li>
                             <li><Link to="/submit" onClick={closeMenu}>Предложи</Link></li>
                             <li><Link to="/my_submissions" onClick={closeMenu}>Моите предложения</Link></li>
+                            <li><Link to="/race-room" onClick={closeMenu}>Състезание</Link></li>
                         </>
                     )}
                     <li><Link to="/leaderboard" onClick={closeMenu}>Класация</Link></li>
