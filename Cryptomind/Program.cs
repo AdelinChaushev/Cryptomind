@@ -39,6 +39,7 @@ app.UseAuthentication();
 app.UseMiddleware<BanCheckMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
+
 app.MapHub<NotificationHub>("/notificationHub");
 app.MapHub<RaceRoomHub>("/raceRoomHub");
 
