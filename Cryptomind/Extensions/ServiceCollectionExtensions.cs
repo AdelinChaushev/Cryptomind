@@ -1,4 +1,5 @@
 ﻿using Cryptomind.Core.Contracts;
+using Cryptomind.Core.Rooms;
 using Cryptomind.Core.Services;
 using Cryptomind.Core.Services.OCR;
 using Cryptomind.Data;
@@ -54,7 +55,8 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<ILeaderboardService, LeaderboardService>();
 		services.AddScoped<IAuthService, AuthService>();
 
-		services.AddSingleton<IRoomService, RoomService>();
+		services.AddSingleton<RoomStore>();
+		services.AddScoped<IRoomService, RoomService>();
 
 		return services;
 	}

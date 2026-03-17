@@ -54,6 +54,11 @@ namespace Cryptomind.Tests.Integration.Fixtures
 					["ConnectionStrings:DefaultConnection"] = "ignored-replaced-by-inmemory",
 				});
 			});
+			builder.UseDefaultServiceProvider(options =>
+			{
+				options.ValidateScopes = false;
+				options.ValidateOnBuild = false;
+			});
 
 			builder.ConfigureServices((context, services) =>
 			{

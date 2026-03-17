@@ -32,6 +32,7 @@ import { ErrorProvider } from "./ErrorContext";
 import PageTransition from "./PageTransition";
 import AccountInfo from './account-page/AccountInfo.jsx';
 import { NotificationProvider } from './NotificationProvider.jsx';
+import RaceRoomPage from './race-rooms/RaceRoomPage.jsx';
 export const AuthorizationContext = createContext({roles : [], isLoggedIn: false , isBanned : false , bannedMessage : "",email : ""});
 export const NotificationContext = createContext(null);
 export const useNotificationContext = () => useContext(NotificationContext);
@@ -88,7 +89,8 @@ function App() {
         <Route path="admin/answer-review/:id" element={<RequireAuth allowedRoles={["Admin"]} ><PendingAnswerApproval /></RequireAuth>} />
         <Route path="admin/users" element={<RequireAuth allowedRoles="Admin" ><UsersManagement /></RequireAuth>} />
         <Route path="admin/deleted-ciphers" element={<RequireAuth allowedRoles="Admin" ><DeletedCiphers /></RequireAuth>} />
-        {!state.isLoggedIn ?(<Route index element={<Home/>} />) : (<Route index element={<RequireAuth ><CipherBrowsePage/></RequireAuth>}  />)}  
+        <Route path="race-room" element={<RequireAuth><RaceRoomPage /></RequireAuth>} />
+        {!state.isLoggedIn ?(<Route index element={<Home/>} />) : (<Route index element={<RequireAuth ><CipherBrowsePage/></RequireAuth>}  />)}
       </Route>
     </Routes>
     </PageTransition> 
