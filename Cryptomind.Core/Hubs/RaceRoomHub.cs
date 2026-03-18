@@ -201,7 +201,6 @@ namespace Cryptomind.Core.Hubs
 				await Clients.Caller.SendAsync("Error", "An unexpected error occurred");
 			}
 		}
-.
 		public async Task VerifyRoom(string roomCode)
 		{
 			var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
