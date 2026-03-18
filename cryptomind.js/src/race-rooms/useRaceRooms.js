@@ -217,7 +217,26 @@ export function useRaceRoom() {
 
         connection.onreconnecting(() => setIsConnected(false));
         connection.onreconnected(()  => setIsConnected(true));
-        connection.onclose(()        => setIsConnected(false));
+
+        connection.onclose(() => {
+            setIsConnected(false);
+            if (phaseRef.current === GamePhase.GAME_END) return;
+            clearCountdown();
+            clearPreCountdown();
+            clearTransition();
+            setRoomCode('');
+            setCipherText('');
+            setCurrentRound(0);
+            setRoundWinner(null);
+            setGameResult(null);
+            setMySubmitted(false);
+            setOtherSubmitted(false);
+            setTimeLeft(ROUND_DURATION_SECONDS);
+            setMyReady(false);
+            myReadyRef.current = false;
+            setOtherReady(false);
+            setPhaseSync(GamePhase.LOBBY);
+        });
 
         const start = async () => {
             try {
