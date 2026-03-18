@@ -73,15 +73,17 @@ export function useRaceRoom() {
     const startCountdown = useCallback(() => {
         clearCountdown();
         setTimeLeft(ROUND_DURATION_SECONDS);
+        const startedAt = Date.now();
         countdownRef.current = setInterval(() => {
-            setTimeLeft(prev => {
-                if (prev <= 1) {
-                    clearCountdown();
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
+            const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+            const remaining = ROUND_DURATION_SECONDS - elapsed;
+            if (remaining <= 0) {
+                clearCountdown();
+                setTimeLeft(0);
+            } else {
+                setTimeLeft(remaining);
+            }
+        }, 500);
     }, [clearCountdown]);
 
     const clearTransition = useCallback(() => {

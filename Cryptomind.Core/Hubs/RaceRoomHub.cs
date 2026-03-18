@@ -10,13 +10,28 @@ using System.Security.Claims;
 namespace Cryptomind.Core.Hubs
 {
 	[Authorize(AuthenticationSchemes = "Bearer")]
-	public class RaceRoomHub(IRoomService roomService) : Hub
+	public class RaceRoomHub(IRoomService roomService, IHubContext<RaceRoomHub> hubContext) : Hub
 	{
 		private static ConcurrentDictionary<string, string> connectionToRoom = new();
 
-		public override Task OnConnectedAsync()
+		public override async Task OnConnectedAsync()
 		{
-			return base.OnConnectedAsync();
+			var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+			if (!string.IsNullOrEmpty(userId))
+			{
+				var existingRoom = connectionToRoom.Values
+					.GroupBy(x => x)
+					.Select(x => x.Key)
+					.FirstOrDefault(roomCode => roomService.IsPlayerInRoom(roomCode, userId));
+
+				if (existingRoom != null)
+				{
+					connectionToRoom.TryAdd(Context.ConnectionId, existingRoom);
+					await Groups.AddToGroupAsync(Context.ConnectionId, $"room_{existingRoom}");
+				}
+			}
+
+			await base.OnConnectedAsync();
 		}
 		public override async Task OnDisconnectedAsync(Exception? exception)
 		{
@@ -90,22 +105,18 @@ namespace Cryptomind.Core.Hubs
 				await Clients.Caller.SendAsync("Error", "An unexpected error occurred");
 			}
 		}
-
 		public async Task SetReady(string roomCode)
 		{
 			try
 			{
 				var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-				Console.WriteLine($"[SetReady] Called by userId: {userId}, roomCode: {roomCode}");
 				if (string.IsNullOrEmpty(userId)) return;
 
 				var areBothReady = await roomService.SetReady(roomCode, userId);
-				Console.WriteLine($"[SetReady] areBothReady: {areBothReady}");
 
 				if (areBothReady)
 				{
 					var encryptedText = roomService.StartRoom(roomCode);
-					Console.WriteLine($"[SetReady] Sending GameIsStarting to room_{roomCode}");
 					await Clients.Group($"room_{roomCode}").SendAsync("GameIsStarting", encryptedText);
 					_ = StartRoundTimer(roomCode);
 				}
@@ -114,12 +125,10 @@ namespace Cryptomind.Core.Hubs
 			}
 			catch (NotFoundException ex)
 			{
-				Console.WriteLine($"[SetReady] NotFoundException: {ex.Message}");
 				await Clients.Caller.SendAsync("Error", ex.Message);
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine($"[SetReady] Exception: {ex.Message}");
 				await Clients.Caller.SendAsync("Error", "An unexpected error occurred");
 			}
 		}
@@ -182,29 +191,27 @@ namespace Cryptomind.Core.Hubs
 				var result = await roomService.EndRound(roomCode, true);
 				if (result == null) return;
 
-				await Clients.Group($"room_{roomCode}").SendAsync("RoundEnded", null);
+				await hubContext.Clients.Group($"room_{roomCode}").SendAsync("RoundEnded", null);
 
 				if (result.WasLastRound)
 				{
 					var gameResult = await roomService.EndGame(roomCode);
-					await Clients.Group($"room_{roomCode}").SendAsync("GameEnded", gameResult);
+					await hubContext.Clients.Group($"room_{roomCode}").SendAsync("GameEnded", gameResult);
 				}
 				else
 				{
 					var nextCipher = roomService.NextRound(roomCode);
-					await Clients.Group($"room_{roomCode}").SendAsync("NextRoundStarting", nextCipher);
+					await hubContext.Clients.Group($"room_{roomCode}").SendAsync("NextRoundStarting", nextCipher);
 					_ = StartRoundTimer(roomCode);
 				}
 			}
-			catch (TaskCanceledException)
-			{
-				// Both players submitted before time ran out, do nothing
-			}
+			catch (TaskCanceledException) { } //Both players submitted before the timer ran out.
 			catch (Exception)
 			{
-				await Clients.Group($"room_{roomCode}").SendAsync("Error", "An unexpected error occurred");
+				await hubContext.Clients.Group($"room_{roomCode}").SendAsync("Error", "An unexpected error occurred");
 			}
 		}
+
 		#endregion
 	}
 }

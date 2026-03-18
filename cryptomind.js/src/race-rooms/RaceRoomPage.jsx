@@ -7,38 +7,28 @@ const CIPHER_GROUPS = [
         label:     'Заместване',
         className: 'group-substitution',
         ciphers: [
-            { label: 'Цезар',               value: CipherType.Caesar              },
-            { label: 'Атбаш',               value: CipherType.Atbash              },
-            { label: 'Просто заместване',   value: CipherType.SimpleSubstitution  },
-            { label: 'ROT13',               value: CipherType.ROT13               },
+            { label: 'Цезар (Caesar)',               value: CipherType.Caesar              },
+            { label: 'Атбаш (Atbash)',               value: CipherType.Atbash              },
+            { label: 'Проста замяна (SimpleSubstitution)',   value: CipherType.SimpleSubstitution  },
+            { label: 'ROT13 (ROT13)',               value: CipherType.ROT13               },
         ],
     },
     {
         label:     'Полиазбучни',
         className: 'group-polyalphabetic',
         ciphers: [
-            { label: 'Виженер',    value: CipherType.Vigenere   },
-            { label: 'Автоключ',   value: CipherType.Autokey    },
-            { label: 'Тритемиус',  value: CipherType.Trithemius },
+            { label: 'Виженер (Vigenere)',    value: CipherType.Vigenere   },
+            { label: 'Автоключ (Autokey)',   value: CipherType.Autokey    },
+            { label: 'Тритемий (Trithemius)',  value: CipherType.Trithemius },
         ],
     },
     {
         label:     'Транспозиция',
         className: 'group-transposition',
         ciphers: [
-            { label: 'Железопътна ограда', value: CipherType.RailFence },
-            { label: 'Колонна',            value: CipherType.Columnar  },
-            { label: 'Маршрут',            value: CipherType.Route     },
-        ],
-    },
-    {
-        label:     'Кодиране',
-        className: 'group-encoding',
-        ciphers: [
-            { label: 'Base64', value: CipherType.Base64 },
-            { label: 'Морзе',  value: CipherType.Morse  },
-            { label: 'Двоично', value: CipherType.Binary },
-            { label: 'Шестнадесетично', value: CipherType.Hex },
+            { label: 'Железопътна ограда (RailFence)', value: CipherType.RailFence },
+            { label: 'Колонна (Columnar)',            value: CipherType.Columnar  },
+            { label: 'Маршрут (Route)',            value: CipherType.Route     },
         ],
     },
 ];
@@ -96,11 +86,12 @@ export default function RaceRoomPage() {
     return (
         <div className="race-room-page">
 
-            <div className={`connection-badge ${isConnected ? 'connected' : 'disconnected'}`}>
-                <span className="connection-dot" />
-                {isConnected ? 'Свързан' : 'Свързване…'}
-            </div>
-
+            {phase !== GamePhase.LOBBY && phase !== GamePhase.WAITING && (
+                <div className={`connection-badge ${isConnected ? 'connected' : 'disconnected'}`}>
+                    <span className="connection-dot" />
+                    {isConnected ? 'Свързан' : 'Свързване…'}
+                </div>
+            )}
             {error && (
                 <div className="error-overlay">
                     <div className="error-card">
