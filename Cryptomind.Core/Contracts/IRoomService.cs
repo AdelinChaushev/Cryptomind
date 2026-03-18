@@ -9,6 +9,7 @@ namespace Cryptomind.Core.Contracts
 		void RemoveRoom(string roomCode);
 		Task<bool> JoinRoom(string roomCode, string userId);
 		Task<bool> SetReady(string roomCode, string userId);
+		bool IsPlayerInRoom(string roomCode, string userId);
 		string StartRoom(string roomCode);
 		Task<RoomSubmissionResultDTO> SubmitAnwer(string roomCode, string userId, CipherType answer);
 		string NextRound(string roomCode);

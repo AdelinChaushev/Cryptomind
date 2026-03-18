@@ -8,7 +8,6 @@ using Cryptomind.Core.Rooms.Enums;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Microsoft.AspNetCore.Identity;
-using System.Collections.Concurrent;
 
 namespace Cryptomind.Core.Services
 {
@@ -93,6 +92,12 @@ namespace Cryptomind.Core.Services
 
 				return room.Player1Ready && room.Player2Ready;
 			}
+		}
+		public bool IsPlayerInRoom(string roomCode, string userId)
+		{
+			if (!store.Rooms.ContainsKey(roomCode)) return false;
+			var room = store.Rooms[roomCode];
+			return room.Player1Id == userId || room.Player2Id == userId;
 		}
 		public string StartRoom(string roomCode)
 		{
