@@ -57,11 +57,38 @@ export function useRaceRoom() {
     const phaseRef           = useRef(GamePhase.LOBBY);
     const pendingCipherRef   = useRef('');
     const pendingRoundRef    = useRef(0);
+    const roomCodeRef        = useRef('');
 
     const setPhaseSync = useCallback((newPhase) => {
         phaseRef.current = newPhase;
         setPhase(newPhase);
     }, []);
+
+    const setRoomCodeSync = useCallback((code) => {
+        roomCodeRef.current = code;
+        setRoomCode(code);
+    }, []);
+
+    const resetToLobby = useCallback(() => {
+        clearInterval(countdownRef.current);
+        countdownRef.current = null;
+        clearInterval(preCountdownRef.current);
+        preCountdownRef.current = null;
+        clearTimeout(transitionRef.current);
+        transitionRef.current = null;
+        setRoomCodeSync('');
+        setCipherText('');
+        setCurrentRound(0);
+        setRoundWinner(null);
+        setGameResult(null);
+        setMySubmitted(false);
+        setOtherSubmitted(false);
+        setTimeLeft(ROUND_DURATION_SECONDS);
+        setMyReady(false);
+        myReadyRef.current = false;
+        setOtherReady(false);
+        setPhaseSync(GamePhase.LOBBY);
+    }, [setPhaseSync, setRoomCodeSync]);
 
     const clearCountdown = useCallback(() => {
         if (countdownRef.current) {
@@ -139,14 +166,14 @@ export function useRaceRoom() {
             .build();
 
         connection.on('RoomCreated', (code) => {
-            setRoomCode(code);
+            setRoomCodeSync(code);
             setPhaseSync(GamePhase.WAITING);
         });
 
         connection.on('RoomJoined', (success) => {
             if (success) {
                 if (pendingRoomCodeRef.current) {
-                    setRoomCode(pendingRoomCodeRef.current);
+                    setRoomCodeSync(pendingRoomCodeRef.current);
                 }
                 setPhaseSync(GamePhase.READY_LOBBY);
             }
@@ -192,23 +219,13 @@ export function useRaceRoom() {
 
         connection.on('PlayerDisconnected', () => {
             if (phaseRef.current === GamePhase.GAME_END) return;
-
-            clearCountdown();
-            clearPreCountdown();
-            clearTransition();
-            setRoomCode('');
-            setCipherText('');
-            setCurrentRound(0);
-            setRoundWinner(null);
-            setGameResult(null);
-            setMySubmitted(false);
-            setOtherSubmitted(false);
-            setTimeLeft(ROUND_DURATION_SECONDS);
-            setMyReady(false);
-            myReadyRef.current = false;
-            setOtherReady(false);
-            setPhaseSync(GamePhase.LOBBY);
+            resetToLobby();
             setError('Опонентът ти се е изключил. Стаята е затворена.');
+        });
+
+        connection.on('RoomNoLongerExists', () => {
+            resetToLobby();
+            setError('Стаята вече не съществува. Моля, създай нова стая.');
         });
 
         connection.on('AnswerSubmitted',       () => setMySubmitted(true));
@@ -216,26 +233,20 @@ export function useRaceRoom() {
         connection.on('Error',   (message)     => setError(message));
 
         connection.onreconnecting(() => setIsConnected(false));
-        connection.onreconnected(()  => setIsConnected(true));
+
+        connection.onreconnected(() => {
+            setIsConnected(true);
+            const currentRoomCode = roomCodeRef.current;
+            if (currentRoomCode && phaseRef.current !== GamePhase.LOBBY && phaseRef.current !== GamePhase.GAME_END) {
+                connection.invoke('VerifyRoom', currentRoomCode)
+                    .catch(() => resetToLobby());
+            }
+        });
 
         connection.onclose(() => {
             setIsConnected(false);
             if (phaseRef.current === GamePhase.GAME_END) return;
-            clearCountdown();
-            clearPreCountdown();
-            clearTransition();
-            setRoomCode('');
-            setCipherText('');
-            setCurrentRound(0);
-            setRoundWinner(null);
-            setGameResult(null);
-            setMySubmitted(false);
-            setOtherSubmitted(false);
-            setTimeLeft(ROUND_DURATION_SECONDS);
-            setMyReady(false);
-            myReadyRef.current = false;
-            setOtherReady(false);
-            setPhaseSync(GamePhase.LOBBY);
+            resetToLobby();
         });
 
         const start = async () => {
@@ -256,7 +267,7 @@ export function useRaceRoom() {
             clearTransition();
             connection.stop();
         };
-    }, [setPhaseSync, startCountdown, clearCountdown, clearTransition, startPreRoundCountdown, clearPreCountdown]);
+    }, [setPhaseSync, setRoomCodeSync, startCountdown, clearCountdown, clearTransition, startPreRoundCountdown, clearPreCountdown, resetToLobby]);
 
     const createRoom = useCallback(() => {
         if (connectionRef.current?.state !== signalR.HubConnectionState.Connected) return;
