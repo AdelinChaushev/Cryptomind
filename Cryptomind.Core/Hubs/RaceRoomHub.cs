@@ -36,7 +36,6 @@ namespace Cryptomind.Core.Hubs
 
 			await base.OnConnectedAsync();
 		}
-
 		public override async Task OnDisconnectedAsync(Exception? exception)
 		{
 			if (connectionToRoom.TryRemove(Context.ConnectionId, out var roomCode))
@@ -72,7 +71,6 @@ namespace Cryptomind.Core.Hubs
 
 			await base.OnDisconnectedAsync(exception);
 		}
-
 		public async Task CreateRoom()
 		{
 			try
@@ -94,7 +92,6 @@ namespace Cryptomind.Core.Hubs
 				await Clients.Caller.SendAsync("Error", "An unexpected error occurred");
 			}
 		}
-
 		public async Task JoinRoom(string roomCode)
 		{
 			try
@@ -127,7 +124,6 @@ namespace Cryptomind.Core.Hubs
 				await Clients.Caller.SendAsync("Error", "An unexpected error occurred");
 			}
 		}
-
 		public async Task SetReady(string roomCode)
 		{
 			try
@@ -155,7 +151,6 @@ namespace Cryptomind.Core.Hubs
 				await Clients.Caller.SendAsync("Error", "An unexpected error occurred");
 			}
 		}
-
 		public async Task SubmitAnswer(string roomCode, CipherType answer)
 		{
 			try
@@ -243,6 +238,7 @@ namespace Cryptomind.Core.Hubs
 				await hubContext.Clients.Group($"room_{roomCode}").SendAsync("Error", "An unexpected error occurred");
 			}
 		}
+
 		#endregion
 	}
 }

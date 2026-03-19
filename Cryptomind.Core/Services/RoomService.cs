@@ -58,6 +58,8 @@ namespace Cryptomind.Core.Services
 				throw new ConflictException(RoomConstants.RoomAlreadyFull);
 			if (await userManager.FindByIdAsync(userId) == null)
 				throw new NotFoundException(CipherErrorConstants.UserNotFoundMessage);
+			if (room.Player1Id == userId)
+				throw new ConflictException(RoomConstants.PlayerAlreadyInRoom);
 
 
 			room.Player2Id = userId;
