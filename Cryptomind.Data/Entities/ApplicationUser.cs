@@ -18,6 +18,7 @@ namespace Cryptomind.Data.Entities
 		public bool IsDeactivated { get; set; }
 		public string? BanReason { get; set; }
 		public int LeaderBoardPlace { get; set; }
+		public int RoomsWon { get; set; }
 		public DateTime RegisteredAt { get; set; }
 		public DateTime? BannedAt { get; set; }
 		public DateTime? DeactivatedAt { get; set; }

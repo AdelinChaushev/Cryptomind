@@ -37,7 +37,6 @@ namespace Cryptomind.Core.Services
 				Status = RoomStatus.WaitingForPlayers
 			};
 
-			//We don't need to check for recurring keys because we check before this
 			store.Rooms.TryAdd(code, raceRoom);
 			return code;
 		}
@@ -58,6 +57,8 @@ namespace Cryptomind.Core.Services
 				throw new ConflictException(RoomConstants.RoomAlreadyFull);
 			if (await userManager.FindByIdAsync(userId) == null)
 				throw new NotFoundException(CipherErrorConstants.UserNotFoundMessage);
+			if (room.Player1Id == userId)
+				throw new ConflictException(RoomConstants.PlayerAlreadyInRoom);
 
 
 			room.Player2Id = userId;
@@ -298,6 +299,13 @@ namespace Cryptomind.Core.Services
 				winnerUsername = firstPlayer.UserName;
 			else if (room.Player2Score > room.Player1Score)
 				winnerUsername = secondPlayer.UserName;
+
+			if (winnerUsername != null)
+			{
+				var winner = room.Player1Score > room.Player2Score ? firstPlayer : secondPlayer;
+				winner.RoomsWon++;
+				await userManager.UpdateAsync(winner);
+			}
 
 			store.Rooms.TryRemove(roomCode, out _);
 
