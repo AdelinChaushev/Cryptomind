@@ -118,98 +118,6 @@ namespace Cryptomind.Common.Helpers
 
 		#endregion
 
-		#region Transposition
-		public static string RailFence(string plaintext, int? rails = null)
-		{
-			int r = rails ?? Random.Next(2, 7);
-			string text = string.Concat(plaintext.Where(c => c != ' '));
-
-			if (text.Length < r) return text;
-
-			var fence = new List<char>[r];
-			for (int i = 0; i < r; i++) fence[i] = new List<char>();
-
-			int rail = 0, direction = 1;
-			foreach (char c in text)
-			{
-				fence[rail].Add(c);
-				rail += direction;
-				if (rail == 0 || rail == r - 1) direction *= -1;
-			}
-
-			return string.Concat(fence.SelectMany(row => row));
-		}
-		public static string ColumnarTransposition(string plaintext, string? key = null)
-		{
-			if (key == null)
-			{
-				int keyLength = Random.Next(3, 9);
-				key = new string(Enumerable.Range(0, keyLength)
-					.Select(_ => Alphabet[Random.Next(26)]).ToArray());
-			}
-
-			string text = string.Concat(plaintext.Where(c => c != ' '));
-			int cols = key.Length;
-			int rows = (int)Math.Ceiling((double)text.Length / cols);
-
-			char?[,] grid = new char?[rows, cols];
-			for (int i = 0; i < text.Length; i++)
-				grid[i / cols, i % cols] = text[i];
-
-			var colOrder = key.Select((ch, i) => (ch, i))
-				.OrderBy(x => x.ch).ThenBy(x => x.i)
-				.Select(x => x.i).ToList();
-
-			var result = new StringBuilder();
-			foreach (int col in colOrder)
-				for (int row = 0; row < rows; row++)
-					if (grid[row, col].HasValue)
-						result.Append(grid[row, col]!.Value);
-
-			return result.ToString();
-		}
-
-		public static string RouteCipher(string plaintext)
-		{
-			string text = string.Concat(plaintext.Where(c => c != ' '));
-			int cols = (int)Math.Ceiling(Math.Sqrt(text.Length));
-			int rows = (int)Math.Ceiling((double)text.Length / cols);
-
-			char?[,] grid = new char?[rows, cols];
-			for (int i = 0; i < text.Length; i++)
-				grid[i / cols, i % cols] = text[i];
-
-			var result = new StringBuilder();
-			int top = 0, bottom = rows - 1, left = 0, right = cols - 1;
-
-			while (top <= bottom && left <= right)
-			{
-				for (int c = left; c <= right; c++)
-					if (grid[top, c].HasValue) result.Append(grid[top, c]!.Value);
-				top++;
-
-				for (int r = top; r <= bottom; r++)
-					if (grid[r, right].HasValue) result.Append(grid[r, right]!.Value);
-				right--;
-
-				if (top <= bottom)
-				{
-					for (int c = right; c >= left; c--)
-						if (grid[bottom, c].HasValue) result.Append(grid[bottom, c]!.Value);
-					bottom--;
-				}
-
-				if (left <= right)
-				{
-					for (int r = bottom; r >= top; r--)
-						if (grid[r, left].HasValue) result.Append(grid[r, left]!.Value);
-					left++;
-				}
-			}
-
-			return result.ToString();
-		}
-		#endregion
 
 		#region Encoding
 		private static string Base64Encode(string plaintext)
@@ -235,7 +143,6 @@ namespace Cryptomind.Common.Helpers
 			"Caesar", "ROT13", "Atbash", "SimpleSubstitution",
 			"Vigenere", "Autokey", "Trithemius",
 			"RailFence", "Columnar", "Route",
-			"Base64", "Morse", "Binary", "Hex"
 		};
 
 		private static readonly List<string> Sentences = new()
@@ -308,9 +215,6 @@ namespace Cryptomind.Common.Helpers
 				"Vigenere" => Vigenere(plaintext),
 				"Autokey" => Autokey(plaintext),
 				"Trithemius" => Trithemius(plaintext),
-				"RailFence" => RailFence(plaintext),
-				"Columnar" => ColumnarTransposition(plaintext),
-				"Route" => RouteCipher(plaintext),
 				"Base64" => Base64Encode(plaintext),
 				"Morse" => MorseCode(plaintext),
 				"Binary" => BinaryEncode(plaintext),

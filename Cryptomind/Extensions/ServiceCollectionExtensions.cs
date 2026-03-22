@@ -54,9 +54,9 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<IAnswerSubmissionService, AnswerSubmissionService>();
 		services.AddScoped<ILeaderboardService, LeaderboardService>();
 		services.AddScoped<IAuthService, AuthService>();
+		services.AddScoped<IRoomService, RoomService>();
 
 		services.AddSingleton<RoomStore>();
-		services.AddScoped<IRoomService, RoomService>();
 
 		return services;
 	}
