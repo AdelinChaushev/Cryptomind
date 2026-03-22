@@ -916,3 +916,20 @@ line-height: 1.5;
         font-size: 0.9rem;
     }
 }
+@media (min-width: 1024px) {
+    .lobby-screen {
+        display: grid;
+        grid-template-columns: 1fr 320px; 
+        gap: 3rem;
+        align-items: start;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .leaderboard-section {
+        height: 75vh;
+        max-height: 750px;
+        position: sticky;
+        top: 2rem;
+    }
+}
