@@ -62,7 +62,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedUsers();
 
-			var result = await service.GetLeaderboard();
+			var result = await service.GetPointLeaderboard();
 
 			Assert.Empty(result);
 		}
@@ -72,7 +72,7 @@ namespace Cryptomind.Tests.Unit.Services
 		{
 			SetupAttachedUsers(MakeUser("u1", "alice", 100));
 
-			var result = await service.GetLeaderboard();
+			var result = await service.GetPointLeaderboard();
 
 			Assert.Single(result);
 			Assert.Equal("alice", result[0].Username);
@@ -88,7 +88,7 @@ namespace Cryptomind.Tests.Unit.Services
 				MakeUser("u2", "bob", 150),
 				MakeUser("u3", "charlie", 100));
 
-			var result = await service.GetLeaderboard();
+			var result = await service.GetPointLeaderboard();
 
 			Assert.Equal("bob", result[0].Username);
 			Assert.Equal("charlie", result[1].Username);
@@ -103,7 +103,7 @@ namespace Cryptomind.Tests.Unit.Services
 				MakeUser("u2", "second", 200),
 				MakeUser("u3", "third", 100));
 
-			var result = await service.GetLeaderboard();
+			var result = await service.GetPointLeaderboard();
 
 			Assert.Equal(1, result[0].Place);
 			Assert.Equal(2, result[1].Place);
@@ -118,7 +118,7 @@ namespace Cryptomind.Tests.Unit.Services
 				MakeUser("u2", "bob", 100),
 				MakeUser("u3", "charlie", 50));
 
-			var result = await service.GetLeaderboard();
+			var result = await service.GetPointLeaderboard();
 
 			Assert.Equal(1, result[0].Place);
 			Assert.Equal(2, result[1].Place);
@@ -132,7 +132,7 @@ namespace Cryptomind.Tests.Unit.Services
 				MakeUser("u1", "alice", 0),
 				MakeUser("u2", "bob", 0));
 
-			var result = await service.GetLeaderboard();
+			var result = await service.GetPointLeaderboard();
 
 			Assert.Equal(2, result.Count);
 			Assert.Equal(0, result[0].Points);
@@ -146,7 +146,7 @@ namespace Cryptomind.Tests.Unit.Services
 				MakeUser("u1", "alice", 100),
 				MakeUser("u2", "banned", 500, isBanned: true));
 
-			var result = await service.GetLeaderboard();
+			var result = await service.GetPointLeaderboard();
 
 			Assert.Single(result);
 			Assert.Equal("alice", result[0].Username);
@@ -159,7 +159,7 @@ namespace Cryptomind.Tests.Unit.Services
 				MakeUser("u1", "alice", 100),
 				MakeUser("u2", "deactivated", 500, isDeactivated: true));
 
-			var result = await service.GetLeaderboard();
+			var result = await service.GetPointLeaderboard();
 
 			Assert.Single(result);
 			Assert.Equal("alice", result[0].Username);
@@ -173,7 +173,7 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupAttachedUsers(admin, user);
 			SetupAdminUser(admin);
 
-			var result = await service.GetLeaderboard();
+			var result = await service.GetPointLeaderboard();
 
 			Assert.Single(result);
 			Assert.Equal("alice", result[0].Username);
@@ -187,7 +187,7 @@ namespace Cryptomind.Tests.Unit.Services
 				.ToArray();
 			SetupAttachedUsers(users);
 
-			var result = await service.GetLeaderboard();
+			var result = await service.GetPointLeaderboard();
 
 			Assert.Equal(20, result.Count);
 		}
@@ -201,7 +201,7 @@ namespace Cryptomind.Tests.Unit.Services
 			SetupAttachedUsers(admin, first, second);
 			SetupAdminUser(admin);
 
-			var result = await service.GetLeaderboard();
+			var result = await service.GetPointLeaderboard();
 
 			Assert.Equal(2, result.Count);
 			Assert.Equal(1, result[0].Place);

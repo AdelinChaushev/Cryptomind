@@ -9,9 +9,17 @@ namespace Cryptomind.Controllers
 	{
 		[HttpGet]
 		[Route("")]
-		public async Task<IActionResult> LeaderBoard()
+		public async Task<IActionResult> Leaderboard()
 		{
-			var result = await leaderboardService.GetLeaderboard();
+			var result = await leaderboardService.GetPointLeaderboard();
+			return Ok(result);
+		}
+
+		[HttpGet]
+		[Route("rooms")]
+		public async Task<IActionResult> RoomLeaderboard()
+		{
+			var result = await leaderboardService.GetRoomLeaderboard();
 			return Ok(result);
 		}
 	}

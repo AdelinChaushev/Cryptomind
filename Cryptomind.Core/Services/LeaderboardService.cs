@@ -1,4 +1,5 @@
-﻿using Cryptomind.Common.ViewModels.LeaderboardPlaceViewModel;
+﻿using Cryptomind.Common.Constants;
+using Cryptomind.Common.ViewModels.LeaderboardPlaceViewModel;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
@@ -11,7 +12,7 @@ namespace Cryptomind.Core.Services
 		IRepository<ApplicationUser, string> userRepo,
 		UserManager<ApplicationUser> userManager) : ILeaderboardService
 	{
-		public async Task<List<LeaderboardPlaceViewModel>> GetLeaderboard()
+		public async Task<List<LeaderboardPlaceViewModel>> GetPointLeaderboard()
 		{
 			var allUsers = await userRepo.GetAllAttached()
 				.Where(x => !x.IsBanned && !x.IsDeactivated)
@@ -27,11 +28,35 @@ namespace Cryptomind.Core.Services
 			}
 
 			return filteredUsers
-				.Take(20)
+				.Take(LeaderboardConstants.UsersInScoreLeaderboard)
 				.Select((user, index) => new LeaderboardPlaceViewModel
 				{
 					Username = user.UserName,
 					Points = user.Score,
+					Place = index + 1,
+				}).ToList();
+		}
+		public async Task<List<LeaderboardPlaceViewModel>> GetRoomLeaderboard()
+		{
+			var allUsers = await userRepo.GetAllAttached()
+				.Where(x => !x.IsBanned && !x.IsDeactivated)
+				.OrderByDescending(x => x.RoomsWon)
+				.ToListAsync();
+
+			var filteredUsers = new List<ApplicationUser>();
+			foreach (var user in allUsers)
+			{
+				var roles = await userManager.GetRolesAsync(user);
+				if (!roles.Contains("Admin"))
+					filteredUsers.Add(user);
+			}
+
+			return filteredUsers
+				.Take(LeaderboardConstants.UsersInRoomLeaderboard)
+				.Select((user, index) => new LeaderboardPlaceViewModel
+				{
+					Username = user.UserName,
+					Points = user.RoomsWon,
 					Place = index + 1,
 				}).ToList();
 		}
