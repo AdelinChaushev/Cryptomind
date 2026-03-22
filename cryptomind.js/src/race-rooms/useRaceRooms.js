@@ -298,6 +298,14 @@ export function useRaceRoom() {
             .catch(err => setError(err.message));
     }, []);
 
+    const leaveRoom = useCallback(async (code) => {
+        if (connectionRef.current?.state !== signalR.HubConnectionState.Connected) return;
+        try {
+            await connectionRef.current.invoke('LeaveRoom', code);
+        } catch {}
+
+        await connectionRef.current.stop();
+    }, []);
     const dismissError = useCallback(() => setError(null), []);
 
     return {
@@ -319,6 +327,7 @@ export function useRaceRoom() {
         joinRoom,
         setReady,
         submitAnswer,
+        leaveRoom,
         dismissError,
     };
 }

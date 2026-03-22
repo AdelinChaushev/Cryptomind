@@ -14,6 +14,7 @@ namespace Cryptomind.Core.Hubs
 	{
 		private static ConcurrentDictionary<string, string> connectionToRoom = new();
 		private static ConcurrentDictionary<string, string> userToConnection = new();
+		private static ConcurrentDictionary<string, byte> intentionalLeaves = new();
 
 		public override async Task OnConnectedAsync()
 		{
@@ -36,12 +37,17 @@ namespace Cryptomind.Core.Hubs
 
 			await base.OnConnectedAsync();
 		}
-
 		public override async Task OnDisconnectedAsync(Exception? exception)
 		{
 			if (connectionToRoom.TryRemove(Context.ConnectionId, out var roomCode))
 			{
 				var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+				if (!string.IsNullOrEmpty(userId) && intentionalLeaves.TryRemove(userId, out _))
+				{
+					await base.OnDisconnectedAsync(exception);
+					return;
+				}
 
 				await Task.Delay(TimeSpan.FromSeconds(8));
 
@@ -94,7 +100,6 @@ namespace Cryptomind.Core.Hubs
 				await Clients.Caller.SendAsync("Error", "An unexpected error occurred");
 			}
 		}
-
 		public async Task JoinRoom(string roomCode)
 		{
 			try
@@ -127,7 +132,6 @@ namespace Cryptomind.Core.Hubs
 				await Clients.Caller.SendAsync("Error", "An unexpected error occurred");
 			}
 		}
-
 		public async Task SetReady(string roomCode)
 		{
 			try
@@ -155,7 +159,6 @@ namespace Cryptomind.Core.Hubs
 				await Clients.Caller.SendAsync("Error", "An unexpected error occurred");
 			}
 		}
-
 		public async Task SubmitAnswer(string roomCode, CipherType answer)
 		{
 			try
@@ -209,7 +212,30 @@ namespace Cryptomind.Core.Hubs
 			if (!roomService.IsPlayerInRoom(roomCode, userId))
 				await Clients.Caller.SendAsync("RoomNoLongerExists");
 		}
+		public async Task LeaveRoom(string roomCode)
+		{
+			var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+			if (string.IsNullOrEmpty(userId)) return;
 
+			if (!roomService.IsPlayerInRoom(roomCode, userId)) return;
+
+			intentionalLeaves.TryAdd(userId, 0);
+
+			connectionToRoom.TryRemove(Context.ConnectionId, out _);
+			userToConnection.TryRemove(userId, out _);
+
+			var staleConnections = connectionToRoom
+				.Where(x => x.Value == roomCode)
+				.Select(x => x.Key)
+				.ToList();
+
+			foreach (var connectionId in staleConnections)
+				connectionToRoom.TryRemove(connectionId, out _);
+
+			await Clients.Group($"room_{roomCode}").SendAsync("PlayerDisconnected");
+			roomService.CancelRoundTimer(roomCode);
+			roomService.RemoveRoom(roomCode);
+		}
 		#region Private Methods
 		private async Task StartRoundTimer(string roomCode)
 		{
@@ -243,6 +269,7 @@ namespace Cryptomind.Core.Hubs
 				await hubContext.Clients.Group($"room_{roomCode}").SendAsync("Error", "An unexpected error occurred");
 			}
 		}
+
 		#endregion
 	}
 }
