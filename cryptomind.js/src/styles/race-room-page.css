@@ -607,9 +607,8 @@ line-height: 1.5;
 }
 
 .group-substitution   .cipher-group-label { color: var(--yellow-500);  }
-.group-polyalphabetic .cipher-group-label { color: var(--blue-500);    }
-.group-transposition  .cipher-group-label { color: var(--emerald-500); }
-.group-encoding       .cipher-group-label { color: var(--cyan-400);    }
+.group-polyalphabetic .cipher-group-label { color: var(--emerald-500); }
+.group-transposition  .cipher-group-label { color: var(--blue-500);    }
 
 .cipher-group-buttons {
     display: flex;
@@ -630,9 +629,9 @@ line-height: 1.5;
 }
 
 .group-substitution   .cipher-answer-btn:hover { border-color: var(--yellow-500);  color: var(--yellow-500);  }
-.group-polyalphabetic .cipher-answer-btn:hover { border-color: var(--blue-500);    color: var(--blue-500);    }
-.group-transposition  .cipher-answer-btn:hover { border-color: var(--emerald-500); color: var(--emerald-500); }
-.group-encoding       .cipher-answer-btn:hover { border-color: var(--cyan-400);    color: var(--cyan-400);    }
+.group-polyalphabetic .cipher-answer-btn:hover { border-color: var(--emerald-500); color: var(--emerald-500); }
+.group-transposition  .cipher-answer-btn:hover { border-color: var(--blue-500);    color: var(--blue-500);    }
+.group-encoding       .cipher-answer-btn:hover { border-color: var(--pink-500);    color: var(--pink-500);    }
 
 .submitted-message {
     width: 100%;
