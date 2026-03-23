@@ -47,6 +47,8 @@ export function useRaceRoom() {
     const [error,           setError]           = useState(null);
     const [isConnected,     setIsConnected]     = useState(false);
     const [countdownNumber, setCountdownNumber] = useState(PRE_ROUND_SECONDS);
+    const [myUsername,      setMyUsername]      = useState('');
+    const [opponentUsername,setOpponentUsername]= useState('');
 
     const connectionRef      = useRef(null);
     const countdownRef       = useRef(null);
@@ -87,6 +89,8 @@ export function useRaceRoom() {
         setMyReady(false);
         myReadyRef.current = false;
         setOtherReady(false);
+        setMyUsername('');
+        setOpponentUsername('');
         setPhaseSync(GamePhase.LOBBY);
     }, [setPhaseSync, setRoomCodeSync]);
 
@@ -177,6 +181,11 @@ export function useRaceRoom() {
                 }
                 setPhaseSync(GamePhase.READY_LOBBY);
             }
+        });
+
+        connection.on('PlayersInfo', (myUser, opponentUser) => {
+            setMyUsername(myUser);
+            setOpponentUsername(opponentUser);
         });
 
         connection.on('PlayerReady', () => {
@@ -303,9 +312,9 @@ export function useRaceRoom() {
         try {
             await connectionRef.current.invoke('LeaveRoom', code);
         } catch {}
-
         await connectionRef.current.stop();
     }, []);
+
     const dismissError = useCallback(() => setError(null), []);
 
     return {
@@ -323,6 +332,8 @@ export function useRaceRoom() {
         error,
         isConnected,
         countdownNumber,
+        myUsername,
+        opponentUsername,
         createRoom,
         joinRoom,
         setReady,

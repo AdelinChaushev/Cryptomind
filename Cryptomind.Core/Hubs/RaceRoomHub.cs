@@ -37,6 +37,7 @@ namespace Cryptomind.Core.Hubs
 
 			await base.OnConnectedAsync();
 		}
+
 		public override async Task OnDisconnectedAsync(Exception? exception)
 		{
 			if (connectionToRoom.TryRemove(Context.ConnectionId, out var roomCode))
@@ -118,6 +119,11 @@ namespace Cryptomind.Core.Hubs
 				connectionToRoom.TryAdd(Context.ConnectionId, roomCode);
 				await Groups.AddToGroupAsync(Context.ConnectionId, $"room_{roomCode}");
 				await Clients.Group($"room_{roomCode}").SendAsync("RoomJoined", true);
+
+				var (player1Username, player2Username) = await roomService.GetPlayerUsernames(roomCode);
+
+				await Clients.Caller.SendAsync("PlayersInfo", player2Username, player1Username);
+				await Clients.OthersInGroup($"room_{roomCode}").SendAsync("PlayersInfo", player1Username, player2Username);
 			}
 			catch (NotFoundException ex)
 			{
@@ -236,6 +242,7 @@ namespace Cryptomind.Core.Hubs
 			roomService.CancelRoundTimer(roomCode);
 			roomService.RemoveRoom(roomCode);
 		}
+
 		#region Private Methods
 		private async Task StartRoundTimer(string roomCode)
 		{
@@ -269,7 +276,6 @@ namespace Cryptomind.Core.Hubs
 				await hubContext.Clients.Group($"room_{roomCode}").SendAsync("Error", "An unexpected error occurred");
 			}
 		}
-
 		#endregion
 	}
 }

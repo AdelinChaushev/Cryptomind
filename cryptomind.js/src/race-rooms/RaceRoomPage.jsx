@@ -53,6 +53,8 @@ export default function RaceRoomPage() {
         error,
         isConnected,
         countdownNumber,
+        myUsername,
+        opponentUsername,
         createRoom,
         joinRoom,
         setReady,
@@ -178,6 +180,8 @@ export default function RaceRoomPage() {
                 <ReadyLobbyScreen
                     myReady={myReady}
                     otherReady={otherReady}
+                    myUsername={myUsername}
+                    opponentUsername={opponentUsername}
                     onReady={() => setReady(roomCode)}
                 />
             )}
@@ -325,24 +329,41 @@ function WaitingScreen({ roomCode }) {
     );
 }
 
-function ReadyLobbyScreen({ myReady, otherReady, onReady }) {
+function ReadyLobbyScreen({ myReady, otherReady, myUsername, opponentUsername, onReady }) {
+    const myInitial      = myUsername?.[0]?.toUpperCase()       || '?';
+    const opponentInitial = opponentUsername?.[0]?.toUpperCase() || '?';
+
     return (
         <div className="screen ready-lobby-screen">
             <h2 className="ready-title">И двамата играчи са свързани!</h2>
+
             <div className="ready-players">
                 <div className={`ready-player-slot ${myReady ? 'is-ready' : ''}`}>
-                    <div className="ready-player-avatar">Ти</div>
+                    <div className="ready-player-avatar">
+                        {myInitial}
+                        <span className="ready-you-badge">Ти</span>
+                    </div>
+                    <div className="ready-player-name">{myUsername || '...'}</div>
                     <div className="ready-status">{myReady ? '✓ Готов' : 'Не е готов'}</div>
                 </div>
+
                 <div className="vs-badge">VS</div>
+
                 <div className={`ready-player-slot ${otherReady ? 'is-ready' : ''}`}>
-                    <div className="ready-player-avatar">Опонент</div>
+                    <div className="ready-player-avatar opponent">
+                        {opponentInitial}
+                    </div>
+                    <div className="ready-player-name">{opponentUsername || '...'}</div>
                     <div className="ready-status">{otherReady ? '✓ Готов' : 'Не е готов'}</div>
                 </div>
             </div>
+
             {!myReady && (
-                <button className="btn btn-primary ready-btn" onClick={onReady}>Готов съм!</button>
+                <button className="btn btn-primary ready-btn" onClick={onReady}>
+                    Готов съм!
+                </button>
             )}
+
             {myReady && !otherReady && (
                 <p className="waiting-text">Изчакване опонентът да е готов…</p>
             )}
