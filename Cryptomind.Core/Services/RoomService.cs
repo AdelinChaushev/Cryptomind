@@ -44,6 +44,22 @@ namespace Cryptomind.Core.Services
 		{
 			store.Rooms.TryRemove(roomCode, out _);
 		}
+		
+		public async Task<(string player1Username, string player2Username)> GetPlayerUsernames(string roomCode)
+		{
+			if (!store.Rooms.ContainsKey(roomCode))
+				throw new NotFoundException(RoomConstants.RoomNotFound);
+
+			var room = store.Rooms[roomCode];
+
+			var player1 = await userManager.FindByIdAsync(room.Player1Id);
+			var player2 = await userManager.FindByIdAsync(room.Player2Id!);
+
+			if (player1 == null || player2 == null)
+				throw new NotFoundException(CipherErrorConstants.UserNotFoundMessage);
+
+			return (player1.UserName!, player2.UserName!);
+		}
 		public async Task<bool> JoinRoom(string roomCode, string userId)
 		{
 			if (!store.Rooms.ContainsKey(roomCode))

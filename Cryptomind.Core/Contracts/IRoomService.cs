@@ -7,6 +7,7 @@ namespace Cryptomind.Core.Contracts
 	{
 		Task<string> CreateRoom(string creatorId);
 		void RemoveRoom(string roomCode);
+		Task<(string player1Username, string player2Username)> GetPlayerUsernames(string roomCode);
 		Task<bool> JoinRoom(string roomCode, string userId);
 		Task<bool> SetReady(string roomCode, string userId);
 		bool IsPlayerInRoom(string roomCode, string userId);
