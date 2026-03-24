@@ -7,16 +7,6 @@ namespace Cryptomind.Common.Helpers
 		private const string Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		private static readonly Random Random = new();
 
-		private static readonly Dictionary<char, string> MorseDict = new()
-		{
-			{'A',".-"},{'B',"-..."},{'C', "-.-."},{'D',"-.."},{'E',"."},
-			{'F',"..-."},{'G',"--."},{'H',"...."},{'I',".."},{'J',".---"},
-			{'K',"-.-"},{'L',".-.."},{'M',"--"},{'N',"-."},{'O',"---"},
-			{'P',".--."},{'Q',"--.-"},{'R',".-."},{'S',"..."},{'T',"-"},
-			{'U',"..-"},{'V',"...-"},{'W',".--"},{'X',"-..-"},{'Y',"-.--"},
-			{'Z',"--.."},{'/',"/"}
-		};
-
 		#region Substitution
 		public static string Caesar(string plaintext, int? shift = null)
 		{
@@ -24,15 +14,12 @@ namespace Cryptomind.Common.Helpers
 			return new string(plaintext.ToUpper().Select(c =>
 				Alphabet.Contains(c) ? Alphabet[(Alphabet.IndexOf(c) + s) % 26] : c).ToArray());
 		}
-
 		public static string Rot13(string plaintext) => Caesar(plaintext, 13);
-
 		public static string Atbash(string plaintext)
 		{
 			return new string(plaintext.ToUpper().Select(c =>
 				Alphabet.Contains(c) ? Alphabet[25 - Alphabet.IndexOf(c)] : c).ToArray());
 		}
-
 		public static string SimpleSubstitution(string plaintext, string? key = null)
 		{
 			if (key == null)
@@ -73,7 +60,6 @@ namespace Cryptomind.Common.Helpers
 			}
 			return result.ToString();
 		}
-
 		public static string Autokey(string plaintext, string? key = null)
 		{
 			key ??= new string(Enumerable.Range(0, Random.Next(3, 9))
@@ -98,7 +84,6 @@ namespace Cryptomind.Common.Helpers
 			}
 			return result.ToString();
 		}
-
 		public static string Trithemius(string plaintext)
 		{
 			var result = new StringBuilder();
@@ -115,7 +100,6 @@ namespace Cryptomind.Common.Helpers
 			}
 			return result.ToString();
 		}
-
 		#endregion
 
 		#region Transposition
@@ -168,7 +152,6 @@ namespace Cryptomind.Common.Helpers
 
 			return result.ToString();
 		}
-
 		public static string RouteCipher(string plaintext)
 		{
 			string text = string.Concat(plaintext.Where(c => c != ' '));
@@ -271,7 +254,6 @@ namespace Cryptomind.Common.Helpers
 			"The general trusted only his shadow",
 			"Silence is the first rule of survival",
 		};
-
 		public static string GetRandomSentence()
 			=> Sentences[Random.Next(Sentences.Count)];
 		public static (string CipherType, string EncryptedText) GenerateRandom()

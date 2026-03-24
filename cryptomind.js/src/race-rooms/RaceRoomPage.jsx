@@ -7,10 +7,10 @@ const CIPHER_GROUPS = [
         label:     'Заместване',
         className: 'group-substitution',
         ciphers: [
-            { label: 'Цезар (Caesar)',                  value: CipherType.Caesar             },
-            { label: 'Атбаш (Atbash)',                  value: CipherType.Atbash             },
-            { label: 'Проста замяна (SimpleSubstitution)',  value: CipherType.SimpleSubstitution },
-            { label: 'ROT13 (ROT13)',                       value: CipherType.ROT13              },
+            { label: 'Цезар (Caesar)',                    value: CipherType.Caesar             },
+            { label: 'Атбаш (Atbash)',                    value: CipherType.Atbash             },
+            { label: 'Проста замяна (SimpleSubstitution)', value: CipherType.SimpleSubstitution },
+            { label: 'ROT13 (ROT13)',                     value: CipherType.ROT13              },
         ],
     },
     {
@@ -36,7 +36,10 @@ const CIPHER_GROUPS = [
 export default function RaceRoomPage() {
     const [joinCode,         setJoinCode]         = useState('');
     const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
-    const beforeUnloadRef = useRef(null);
+    const isActivePhaseRef  = useRef(false);
+    const beforeUnloadRef   = useRef(null);
+    const leaveRoomSilentlyRef = useRef(null);
+    const roomCodeForUnloadRef = useRef('');
 
     const {
         phase,
@@ -60,10 +63,17 @@ export default function RaceRoomPage() {
         setReady,
         submitAnswer,
         leaveRoom,
+        leaveRoomSilently,
         dismissError,
     } = useRaceRoom();
 
     const isActivePhase = phase !== GamePhase.LOBBY && phase !== GamePhase.GAME_END;
+
+    useEffect(() => {
+        isActivePhaseRef.current       = isActivePhase;
+        leaveRoomSilentlyRef.current   = leaveRoomSilently;
+        roomCodeForUnloadRef.current   = roomCode;
+    }, [isActivePhase, leaveRoomSilently, roomCode]);
 
     useEffect(() => {
         if (phase === GamePhase.LOBBY) setJoinCode('');
@@ -90,17 +100,19 @@ export default function RaceRoomPage() {
 
     useEffect(() => {
         const handler = (e) => {
-            if (!isActivePhase) return;
+            if (!isActivePhaseRef.current) return;
             e.preventDefault();
             e.returnValue = '';
+            leaveRoomSilentlyRef.current?.(roomCodeForUnloadRef.current);
         };
+
         beforeUnloadRef.current = handler;
         window.addEventListener('beforeunload', handler);
         return () => {
             window.removeEventListener('beforeunload', handler);
             beforeUnloadRef.current = null;
         };
-    }, [isActivePhase]);
+    }, []);
 
     useEffect(() => {
         if (isActivePhase) {
@@ -217,9 +229,9 @@ export default function RaceRoomPage() {
 }
 
 function RaceLeaderboard() {
-    const [entries, setEntries] = useState([]);
+    const [entries,   setEntries]   = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(false);
+    const [error,     setError]     = useState(false);
 
     useEffect(() => {
         fetch(`${import.meta.env.VITE_API_URL}/api/leaderboard/rooms`, { credentials: 'include' })
@@ -330,7 +342,7 @@ function WaitingScreen({ roomCode }) {
 }
 
 function ReadyLobbyScreen({ myReady, otherReady, myUsername, opponentUsername, onReady }) {
-    const myInitial      = myUsername?.[0]?.toUpperCase()       || '?';
+    const myInitial       = myUsername?.[0]?.toUpperCase()       || '?';
     const opponentInitial = opponentUsername?.[0]?.toUpperCase() || '?';
 
     return (
