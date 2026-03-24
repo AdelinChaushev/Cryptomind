@@ -33,22 +33,22 @@ export const GamePhase = {
 };
 
 export function useRaceRoom() {
-    const [phase,           setPhase]          = useState(GamePhase.LOBBY);
-    const [roomCode,        setRoomCode]        = useState('');
-    const [cipherText,      setCipherText]      = useState('');
-    const [currentRound,    setCurrentRound]    = useState(0);
-    const [roundWinner,     setRoundWinner]     = useState(null);
-    const [gameResult,      setGameResult]      = useState(null);
-    const [mySubmitted,     setMySubmitted]     = useState(false);
-    const [otherSubmitted,  setOtherSubmitted]  = useState(false);
-    const [timeLeft,        setTimeLeft]        = useState(ROUND_DURATION_SECONDS);
-    const [myReady,         setMyReady]         = useState(false);
-    const [otherReady,      setOtherReady]      = useState(false);
-    const [error,           setError]           = useState(null);
-    const [isConnected,     setIsConnected]     = useState(false);
-    const [countdownNumber, setCountdownNumber] = useState(PRE_ROUND_SECONDS);
-    const [myUsername,      setMyUsername]      = useState('');
-    const [opponentUsername,setOpponentUsername]= useState('');
+    const [phase,            setPhase]            = useState(GamePhase.LOBBY);
+    const [roomCode,         setRoomCode]         = useState('');
+    const [cipherText,       setCipherText]       = useState('');
+    const [currentRound,     setCurrentRound]     = useState(0);
+    const [roundWinner,      setRoundWinner]      = useState(null);
+    const [gameResult,       setGameResult]       = useState(null);
+    const [mySubmitted,      setMySubmitted]      = useState(false);
+    const [otherSubmitted,   setOtherSubmitted]   = useState(false);
+    const [timeLeft,         setTimeLeft]         = useState(ROUND_DURATION_SECONDS);
+    const [myReady,          setMyReady]          = useState(false);
+    const [otherReady,       setOtherReady]       = useState(false);
+    const [error,            setError]            = useState(null);
+    const [isConnected,      setIsConnected]      = useState(false);
+    const [countdownNumber,  setCountdownNumber]  = useState(PRE_ROUND_SECONDS);
+    const [myUsername,       setMyUsername]       = useState('');
+    const [opponentUsername, setOpponentUsername] = useState('');
 
     const connectionRef      = useRef(null);
     const countdownRef       = useRef(null);
@@ -315,6 +315,11 @@ export function useRaceRoom() {
         await connectionRef.current.stop();
     }, []);
 
+    const leaveRoomSilently = useCallback((code) => {
+        if (connectionRef.current?.state !== signalR.HubConnectionState.Connected) return;
+        connectionRef.current.invoke('LeaveRoom', code).catch(() => {});
+    }, []);
+
     const dismissError = useCallback(() => setError(null), []);
 
     return {
@@ -339,6 +344,7 @@ export function useRaceRoom() {
         setReady,
         submitAnswer,
         leaveRoom,
+        leaveRoomSilently,
         dismissError,
     };
 }

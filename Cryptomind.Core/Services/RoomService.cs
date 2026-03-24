@@ -44,7 +44,7 @@ namespace Cryptomind.Core.Services
 		{
 			store.Rooms.TryRemove(roomCode, out _);
 		}
-		
+
 		public async Task<(string player1Username, string player2Username)> GetPlayerUsernames(string roomCode)
 		{
 			if (!store.Rooms.ContainsKey(roomCode))
@@ -85,18 +85,16 @@ namespace Cryptomind.Core.Services
 		public async Task<bool> SetReady(string roomCode, string userId)
 		{
 			if (!store.Rooms.ContainsKey(roomCode))
-			{
 				throw new NotFoundException(RoomConstants.RoomNotFound);
-			}
+
+			var room = store.Rooms[roomCode];
+			if (room.Status == RoomStatus.InProgress || room.Status == RoomStatus.Finished)
+				return false;
 
 			if (await userManager.FindByIdAsync(userId) == null)
 				throw new NotFoundException(CipherErrorConstants.UserNotFoundMessage);
-
-			var room = store.Rooms[roomCode];
-			if (room.Player1Id != userId && room.Player2Id != userId)
-			{
+			else if (room.Player1Id != userId && room.Player2Id != userId)
 				throw new NotFoundException(RoomConstants.PlayerNotInRoom);
-			}
 
 			lock (room)
 			{
@@ -284,12 +282,12 @@ namespace Cryptomind.Core.Services
 		}
 		public void SetRoundTimer(string roomCode, CancellationTokenSource cts)
 		{
-			var room = store.Rooms[roomCode];
+			if (!store.Rooms.TryGetValue(roomCode, out var room)) return;
 			room.RoundTimer = cts;
 		}
 		public void CancelRoundTimer(string roomCode)
 		{
-			var room = store.Rooms[roomCode];
+			if (!store.Rooms.TryGetValue(roomCode, out var room)) return;
 			room.RoundTimer?.Cancel();
 			room.RoundTimer = null;
 		}
