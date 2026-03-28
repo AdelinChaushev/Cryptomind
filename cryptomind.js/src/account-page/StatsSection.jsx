@@ -53,6 +53,18 @@ function StatsSection({ user }) {
                         label="Глобална класация"
                         accent="yellow"
                     />
+                    <StatCard
+                        value={`🔥 ${user.currentStreak ?? 0}`}
+                        label="Текуща серия"
+                        accent="cyan"
+                        subtext="поредни дни"
+                    />
+                    <StatCard
+                        value={user.longestStreak ?? 0}
+                        label="Най-дълга серия"
+                        accent="orange"
+                        subtext="дни"
+                    />
                 </div>
             </div>
         </div>
