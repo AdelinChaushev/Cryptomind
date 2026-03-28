@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import * as signalR from '@microsoft/signalr';
 
 const ROUND_DURATION_SECONDS = 300;
-const PRE_ROUND_SECONDS = 3;
-const HUB_URL = `${import.meta.env.VITE_API_URL}/raceRoomHub`;
+const PRE_ROUND_SECONDS      = 3;
+const HUB_URL                = `${import.meta.env.VITE_API_URL}/raceRoomHub`;
 
 export const CipherType = {
     Caesar:             0,
@@ -23,32 +23,36 @@ export const CipherType = {
 };
 
 export const GamePhase = {
-    LOBBY:       'lobby',
-    WAITING:     'waiting',
-    READY_LOBBY: 'readyLobby',
-    COUNTDOWN:   'countdown',
-    PLAYING:     'playing',
-    ROUND_END:   'roundEnd',
-    GAME_END:    'gameEnd',
+    LOBBY:         'lobby',
+    WAGER_CONFIRM: 'wagerConfirm',
+    WAITING:       'waiting',
+    READY_LOBBY:   'readyLobby',
+    COUNTDOWN:     'countdown',
+    PLAYING:       'playing',
+    ROUND_END:     'roundEnd',
+    GAME_END:      'gameEnd',
 };
 
 export function useRaceRoom() {
-    const [phase,            setPhase]            = useState(GamePhase.LOBBY);
-    const [roomCode,         setRoomCode]         = useState('');
-    const [cipherText,       setCipherText]       = useState('');
-    const [currentRound,     setCurrentRound]     = useState(0);
-    const [roundWinner,      setRoundWinner]      = useState(null);
-    const [gameResult,       setGameResult]       = useState(null);
-    const [mySubmitted,      setMySubmitted]      = useState(false);
-    const [otherSubmitted,   setOtherSubmitted]   = useState(false);
-    const [timeLeft,         setTimeLeft]         = useState(ROUND_DURATION_SECONDS);
-    const [myReady,          setMyReady]          = useState(false);
-    const [otherReady,       setOtherReady]       = useState(false);
-    const [error,            setError]            = useState(null);
-    const [isConnected,      setIsConnected]      = useState(false);
-    const [countdownNumber,  setCountdownNumber]  = useState(PRE_ROUND_SECONDS);
-    const [myUsername,       setMyUsername]       = useState('');
-    const [opponentUsername, setOpponentUsername] = useState('');
+    const [phase,                setPhase]                = useState(GamePhase.LOBBY);
+    const [roomCode,             setRoomCode]             = useState('');
+    const [cipherText,           setCipherText]           = useState('');
+    const [currentRound,         setCurrentRound]         = useState(0);
+    const [roundWinner,          setRoundWinner]          = useState(null);
+    const [gameResult,           setGameResult]           = useState(null);
+    const [mySubmitted,          setMySubmitted]          = useState(false);
+    const [otherSubmitted,       setOtherSubmitted]       = useState(false);
+    const [timeLeft,             setTimeLeft]             = useState(ROUND_DURATION_SECONDS);
+    const [myReady,              setMyReady]              = useState(false);
+    const [otherReady,           setOtherReady]           = useState(false);
+    const [error,                setError]                = useState(null);
+    const [isConnected,          setIsConnected]          = useState(false);
+    const [countdownNumber,      setCountdownNumber]      = useState(PRE_ROUND_SECONDS);
+    const [myUsername,           setMyUsername]           = useState('');
+    const [opponentUsername,     setOpponentUsername]     = useState('');
+    const [wagerAmount,          setWagerAmount]          = useState(0);
+    const [myPoints,             setMyPoints]             = useState(0);
+    const [wagerCreatorUsername, setWagerCreatorUsername] = useState('');
 
     const connectionRef      = useRef(null);
     const countdownRef       = useRef(null);
@@ -64,7 +68,9 @@ export function useRaceRoom() {
     const setPhaseSync = useCallback((newPhase) => {
         phaseRef.current = newPhase;
         setPhase(newPhase);
-        if (newPhase !== GamePhase.LOBBY && newPhase !== GamePhase.GAME_END) {
+        if (newPhase !== GamePhase.LOBBY &&
+            newPhase !== GamePhase.GAME_END &&
+            newPhase !== GamePhase.WAGER_CONFIRM) {
             window.history.pushState(null, '', window.location.href);
         }
     }, []);
@@ -94,6 +100,9 @@ export function useRaceRoom() {
         setOtherReady(false);
         setMyUsername('');
         setOpponentUsername('');
+        setWagerAmount(0);
+        setMyPoints(0);
+        setWagerCreatorUsername('');
         setPhaseSync(GamePhase.LOBBY);
     }, [setPhaseSync, setRoomCodeSync]);
 
@@ -109,7 +118,7 @@ export function useRaceRoom() {
         setTimeLeft(ROUND_DURATION_SECONDS);
         const startedAt = Date.now();
         countdownRef.current = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+            const elapsed   = Math.floor((Date.now() - startedAt) / 1000);
             const remaining = ROUND_DURATION_SECONDS - elapsed;
             if (remaining <= 0) {
                 clearCountdown();
@@ -122,11 +131,11 @@ export function useRaceRoom() {
 
     const startCountdownFrom = useCallback((secondsRemaining) => {
         clearCountdown();
-        const clamped = Math.max(0, secondsRemaining);
+        const clamped   = Math.max(0, secondsRemaining);
         setTimeLeft(clamped);
         const startedAt = Date.now();
         countdownRef.current = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+            const elapsed   = Math.floor((Date.now() - startedAt) / 1000);
             const remaining = clamped - elapsed;
             if (remaining <= 0) {
                 clearCountdown();
@@ -189,9 +198,22 @@ export function useRaceRoom() {
             .configureLogging(signalR.LogLevel.Warning)
             .build();
 
-        connection.on('RoomCreated', (code) => {
+        connection.on('RoomCreated', (code, wager) => {
             setRoomCodeSync(code);
+            setWagerAmount(wager || 0);
             setPhaseSync(GamePhase.WAITING);
+        });
+
+        connection.on('WagerInfo', (info) => {
+            if (!info.wagerAmount || info.wagerAmount === 0) {
+                connectionRef.current?.invoke('JoinRoom', pendingRoomCodeRef.current)
+                    .catch(err => setError(err.message));
+                return;
+            }
+            setWagerAmount(info.wagerAmount);
+            setMyPoints(info.joinerBalance);
+            setWagerCreatorUsername(info.creatorUsername);
+            setPhaseSync(GamePhase.WAGER_CONFIRM);
         });
 
         connection.on('RoomJoined', (success) => {
@@ -252,13 +274,19 @@ export function useRaceRoom() {
             setError('Опонентът ти се е изключил. Стаята е затворена.');
         });
 
+        connection.on('RoomCancelled', (reason) => {
+            resetToLobby();
+            setError(reason || 'Стаята беше отменена.');
+        });
+
         connection.on('RoomNoLongerExists', () => {
             resetToLobby();
             setError('Стаята вече не съществува. Моля, създай нова стая.');
         });
 
-       connection.on('GameStateRestored', (state) => {
+        connection.on('GameStateRestored', (state) => {
             setRoomCodeSync(state.roomCode);
+            setWagerAmount(state.wagerAmount || 0);
 
             if (state.isRoundEnd) {
                 setCurrentRound(state.currentRound - 1);
@@ -270,7 +298,7 @@ export function useRaceRoom() {
                 }, state.transitionMsRemaining);
                 return;
             }
-        
+
             const secondsRemaining = ROUND_DURATION_SECONDS - state.secondsElapsed;
             setCipherText(state.encryptedText);
             setCurrentRound(state.currentRound);
@@ -288,7 +316,7 @@ export function useRaceRoom() {
 
         connection.on('AnswerSubmitted',       () => setMySubmitted(true));
         connection.on('OtherUserHasSubmitted', () => setOtherSubmitted(true));
-        connection.on('Error',   (message)     => setError(message));
+        connection.on('Error', (message)       => setError(message));
 
         connection.onreconnecting(() => setIsConnected(false));
 
@@ -322,20 +350,35 @@ export function useRaceRoom() {
             clearTransition();
             connection.stop();
         };
-    }, [setPhaseSync, setRoomCodeSync, startCountdown, startCountdownFrom, clearCountdown, clearTransition, startPreRoundCountdown, clearPreCountdown, resetToLobby]);
+    }, [setPhaseSync, setRoomCodeSync, startCountdown, startCountdownFrom,
+        clearCountdown, clearTransition, startPreRoundCountdown, clearPreCountdown, resetToLobby]);
 
-    const createRoom = useCallback(() => {
+    const createRoom = useCallback((wager = 0) => {
         if (connectionRef.current?.state !== signalR.HubConnectionState.Connected) return;
-        connectionRef.current.invoke('CreateRoom')
+        connectionRef.current.invoke('CreateRoom', wager)
             .catch(err => setError(err.message));
     }, []);
 
-    const joinRoom = useCallback((code) => {
+    const requestWagerInfo = useCallback((code) => {
         if (connectionRef.current?.state !== signalR.HubConnectionState.Connected) return;
         pendingRoomCodeRef.current = code;
-        connectionRef.current.invoke('JoinRoom', code)
+        connectionRef.current.invoke('GetWagerInfo', code)
             .catch(err => setError(err.message));
     }, []);
+
+    const confirmJoin = useCallback(() => {
+        if (connectionRef.current?.state !== signalR.HubConnectionState.Connected) return;
+        connectionRef.current.invoke('JoinRoom', pendingRoomCodeRef.current)
+            .catch(err => setError(err.message));
+    }, []);
+
+    const cancelWager = useCallback(() => {
+        setWagerAmount(0);
+        setMyPoints(0);
+        setWagerCreatorUsername('');
+        pendingRoomCodeRef.current = '';
+        setPhaseSync(GamePhase.LOBBY);
+    }, [setPhaseSync]);
 
     const setReady = useCallback((code) => {
         setMyReady(true);
@@ -382,8 +425,13 @@ export function useRaceRoom() {
         countdownNumber,
         myUsername,
         opponentUsername,
+        wagerAmount,
+        myPoints,
+        wagerCreatorUsername,
         createRoom,
-        joinRoom,
+        requestWagerInfo,
+        confirmJoin,
+        cancelWager,
         setReady,
         submitAnswer,
         leaveRoom,

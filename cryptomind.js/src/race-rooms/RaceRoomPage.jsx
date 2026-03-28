@@ -7,10 +7,10 @@ const CIPHER_GROUPS = [
         label:     'Заместване',
         className: 'group-substitution',
         ciphers: [
-            { label: 'Цезар (Caesar)',                    value: CipherType.Caesar             },
-            { label: 'Атбаш (Atbash)',                    value: CipherType.Atbash             },
-            { label: 'Проста замяна (SimpleSubstitution)', value: CipherType.SimpleSubstitution },
-            { label: 'ROT13 (ROT13)',                     value: CipherType.ROT13              },
+            { label: 'Цезар (Caesar)',                     value: CipherType.Caesar             },
+            { label: 'Атбаш (Atbash)',                     value: CipherType.Atbash             },
+            { label: 'Проста замяна (SimpleSubstitution)',  value: CipherType.SimpleSubstitution },
+            { label: 'ROT13 (ROT13)',                      value: CipherType.ROT13              },
         ],
     },
     {
@@ -27,15 +27,17 @@ const CIPHER_GROUPS = [
         className: 'group-transposition',
         ciphers: [
             { label: 'Железопътна ограда (RailFence)', value: CipherType.RailFence },
-            { label: 'Колонна (Columnar)',             value: CipherType.Columnar  },
-            { label: 'Маршрут (Route)',                value: CipherType.Route     },
+            { label: 'Колонна (Columnar)',              value: CipherType.Columnar  },
+            { label: 'Маршрут (Route)',                 value: CipherType.Route     },
         ],
     },
 ];
 
+// WAGER_CONFIRM is intentionally excluded — the joiner hasn't entered the room yet
 function isActiveGame(phaseRef) {
     return phaseRef.current !== GamePhase.LOBBY &&
-           phaseRef.current !== GamePhase.GAME_END;
+           phaseRef.current !== GamePhase.GAME_END &&
+           phaseRef.current !== GamePhase.WAGER_CONFIRM;
 }
 
 function getAnchor(target) {
@@ -55,10 +57,11 @@ function isInternalLink(href) {
 }
 
 export default function RaceRoomPage() {
-    const [joinCode,          setJoinCode]          = useState('');
-    const [showLeaveConfirm,  setShowLeaveConfirm]  = useState(false);
-    const [pendingNavHref,    setPendingNavHref]     = useState(null);
-    const beforeUnloadRef  = useRef(null);
+    const [joinCode,         setJoinCode]         = useState('');
+    const [wagerInput,       setWagerInput]        = useState(0);
+    const [showLeaveConfirm, setShowLeaveConfirm]  = useState(false);
+    const [pendingNavHref,   setPendingNavHref]    = useState(null);
+    const beforeUnloadRef = useRef(null);
 
     const {
         phase,
@@ -78,8 +81,13 @@ export default function RaceRoomPage() {
         countdownNumber,
         myUsername,
         opponentUsername,
+        wagerAmount,
+        myPoints,
+        wagerCreatorUsername,
         createRoom,
-        joinRoom,
+        requestWagerInfo,
+        confirmJoin,
+        cancelWager,
         setReady,
         submitAnswer,
         leaveRoom,
@@ -119,17 +127,14 @@ export default function RaceRoomPage() {
     useEffect(() => {
         const handleClick = (e) => {
             if (!isActiveGame(phaseRef)) return;
-
             const anchor = getAnchor(e.target);
             if (!anchor) return;
             if (!isInternalLink(anchor.href)) return;
-
             e.preventDefault();
             e.stopPropagation();
             setPendingNavHref(anchor.href);
             setShowLeaveConfirm(true);
         };
-
         document.addEventListener('click', handleClick, true);
         return () => document.removeEventListener('click', handleClick, true);
     }, [phaseRef]);
@@ -166,21 +171,20 @@ export default function RaceRoomPage() {
 
     const handleLeaveConfirm = async () => {
         setShowLeaveConfirm(false);
-
         if (beforeUnloadRef.current) {
             window.removeEventListener('beforeunload', beforeUnloadRef.current);
             beforeUnloadRef.current = null;
         }
-
         await leaveRoom(roomCode);
-
         window.location.href = pendingNavHref ?? '/';
     };
 
     return (
         <div className="race-room-page">
 
-            {(phase !== GamePhase.LOBBY && phase !== GamePhase.WAITING) && (
+            {(phase !== GamePhase.LOBBY &&
+              phase !== GamePhase.WAITING &&
+              phase !== GamePhase.WAGER_CONFIRM) && (
                 <div className={`connection-badge ${isConnected ? 'connected' : 'disconnected'}`}>
                     <span className="connection-dot" />
                     {isConnected ? 'Свързан' : 'Свързване…'}
@@ -216,14 +220,26 @@ export default function RaceRoomPage() {
                 <LobbyScreen
                     joinCode={joinCode}
                     setJoinCode={setJoinCode}
-                    onCreateRoom={createRoom}
-                    onJoinRoom={() => joinRoom(joinCode)}
+                    wagerInput={wagerInput}
+                    setWagerInput={setWagerInput}
+                    onCreateRoom={() => createRoom(parseInt(wagerInput) || 0)}
+                    onJoinRoom={() => requestWagerInfo(joinCode)}
                     isConnected={isConnected}
                 />
             )}
 
+            {phase === GamePhase.WAGER_CONFIRM && (
+                <WagerConfirmScreen
+                    wagerAmount={wagerAmount}
+                    myPoints={myPoints}
+                    creatorUsername={wagerCreatorUsername}
+                    onConfirm={confirmJoin}
+                    onCancel={cancelWager}
+                />
+            )}
+
             {phase === GamePhase.WAITING && (
-                <WaitingScreen roomCode={roomCode} />
+                <WaitingScreen roomCode={roomCode} wagerAmount={wagerAmount} />
             )}
 
             {phase === GamePhase.READY_LOBBY && (
@@ -232,6 +248,7 @@ export default function RaceRoomPage() {
                     otherReady={otherReady}
                     myUsername={myUsername}
                     opponentUsername={opponentUsername}
+                    wagerAmount={wagerAmount}
                     onReady={() => setReady(roomCode)}
                 />
             )}
@@ -247,6 +264,7 @@ export default function RaceRoomPage() {
                     timeLeft={timeLeft}
                     mySubmitted={mySubmitted}
                     otherSubmitted={otherSubmitted}
+                    wagerAmount={wagerAmount}
                     onSubmit={(answer) => submitAnswer(roomCode, answer)}
                 />
             )}
@@ -259,7 +277,7 @@ export default function RaceRoomPage() {
             )}
 
             {phase === GamePhase.GAME_END && (
-                <GameEndScreen gameResult={gameResult} />
+                <GameEndScreen gameResult={gameResult} myUsername={myUsername} />
             )}
 
         </div>
@@ -285,16 +303,13 @@ function RaceLeaderboard() {
                 <span style={{ fontSize: '1.2rem' }}>🏆</span>
                 <h2 className="leaderboard-title">Топ победители</h2>
             </div>
-
             <div className="leaderboard-list">
                 {isLoading && (
                     <div className="waiting-dots" style={{ justifyContent: 'center', padding: '2rem' }}>
                         <span /><span /><span />
                     </div>
                 )}
-
                 {error && <p className="lb-error">Грешка при зареждане</p>}
-
                 {!isLoading && !error && entries.map((entry, index) => (
                     <div className="leaderboard-item" key={index}>
                         <span className="rank-number">{index + 1}</span>
@@ -311,7 +326,7 @@ function RaceLeaderboard() {
     );
 }
 
-function LobbyScreen({ joinCode, setJoinCode, onCreateRoom, onJoinRoom, isConnected }) {
+function LobbyScreen({ joinCode, setJoinCode, wagerInput, setWagerInput, onCreateRoom, onJoinRoom, isConnected }) {
     return (
         <div className="screen lobby-screen">
             <div className="lobby-main-content">
@@ -325,6 +340,18 @@ function LobbyScreen({ joinCode, setJoinCode, onCreateRoom, onJoinRoom, isConnec
                         <div className="lobby-card-icon">⚔️</div>
                         <h2>Създай стая</h2>
                         <p>Генерирай код за стая и го сподели с опонента си</p>
+                        <div className="wager-input-group">
+                            <label className="wager-input-label">Залог (точки)</label>
+                            <input
+                                className="wager-number-input"
+                                type="number"
+                                min="0"
+                                value={wagerInput}
+                                onChange={e => setWagerInput(e.target.value === '' ? '' : Math.max(0, parseInt(e.target.value) || 0))}
+                                placeholder="0"
+                            />
+                            <span className="wager-input-hint">0 = без залог</span>
+                        </div>
                         <button className="btn btn-primary" onClick={onCreateRoom} disabled={!isConnected}>
                             Създай стая
                         </button>
@@ -360,7 +387,62 @@ function LobbyScreen({ joinCode, setJoinCode, onCreateRoom, onJoinRoom, isConnec
     );
 }
 
-function WaitingScreen({ roomCode }) {
+function WagerConfirmScreen({ wagerAmount, myPoints, creatorUsername, onConfirm, onCancel }) {
+    const canAfford    = myPoints >= wagerAmount;
+    const potentialWin = wagerAmount * 2;
+
+    return (
+        <div className="screen wager-confirm-screen">
+            <div className="wager-confirm-card">
+                <div className="wager-confirm-icon">🎲</div>
+                <h2 className="wager-confirm-title">Потвърди залога</h2>
+
+                <div className="wager-confirm-details">
+                    <div className="wager-detail-row">
+                        <span className="wager-detail-label">Създадено от</span>
+                        <span className="wager-detail-value">{creatorUsername}</span>
+                    </div>
+                    <div className="wager-detail-row">
+                        <span className="wager-detail-label">Залог</span>
+                        <span className="wager-detail-value wager-detail-amount">{wagerAmount} т.</span>
+                    </div>
+                    <div className="wager-detail-row">
+                        <span className="wager-detail-label">Твоят баланс</span>
+                        <span className={`wager-detail-value ${canAfford ? '' : 'wager-detail-insufficient'}`}>
+                            {myPoints} т.
+                        </span>
+                    </div>
+                </div>
+
+                {canAfford ? (
+                    <div className="wager-outcome-preview">
+                        <div className="wager-outcome-row wager-outcome-win">
+                            <span>🏆 При победа</span>
+                            <span>+{potentialWin} т.</span>
+                        </div>
+                        <div className="wager-outcome-row wager-outcome-lose">
+                            <span>💸 При загуба</span>
+                            <span>-{wagerAmount} т.</span>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="wager-insufficient-msg">
+                        Нямаш достатъчно точки за този залог
+                    </div>
+                )}
+
+                <div className="wager-confirm-actions">
+                    <button className="btn btn-stay" onClick={onCancel}>Откажи</button>
+                    <button className="btn btn-primary" onClick={onConfirm} disabled={!canAfford}>
+                        Приеми залога
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function WaitingScreen({ roomCode, wagerAmount }) {
     return (
         <div className="screen waiting-screen">
             <div className="waiting-card">
@@ -373,19 +455,31 @@ function WaitingScreen({ roomCode }) {
                         Копирай
                     </button>
                 </div>
+                {wagerAmount > 0 && (
+                    <div className="waiting-wager-row">
+                        <span className="wager-badge-icon">🎲</span>
+                        Залог: <strong>{wagerAmount} точки</strong>
+                    </div>
+                )}
                 <div className="waiting-dots"><span /><span /><span /></div>
             </div>
         </div>
     );
 }
 
-function ReadyLobbyScreen({ myReady, otherReady, myUsername, opponentUsername, onReady }) {
+function ReadyLobbyScreen({ myReady, otherReady, myUsername, opponentUsername, wagerAmount, onReady }) {
     const myInitial       = myUsername?.[0]?.toUpperCase()       || '?';
     const opponentInitial = opponentUsername?.[0]?.toUpperCase() || '?';
 
     return (
         <div className="screen ready-lobby-screen">
             <h2 className="ready-title">И двамата играчи са свързани!</h2>
+
+            {wagerAmount > 0 && (
+                <div className="ready-wager-badge">
+                    🎲 Залог: {wagerAmount} точки
+                </div>
+            )}
 
             <div className="ready-players">
                 <div className={`ready-player-slot ${myReady ? 'is-ready' : ''}`}>
@@ -430,7 +524,7 @@ function CountdownScreen({ countdownNumber }) {
     );
 }
 
-function PlayingScreen({ cipherText, currentRound, timeLeft, mySubmitted, otherSubmitted, onSubmit }) {
+function PlayingScreen({ cipherText, currentRound, timeLeft, mySubmitted, otherSubmitted, wagerAmount, onSubmit }) {
     const timerPercent = (timeLeft / 300) * 100;
     const timerClass   = timeLeft > 150 ? 'timer-safe' : timeLeft > 60 ? 'timer-warn' : 'timer-danger';
 
@@ -438,6 +532,9 @@ function PlayingScreen({ cipherText, currentRound, timeLeft, mySubmitted, otherS
         <div className="screen playing-screen">
             <div className="playing-header">
                 <div className="round-badge">Рунд {currentRound}</div>
+                {wagerAmount > 0 && (
+                    <div className="playing-wager-badge">🎲 {wagerAmount} т.</div>
+                )}
                 <div className="timer-track">
                     <div className={`timer-bar ${timerClass}`} style={{ width: `${timerPercent}%` }} />
                 </div>
@@ -507,9 +604,13 @@ function RoundEndScreen({ roundWinner, currentRound }) {
     );
 }
 
-function GameEndScreen({ gameResult }) {
+function GameEndScreen({ gameResult, myUsername }) {
     if (!gameResult) return null;
-    const { winnerUsername, player1Username, player1Score, player2Username, player2Score } = gameResult;
+    const { winnerUsername, player1Username, player1Score, player2Username, player2Score, wagerAmount } = gameResult;
+
+    const iWon  = winnerUsername === myUsername;
+    const iLost = winnerUsername !== null && winnerUsername !== myUsername;
+
     return (
         <div className="screen game-end-screen">
             <div className="game-end-card">
@@ -526,6 +627,7 @@ function GameEndScreen({ gameResult }) {
                         <h2 className="game-end-title">Равенство!</h2>
                     </>
                 )}
+
                 <div className="score-table">
                     <div className={`score-row ${winnerUsername === player1Username ? 'winner-row' : ''}`}>
                         <span className="score-player">{player1Username}</span>
@@ -536,6 +638,27 @@ function GameEndScreen({ gameResult }) {
                         <span className="score-value">{player2Score}</span>
                     </div>
                 </div>
+
+                {wagerAmount > 0 && (
+                    <div className="wager-outcome-section">
+                        {winnerUsername === null && (
+                            <div className="wager-tie-outcome">
+                                🔄 Равенство — залогът от {wagerAmount} т. беше върнат
+                            </div>
+                        )}
+                        {iWon && (
+                            <div className="wager-winner-outcome">
+                                💰 Спечели {wagerAmount * 2} точки от залога!
+                            </div>
+                        )}
+                        {iLost && (
+                            <div className="wager-loser-outcome">
+                                💸 Загуби {wagerAmount} точки от залога
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 <button className="btn btn-primary" onClick={() => window.location.href = '/'}>
                     Към началото
                 </button>
