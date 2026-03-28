@@ -44,7 +44,60 @@ namespace Cryptomind.Core.Services
 		{
 			store.Rooms.TryRemove(roomCode, out _);
 		}
+		public bool RoomExists(string roomCode)
+		{
+			return store.Rooms.ContainsKey(roomCode);
+		}
+		public string? GetRoomCodeForPlayer(string userId)
+		{
+			return store.Rooms.Values
+				.FirstOrDefault(r => r.Player1Id == userId || r.Player2Id == userId)
+				?.Code;
+		}
+		public GameStateDTO? GetPlayerGameState(string userId)
+		{
+			var room = store.Rooms.Values
+				.FirstOrDefault(r => r.Player1Id == userId || r.Player2Id == userId);
 
+			if (room == null || room.Status != RoomStatus.InProgress) return null;
+
+			var currentRound = room.Rounds[room.CurrentRound - 1];
+
+			bool inTransition = room.RoundStartedAt.HasValue &&
+				room.RoundStartedAt.Value > DateTime.Now;
+
+			if (inTransition && room.CurrentRound > 1)
+			{
+				var transitionMs = (int)(room.RoundStartedAt!.Value - DateTime.Now).TotalMilliseconds;
+				return new GameStateDTO
+				{
+					RoomCode = room.Code,
+					CurrentRound = room.CurrentRound,
+					IsRoundEnd = true,
+					NextEncryptedText = currentRound.EncryptedText,
+					TransitionMsRemaining = Math.Max(0, transitionMs)
+				};
+			}
+
+			var secondsElapsed = room.RoundStartedAt.HasValue
+				? Math.Max(0, (int)(DateTime.Now - room.RoundStartedAt.Value).TotalSeconds)
+				: 0;
+
+			return new GameStateDTO
+			{
+				RoomCode = room.Code,
+				EncryptedText = currentRound.EncryptedText,
+				CurrentRound = room.CurrentRound,
+				SecondsElapsed = Math.Min(secondsElapsed, RoomConstants.RoundDurationSeconds),
+				HasSubmitted = currentRound.Submissions.Any(s => s.UserId == userId),
+				IsRoundEnd = false
+			};
+		}
+		public (string player1Id, string? player2Id)? GetPlayerIds(string roomCode)
+		{
+			if (!store.Rooms.TryGetValue(roomCode, out var room)) return null;
+			return (room.Player1Id, room.Player2Id);
+		}
 		public async Task<(string player1Username, string player2Username)> GetPlayerUsernames(string roomCode)
 		{
 			if (!store.Rooms.ContainsKey(roomCode))
@@ -63,9 +116,7 @@ namespace Cryptomind.Core.Services
 		public async Task<bool> JoinRoom(string roomCode, string userId)
 		{
 			if (!store.Rooms.ContainsKey(roomCode))
-			{
 				throw new NotFoundException(RoomConstants.RoomNotFound);
-			}
 
 			var room = store.Rooms[roomCode];
 
@@ -75,7 +126,6 @@ namespace Cryptomind.Core.Services
 				throw new NotFoundException(CipherErrorConstants.UserNotFoundMessage);
 			if (room.Player1Id == userId)
 				throw new ConflictException(RoomConstants.PlayerAlreadyInRoom);
-
 
 			room.Player2Id = userId;
 			room.Status = RoomStatus.WaitingForReady;
@@ -117,15 +167,17 @@ namespace Cryptomind.Core.Services
 		public string StartRoom(string roomCode)
 		{
 			if (!store.Rooms.ContainsKey(roomCode))
-			{
 				throw new NotFoundException(RoomConstants.RoomNotFound);
-			}
-			var (cipherType, encryptedText) = CipherGeneratorHelper.GenerateRandom();
 
 			var room = store.Rooms[roomCode];
+			var (cipherType, encryptedText, plaintext) =
+				CipherGeneratorHelper.GenerateRandom(room.UsedCipherTypes, room.UsedSentences);
 
+			room.UsedCipherTypes.Add(cipherType);
+			room.UsedSentences.Add(plaintext);
 			room.Status = RoomStatus.InProgress;
 			room.CurrentRound = 1;
+			room.RoundStartedAt = DateTime.Now.AddSeconds(RoomConstants.PreRoundSeconds);
 			room.Rounds.Add(new Round
 			{
 				EncryptedText = encryptedText,
@@ -139,14 +191,16 @@ namespace Cryptomind.Core.Services
 		public async Task<RoomSubmissionResultDTO> SubmitAnwer(string roomCode, string userId, CipherType answer)
 		{
 			if (!store.Rooms.ContainsKey(roomCode))
-			{
 				throw new NotFoundException(RoomConstants.RoomNotFound);
-			}
 
 			if (await userManager.FindByIdAsync(userId) == null)
 				throw new NotFoundException(CipherErrorConstants.UserNotFoundMessage);
 
 			var room = store.Rooms[roomCode];
+
+			if (room.RoundStartedAt.HasValue && room.RoundStartedAt.Value > DateTime.Now)
+				throw new ConflictException(RoomConstants.RoundNotStarted);
+
 			var round = room.Rounds[room.CurrentRound - 1];
 
 			string? winnerUsername = null;
@@ -160,9 +214,7 @@ namespace Cryptomind.Core.Services
 				}
 
 				if (room.Player1Id != userId && room.Player2Id != userId)
-				{
 					throw new NotFoundException(RoomConstants.PlayerNotInRoom);
-				}
 
 				round.Submissions.Add(new RoomSubmission
 				{
@@ -179,31 +231,33 @@ namespace Cryptomind.Core.Services
 			if (didBothSubmit)
 			{
 				var result = await EndRound(roomCode, false);
-				if (result == null) return new RoomSubmissionResultDTO
-				{
-					DidBothSubmit = false
-				};
+				if (result == null) return new RoomSubmissionResultDTO { DidBothSubmit = false };
 
 				winnerUsername = result.WinnerUsername;
 				wasLastRound = result.WasLastRound;
 			}
 
-			//Doesn't matter if one didn't submit or none got it right, we still get null as the username of the winner! - Discuss with Adelin
 			return new RoomSubmissionResultDTO
 			{
 				DidBothSubmit = didBothSubmit,
 				WinnerUsername = winnerUsername,
-				WasLastRound = wasLastRound, //Possible null, if the submission was the first and there is no other, we don't have to keep track if this was the last round.
+				WasLastRound = wasLastRound,
 			};
 		}
 		public string NextRound(string roomCode)
 		{
 			if (!store.Rooms.ContainsKey(roomCode))
+			{
 				throw new NotFoundException(RoomConstants.RoomNotFound);
+			}
 
-			var (cipherType, encryptedText) = CipherGeneratorHelper.GenerateRandom();
 			var room = store.Rooms[roomCode];
+			var (cipherType, encryptedText, plaintext) =
+				CipherGeneratorHelper.GenerateRandom(room.UsedCipherTypes, room.UsedSentences);
 
+			room.UsedCipherTypes.Add(cipherType);
+			room.UsedSentences.Add(plaintext);
+			room.RoundStartedAt = DateTime.Now.AddSeconds(RoomConstants.PreRoundSeconds);
 			room.CurrentRound++;
 			room.Rounds.Add(new Round
 			{
@@ -218,9 +272,7 @@ namespace Cryptomind.Core.Services
 		public async Task<RoundResultDTO?> EndRound(string roomCode, bool didTimerRanOut)
 		{
 			if (!store.Rooms.ContainsKey(roomCode))
-			{
 				throw new NotFoundException(RoomConstants.RoomNotFound);
-			}
 
 			var room = store.Rooms[roomCode];
 			var round = room.Rounds[room.CurrentRound - 1];
@@ -234,7 +286,7 @@ namespace Cryptomind.Core.Services
 			lock (room)
 			{
 				if (round.IsFinished)
-					return null; // Or a specific DTO indicating already processed
+					return null;
 
 				round.IsFinished = true;
 
@@ -257,7 +309,6 @@ namespace Cryptomind.Core.Services
 						WinnerUsername = null,
 					};
 
-				//We handle both cases where one solution is correct and both are correct because we sort the submissions list so that means the first submission was the earlier one.
 				if (firstSubmission.IsCorrect && !secondSubmission.IsCorrect || (firstSubmission.IsCorrect && secondSubmission.IsCorrect))
 					winnerUserId = firstSubmission.UserId;
 				else
