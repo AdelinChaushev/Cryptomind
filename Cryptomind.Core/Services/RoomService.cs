@@ -429,8 +429,7 @@ namespace Cryptomind.Core.Services
 				WasLastRound = wasLastRound,
 				WinnerUsername = user.UserName
 			};
-
-
+		}
 		public void SetRoundTimer(string roomCode, CancellationTokenSource cts)
 		{
 			if (!store.Rooms.TryGetValue(roomCode, out var room)) return;
