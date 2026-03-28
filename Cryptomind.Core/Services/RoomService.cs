@@ -158,6 +158,9 @@ namespace Cryptomind.Core.Services
 			if (!store.Rooms.ContainsKey(roomCode))
 				throw new NotFoundException(RoomConstants.RoomNotFound);
 
+			if (GetRoomCodeForPlayer(userId) != null)
+				throw new ConflictException(RoomConstants.AlreadyInRoom);
+
 			var room = store.Rooms[roomCode];
 
 			if (room.Player2Id != null)
