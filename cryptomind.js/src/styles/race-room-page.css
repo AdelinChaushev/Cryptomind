@@ -397,6 +397,20 @@ line-height: 1.5;
     transition: border-color 0.3s ease;
 }
 
+.ready-player-slot:not(:has(.ready-you-badge)) {
+    border-color: var(--border-default);
+    background: transparent;
+}
+
+.ready-player-slot:not(:has(.ready-you-badge)).is-ready {
+    border-color: var(--rose-500);
+    background: rgba(244, 63, 94, 0.08);
+}
+
+.ready-player-slot:not(:has(.ready-you-badge)).is-ready .ready-status {
+    color: var(--rose-500);
+}
+
 .ready-player-slot.is-ready {
     border-color: var(--emerald-500);
 }
@@ -459,7 +473,7 @@ line-height: 1.5;
 }
 
 .ready-player-avatar.opponent {
-    border-color: var(--blue-500);
+    border-color: var(--rose-500);
 }
 
 .ready-player-name {
