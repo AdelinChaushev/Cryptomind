@@ -33,16 +33,36 @@ const CIPHER_GROUPS = [
     },
 ];
 
+function isActiveGame(phaseRef) {
+    return phaseRef.current !== GamePhase.LOBBY &&
+           phaseRef.current !== GamePhase.GAME_END;
+}
+
+function getAnchor(target) {
+    let el = target;
+    while (el && el.tagName !== 'A') el = el.parentElement;
+    return el;
+}
+
+function isInternalLink(href) {
+    if (!href) return false;
+    try {
+        const url = new URL(href, window.location.origin);
+        return url.origin === window.location.origin;
+    } catch {
+        return false;
+    }
+}
+
 export default function RaceRoomPage() {
-    const [joinCode,         setJoinCode]         = useState('');
-    const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
-    const isActivePhaseRef  = useRef(false);
-    const beforeUnloadRef   = useRef(null);
-    const leaveRoomSilentlyRef = useRef(null);
-    const roomCodeForUnloadRef = useRef('');
+    const [joinCode,          setJoinCode]          = useState('');
+    const [showLeaveConfirm,  setShowLeaveConfirm]  = useState(false);
+    const [pendingNavHref,    setPendingNavHref]     = useState(null);
+    const beforeUnloadRef  = useRef(null);
 
     const {
         phase,
+        phaseRef,
         roomCode,
         cipherText,
         currentRound,
@@ -63,17 +83,15 @@ export default function RaceRoomPage() {
         setReady,
         submitAnswer,
         leaveRoom,
-        leaveRoomSilently,
         dismissError,
     } = useRaceRoom();
 
-    const isActivePhase = phase !== GamePhase.LOBBY && phase !== GamePhase.GAME_END;
-
     useEffect(() => {
-        isActivePhaseRef.current       = isActivePhase;
-        leaveRoomSilentlyRef.current   = leaveRoomSilently;
-        roomCodeForUnloadRef.current   = roomCode;
-    }, [isActivePhase, leaveRoomSilently, roomCode]);
+        if (phase === GamePhase.LOBBY) {
+            setShowLeaveConfirm(false);
+            setPendingNavHref(null);
+        }
+    }, [phase]);
 
     useEffect(() => {
         if (phase === GamePhase.LOBBY) setJoinCode('');
@@ -99,44 +117,64 @@ export default function RaceRoomPage() {
     }, [phase]);
 
     useEffect(() => {
-        const handler = (e) => {
-            if (!isActivePhaseRef.current) return;
+        const handleClick = (e) => {
+            if (!isActiveGame(phaseRef)) return;
+
+            const anchor = getAnchor(e.target);
+            if (!anchor) return;
+            if (!isInternalLink(anchor.href)) return;
+
             e.preventDefault();
-            e.returnValue = '';
-            leaveRoomSilentlyRef.current?.(roomCodeForUnloadRef.current);
+            e.stopPropagation();
+            setPendingNavHref(anchor.href);
+            setShowLeaveConfirm(true);
         };
 
+        document.addEventListener('click', handleClick, true);
+        return () => document.removeEventListener('click', handleClick, true);
+    }, [phaseRef]);
+
+    useEffect(() => {
+        const handlePopState = (e) => {
+            if (!isActiveGame(phaseRef)) return;
+            e.stopImmediatePropagation();
+            window.history.pushState(null, '', window.location.href);
+            setShowLeaveConfirm(true);
+        };
+        window.addEventListener('popstate', handlePopState, true);
+        return () => window.removeEventListener('popstate', handlePopState, true);
+    }, [phaseRef]);
+
+    useEffect(() => {
+        const handler = (e) => {
+            if (!isActiveGame(phaseRef)) return;
+            e.preventDefault();
+            e.returnValue = '';
+        };
         beforeUnloadRef.current = handler;
         window.addEventListener('beforeunload', handler);
         return () => {
             window.removeEventListener('beforeunload', handler);
             beforeUnloadRef.current = null;
         };
-    }, []);
+    }, [phaseRef]);
 
-    useEffect(() => {
-        if (isActivePhase) {
-            window.history.pushState(null, '', window.location.href);
-        }
-        const handlePopState = () => {
-            if (!isActivePhase) return;
-            window.history.pushState(null, '', window.location.href);
-            setShowLeaveConfirm(true);
-        };
-        window.addEventListener('popstate', handlePopState);
-        return () => window.removeEventListener('popstate', handlePopState);
-    }, [isActivePhase]);
-
-    const handleLeaveCancel = () => setShowLeaveConfirm(false);
+    const handleLeaveCancel = () => {
+        setShowLeaveConfirm(false);
+        setPendingNavHref(null);
+    };
 
     const handleLeaveConfirm = async () => {
         setShowLeaveConfirm(false);
+
         if (beforeUnloadRef.current) {
             window.removeEventListener('beforeunload', beforeUnloadRef.current);
             beforeUnloadRef.current = null;
         }
+
         await leaveRoom(roomCode);
-        window.location.href = '/';
+
+        window.location.href = pendingNavHref ?? '/';
     };
 
     return (
@@ -167,7 +205,7 @@ export default function RaceRoomPage() {
                             Сигурни ли сте, че искате да напуснете? Опонентът Ви ще бъде уведомен.
                         </p>
                         <div className="leave-confirm-actions">
-                            <button className="btn btn-stay" onClick={handleLeaveCancel}>Остани</button>
+                            <button className="btn btn-stay"  onClick={handleLeaveCancel}>Остани</button>
                             <button className="btn btn-leave" onClick={handleLeaveConfirm}>Напусни</button>
                         </div>
                     </div>

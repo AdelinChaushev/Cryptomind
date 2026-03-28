@@ -36,7 +36,6 @@ namespace Cryptomind.Common.Helpers
 			return new string(plaintext.ToUpper().Select(c =>
 				Alphabet.Contains(c) ? key[Alphabet.IndexOf(c)] : c).ToArray());
 		}
-
 		#endregion
 
 		#region Polyalphabetic
@@ -254,13 +253,25 @@ namespace Cryptomind.Common.Helpers
 			"The general trusted only his shadow",
 			"Silence is the first rule of survival",
 		};
-		public static string GetRandomSentence()
-			=> Sentences[Random.Next(Sentences.Count)];
-		public static (string CipherType, string EncryptedText) GenerateRandom()
-		{
-			var plaintext = GetRandomSentence();
 
-			string cipherType = CipherTypes[Random.Next(CipherTypes.Count)];
+		public static string GetRandomSentence(HashSet<string>? usedSentences = null)
+		{
+			var available = (usedSentences == null || usedSentences.Count >= Sentences.Count)
+				? Sentences
+				: Sentences.Where(s => !usedSentences.Contains(s)).ToList();
+
+			return available[Random.Next(available.Count)];
+		}
+		public static (string CipherType, string EncryptedText, string Plaintext) GenerateRandom(
+			HashSet<string>? usedTypes = null,
+			HashSet<string>? usedSentences = null)
+		{
+			var available = (usedTypes == null || usedTypes.Count >= CipherTypes.Count)
+				? CipherTypes
+				: CipherTypes.Where(t => !usedTypes.Contains(t)).ToList();
+
+			var plaintext = GetRandomSentence(usedSentences);
+			string cipherType = available[Random.Next(available.Count)];
 			string encrypted = cipherType switch
 			{
 				"Caesar" => Caesar(plaintext),
@@ -276,7 +287,7 @@ namespace Cryptomind.Common.Helpers
 				_ => throw new ArgumentException($"Unknown cipher: {cipherType}")
 			};
 
-			return (cipherType, encrypted);
+			return (cipherType, encrypted, plaintext);
 		}
 	}
 }
