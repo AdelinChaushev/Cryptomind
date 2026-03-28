@@ -1,16 +1,21 @@
 ﻿using Cryptomind.Common.Constants;
+using Cryptomind.Common.DTOs;
 using Cryptomind.Common.Exceptions;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
 using System.Security.Claims;
 
 namespace Cryptomind.Core.Hubs
 {
 	[Authorize(AuthenticationSchemes = "Bearer")]
-	public class RaceRoomHub(IRoomService roomService, IHubContext<RaceRoomHub> hubContext) : Hub
+	public class RaceRoomHub(
+		IRoomService roomService,
+		IHubContext<RaceRoomHub> hubContext,
+		IServiceScopeFactory scopeFactory) : Hub
 	{
 		private static ConcurrentDictionary<string, string> connectionToRoom = new();
 		private static ConcurrentDictionary<string, string> userToConnection = new();
@@ -23,20 +28,17 @@ namespace Cryptomind.Core.Hubs
 			{
 				userToConnection[userId] = Context.ConnectionId;
 
-				var existingRoom = connectionToRoom.Values
-					.GroupBy(x => x)
-					.Select(x => x.Key)
-					.FirstOrDefault(roomCode => roomService.IsPlayerInRoom(roomCode, userId));
-
+				var existingRoom = roomService.GetRoomCodeForPlayer(userId);
 				if (existingRoom != null)
 				{
-					connectionToRoom.TryAdd(Context.ConnectionId, existingRoom);
+					connectionToRoom[Context.ConnectionId] = existingRoom;
 					await Groups.AddToGroupAsync(Context.ConnectionId, $"room_{existingRoom}");
 				}
 			}
 
 			await base.OnConnectedAsync();
 		}
+
 		public override async Task OnDisconnectedAsync(Exception? exception)
 		{
 			if (connectionToRoom.TryRemove(Context.ConnectionId, out var roomCode))
@@ -49,34 +51,78 @@ namespace Cryptomind.Core.Hubs
 					return;
 				}
 
-				await Task.Delay(TimeSpan.FromSeconds(8));
+				var capturedConnectionId = Context.ConnectionId;
+				var capturedRoomCode = roomCode;
+				var capturedUserId = userId;
 
-				bool playerReconnected = !string.IsNullOrEmpty(userId) &&
-					userToConnection.TryGetValue(userId, out var currentConnectionId) &&
-					currentConnectionId != Context.ConnectionId &&
-					connectionToRoom.ContainsKey(currentConnectionId) &&
-					connectionToRoom[currentConnectionId] == roomCode;
-
-				if (!playerReconnected)
+				_ = Task.Run(async () =>
 				{
-					if (!string.IsNullOrEmpty(userId))
-						userToConnection.TryRemove(userId, out _);
+					await Task.Delay(TimeSpan.FromSeconds(8));
+
+					bool playerReconnected =
+						!string.IsNullOrEmpty(capturedUserId) &&
+						userToConnection.TryGetValue(capturedUserId, out var currentConnectionId) &&
+						currentConnectionId != capturedConnectionId &&
+						connectionToRoom.ContainsKey(currentConnectionId) &&
+						connectionToRoom[currentConnectionId] == capturedRoomCode;
+
+					if (playerReconnected) return;
+
+					if (!string.IsNullOrEmpty(capturedUserId))
+						userToConnection.TryRemove(capturedUserId, out _);
 
 					var staleConnections = connectionToRoom
-						.Where(x => x.Value == roomCode)
+						.Where(x => x.Value == capturedRoomCode)
 						.Select(x => x.Key)
 						.ToList();
 
 					foreach (var connectionId in staleConnections)
 						connectionToRoom.TryRemove(connectionId, out _);
 
-					await hubContext.Clients.Group($"room_{roomCode}").SendAsync("PlayerDisconnected");
-					roomService.CancelRoundTimer(roomCode);
-					roomService.RemoveRoom(roomCode);
-				}
+					await using var scope = scopeFactory.CreateAsyncScope();
+					var scoped = scope.ServiceProvider.GetRequiredService<IRoomService>();
+
+					if (!scoped.RoomExists(capturedRoomCode)) return;
+
+					var playerIds = scoped.GetPlayerIds(capturedRoomCode);
+					if (playerIds.HasValue && !string.IsNullOrEmpty(playerIds.Value.player2Id))
+					{
+						await hubContext.Clients.Group($"room_{capturedRoomCode}").SendAsync("PlayerDisconnected");
+					}
+
+					scoped.CancelRoundTimer(capturedRoomCode);
+					scoped.RemoveRoom(capturedRoomCode);
+				});
 			}
 
 			await base.OnDisconnectedAsync(exception);
+		}
+
+		public async Task RequestCurrentState()
+		{
+			var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+			if (string.IsNullOrEmpty(userId)) return;
+
+			var state = roomService.GetPlayerGameState(userId);
+			if (state != null)
+			{
+				await Clients.Caller.SendAsync("GameStateRestored", state);
+				return;
+			}
+
+			var roomCode = roomService.GetRoomCodeForPlayer(userId);
+			if (roomCode != null)
+			{
+				var playerIds = roomService.GetPlayerIds(roomCode);
+				if (playerIds.HasValue && !string.IsNullOrEmpty(playerIds.Value.player2Id))
+				{
+					await Clients.OthersInGroup($"room_{roomCode}").SendAsync("PlayerDisconnected");
+				}
+				roomService.CancelRoundTimer(roomCode);
+				roomService.RemoveRoom(roomCode);
+			}
+
+			await Clients.Caller.SendAsync("NoActiveRoom");
 		}
 
 		public async Task CreateRoom()
@@ -87,7 +133,7 @@ namespace Cryptomind.Core.Hubs
 				if (string.IsNullOrEmpty(userId)) return;
 
 				var code = await roomService.CreateRoom(userId);
-				connectionToRoom.TryAdd(Context.ConnectionId, code);
+				connectionToRoom[Context.ConnectionId] = code;
 				await Groups.AddToGroupAsync(Context.ConnectionId, $"room_{code}");
 				await Clients.Caller.SendAsync("RoomCreated", code);
 			}
@@ -100,6 +146,7 @@ namespace Cryptomind.Core.Hubs
 				await Clients.Caller.SendAsync("Error", "An unexpected error occurred");
 			}
 		}
+
 		public async Task JoinRoom(string roomCode)
 		{
 			try
@@ -115,7 +162,7 @@ namespace Cryptomind.Core.Hubs
 					return;
 				}
 
-				connectionToRoom.TryAdd(Context.ConnectionId, roomCode);
+				connectionToRoom[Context.ConnectionId] = roomCode;
 				await Groups.AddToGroupAsync(Context.ConnectionId, $"room_{roomCode}");
 				await Clients.Group($"room_{roomCode}").SendAsync("RoomJoined", true);
 
@@ -137,6 +184,7 @@ namespace Cryptomind.Core.Hubs
 				await Clients.Caller.SendAsync("Error", "An unexpected error occurred");
 			}
 		}
+
 		public async Task SetReady(string roomCode)
 		{
 			try
@@ -150,7 +198,7 @@ namespace Cryptomind.Core.Hubs
 				{
 					var encryptedText = roomService.StartRoom(roomCode);
 					await Clients.Group($"room_{roomCode}").SendAsync("GameIsStarting", encryptedText);
-					_ = StartRoundTimer(roomCode);
+					_ = StartRoundTimer(roomCode, RoomConstants.PreRoundSeconds);
 				}
 				else
 					await Clients.Group($"room_{roomCode}").SendAsync("PlayerReady", userId);
@@ -164,6 +212,7 @@ namespace Cryptomind.Core.Hubs
 				await Clients.Caller.SendAsync("Error", "An unexpected error occurred");
 			}
 		}
+
 		public async Task SubmitAnswer(string roomCode, CipherType answer)
 		{
 			try
@@ -180,14 +229,13 @@ namespace Cryptomind.Core.Hubs
 
 					if (result.WasLastRound == true)
 					{
-						var gameResult = await roomService.EndGame(roomCode);
-						await Clients.Group($"room_{roomCode}").SendAsync("GameEnded", gameResult);
+						await EndGameAndCleanup(roomCode, roomService);
 					}
 					else
 					{
 						var nextCipher = roomService.NextRound(roomCode);
 						await Clients.Group($"room_{roomCode}").SendAsync("NextRoundStarting", nextCipher);
-						_ = StartRoundTimer(roomCode);
+						_ = StartRoundTimer(roomCode, RoomConstants.PreRoundSeconds * 2);
 					}
 				}
 				else
@@ -202,13 +250,15 @@ namespace Cryptomind.Core.Hubs
 			}
 			catch (ConflictException ex)
 			{
-				await Clients.Caller.SendAsync("Error", ex.Message);
+				if (ex.Message != RoomConstants.RoundNotStarted)
+					await Clients.Caller.SendAsync("Error", ex.Message);
 			}
 			catch (Exception)
 			{
 				await Clients.Caller.SendAsync("Error", "An unexpected error occurred");
 			}
 		}
+
 		public async Task VerifyRoom(string roomCode)
 		{
 			var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -217,6 +267,7 @@ namespace Cryptomind.Core.Hubs
 			if (!roomService.IsPlayerInRoom(roomCode, userId))
 				await Clients.Caller.SendAsync("RoomNoLongerExists");
 		}
+
 		public async Task LeaveRoom(string roomCode)
 		{
 			var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -243,30 +294,34 @@ namespace Cryptomind.Core.Hubs
 		}
 
 		#region Private Methods
-		private async Task StartRoundTimer(string roomCode)
+		private async Task StartRoundTimer(string roomCode, int extraDelaySeconds = 0)
 		{
 			var cts = new CancellationTokenSource();
 			roomService.SetRoundTimer(roomCode, cts);
 
 			try
 			{
-				await Task.Delay(TimeSpan.FromSeconds(RoomConstants.RoundDurationSeconds), cts.Token);
+				await Task.Delay(TimeSpan.FromSeconds(RoomConstants.RoundDurationSeconds + extraDelaySeconds), cts.Token);
 
-				var result = await roomService.EndRound(roomCode, true);
+				await using var scope = scopeFactory.CreateAsyncScope();
+				var scoped = scope.ServiceProvider.GetRequiredService<IRoomService>();
+
+				if (!scoped.RoomExists(roomCode)) return;
+
+				var result = await scoped.EndRound(roomCode, true);
 				if (result == null) return;
 
 				await hubContext.Clients.Group($"room_{roomCode}").SendAsync("RoundEnded", null);
 
 				if (result.WasLastRound)
 				{
-					var gameResult = await roomService.EndGame(roomCode);
-					await hubContext.Clients.Group($"room_{roomCode}").SendAsync("GameEnded", gameResult);
+					await EndGameAndCleanup(roomCode, scoped);
 				}
 				else
 				{
-					var nextCipher = roomService.NextRound(roomCode);
+					var nextCipher = scoped.NextRound(roomCode);
 					await hubContext.Clients.Group($"room_{roomCode}").SendAsync("NextRoundStarting", nextCipher);
-					_ = StartRoundTimer(roomCode);
+					_ = StartRoundTimer(roomCode, RoomConstants.PreRoundSeconds * 2);
 				}
 			}
 			catch (TaskCanceledException) { }
@@ -274,6 +329,20 @@ namespace Cryptomind.Core.Hubs
 			{
 				await hubContext.Clients.Group($"room_{roomCode}").SendAsync("Error", "An unexpected error occurred");
 			}
+		}
+		private async Task EndGameAndCleanup(string roomCode, IRoomService service)
+		{
+			var playerIds = service.GetPlayerIds(roomCode);
+			var gameResult = await service.EndGame(roomCode);
+
+			if (playerIds.HasValue)
+			{
+				userToConnection.TryRemove(playerIds.Value.player1Id, out _);
+				if (!string.IsNullOrEmpty(playerIds.Value.player2Id))
+					userToConnection.TryRemove(playerIds.Value.player2Id!, out _);
+			}
+
+			await hubContext.Clients.Group($"room_{roomCode}").SendAsync("GameEnded", gameResult);
 		}
 		#endregion
 	}

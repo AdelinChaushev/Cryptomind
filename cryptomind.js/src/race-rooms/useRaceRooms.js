@@ -64,6 +64,9 @@ export function useRaceRoom() {
     const setPhaseSync = useCallback((newPhase) => {
         phaseRef.current = newPhase;
         setPhase(newPhase);
+        if (newPhase !== GamePhase.LOBBY && newPhase !== GamePhase.GAME_END) {
+            window.history.pushState(null, '', window.location.href);
+        }
     }, []);
 
     const setRoomCodeSync = useCallback((code) => {
@@ -108,6 +111,23 @@ export function useRaceRoom() {
         countdownRef.current = setInterval(() => {
             const elapsed = Math.floor((Date.now() - startedAt) / 1000);
             const remaining = ROUND_DURATION_SECONDS - elapsed;
+            if (remaining <= 0) {
+                clearCountdown();
+                setTimeLeft(0);
+            } else {
+                setTimeLeft(remaining);
+            }
+        }, 500);
+    }, [clearCountdown]);
+
+    const startCountdownFrom = useCallback((secondsRemaining) => {
+        clearCountdown();
+        const clamped = Math.max(0, secondsRemaining);
+        setTimeLeft(clamped);
+        const startedAt = Date.now();
+        countdownRef.current = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+            const remaining = clamped - elapsed;
             if (remaining <= 0) {
                 clearCountdown();
                 setTimeLeft(0);
@@ -237,6 +257,35 @@ export function useRaceRoom() {
             setError('Стаята вече не съществува. Моля, създай нова стая.');
         });
 
+       connection.on('GameStateRestored', (state) => {
+            setRoomCodeSync(state.roomCode);
+
+            if (state.isRoundEnd) {
+                setCurrentRound(state.currentRound - 1);
+                setRoundWinner(null);
+                setPhaseSync(GamePhase.ROUND_END);
+                transitionRef.current = setTimeout(() => {
+                    transitionRef.current = null;
+                    startPreRoundCountdown(state.nextEncryptedText, state.currentRound);
+                }, state.transitionMsRemaining);
+                return;
+            }
+        
+            const secondsRemaining = ROUND_DURATION_SECONDS - state.secondsElapsed;
+            setCipherText(state.encryptedText);
+            setCurrentRound(state.currentRound);
+            setMySubmitted(state.hasSubmitted);
+            setOtherSubmitted(false);
+            setPhaseSync(GamePhase.PLAYING);
+            startCountdownFrom(secondsRemaining);
+        });
+
+        connection.on('NoActiveRoom', () => {
+            if (phaseRef.current !== GamePhase.LOBBY && phaseRef.current !== GamePhase.GAME_END) {
+                resetToLobby();
+            }
+        });
+
         connection.on('AnswerSubmitted',       () => setMySubmitted(true));
         connection.on('OtherUserHasSubmitted', () => setOtherSubmitted(true));
         connection.on('Error',   (message)     => setError(message));
@@ -245,11 +294,7 @@ export function useRaceRoom() {
 
         connection.onreconnected(() => {
             setIsConnected(true);
-            const currentRoomCode = roomCodeRef.current;
-            if (currentRoomCode && phaseRef.current !== GamePhase.LOBBY && phaseRef.current !== GamePhase.GAME_END) {
-                connection.invoke('VerifyRoom', currentRoomCode)
-                    .catch(() => resetToLobby());
-            }
+            connection.invoke('RequestCurrentState').catch(() => {});
         });
 
         connection.onclose(() => {
@@ -262,6 +307,7 @@ export function useRaceRoom() {
             try {
                 await connection.start();
                 setIsConnected(true);
+                connection.invoke('RequestCurrentState').catch(() => {});
             } catch {
                 setTimeout(start, 5000);
             }
@@ -276,7 +322,7 @@ export function useRaceRoom() {
             clearTransition();
             connection.stop();
         };
-    }, [setPhaseSync, setRoomCodeSync, startCountdown, clearCountdown, clearTransition, startPreRoundCountdown, clearPreCountdown, resetToLobby]);
+    }, [setPhaseSync, setRoomCodeSync, startCountdown, startCountdownFrom, clearCountdown, clearTransition, startPreRoundCountdown, clearPreCountdown, resetToLobby]);
 
     const createRoom = useCallback(() => {
         if (connectionRef.current?.state !== signalR.HubConnectionState.Connected) return;
@@ -315,16 +361,13 @@ export function useRaceRoom() {
         await connectionRef.current.stop();
     }, []);
 
-    const leaveRoomSilently = useCallback((code) => {
-        if (connectionRef.current?.state !== signalR.HubConnectionState.Connected) return;
-        connectionRef.current.invoke('LeaveRoom', code).catch(() => {});
-    }, []);
-
     const dismissError = useCallback(() => setError(null), []);
 
     return {
         phase,
+        phaseRef,
         roomCode,
+        roomCodeRef,
         cipherText,
         currentRound,
         roundWinner,
@@ -344,7 +387,6 @@ export function useRaceRoom() {
         setReady,
         submitAnswer,
         leaveRoom,
-        leaveRoomSilently,
         dismissError,
     };
 }

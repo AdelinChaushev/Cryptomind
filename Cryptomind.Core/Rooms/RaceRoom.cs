@@ -12,6 +12,9 @@ namespace Cryptomind.Core.Rooms
 		public CancellationTokenSource? RoundTimer { get; set; }
 		public int CurrentRound { get; set; }
 		public RoomStatus Status { get; set; }
+		public DateTime? RoundStartedAt { get; set; }
+		public HashSet<string> UsedCipherTypes { get; set; } = new();
+		public HashSet<string> UsedSentences { get; set; } = new();
 		public List<Round> Rounds { get; set; }
 		public string Player1Id { get; set; }
 		public string? Player2Id { get; set; }
