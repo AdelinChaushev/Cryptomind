@@ -13,10 +13,20 @@ namespace Cryptomind.Core.Services
 {
 	public class RoomService(UserManager<ApplicationUser> userManager, RoomStore store) : IRoomService
 	{
-		public async Task<string> CreateRoom(string userId)
+		public async Task<string> CreateRoom(string userId, int wagerAmount)
 		{
-			if (await userManager.FindByIdAsync(userId) == null)
+			var user = await userManager.FindByIdAsync(userId);
+			if (user == null)
 				throw new NotFoundException(CipherErrorConstants.UserNotFoundMessage);
+
+			if (GetRoomCodeForPlayer(userId) != null)
+				throw new ConflictException(RoomConstants.AlreadyInRoom);
+
+			if (wagerAmount < 0)
+				throw new ConflictException(RoomConstants.WagerCannotBeNegative);
+
+			if (wagerAmount > 0 && user.Score < wagerAmount)
+				throw new ConflictException(RoomConstants.NotEnoughPointsForWager);
 
 			string code;
 			do
@@ -34,6 +44,8 @@ namespace Cryptomind.Core.Services
 				Player2Ready = false,
 				Player1Score = 0,
 				Player2Score = 0,
+				WagerAmount = wagerAmount,
+				WagersLocked = false,
 				Status = RoomStatus.WaitingForPlayers
 			};
 
@@ -75,7 +87,8 @@ namespace Cryptomind.Core.Services
 					CurrentRound = room.CurrentRound,
 					IsRoundEnd = true,
 					NextEncryptedText = currentRound.EncryptedText,
-					TransitionMsRemaining = Math.Max(0, transitionMs)
+					TransitionMsRemaining = Math.Max(0, transitionMs),
+					WagerAmount = room.WagerAmount
 				};
 			}
 
@@ -90,7 +103,8 @@ namespace Cryptomind.Core.Services
 				CurrentRound = room.CurrentRound,
 				SecondsElapsed = Math.Min(secondsElapsed, RoomConstants.RoundDurationSeconds),
 				HasSubmitted = currentRound.Submissions.Any(s => s.UserId == userId),
-				IsRoundEnd = false
+				IsRoundEnd = false,
+				WagerAmount = room.WagerAmount
 			};
 		}
 		public (string player1Id, string? player2Id)? GetPlayerIds(string roomCode)
@@ -112,6 +126,32 @@ namespace Cryptomind.Core.Services
 				throw new NotFoundException(CipherErrorConstants.UserNotFoundMessage);
 
 			return (player1.UserName!, player2.UserName!);
+		}
+		public async Task<WagerInfoDTO> GetWagerInfo(string roomCode, string joinerId)
+		{
+			if (!store.Rooms.TryGetValue(roomCode, out var room))
+				throw new NotFoundException(RoomConstants.RoomNotFound);
+
+			if (room.Player2Id != null)
+				throw new ConflictException(RoomConstants.RoomAlreadyFull);
+
+			if (room.Player1Id == joinerId)
+				throw new ConflictException(RoomConstants.PlayerAlreadyInRoom);
+
+			var creator = await userManager.FindByIdAsync(room.Player1Id);
+			if (creator == null)
+				throw new NotFoundException(CipherErrorConstants.UserNotFoundMessage);
+
+			var joiner = await userManager.FindByIdAsync(joinerId);
+			if (joiner == null)
+				throw new NotFoundException(CipherErrorConstants.UserNotFoundMessage);
+
+			return new WagerInfoDTO
+			{
+				WagerAmount = room.WagerAmount,
+				CreatorUsername = creator.UserName!,
+				JoinerBalance = joiner.Score
+			};
 		}
 		public async Task<bool> JoinRoom(string roomCode, string userId)
 		{
@@ -158,6 +198,54 @@ namespace Cryptomind.Core.Services
 				return room.Player1Ready && room.Player2Ready;
 			}
 		}
+		public async Task LockWagers(string roomCode)
+		{
+			if (!store.Rooms.TryGetValue(roomCode, out var room)) return;
+			if (room.WagerAmount == 0 || room.WagersLocked) return;
+
+			var player1 = await userManager.FindByIdAsync(room.Player1Id);
+			var player2 = await userManager.FindByIdAsync(room.Player2Id!);
+
+			if (player1 == null || player2 == null)
+				throw new NotFoundException(CipherErrorConstants.UserNotFoundMessage);
+
+			if (player1.Score < room.WagerAmount)
+				throw new ConflictException(string.Format(RoomConstants.UserDoesNotHaveEnoughPoints, player1.UserName));
+			if (player2.Score < room.WagerAmount)
+				throw new ConflictException(string.Format(RoomConstants.UserDoesNotHaveEnoughPoints, player2.UserName));
+
+			player1.Score -= room.WagerAmount;
+			player2.Score -= room.WagerAmount;
+
+			await userManager.UpdateAsync(player1);
+			await userManager.UpdateAsync(player2);
+
+			room.WagersLocked = true;
+		}
+		public async Task RefundWagers(string roomCode)
+		{
+			if (!store.Rooms.TryGetValue(roomCode, out var room)) return;
+			if (!room.WagersLocked || room.WagerAmount == 0 || room.Status == RoomStatus.Finished) return;
+
+			var player1 = await userManager.FindByIdAsync(room.Player1Id);
+			if (player1 != null)
+			{
+				player1.Score += room.WagerAmount;
+				await userManager.UpdateAsync(player1);
+			}
+
+			if (!string.IsNullOrEmpty(room.Player2Id))
+			{
+				var player2 = await userManager.FindByIdAsync(room.Player2Id);
+				if (player2 != null)
+				{
+					player2.Score += room.WagerAmount;
+					await userManager.UpdateAsync(player2);
+				}
+			}
+
+			room.WagersLocked = false;
+		}
 		public bool IsPlayerInRoom(string roomCode, string userId)
 		{
 			if (!store.Rooms.ContainsKey(roomCode)) return false;
@@ -172,6 +260,8 @@ namespace Cryptomind.Core.Services
 			var room = store.Rooms[roomCode];
 			var (cipherType, encryptedText, plaintext) =
 				CipherGeneratorHelper.GenerateRandom(room.UsedCipherTypes, room.UsedSentences);
+
+			Console.WriteLine(cipherType);
 
 			room.UsedCipherTypes.Add(cipherType);
 			room.UsedSentences.Add(plaintext);
@@ -209,9 +299,7 @@ namespace Cryptomind.Core.Services
 			lock (room)
 			{
 				if (round.Submissions.Any(x => x.UserId == userId))
-				{
 					throw new ConflictException(RoomConstants.AlreadySubmitted);
-				}
 
 				if (room.Player1Id != userId && room.Player2Id != userId)
 					throw new NotFoundException(RoomConstants.PlayerNotInRoom);
@@ -226,6 +314,7 @@ namespace Cryptomind.Core.Services
 
 				didBothSubmit = round.Submissions.Count == 2;
 			}
+
 			bool? wasLastRound = null;
 
 			if (didBothSubmit)
@@ -247,13 +336,13 @@ namespace Cryptomind.Core.Services
 		public string NextRound(string roomCode)
 		{
 			if (!store.Rooms.ContainsKey(roomCode))
-			{
 				throw new NotFoundException(RoomConstants.RoomNotFound);
-			}
 
 			var room = store.Rooms[roomCode];
 			var (cipherType, encryptedText, plaintext) =
 				CipherGeneratorHelper.GenerateRandom(room.UsedCipherTypes, room.UsedSentences);
+
+			Console.WriteLine(cipherType);
 
 			room.UsedCipherTypes.Add(cipherType);
 			room.UsedSentences.Add(plaintext);
@@ -282,34 +371,40 @@ namespace Cryptomind.Core.Services
 
 			string? winnerUserId = null;
 			bool wasLastRound = room.CurrentRound == RoomConstants.RoundsPerRace;
+			int majority = (RoomConstants.RoundsPerRace / 2) + 1;
 
 			lock (room)
 			{
-				if (round.IsFinished)
-					return null;
-
+				if (round.IsFinished) return null;
 				round.IsFinished = true;
 
 				if (didTimerRanOut || submissions.Count < 2)
+				{
+					bool alreadyDecided = room.Player1Score >= majority || room.Player2Score >= majority;
 					return new RoundResultDTO
 					{
 						RoundNumber = room.CurrentRound,
-						WasLastRound = wasLastRound,
+						WasLastRound = wasLastRound || alreadyDecided,
 						WinnerUsername = null,
 					};
+				}
 
 				var firstSubmission = submissions[0];
 				var secondSubmission = submissions[1];
 
 				if (!firstSubmission.IsCorrect && !secondSubmission.IsCorrect)
+				{
+					bool alreadyDecided = room.Player1Score >= majority || room.Player2Score >= majority;
 					return new RoundResultDTO
 					{
 						RoundNumber = room.CurrentRound,
-						WasLastRound = wasLastRound,
+						WasLastRound = wasLastRound || alreadyDecided,
 						WinnerUsername = null,
 					};
+				}
 
-				if (firstSubmission.IsCorrect && !secondSubmission.IsCorrect || (firstSubmission.IsCorrect && secondSubmission.IsCorrect))
+				if (firstSubmission.IsCorrect && !secondSubmission.IsCorrect ||
+					(firstSubmission.IsCorrect && secondSubmission.IsCorrect))
 					winnerUserId = firstSubmission.UserId;
 				else
 					winnerUserId = secondSubmission.UserId;
@@ -324,13 +419,18 @@ namespace Cryptomind.Core.Services
 			else
 				room.Player2Score++;
 
+			wasLastRound = room.CurrentRound == RoomConstants.RoundsPerRace ||
+						   room.Player1Score >= majority ||
+						   room.Player2Score >= majority;
+
 			return new RoundResultDTO
 			{
 				RoundNumber = room.CurrentRound,
 				WasLastRound = wasLastRound,
 				WinnerUsername = user.UserName
 			};
-		}
+
+
 		public void SetRoundTimer(string roomCode, CancellationTokenSource cts)
 		{
 			if (!store.Rooms.TryGetValue(roomCode, out var room)) return;
@@ -351,11 +451,11 @@ namespace Cryptomind.Core.Services
 			room.Status = RoomStatus.Finished;
 
 			var firstPlayer = await userManager.FindByIdAsync(room.Player1Id);
-			var secondPlayer = await userManager.FindByIdAsync(room.Player2Id);
+			var secondPlayer = await userManager.FindByIdAsync(room.Player2Id!);
 
 			if (firstPlayer == null)
 				throw new NotFoundException(CipherErrorConstants.UserNotFoundMessage);
-			else if (secondPlayer == null)
+			if (secondPlayer == null)
 				throw new NotFoundException(CipherErrorConstants.UserNotFoundMessage);
 
 			string? winnerUsername = null;
@@ -369,7 +469,18 @@ namespace Cryptomind.Core.Services
 			{
 				var winner = room.Player1Score > room.Player2Score ? firstPlayer : secondPlayer;
 				winner.RoomsWon++;
+
+				if (room.WagersLocked && room.WagerAmount > 0)
+					winner.Score += room.WagerAmount * 2;
+
 				await userManager.UpdateAsync(winner);
+			}
+			else if (room.WagersLocked && room.WagerAmount > 0)
+			{
+				firstPlayer.Score += room.WagerAmount;
+				secondPlayer.Score += room.WagerAmount;
+				await userManager.UpdateAsync(firstPlayer);
+				await userManager.UpdateAsync(secondPlayer);
 			}
 
 			store.Rooms.TryRemove(roomCode, out _);
@@ -379,8 +490,9 @@ namespace Cryptomind.Core.Services
 				WinnerUsername = winnerUsername,
 				Player1Score = room.Player1Score,
 				Player2Score = room.Player2Score,
-				Player1Username = firstPlayer.UserName,
-				Player2Username = secondPlayer.UserName,
+				Player1Username = firstPlayer.UserName!,
+				Player2Username = secondPlayer.UserName!,
+				WagerAmount = room.WagerAmount
 			};
 		}
 	}

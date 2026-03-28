@@ -12,5 +12,11 @@
 		public const string RoomAlreadyFull = "Стаята вече е пълна";
 		public const string PlayerAlreadyInRoom = "Вече сте в стаята";
 		public const string RoundNotStarted = "Рундът все още не е започнал";
+		public const string AnUnexpectedErrorOccured = "Възникна неочаквана грешка";
+		public const string AlreadyInRoom = "Вече сте в друга стая"
+
+		public const string WagerCannotBeNegative = "Залогът не може да бъде отрицателен";
+		public const string NotEnoughPointsForWager = "Нямате достатъчно точки за този залог";
+		public const string UserDoesNotHaveEnoughPoints = "{0} няма достатъчно точки за този залог";
 	}
 }

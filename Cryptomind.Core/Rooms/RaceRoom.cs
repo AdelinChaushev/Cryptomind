@@ -9,6 +9,8 @@ namespace Cryptomind.Core.Rooms
 			Rounds = new List<Round>();
 		}
 		public string Code { get; set; }
+		public int WagerAmount { get; set; }
+		public bool WagersLocked { get; set; }
 		public CancellationTokenSource? RoundTimer { get; set; }
 		public int CurrentRound { get; set; }
 		public RoomStatus Status { get; set; }
