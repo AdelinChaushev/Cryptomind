@@ -20,6 +20,8 @@ namespace Cryptomind.Data
 		public DbSet<HintRequest> HintRequests { get; set; }
 		public DbSet<AnswerSuggestion> AnswerSuggestions { get; set; }
 		public DbSet<Notification> Notifications { get; set; }
+		public DbSet<DailyChallengeEntry> DailyChallengeEntries { get; set; }
+		public DbSet<DailyChallengeParticipation> DailyChallengeParticipations { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder builder)
 		{
@@ -85,6 +87,27 @@ namespace Cryptomind.Data
 
 			builder.Entity<AnswerSuggestion>()
 				.HasIndex(a => new { a.UserId, a.CipherId, a.DecryptedText })
+				.IsUnique();
+
+			builder.Entity<DailyChallengeParticipation>()
+				.HasIndex(p => new { p.UserId, p.ChallengeDate })
+				.IsUnique();
+
+			builder.Entity<DailyChallengeParticipation>()
+				.HasOne(p => p.User)
+				.WithMany(u => u.DailyChallengeParticipations)
+				.HasForeignKey(p => p.UserId)
+				.OnDelete(DeleteBehavior.NoAction);
+
+			builder.Entity<DailyChallengeParticipation>()
+				.HasOne(p => p.Entry)
+				.WithMany(e => e.Participations)
+				.HasForeignKey(p => p.DailyChallengeEntryId)
+				.OnDelete(DeleteBehavior.NoAction);
+
+			builder.Entity<DailyChallengeEntry>()
+				.HasIndex(e => e.AssignedDate)
+				.HasFilter("[AssignedDate] IS NOT NULL")
 				.IsUnique();
 
 			var adminRoleId = "c3d4e5f6-a7b8-9012-cdef-123456789012";

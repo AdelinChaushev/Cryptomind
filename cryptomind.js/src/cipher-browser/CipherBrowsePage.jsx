@@ -1,6 +1,7 @@
 import '../styles/cipher-browse.css';
 import BrowsePageHeader from './BrowsePageHeader';
 import FilterSidebar    from './FilterSidebar';
+import DailyChallengeTeaser from '../daily-challenge/DailyChallengeTeaser';
 import ContentTopbar    from './ContentTopbar';
 import CipherCard, { CipherCardSkeleton } from '../components/CipherCard';
 import EmptyState       from './EmptyState';
@@ -113,6 +114,7 @@ const CipherBrowsePage = () => {
         />
 
         <section className="cipher-content">
+          <DailyChallengeTeaser />
           <ContentTopbar
             isOpen={isSidebarOpen}
             resultsCount={Array.isArray(ciphers) ? ciphers.length : 0}
