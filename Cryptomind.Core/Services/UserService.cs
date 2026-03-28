@@ -74,6 +74,8 @@ namespace Cryptomind.Core.Services
 				AttemptedCiphers = user.AttemptedCiphersCount,
 				LeaderBoardPlace = rank,
 				SuccessRate = user.SuccessRate,
+				CurrentStreak = user.CurrentStreak,
+				LongestStreak = user.LongestStreak,
 				Badges = badges,
 			};
 			return result;
