@@ -10,6 +10,41 @@ function StatCard({ value, label, accent, subtext }) {
     );
 }
 
+function StreakPanel({ currentStreak, longestStreak }) {
+    const hasStreak = currentStreak > 0;
+    const progress = longestStreak > 0 ? Math.min(100, (currentStreak / longestStreak) * 100) : 0;
+    const isRecord = currentStreak > 0 && currentStreak >= longestStreak;
+
+    return (
+        <div className={`streak-panel ${hasStreak ? 'streak-fire' : 'streak-ice'}`}>
+            <div className="streak-panel-head">
+                <span className="streak-panel-tag">[ СЕРИЯ ]</span>
+                <span className="streak-record-pill">
+                    <span>{longestStreak}</span> рекорд
+                </span>
+            </div>
+
+            <div className="streak-panel-body">
+                <div className="streak-big">{currentStreak}</div>
+                <div className="streak-big-sub">поредни дни</div>
+            </div>
+
+            <div className="streak-panel-foot">
+                <div className="streak-bar-track">
+                    <div className="streak-bar-fill" style={{ width: `${progress}%` }} />
+                </div>
+                <div className={`streak-foot-label ${isRecord ? 'is-record' : ''}`}>
+                    {isRecord
+                        ? '↑ НОВ РЕКОРД'
+                        : longestStreak > 0
+                            ? `${currentStreak} / ${longestStreak} до рекорда`
+                            : 'Реши дневното предизвикателство и започни серия'}
+                </div>
+            </div>
+        </div>
+    );
+}
+
 function StatsSection({ user }) {
     const successRate = user.successRate != null
         ? `${(user.successRate).toFixed(1)}%`
@@ -53,17 +88,9 @@ function StatsSection({ user }) {
                         label="Глобална класация"
                         accent="yellow"
                     />
-                    <StatCard
-                        value={`${user.currentStreak ?? 0}`}
-                        label="Текуща серия"
-                        accent="cyan"
-                        subtext="поредни дни"
-                    />
-                    <StatCard
-                        value={user.longestStreak ?? 0}
-                        label="Най-дълга серия"
-                        accent="orange"
-                        subtext="дни"
+                    <StreakPanel
+                        currentStreak={user.currentStreak ?? 0}
+                        longestStreak={user.longestStreak ?? 0}
                     />
                 </div>
             </div>

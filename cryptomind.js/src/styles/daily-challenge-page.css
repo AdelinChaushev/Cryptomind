@@ -1,0 +1,90 @@
+.dcp-page {
+    position: relative;
+    min-height: 100vh;
+    background-color: var(--bg-primary, #020617);
+    font-family: var(--font-body, 'Sora', sans-serif);
+    color: var(--text-primary, #f8fafc);
+    overflow-x: hidden;
+}
+
+.dcp-grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(251,191,36,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(251,191,36,0.018) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.dcp-container {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 52px 24px 80px;
+}
+
+.dcp-header {
+    margin-bottom: 36px;
+    animation: dcp-fade-down 0.4s ease both;
+}
+
+.dcp-header-decoration {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.dcp-bracket {
+    font-family: var(--font-mono, 'Space Mono', monospace);
+    color: var(--yellow-500, #fbbf24);
+    font-size: 0.88rem;
+    opacity: 0.55;
+}
+
+.dcp-header-label {
+    font-family: var(--font-mono, 'Space Mono', monospace);
+    font-size: 0.62rem;
+    color: var(--yellow-500, #fbbf24);
+    letter-spacing: 0.3em;
+    opacity: 0.5;
+    text-transform: uppercase;
+}
+
+.dcp-title {
+    font-family: var(--font-mono, 'Space Mono', monospace);
+    font-size: clamp(1.3rem, 3vw, 1.9rem);
+    font-weight: 700;
+    color: var(--text-primary, #f8fafc);
+    letter-spacing: 0.06em;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.dcp-subtitle {
+    font-size: 0.82rem;
+    color: var(--text-tertiary, #94a3b8);
+    margin-top: 8px;
+    letter-spacing: 0.01em;
+}
+
+.dcp-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+    align-items: start;
+}
+
+@media (max-width: 820px) {
+    .dcp-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@keyframes dcp-fade-down {
+    from { opacity: 0; transform: translateY(-14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
