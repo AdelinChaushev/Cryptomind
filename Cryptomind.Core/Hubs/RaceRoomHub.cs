@@ -104,6 +104,14 @@ namespace Cryptomind.Core.Hubs
 			var state = roomService.GetPlayerGameState(userId);
 			if (state != null)
 			{
+				var playerIds = roomService.GetPlayerIds(state.RoomCode);
+				if (playerIds.HasValue)
+				{
+					var (p1Username, p2Username) = await roomService.GetPlayerUsernames(state.RoomCode);
+					state.MyUsername       = playerIds.Value.player1Id == userId ? p1Username : p2Username;
+					state.OpponentUsername = playerIds.Value.player1Id == userId ? p2Username : p1Username;
+				}
+				state.RoundHistory = await roomService.GetCompletedRounds(state.RoomCode);
 				await Clients.Caller.SendAsync("GameStateRestored", state);
 				return;
 			}
