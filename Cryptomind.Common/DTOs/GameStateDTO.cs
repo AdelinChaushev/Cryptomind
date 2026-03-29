@@ -7,9 +7,13 @@
 		public int CurrentRound { get; set; }
 		public int SecondsElapsed { get; set; }
 		public bool HasSubmitted { get; set; }
+		public bool HasOpponentSubmitted { get; set; }
 		public bool IsRoundEnd { get; set; }
 		public string? NextEncryptedText { get; set; }
 		public int TransitionMsRemaining { get; set; }
 		public int WagerAmount { get; set; }
+		public string MyUsername { get; set; } = string.Empty;
+		public string OpponentUsername { get; set; } = string.Empty;
+		public List<PastRoundDTO> RoundHistory { get; set; } = new();
 	}
 }

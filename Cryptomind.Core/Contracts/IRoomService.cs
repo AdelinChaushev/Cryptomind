@@ -25,5 +25,6 @@ namespace Cryptomind.Core.Contracts
 		void SetRoundTimer(string roomCode, CancellationTokenSource cts);
 		void CancelRoundTimer(string roomCode);
 		Task<GameResultDTO> EndGame(string roomCode);
+	Task<List<PastRoundDTO>> GetCompletedRounds(string roomCode);
 	}
 }
