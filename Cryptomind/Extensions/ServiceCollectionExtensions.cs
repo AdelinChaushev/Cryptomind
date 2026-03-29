@@ -30,6 +30,8 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<IRepository<UserBadge, int>, Repository<UserBadge, int>>();
 		services.AddScoped<IRepository<Badge, int>, Repository<Badge, int>>();
 		services.AddScoped<IRepository<Notification, int>, Repository<Notification, int>>();
+		services.AddScoped<IRepository<DailyChallengeEntry, int>, Repository<DailyChallengeEntry, int>>();
+		services.AddScoped<IRepository<DailyChallengeParticipation, int>, Repository<DailyChallengeParticipation, int>>();
 
 		return services;
 	}
@@ -55,6 +57,7 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<ILeaderboardService, LeaderboardService>();
 		services.AddScoped<IAuthService, AuthService>();
 		services.AddScoped<IRoomService, RoomService>();
+		services.AddScoped<IDailyChallengeService, DailyChallengeService>();
 
 		services.AddSingleton<RoomStore>();
 

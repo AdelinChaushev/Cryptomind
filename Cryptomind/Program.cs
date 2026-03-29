@@ -1,6 +1,7 @@
 using Cryptomind.Core.Hubs;
 using Cryptomind.Core.Middlewares;
 using Cryptomind.Data;
+using Cryptomind.Seeders;
 using Cryptomind.Web.Extensions;
 using Microsoft.EntityFrameworkCore;
 
@@ -49,6 +50,7 @@ using (var scope = app.Services.CreateScope())
 	if (db.Database.IsRelational())
 	{
 		db.Database.Migrate();
+		await DailyChallengeSeeder.SeedAsync(db);
 	}
 }
 

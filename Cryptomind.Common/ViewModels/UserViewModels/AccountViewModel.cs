@@ -11,6 +11,8 @@
 		public int AttemptedCiphers { get; set; }
 		public int LeaderBoardPlace { get; set; }
 		public double SuccessRate { get; set; }
+		public int CurrentStreak { get; set; }
+		public int LongestStreak { get; set; }
 		public ICollection<BadgeViewModel> Badges { get; set; }
 	}
 }

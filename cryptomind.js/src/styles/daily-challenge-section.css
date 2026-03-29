@@ -1,0 +1,257 @@
+.dc-section {
+    position: relative;
+    background: var(--bg-surface, #0c1428);
+    border: 1px solid var(--border-default, rgba(203,213,225,0.08));
+    border-radius: 10px;
+    padding: 26px 28px;
+    overflow: hidden;
+    animation: dc-fade-up 0.4s ease both;
+}
+
+.dc-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--yellow-500, #fbbf24) 40%, transparent 100%);
+    opacity: 0.6;
+}
+
+.dc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.dc-title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.dc-label {
+    font-family: var(--font-mono, 'Space Mono', monospace);
+    font-size: 0.62rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--yellow-500, #fbbf24);
+    opacity: 0.6;
+}
+
+.dc-title {
+    font-family: var(--font-mono, 'Space Mono', monospace);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary, #f8fafc);
+    letter-spacing: 0.06em;
+}
+
+.dc-streak-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(251, 191, 36, 0.08);
+    border: 1px solid rgba(251, 191, 36, 0.22);
+    border-radius: 6px;
+    padding: 4px 11px;
+    font-family: var(--font-mono, 'Space Mono', monospace);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--yellow-500, #fbbf24);
+    letter-spacing: 0.04em;
+}
+
+.dc-countdown {
+    font-family: var(--font-mono, 'Space Mono', monospace);
+    font-size: 0.65rem;
+    color: var(--text-dim, #475569);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+}
+
+.dc-countdown span {
+    color: var(--text-tertiary, #94a3b8);
+    letter-spacing: 0.08em;
+}
+
+.dc-cipher-box {
+    position: relative;
+    background: var(--bg-primary, #020617);
+    border: 1px solid var(--border-default, rgba(203,213,225,0.08));
+    border-left: 3px solid rgba(251, 191, 36, 0.4);
+    border-radius: 6px;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+    font-family: var(--font-mono, 'Space Mono', monospace);
+    font-size: 0.88rem;
+    line-height: 1.75;
+    color: var(--text-primary, #f8fafc);
+    word-break: break-word;
+    letter-spacing: 0.06em;
+}
+
+.dc-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.dc-input {
+    flex: 1;
+    background: var(--bg-primary, #020617);
+    border: 1px solid var(--border-default, rgba(203,213,225,0.08));
+    border-radius: 6px;
+    padding: 10px 14px;
+    color: var(--text-primary, #f8fafc);
+    font-family: var(--font-body, 'Sora', sans-serif);
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+.dc-input::placeholder {
+    color: var(--text-dim, #475569);
+}
+
+.dc-input:focus {
+    border-color: rgba(251, 191, 36, 0.4);
+}
+
+.dc-input:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.dc-submit-btn {
+    background: var(--gradient-primary, linear-gradient(135deg, #fbbf24, #f59e0b));
+    border: none;
+    border-radius: 6px;
+    padding: 10px 22px;
+    color: #000;
+    font-family: var(--font-mono, 'Space Mono', monospace);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    transition: opacity 0.15s ease, transform 0.1s ease;
+    white-space: nowrap;
+}
+
+.dc-submit-btn:hover:not(:disabled) {
+    opacity: 0.88;
+    transform: translateY(-1px);
+}
+
+.dc-submit-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.dc-submit-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.dc-meta {
+    font-family: var(--font-mono, 'Space Mono', monospace);
+    font-size: 0.65rem;
+    color: var(--text-dim, #475569);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+/* Solved state */
+.dc-solved-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: rgba(16, 185, 129, 0.07);
+    border: 1px solid rgba(16, 185, 129, 0.22);
+    border-left: 3px solid #10b981;
+    border-radius: 6px;
+    padding: 16px 18px;
+    animation: dc-fade-up 0.3s ease both;
+}
+
+.dc-solved-icon {
+    font-size: 1.1rem;
+    line-height: 1;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.dc-solved-text {
+    font-family: var(--font-mono, 'Space Mono', monospace);
+    font-size: 0.8rem;
+    color: #10b981;
+    line-height: 1.5;
+}
+
+.dc-solved-text strong {
+    display: block;
+    font-size: 0.74rem;
+    color: var(--text-secondary, #cbd5e1);
+    margin-top: 5px;
+    font-weight: 400;
+    word-break: break-word;
+    letter-spacing: 0.01em;
+}
+
+/* Wrong answer */
+.dc-wrong-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(244, 63, 94, 0.06);
+    border: 1px solid rgba(244, 63, 94, 0.18);
+    border-left: 3px solid rgba(244, 63, 94, 0.5);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    font-family: var(--font-mono, 'Space Mono', monospace);
+    font-size: 0.74rem;
+    color: var(--rose-500, #f43f5e);
+    letter-spacing: 0.04em;
+    animation: dc-shake 0.28s ease;
+}
+
+/* Skeleton */
+.dc-skeleton {
+    background: var(--bg-surface, #0c1428);
+    border: 1px solid var(--border-default, rgba(203,213,225,0.08));
+    border-radius: 10px;
+    padding: 26px 28px;
+}
+
+.dc-skeleton-line {
+    background: linear-gradient(
+        90deg,
+        rgba(255,255,255,0.03) 25%,
+        rgba(255,255,255,0.07) 50%,
+        rgba(255,255,255,0.03) 75%
+    );
+    background-size: 200% 100%;
+    animation: dc-shimmer 1.6s ease-in-out infinite;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+/* Animations */
+@keyframes dc-fade-up {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes dc-shake {
+    0%, 100% { transform: translateX(0); }
+    20%       { transform: translateX(-5px); }
+    60%       { transform: translateX(5px); }
+}
+
+@keyframes dc-shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}

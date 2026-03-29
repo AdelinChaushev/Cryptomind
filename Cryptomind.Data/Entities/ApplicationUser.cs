@@ -11,9 +11,12 @@ namespace Cryptomind.Data.Entities
 			Notifications = new List<Notification>();
 			Badges = new List<UserBadge>();
 			SuggestedAnswers = new List<AnswerSuggestion>();
+			DailyChallengeParticipations = new List<DailyChallengeParticipation>();
 		}
 
 		public int Score { get; set; }
+		public int CurrentStreak { get; set; }
+		public int LongestStreak { get; set; }
 		public bool IsBanned { get; set; }
 		public bool IsDeactivated { get; set; }
 		public string? BanReason { get; set; }
@@ -31,5 +34,6 @@ namespace Cryptomind.Data.Entities
 		public ICollection<AnswerSuggestion> SuggestedAnswers { get; set; }
 		public ICollection<UserBadge> Badges { get; set; }
 		public ICollection<Notification> Notifications { get; set; }
+		public ICollection<DailyChallengeParticipation> DailyChallengeParticipations { get; set; }
 	}
 }
