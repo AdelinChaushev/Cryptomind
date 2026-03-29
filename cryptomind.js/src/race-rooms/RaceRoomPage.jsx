@@ -33,7 +33,6 @@ const CIPHER_GROUPS = [
     },
 ];
 
-// WAGER_CONFIRM is intentionally excluded — the joiner hasn't entered the room yet
 function isActiveGame(phaseRef) {
     return phaseRef.current !== GamePhase.LOBBY &&
            phaseRef.current !== GamePhase.GAME_END &&
@@ -203,7 +202,6 @@ export default function RaceRoomPage() {
             {showLeaveConfirm && (
                 <div className="error-overlay">
                     <div className="leave-confirm-card">
-                        <div className="leave-confirm-icon">⚠️</div>
                         <h3 className="leave-confirm-title">Напускане на стаята</h3>
                         <p className="leave-confirm-message">
                             Сигурни ли сте, че искате да напуснете? Опонентът Ви ще бъде уведомен.
@@ -297,11 +295,18 @@ function RaceLeaderboard() {
             .finally(() => setIsLoading(false));
     }, []);
 
+    const MEDALS = ['🥇', '🥈', '🥉'];
+
     return (
         <aside className="leaderboard-section">
             <div className="leaderboard-header">
-                <span style={{ fontSize: '1.2rem' }}>🏆</span>
+                <div className="leaderboard-header-decoration">
+                    <span className="leaderboard-bracket">[</span>
+                    <span className="leaderboard-header-label">КЛАСАЦИЯ</span>
+                    <span className="leaderboard-bracket">]</span>
+                </div>
                 <h2 className="leaderboard-title">Топ победители</h2>
+                <p className="leaderboard-subtitle">Стаи спечелени</p>
             </div>
             <div className="leaderboard-list">
                 {isLoading && (
@@ -310,14 +315,20 @@ function RaceLeaderboard() {
                     </div>
                 )}
                 {error && <p className="lb-error">Грешка при зареждане</p>}
+                {!isLoading && !error && entries.length === 0 && (
+                    <p className="lb-empty-msg">Все още няма победители</p>
+                )}
                 {!isLoading && !error && entries.map((entry, index) => (
-                    <div className="leaderboard-item" key={index}>
-                        <span className="rank-number">{index + 1}</span>
+                    <div className={`leaderboard-item ${index < 3 ? `top-${index + 1}` : ''}`} key={index}>
+                        <span className="rank-number">
+                            {index < 3 ? MEDALS[index] : `#${index + 1}`}
+                        </span>
                         <div className="player-info">
                             <span className="player-name">{entry.username}</span>
                         </div>
                         <div className="player-wins-badge">
                             <span className="win-count">{entry.points || 0}</span>
+                            <span className="win-label">победи</span>
                         </div>
                     </div>
                 ))}
@@ -394,7 +405,11 @@ function WagerConfirmScreen({ wagerAmount, myPoints, creatorUsername, onConfirm,
     return (
         <div className="screen wager-confirm-screen">
             <div className="wager-confirm-card">
-                <div className="wager-confirm-icon">🎲</div>
+                <div className="wager-confirm-header">
+                    <span className="wager-conf-bracket">[</span>
+                    <span className="wager-conf-label">ЗАЛОГ</span>
+                    <span className="wager-conf-bracket">]</span>
+                </div>
                 <h2 className="wager-confirm-title">Потвърди залога</h2>
 
                 <div className="wager-confirm-details">
@@ -417,11 +432,11 @@ function WagerConfirmScreen({ wagerAmount, myPoints, creatorUsername, onConfirm,
                 {canAfford ? (
                     <div className="wager-outcome-preview">
                         <div className="wager-outcome-row wager-outcome-win">
-                            <span>🏆 При победа</span>
+                            <span>При победа</span>
                             <span>+{potentialWin} т.</span>
                         </div>
                         <div className="wager-outcome-row wager-outcome-lose">
-                            <span>💸 При загуба</span>
+                            <span>При загуба</span>
                             <span>-{wagerAmount} т.</span>
                         </div>
                     </div>
@@ -446,9 +461,9 @@ function WaitingScreen({ roomCode, wagerAmount }) {
     return (
         <div className="screen waiting-screen">
             <div className="waiting-card">
-                <div className="waiting-icon">⏳</div>
+                <div className="waiting-tag">[ ИЗЧАКВАНЕ ]</div>
                 <h2>Изчакване на опонент…</h2>
-                <p>Сподели този код с опонента си, за да се присъедини</p>
+                <p>Сподели кода с опонента си, за да се присъедини</p>
                 <div className="room-code-display">
                     <span className="room-code-value">{roomCode}</span>
                     <button className="copy-btn" onClick={() => navigator.clipboard.writeText(roomCode)}>
@@ -457,7 +472,6 @@ function WaitingScreen({ roomCode, wagerAmount }) {
                 </div>
                 {wagerAmount > 0 && (
                     <div className="waiting-wager-row">
-                        <span className="wager-badge-icon">🎲</span>
                         Залог: <strong>{wagerAmount} точки</strong>
                     </div>
                 )}
@@ -477,7 +491,7 @@ function ReadyLobbyScreen({ myReady, otherReady, myUsername, opponentUsername, w
 
             {wagerAmount > 0 && (
                 <div className="ready-wager-badge">
-                    🎲 Залог: {wagerAmount} точки
+                    Залог: {wagerAmount} точки
                 </div>
             )}
 
@@ -533,7 +547,7 @@ function PlayingScreen({ cipherText, currentRound, timeLeft, mySubmitted, otherS
             <div className="playing-header">
                 <div className="round-badge">Рунд {currentRound}</div>
                 {wagerAmount > 0 && (
-                    <div className="playing-wager-badge">🎲 {wagerAmount} т.</div>
+                    <div className="playing-wager-badge">{wagerAmount} т.</div>
                 )}
                 <div className="timer-track">
                     <div className={`timer-bar ${timerClass}`} style={{ width: `${timerPercent}%` }} />
@@ -546,10 +560,10 @@ function PlayingScreen({ cipherText, currentRound, timeLeft, mySubmitted, otherS
             </div>
             <div className="submission-status">
                 <div className={`submit-indicator ${mySubmitted ? 'submitted' : ''}`}>
-                    Ти: {mySubmitted ? 'Изпратено ✓' : 'Избира…'}
+                    Ти: {mySubmitted ? '✓ Изпратено' : 'Избира…'}
                 </div>
                 <div className={`submit-indicator ${otherSubmitted ? 'submitted' : ''}`}>
-                    Опонент: {otherSubmitted ? 'Изпратено ✓' : 'Избира…'}
+                    Опонент: {otherSubmitted ? '✓ Изпратено' : 'Избира…'}
                 </div>
             </div>
             {!mySubmitted ? (
@@ -573,7 +587,7 @@ function PlayingScreen({ cipherText, currentRound, timeLeft, mySubmitted, otherS
                 </div>
             ) : (
                 <div className="submitted-message">
-                    ✓ Отговорът е изпратен — изчакване на опонента…
+                    Отговорът е изпратен — изчакване на опонента…
                 </div>
             )}
         </div>
@@ -587,14 +601,12 @@ function RoundEndScreen({ roundWinner, currentRound }) {
                 <div className="round-end-label">Рунд {currentRound} приключи</div>
                 {roundWinner ? (
                     <>
-                        <div className="round-end-icon">🏆</div>
-                        <div className="round-end-text">
-                            <span className="winner-name">{roundWinner}</span> спечели рунда!
-                        </div>
+                        <div className="round-end-winner">{roundWinner}</div>
+                        <div className="round-end-text">спечели рунда</div>
                     </>
                 ) : (
                     <>
-                        <div className="round-end-icon">🤝</div>
+                        <div className="round-end-draw">—</div>
                         <div className="round-end-text">Няма победител в този рунд</div>
                     </>
                 )}
@@ -616,15 +628,15 @@ function GameEndScreen({ gameResult, myUsername }) {
             <div className="game-end-card">
                 {winnerUsername ? (
                     <>
-                        <div className="game-end-icon">🏆</div>
+                        <div className="game-end-sup">Победител</div>
                         <h2 className="game-end-title">
-                            <span className="winner-name">{winnerUsername}</span> спечели!
+                            <span className="winner-name">{winnerUsername}</span>
                         </h2>
                     </>
                 ) : (
                     <>
-                        <div className="game-end-icon">🤝</div>
-                        <h2 className="game-end-title">Равенство!</h2>
+                        <div className="game-end-sup">Резултат</div>
+                        <h2 className="game-end-title">Равенство</h2>
                     </>
                 )}
 
@@ -643,17 +655,17 @@ function GameEndScreen({ gameResult, myUsername }) {
                     <div className="wager-outcome-section">
                         {winnerUsername === null && (
                             <div className="wager-tie-outcome">
-                                🔄 Равенство — залогът от {wagerAmount} т. беше върнат
+                                Равенство — залогът от {wagerAmount} т. беше върнат
                             </div>
                         )}
                         {iWon && (
                             <div className="wager-winner-outcome">
-                                💰 Спечели {wagerAmount * 2} точки от залога!
+                                Спечели {wagerAmount * 2} точки от залога
                             </div>
                         )}
                         {iLost && (
                             <div className="wager-loser-outcome">
-                                💸 Загуби {wagerAmount} точки от залога
+                                Загуби {wagerAmount} точки от залога
                             </div>
                         )}
                     </div>
