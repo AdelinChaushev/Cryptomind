@@ -50,7 +50,7 @@ function ProfileCard({ user, onDeactivate, deactivating }) {
                 onClick={onDeactivate}
                 disabled={deactivating}
             >
-                ⚠ {deactivating ? 'Обработване...' : 'Деактивирай акаунт'}
+                {deactivating ? 'Обработване...' : 'Деактивирай акаунт'}
             </button>
         </aside>
     );
