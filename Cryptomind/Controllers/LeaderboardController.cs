@@ -22,5 +22,13 @@ namespace Cryptomind.Controllers
 			var result = await leaderboardService.GetRoomLeaderboard();
 			return Ok(result);
 		}
+
+		[HttpGet]
+		[Route("streaks")]
+		public async Task<IActionResult> StreakLeaderboard()
+		{
+			var result = await leaderboardService.GetStreakLeaderboard();
+			return Ok(result);
+		}
 	}
 }

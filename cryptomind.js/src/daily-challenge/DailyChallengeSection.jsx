@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getTodaysChallenge, submitAnswer } from './dailyChallengeService';
-import './DailyChallengeSection.css';
+import axios from 'axios';
+import '../styles/daily-challenge-section.css';
+
+const API = import.meta.env.VITE_API_URL;
 
 function useCountdown() {
     const [timeLeft, setTimeLeft] = useState('');
@@ -45,8 +47,8 @@ export default function DailyChallengeSection() {
 
     const load = useCallback(async () => {
         try {
-            const data = await getTodaysChallenge();
-            setChallenge(data);
+            const res = await axios.get(`${API}/api/daily-challenge`, { withCredentials: true });
+            setChallenge(res.data);
             setStatus('ready');
         } catch {
             setStatus('error');
@@ -62,7 +64,12 @@ export default function DailyChallengeSection() {
         setSubmitting(true);
         setLastResult(null);
         try {
-            const result = await submitAnswer(answer.trim());
+            const res = await axios.post(
+                `${API}/api/daily-challenge/solve`,
+                { answer: answer.trim() },
+                { withCredentials: true }
+            );
+            const result = res.data;
             setLastResult(result);
             if (result.isCorrect) {
                 setChallenge(prev => ({
@@ -135,7 +142,7 @@ export default function DailyChallengeSection() {
                         <input
                             className="dc-input"
                             type="text"
-                            placeholder="Въведи дешифрирания текст..."
+                            placeholder="Въведи разкодирания текст тук..."
                             value={answer}
                             onChange={e => setAnswer(e.target.value)}
                             disabled={submitting}

@@ -2,7 +2,6 @@ using Cryptomind.Common.ViewModels.DailyChallengeViewModels;
 using Cryptomind.Core.Contracts;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Repositories;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cryptomind.Core.Services
@@ -10,8 +9,7 @@ namespace Cryptomind.Core.Services
 	public class DailyChallengeService(
 		IRepository<DailyChallengeEntry, int> entryRepo,
 		IRepository<DailyChallengeParticipation, int> participationRepo,
-		IRepository<ApplicationUser, string> userRepo,
-		UserManager<ApplicationUser> userManager) : IDailyChallengeService
+		IRepository<ApplicationUser, string> userRepo) : IDailyChallengeService
 	{
 		public async Task<DailyChallengeViewModel> GetTodaysChallengeAsync(string userId)
 		{
@@ -107,30 +105,6 @@ namespace Cryptomind.Core.Services
 			await participationRepo.UpdateAsync(participation);
 
 			return new DailyChallengeSubmitResultViewModel { IsCorrect = false };
-		}
-		public async Task<List<StreakLeaderboardEntryViewModel>> GetStreakLeaderboardAsync()
-		{
-			var allUsers = await userRepo.GetAllAttached()
-				.Where(u => !u.IsBanned && !u.IsDeactivated && u.CurrentStreak > 0)
-				.OrderByDescending(u => u.CurrentStreak)
-				.ToListAsync();
-
-			var filtered = new List<ApplicationUser>();
-			foreach (var user in allUsers)
-			{
-				var roles = await userManager.GetRolesAsync(user);
-				if (!roles.Contains("Admin"))
-					filtered.Add(user);
-			}
-
-			return filtered
-				.Take(20)
-				.Select((u, i) => new StreakLeaderboardEntryViewModel
-				{
-					Place = i + 1,
-					Username = u.UserName,
-					CurrentStreak = u.CurrentStreak,
-				}).ToList();
 		}
 		private async Task<DailyChallengeEntry> GetOrAssignTodaysChallengeAsync(DateTime today)
 		{

@@ -6,5 +6,6 @@ namespace Cryptomind.Core.Contracts
 	{
 		Task<List<LeaderboardPlaceViewModel>> GetPointLeaderboard();
 		Task<List<LeaderboardPlaceViewModel>> GetRoomLeaderboard();
+		Task<List<LeaderboardPlaceViewModel>> GetStreakLeaderboard();
 	}
 }

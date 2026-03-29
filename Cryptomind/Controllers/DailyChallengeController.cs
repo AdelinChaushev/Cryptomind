@@ -28,11 +28,5 @@ namespace Cryptomind.Controllers
 			return Ok(result);
 		}
 
-		[HttpGet("leaderboard")]
-		public async Task<IActionResult> GetStreakLeaderboard()
-		{
-			var result = await dailyChallengeService.GetStreakLeaderboardAsync();
-			return Ok(result);
-		}
 	}
 }

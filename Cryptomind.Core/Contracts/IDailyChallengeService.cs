@@ -6,6 +6,5 @@ namespace Cryptomind.Core.Contracts
 	{
 		Task<DailyChallengeViewModel> GetTodaysChallengeAsync(string userId);
 		Task<DailyChallengeSubmitResultViewModel> SubmitAnswerAsync(string userId, string answer);
-		Task<List<StreakLeaderboardEntryViewModel>> GetStreakLeaderboardAsync();
 	}
 }

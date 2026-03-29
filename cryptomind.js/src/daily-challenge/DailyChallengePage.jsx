@@ -1,10 +1,11 @@
 import DailyChallengeSection from './DailyChallengeSection';
 import StreakLeaderboard from './StreakLeaderboard';
-import './DailyChallengePage.css';
+import '../styles/daily-challenge-page.css';
 
 export default function DailyChallengePage() {
     return (
         <div className="dcp-page">
+            <div className="dcp-grid-bg" />
             <div className="dcp-container">
                 <div className="dcp-header">
                     <div className="dcp-header-decoration">

@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getTodaysChallenge } from './dailyChallengeService';
-import './DailyChallengeTeaser.css';
+import axios from 'axios';
+import '../styles/daily-challenge-teaser.css';
+
+const API = import.meta.env.VITE_API_URL;
 
 export default function DailyChallengeTeaser() {
     const [challenge, setChallenge] = useState(null);
 
     useEffect(() => {
-        getTodaysChallenge()
-            .then(setChallenge)
+        axios.get(`${API}/api/daily-challenge`, { withCredentials: true })
+            .then(res => setChallenge(res.data))
             .catch(() => {});
     }, []);
 

@@ -60,5 +60,29 @@ namespace Cryptomind.Core.Services
 					Place = index + 1,
 				}).ToList();
 		}
+		public async Task<List<LeaderboardPlaceViewModel>> GetStreakLeaderboard()
+		{
+			var allUsers = await userRepo.GetAllAttached()
+				.Where(u => !u.IsBanned && !u.IsDeactivated && u.CurrentStreak > 0)
+				.OrderByDescending(u => u.CurrentStreak)
+				.ToListAsync();
+
+			var filteredUsers = new List<ApplicationUser>();
+			foreach (var user in allUsers)
+			{
+				var roles = await userManager.GetRolesAsync(user);
+				if (!roles.Contains("Admin"))
+					filteredUsers.Add(user);
+			}
+
+			return filteredUsers
+				.Take(LeaderboardConstants.UsersInStreakLeaderboard)
+				.Select((user, index) => new LeaderboardPlaceViewModel
+				{
+					Username = user.UserName,
+					Points = user.CurrentStreak,
+					Place = index + 1,
+				}).ToList();
+		}
 	}
 }
