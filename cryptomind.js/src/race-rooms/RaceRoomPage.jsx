@@ -83,6 +83,7 @@ export default function RaceRoomPage() {
         wagerAmount,
         myPoints,
         wagerCreatorUsername,
+        roundHistory,
         createRoom,
         requestWagerInfo,
         confirmJoin,
@@ -252,7 +253,11 @@ export default function RaceRoomPage() {
             )}
 
             {phase === GamePhase.COUNTDOWN && (
-                <CountdownScreen countdownNumber={countdownNumber} />
+                <CountdownScreen
+                    countdownNumber={countdownNumber}
+                    myUsername={myUsername}
+                    opponentUsername={opponentUsername}
+                />
             )}
 
             {phase === GamePhase.PLAYING && (
@@ -263,6 +268,8 @@ export default function RaceRoomPage() {
                     mySubmitted={mySubmitted}
                     otherSubmitted={otherSubmitted}
                     wagerAmount={wagerAmount}
+                    roundHistory={roundHistory}
+                    myUsername={myUsername}
                     onSubmit={(answer) => submitAnswer(roomCode, answer)}
                 />
             )}
@@ -271,6 +278,8 @@ export default function RaceRoomPage() {
                 <RoundEndScreen
                     roundWinner={roundWinner}
                     currentRound={currentRound}
+                    roundHistory={roundHistory}
+                    myUsername={myUsername}
                 />
             )}
 
@@ -278,6 +287,34 @@ export default function RaceRoomPage() {
                 <GameEndScreen gameResult={gameResult} myUsername={myUsername} />
             )}
 
+        </div>
+    );
+}
+
+const MAX_ROUNDS = 3;
+
+function RoundTracker({ roundHistory, currentRound, myUsername }) {
+    return (
+        <div className="round-tracker">
+            {Array.from({ length: MAX_ROUNDS }, (_, i) => {
+                const roundNum = i + 1;
+                const result   = roundHistory.find(r => r.round === roundNum);
+                let state;
+                if (result) {
+                    if (result.winner === null)               state = 'draw';
+                    else if (result.winner === myUsername)    state = 'win';
+                    else                                      state = 'loss';
+                } else if (roundNum === currentRound) {
+                    state = 'current';
+                } else {
+                    state = 'empty';
+                }
+                return (
+                    <div key={roundNum} className={`round-dot round-dot-${state}`}>
+                        <span className="round-dot-num">{roundNum}</span>
+                    </div>
+                );
+            })}
         </div>
     );
 }
@@ -529,21 +566,41 @@ function ReadyLobbyScreen({ myReady, otherReady, myUsername, opponentUsername, w
     );
 }
 
-function CountdownScreen({ countdownNumber }) {
+function CountdownScreen({ countdownNumber, myUsername, opponentUsername }) {
+    const myInitial       = myUsername?.[0]?.toUpperCase()       || '?';
+    const opponentInitial = opponentUsername?.[0]?.toUpperCase() || '?';
+
     return (
         <div className="screen countdown-screen">
-            <p className="countdown-label">Подготви се…</p>
-            <div className="countdown-number" key={countdownNumber}>{countdownNumber}</div>
+            <div className="countdown-arena">
+                <div className="countdown-fighter countdown-fighter-me">
+                    <div className="countdown-fighter-avatar">{myInitial}</div>
+                    <div className="countdown-fighter-name">{myUsername || '...'}</div>
+                    <div className="countdown-fighter-tag">ТИ</div>
+                </div>
+
+                <div className="countdown-center">
+                    <div className="countdown-number" key={countdownNumber}>{countdownNumber}</div>
+                    <p className="countdown-label">Подготви се…</p>
+                </div>
+
+                <div className="countdown-fighter countdown-fighter-opponent">
+                    <div className="countdown-fighter-avatar opponent">{opponentInitial}</div>
+                    <div className="countdown-fighter-name">{opponentUsername || '...'}</div>
+                    <div className="countdown-fighter-tag">ОПОНЕНТ</div>
+                </div>
+            </div>
         </div>
     );
 }
 
-function PlayingScreen({ cipherText, currentRound, timeLeft, mySubmitted, otherSubmitted, wagerAmount, onSubmit }) {
+function PlayingScreen({ cipherText, currentRound, timeLeft, mySubmitted, otherSubmitted, wagerAmount, roundHistory, myUsername, onSubmit }) {
     const timerPercent = (timeLeft / 300) * 100;
     const timerClass   = timeLeft > 150 ? 'timer-safe' : timeLeft > 60 ? 'timer-warn' : 'timer-danger';
 
     return (
         <div className="screen playing-screen">
+            <RoundTracker roundHistory={roundHistory} currentRound={currentRound} myUsername={myUsername} />
             <div className="playing-header">
                 <div className="round-badge">Рунд {currentRound}</div>
                 {wagerAmount > 0 && (
@@ -594,7 +651,7 @@ function PlayingScreen({ cipherText, currentRound, timeLeft, mySubmitted, otherS
     );
 }
 
-function RoundEndScreen({ roundWinner, currentRound }) {
+function RoundEndScreen({ roundWinner, currentRound, roundHistory, myUsername }) {
     return (
         <div className="screen round-end-screen">
             <div className="round-end-card">
@@ -610,6 +667,7 @@ function RoundEndScreen({ roundWinner, currentRound }) {
                         <div className="round-end-text">Няма победител в този рунд</div>
                     </>
                 )}
+                <RoundTracker roundHistory={roundHistory} currentRound={currentRound + 1} myUsername={myUsername} />
                 <p className="next-round-hint">Следващият рунд започва скоро…</p>
             </div>
         </div>

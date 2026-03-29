@@ -53,6 +53,7 @@ export function useRaceRoom() {
     const [wagerAmount,          setWagerAmount]          = useState(0);
     const [myPoints,             setMyPoints]             = useState(0);
     const [wagerCreatorUsername, setWagerCreatorUsername] = useState('');
+    const [roundHistory,         setRoundHistory]         = useState([]);
 
     const connectionRef      = useRef(null);
     const countdownRef       = useRef(null);
@@ -63,6 +64,7 @@ export function useRaceRoom() {
     const phaseRef           = useRef(GamePhase.LOBBY);
     const pendingCipherRef   = useRef('');
     const pendingRoundRef    = useRef(0);
+    const currentRoundRef    = useRef(0);
     const roomCodeRef        = useRef('');
 
     const setPhaseSync = useCallback((newPhase) => {
@@ -103,6 +105,8 @@ export function useRaceRoom() {
         setWagerAmount(0);
         setMyPoints(0);
         setWagerCreatorUsername('');
+        setRoundHistory([]);
+        currentRoundRef.current = 0;
         setPhaseSync(GamePhase.LOBBY);
     }, [setPhaseSync, setRoomCodeSync]);
 
@@ -175,6 +179,7 @@ export function useRaceRoom() {
                 clearPreCountdown();
                 setCipherText(pendingCipherRef.current);
                 setCurrentRound(pendingRoundRef.current);
+                currentRoundRef.current = pendingRoundRef.current;
                 setMySubmitted(false);
                 setOtherSubmitted(false);
                 setPhaseSync(GamePhase.PLAYING);
@@ -243,6 +248,11 @@ export function useRaceRoom() {
         connection.on('RoundEnded', (winnerUsername) => {
             clearCountdown();
             setRoundWinner(winnerUsername);
+            setRoundHistory(prev => {
+                const round = currentRoundRef.current;
+                if (prev.find(r => r.round === round)) return prev;
+                return [...prev, { round, winner: winnerUsername }];
+            });
             setPhaseSync(GamePhase.ROUND_END);
         });
 
@@ -287,10 +297,18 @@ export function useRaceRoom() {
         connection.on('GameStateRestored', (state) => {
             setRoomCodeSync(state.roomCode);
             setWagerAmount(state.wagerAmount || 0);
+            setMyUsername(state.myUsername || '');
+            setOpponentUsername(state.opponentUsername || '');
+            setRoundHistory(
+                (state.roundHistory || []).map(r => ({ round: r.round, winner: r.winnerUsername }))
+            );
 
             if (state.isRoundEnd) {
-                setCurrentRound(state.currentRound - 1);
-                setRoundWinner(null);
+                const restoredRound = state.currentRound - 1;
+                setCurrentRound(restoredRound);
+                currentRoundRef.current = restoredRound;
+                const justEnded = (state.roundHistory || []).find(r => r.round === restoredRound);
+                setRoundWinner(justEnded?.winnerUsername ?? null);
                 setPhaseSync(GamePhase.ROUND_END);
                 transitionRef.current = setTimeout(() => {
                     transitionRef.current = null;
@@ -302,8 +320,9 @@ export function useRaceRoom() {
             const secondsRemaining = ROUND_DURATION_SECONDS - state.secondsElapsed;
             setCipherText(state.encryptedText);
             setCurrentRound(state.currentRound);
+            currentRoundRef.current = state.currentRound;
             setMySubmitted(state.hasSubmitted);
-            setOtherSubmitted(false);
+            setOtherSubmitted(state.hasOpponentSubmitted || false);
             setPhaseSync(GamePhase.PLAYING);
             startCountdownFrom(secondsRemaining);
         });
@@ -428,6 +447,7 @@ export function useRaceRoom() {
         wagerAmount,
         myPoints,
         wagerCreatorUsername,
+        roundHistory,
         createRoom,
         requestWagerInfo,
         confirmJoin,

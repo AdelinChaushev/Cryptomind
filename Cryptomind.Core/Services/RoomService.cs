@@ -8,6 +8,7 @@ using Cryptomind.Core.Rooms.Enums;
 using Cryptomind.Data.Entities;
 using Cryptomind.Data.Enums;
 using Microsoft.AspNetCore.Identity;
+using System.Net.WebSockets;
 
 namespace Cryptomind.Core.Services
 {
@@ -103,6 +104,7 @@ namespace Cryptomind.Core.Services
 				CurrentRound = room.CurrentRound,
 				SecondsElapsed = Math.Min(secondsElapsed, RoomConstants.RoundDurationSeconds),
 				HasSubmitted = currentRound.Submissions.Any(s => s.UserId == userId),
+				HasOpponentSubmitted = currentRound.Submissions.Any(s => s.UserId != userId),
 				IsRoundEnd = false,
 				WagerAmount = room.WagerAmount
 			};
@@ -111,6 +113,26 @@ namespace Cryptomind.Core.Services
 		{
 			if (!store.Rooms.TryGetValue(roomCode, out var room)) return null;
 			return (room.Player1Id, room.Player2Id);
+		}
+		public async Task<List<PastRoundDTO>> GetCompletedRounds(string roomCode)
+		{
+			if (!store.Rooms.TryGetValue(roomCode, out var room)) return new();
+
+			var result = new List<PastRoundDTO>();
+			for (int i = 0; i < room.Rounds.Count; i++)
+			{
+				var round = room.Rounds[i];
+				if (!round.IsFinished) continue;
+
+				string? winnerUsername = null;
+				if (round.WinnerId != null)
+				{
+					var winner = await userManager.FindByIdAsync(round.WinnerId);
+					winnerUsername = winner?.UserName;
+				}
+				result.Add(new PastRoundDTO { Round = i + 1, WinnerUsername = winnerUsername });
+			}
+			return result;
 		}
 		public async Task<(string player1Username, string player2Username)> GetPlayerUsernames(string roomCode)
 		{
@@ -264,8 +286,6 @@ namespace Cryptomind.Core.Services
 			var (cipherType, encryptedText, plaintext) =
 				CipherGeneratorHelper.GenerateRandom(room.UsedCipherTypes, room.UsedSentences);
 
-			Console.WriteLine(cipherType);
-
 			room.UsedCipherTypes.Add(cipherType);
 			room.UsedSentences.Add(plaintext);
 			room.Status = RoomStatus.InProgress;
@@ -345,11 +365,9 @@ namespace Cryptomind.Core.Services
 			var (cipherType, encryptedText, plaintext) =
 				CipherGeneratorHelper.GenerateRandom(room.UsedCipherTypes, room.UsedSentences);
 
-			Console.WriteLine(cipherType);
-
 			room.UsedCipherTypes.Add(cipherType);
 			room.UsedSentences.Add(plaintext);
-			room.RoundStartedAt = DateTime.Now.AddSeconds(RoomConstants.PreRoundSeconds);
+			room.RoundStartedAt = DateTime.Now.AddSeconds(RoomConstants.PreRoundSeconds * 2);
 			room.CurrentRound++;
 			room.Rounds.Add(new Round
 			{
@@ -379,10 +397,10 @@ namespace Cryptomind.Core.Services
 			lock (room)
 			{
 				if (round.IsFinished) return null;
-				round.IsFinished = true;
 
 				if (didTimerRanOut || submissions.Count < 2)
 				{
+					round.IsFinished = true;
 					bool alreadyDecided = room.Player1Score >= majority || room.Player2Score >= majority;
 					return new RoundResultDTO
 					{
@@ -397,6 +415,7 @@ namespace Cryptomind.Core.Services
 
 				if (!firstSubmission.IsCorrect && !secondSubmission.IsCorrect)
 				{
+					round.IsFinished = true;
 					bool alreadyDecided = room.Player1Score >= majority || room.Player2Score >= majority;
 					return new RoundResultDTO
 					{
@@ -411,6 +430,9 @@ namespace Cryptomind.Core.Services
 					winnerUserId = firstSubmission.UserId;
 				else
 					winnerUserId = secondSubmission.UserId;
+
+				round.WinnerId = winnerUserId;
+				round.IsFinished = true;
 			}
 
 			var user = await userManager.FindByIdAsync(winnerUserId);
