@@ -67,6 +67,11 @@ namespace Cryptomind.Core.Services
 				.FirstOrDefault(r => r.Player1Id == userId || r.Player2Id == userId)
 				?.Code;
 		}
+		public bool IsRoomInProgress(string roomCode)
+		{
+			return store.Rooms.TryGetValue(roomCode, out var room) &&
+				room.Status == RoomStatus.InProgress;
+		}
 		public GameStateDTO? GetPlayerGameState(string userId)
 		{
 			var room = store.Rooms.Values
@@ -97,6 +102,10 @@ namespace Cryptomind.Core.Services
 				? Math.Max(0, (int)(DateTime.Now - room.RoundStartedAt.Value).TotalSeconds)
 				: 0;
 
+			int preRoundSecondsRemaining = secondsElapsed < RoomConstants.PreRoundSeconds
+				? RoomConstants.PreRoundSeconds - secondsElapsed
+				: 0;
+
 			return new GameStateDTO
 			{
 				RoomCode = room.Code,
@@ -106,7 +115,8 @@ namespace Cryptomind.Core.Services
 				HasSubmitted = currentRound.Submissions.Any(s => s.UserId == userId),
 				HasOpponentSubmitted = currentRound.Submissions.Any(s => s.UserId != userId),
 				IsRoundEnd = false,
-				WagerAmount = room.WagerAmount
+				WagerAmount = room.WagerAmount,
+				PreRoundSecondsRemaining = preRoundSecondsRemaining
 			};
 		}
 		public (string player1Id, string? player2Id)? GetPlayerIds(string roomCode)
@@ -177,6 +187,8 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<bool> JoinRoom(string roomCode, string userId)
 		{
+			Console.WriteLine("JoinRoom: " + roomCode);
+
 			if (!store.Rooms.ContainsKey(roomCode))
 				throw new NotFoundException(RoomConstants.RoomNotFound);
 
@@ -199,6 +211,8 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<bool> SetReady(string roomCode, string userId)
 		{
+			Console.WriteLine("SetReady: " + roomCode);
+			
 			if (!store.Rooms.ContainsKey(roomCode))
 				throw new NotFoundException(RoomConstants.RoomNotFound);
 

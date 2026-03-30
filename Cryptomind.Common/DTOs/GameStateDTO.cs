@@ -15,5 +15,6 @@
 		public string MyUsername { get; set; } = string.Empty;
 		public string OpponentUsername { get; set; } = string.Empty;
 		public List<PastRoundDTO> RoundHistory { get; set; } = new();
+		public int PreRoundSecondsRemaining { get; set; }
 	}
 }
