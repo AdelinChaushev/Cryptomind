@@ -187,8 +187,6 @@ namespace Cryptomind.Core.Services
 		}
 		public async Task<bool> JoinRoom(string roomCode, string userId)
 		{
-			Console.WriteLine("JoinRoom: " + roomCode);
-
 			if (!store.Rooms.ContainsKey(roomCode))
 				throw new NotFoundException(RoomConstants.RoomNotFound);
 
@@ -210,9 +208,7 @@ namespace Cryptomind.Core.Services
 			return true;
 		}
 		public async Task<bool> SetReady(string roomCode, string userId)
-		{
-			Console.WriteLine("SetReady: " + roomCode);
-			
+		{	
 			if (!store.Rooms.ContainsKey(roomCode))
 				throw new NotFoundException(RoomConstants.RoomNotFound);
 

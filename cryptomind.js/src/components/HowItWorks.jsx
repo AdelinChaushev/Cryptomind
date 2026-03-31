@@ -1,117 +1,77 @@
-import React, { useEffect, useRef } from 'react';
-import StepNode from './StepNode';
+import React, { useRef, useEffect } from 'react';
 
 const steps = [
     {
-        number: 1,
+        num: '01',
         title: 'Разгледай шифрите',
         description: 'Разгледайте колекцията ни от класически шифри. Филтрирайте по трудност, вид или популярност, за да намерите идеалното предизвикателство.'
     },
     {
-        number: 2,
+        num: '02',
         title: 'Реши или предложи',
         description: 'Разбийте съществуващи шифри или предложете свои криптирани послания за решаване от другите. Всеки шифър е нова загадка.'
     },
     {
-        number: 3,
+        num: '03',
         title: 'Спечели точки',
         description: 'Натрупвайте точки за верни решения и се изкачвайте в класацията. Колкото по-трудни шифри решавате, толкова повече точки печелите.'
     },
     {
-        number: 4,
+        num: '04',
         title: 'Учи с AI',
-        description: 'Затруднихте се? Получете AI-подсказки или пълни решения.'
+        description: 'Затруднихте се? Получете AI-подсказки или пълни решения стъпка по стъпка, задвижвани от напреднали езикови модели.'
     }
 ];
 
-const useDecodeOnScroll = (ref, originalText) => {
+const HowItWorks = () => {
+    const threadRef = useRef(null);
+
     useEffect(() => {
-        const header = ref.current;
-        if (!header) return;
-
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
-
-        const scrambleText = (text) => {
-            return text.split('').map(char => {
-                if (char === ' ') return ' ';
-                return chars[Math.floor(Math.random() * chars.length)];
-            }).join('');
-        };
-
-        const decodeText = (element, original, duration = 800) => {
-            const totalSteps = 20;
-            const stepDuration = duration / totalSteps;
-            let currentStep = 0;
-
-            element.classList.remove('encoded');
-            element.classList.add('decoding');
-
-            const interval = setInterval(() => {
-                if (currentStep >= totalSteps) {
-                    element.textContent = original;
-                    element.classList.remove('decoding');
-                    clearInterval(interval);
-                    return;
-                }
-
-                const revealIndex = Math.floor((currentStep / totalSteps) * original.length);
-                let decodedText = '';
-
-                for (let i = 0; i < original.length; i++) {
-                    if (i < revealIndex) {
-                        decodedText += original[i];
-                    } else if (original[i] === ' ') {
-                        decodedText += ' ';
-                    } else {
-                        decodedText += chars[Math.floor(Math.random() * chars.length)];
-                    }
-                }
-
-                element.textContent = decodedText;
-                currentStep++;
-            }, stepDuration);
-        };
+        const items = threadRef.current?.querySelectorAll('.step-item');
+        if (!items) return;
 
         const observer = new IntersectionObserver(
             (entries) => {
-                entries.forEach(entry => {
+                entries.forEach((entry) => {
                     if (entry.isIntersecting) {
-                        decodeText(entry.target, originalText);
+                        entry.target.classList.add('step-item--visible');
                         observer.unobserve(entry.target);
                     }
                 });
             },
-            { threshold: 0.3, rootMargin: '0px 0px -100px 0px' }
+            { threshold: 0.2 }
         );
 
-        header.textContent = scrambleText(originalText);
-        header.classList.add('encoded');
-        observer.observe(header);
-
+        items.forEach((item) => observer.observe(item));
         return () => observer.disconnect();
     }, []);
-};
-
-const HowItWorks = () => {
-    const headerRef = useRef(null);
-    useDecodeOnScroll(headerRef, 'Как работи');
 
     return (
-        <section className="how-it-works">
-            <div className="section-header">
-                <h2 ref={headerRef}>Как работи</h2>
-                <p>Започнете да решавате в четири прости стъпки</p>
-            </div>
-            <div className="steps-timeline">
-                {steps.map((step, index) => (
-                    <StepNode
-                        key={step.number}
-                        number={step.number}
-                        title={step.title}
-                        description={step.description}
-                        isLast={index === steps.length - 1}
-                    />
-                ))}
+        <section className="home-section">
+            <div className="home-wrap">
+                <div className="eyebrow">
+                    <span className="eyebrow-text">Как работи</span>
+                </div>
+
+                <div className="steps-thread" ref={threadRef}>
+                    {steps.map((step, i) => (
+                        <div
+                            className="step-item"
+                            key={step.num}
+                            style={{ '--delay': `${i * 0.12}s` }}
+                        >
+                            <div className="step-item-body">
+                                <span className="step-big-num" aria-hidden="true">
+                                    {step.num}
+                                </span>
+                                <div className="step-item-content">
+                                    <h3 className="step-item-title">{step.title}</h3>
+                                    <p className="step-item-desc">{step.description}</p>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
         </section>
     );

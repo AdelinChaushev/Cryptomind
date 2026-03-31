@@ -332,15 +332,11 @@ function RaceLeaderboard() {
             .finally(() => setIsLoading(false));
     }, []);
 
-    const MEDALS = ['🥇', '🥈', '🥉'];
-
     return (
         <aside className="leaderboard-section">
             <div className="leaderboard-header">
                 <div className="leaderboard-header-decoration">
-                    <span className="leaderboard-bracket">[</span>
-                    <span className="leaderboard-header-label">КЛАСАЦИЯ</span>
-                    <span className="leaderboard-bracket">]</span>
+                    <span className="leaderboard-header-label">Класация</span>
                 </div>
                 <h2 className="leaderboard-title">Топ победители</h2>
                 <p className="leaderboard-subtitle">Стаи спечелени</p>
@@ -358,7 +354,7 @@ function RaceLeaderboard() {
                 {!isLoading && !error && entries.map((entry, index) => (
                     <div className={`leaderboard-item ${index < 3 ? `top-${index + 1}` : ''}`} key={index}>
                         <span className="rank-number">
-                            {index < 3 ? MEDALS[index] : `#${index + 1}`}
+                            #{String(index + 1).padStart(2, '0')}
                         </span>
                         <div className="player-info">
                             <span className="player-name">{entry.username}</span>
@@ -379,13 +375,16 @@ function LobbyScreen({ joinCode, setJoinCode, wagerInput, setWagerInput, onCreat
         <div className="screen lobby-screen">
             <div className="lobby-main-content">
                 <header className="lobby-header">
-                    <h1 className="lobby-title">Криптографско състезание</h1>
+                    <div className="lobby-eyebrow">
+                        <span className="lobby-eyebrow-label">Криптографска арена</span>
+                    </div>
+                    <h1 className="lobby-title">Дуел на шифри</h1>
                     <p className="lobby-subtitle">Предизвикай друг играч на дуел по разпознаване на шифри</p>
                 </header>
 
                 <div className="lobby-cards">
                     <div className="lobby-card">
-                        <div className="lobby-card-icon">⚔️</div>
+                        <div className="lobby-card-icon">Нов мач</div>
                         <h2>Създай стая</h2>
                         <p>Генерирай код за стая и го сподели с опонента си</p>
                         <div className="wager-input-group">
@@ -408,7 +407,7 @@ function LobbyScreen({ joinCode, setJoinCode, wagerInput, setWagerInput, onCreat
                     <div className="lobby-divider"><span>или</span></div>
 
                     <div className="lobby-card">
-                        <div className="lobby-card-icon">🔑</div>
+                        <div className="lobby-card-icon">Присъединяване</div>
                         <h2>Присъедини се</h2>
                         <p>Въведи кода на стаята, споделен от опонента ти</p>
                         <input
@@ -599,7 +598,7 @@ function PlayingScreen({ cipherText, currentRound, timeLeft, mySubmitted, otherS
     const timerClass   = timeLeft > 150 ? 'timer-safe' : timeLeft > 60 ? 'timer-warn' : 'timer-danger';
 
     return (
-        <div className="screen playing-screen">
+        <div className={`screen playing-screen ${timerClass}`}>
             <RoundTracker roundHistory={roundHistory} currentRound={currentRound} myUsername={myUsername} />
             <div className="playing-header">
                 <div className="round-badge">Рунд {currentRound}</div>
