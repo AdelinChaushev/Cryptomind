@@ -1,111 +1,67 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import FeatureCard from './FeatureCard';
 
 const features = [
     {
-        icon: '📷',
+        index: '01',
         title: 'Изпрати свой шифър',
         description: 'Качи снимка или въведи текст — системата автоматично разпознава текста и го добавя към общността за решаване.'
     },
     {
-        icon: '💡',
-        title: 'AI подсказки и решения',
+        index: '02',
+        title: 'AI подсказки',
         description: 'Получете интелигентни подсказки или пълни стъпка по стъпка решения, задвижвани от напреднали езикови модели.'
     },
     {
-        icon: '📚',
+        index: '03',
         title: 'Образователни инструменти',
-        description: 'Научете как работи всеки шифър с интерактивни примери и подробни обяснения.'
+        description: 'Научете как работи всеки шифър с интерактивни примери и подробни обяснения за всяка техника.'
     },
     {
-        icon: '🏆',
+        index: '04',
         title: 'Конкурентна класация',
-        description: 'Съревновавайте се с други криптоанализатори. Следете класирането, точките и процента си на успех.'
+        description: 'Съревновавайте се с криптоанализатори. Следете класирането, точките и процента си на успех.'
     }
 ];
 
-const useDecodeOnScroll = (ref, originalText) => {
+const Features = () => {
+    const eyebrowRef = useRef(null);
+
     useEffect(() => {
-        const header = ref.current;
-        if (!header) return;
-
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
-
-        const scrambleText = (text) => {
-            return text.split('').map(char => {
-                if (char === ' ') return ' ';
-                return chars[Math.floor(Math.random() * chars.length)];
-            }).join('');
-        };
-
-        const decodeText = (element, original, duration = 800) => {
-            const totalSteps = 20;
-            const stepDuration = duration / totalSteps;
-            let currentStep = 0;
-
-            element.classList.remove('encoded');
-            element.classList.add('decoding');
-
-            const interval = setInterval(() => {
-                if (currentStep >= totalSteps) {
-                    element.textContent = original;
-                    element.classList.remove('decoding');
-                    clearInterval(interval);
-                    return;
-                }
-
-                const revealIndex = Math.floor((currentStep / totalSteps) * original.length);
-                let decodedText = '';
-
-                for (let i = 0; i < original.length; i++) {
-                    if (i < revealIndex) {
-                        decodedText += original[i];
-                    } else if (original[i] === ' ') {
-                        decodedText += ' ';
-                    } else {
-                        decodedText += chars[Math.floor(Math.random() * chars.length)];
-                    }
-                }
-
-                element.textContent = decodedText;
-                currentStep++;
-            }, stepDuration);
-        };
+        const el = eyebrowRef.current;
+        if (!el) return;
 
         const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        decodeText(entry.target, originalText);
-                        observer.unobserve(entry.target);
-                    }
-                });
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                    observer.disconnect();
+                }
             },
-            { threshold: 0.3, rootMargin: '0px 0px -100px 0px' }
+            { threshold: 0.4 }
         );
 
-        header.textContent = scrambleText(originalText);
-        header.classList.add('encoded');
-        observer.observe(header);
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(16px)';
+        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(el);
 
         return () => observer.disconnect();
     }, []);
-};
-
-const Features = () => {
-    const headerRef = useRef(null);
-    useDecodeOnScroll(headerRef, 'Функции');
 
     return (
-        <section className="features-section">
-            <div className="section-header">
-                <h2 ref={headerRef}>Функции</h2>
-                <p>Всичко необходимо, за да овладеете криптографията</p>
-            </div>
-            <div className="features-grid">
-                {features.map((feature, index) => (
-                    <FeatureCard key={index} {...feature} />
-                ))}
+        <section className="home-section features-section">
+            <div className="home-wrap">
+                <div className="eyebrow" ref={eyebrowRef}>
+                    <span className="eyebrow-text">Функции</span>
+                </div>
+
+                <div className="features-grid">
+                    {features.map((feature) => (
+                        <FeatureCard key={feature.index} {...feature} />
+                    ))}
+                </div>
             </div>
         </section>
     );

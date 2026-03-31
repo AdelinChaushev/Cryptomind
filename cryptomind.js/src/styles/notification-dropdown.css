@@ -14,8 +14,15 @@
 }
 
 @keyframes nm-dd-in {
-    from { opacity: 0; transform: scale(0.94) translateY(-8px); }
-    to   { opacity: 1; transform: scale(1)    translateY(0); }
+    from {
+        opacity: 0;
+        transform: scale(0.94) translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
 .nm-dd__header {
@@ -66,16 +73,25 @@
     scrollbar-color: #1e293b transparent;
 }
 
-.nm-dd__list::-webkit-scrollbar       { width: 4px; }
-.nm-dd__list::-webkit-scrollbar-track { background: transparent; }
-.nm-dd__list::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 2px; }
+.nm-dd__list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.nm-dd__list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.nm-dd__list::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 2px;
+}
 
 .nm-dd__skeleton-row {
     display: flex;
     gap: 12px;
     align-items: flex-start;
     padding: 14px 18px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .nm-dd__skeleton-circle {
@@ -102,11 +118,20 @@
     animation: nm-dd-pulse 1.4s ease-in-out infinite;
 }
 
-.nm-dd__skeleton-line--short { width: 55%; }
+.nm-dd__skeleton-line--short {
+    width: 55%;
+}
 
 @keyframes nm-dd-pulse {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.35; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.35;
+    }
 }
 
 .nm-dd__empty {
@@ -142,11 +167,15 @@
     gap: 5px;
 }
 
-.nm-dd__view-all:hover { color: #fde68a; }
+.nm-dd__view-all:hover {
+    color: #fde68a;
+}
 
 .nm-dd__view-all::after {
     content: '→';
     transition: transform 0.15s;
 }
 
-.nm-dd__view-all:hover::after { transform: translateX(3px); }
+.nm-dd__view-all:hover::after {
+    transform: translateX(3px);
+}

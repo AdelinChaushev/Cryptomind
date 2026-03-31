@@ -3,8 +3,8 @@ import "../styles/leaderboard.css";
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api/leaderboard`;
 
-const MEDALS = ["🥇", "🥈", "🥉"];
 const RANK_CLASSES = ["rank-1", "rank-2", "rank-3"];
+const RANK_LABELS = ["#01", "#02", "#03"];
 
 function getInitial(username) {
   if (!username) return "?";
@@ -13,18 +13,17 @@ function getInitial(username) {
 
 function PodiumCard({ entry }) {
   const rankIndex = entry.place - 1;
-  const col = entry.place === 1 ? 2 : entry.place === 2 ? 1 : 3;
   return (
-    <div
-      className={`lb-podium-card ${RANK_CLASSES[rankIndex]}`}
-      style={{ gridColumn: col }}
-    >
-      <span className="lb-podium-crown">{MEDALS[rankIndex]}</span>
-      <span className="lb-podium-rank-num">#{entry.place}</span>
+    <div className={`lb-podium-card ${RANK_CLASSES[rankIndex]}`}>
+      <span className="lb-podium-rank-num">{RANK_LABELS[rankIndex]}</span>
       <div className="lb-podium-avatar">{getInitial(entry.username)}</div>
       <p className="lb-podium-username">{entry.username}</p>
-      <p className="lb-podium-points">{entry.points.toLocaleString()}</p>
-      <span className="lb-podium-pts-label">ТЧК</span>
+      <p className="lb-podium-points">
+        {entry.points.toLocaleString()}
+        <span className="lb-podium-pts-label">ТЧК</span>
+      </p>
+      <span className="lb-podium-ghost-rank">{entry.place}</span>
+      <div className="lb-podium-line" />
     </div>
   );
 }
@@ -110,12 +109,10 @@ export default function Leaderboard() {
       <div className="lb-container">
         <header className="lb-header">
           <div className="lb-header-decoration">
-            <span className="lb-bracket">[</span>
-            <span className="lb-header-label">ГЛОБАЛНО_КЛАСИРАНЕ</span>
-            <span className="lb-bracket">]</span>
+            <span className="lb-header-label">Глобално класиране</span>
           </div>
-          <h1 className="lb-title">КЛАСАЦИЯ</h1>
-          <p className="lb-subtitle">Топ криптоанализатори</p>
+          <h1 className="lb-title">Класация</h1>
+          <p className="lb-subtitle">Топ криптоанализатори на Cryptomind</p>
         </header>
 
         {status === "error" ? (
