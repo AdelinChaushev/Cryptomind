@@ -1,38 +1,43 @@
 :root {
-    --bg-primary:    #020617;
-    --bg-surface:    #0c1428;
+    --bg-primary: #020617;
+    --bg-surface: #0c1428;
 
-    --yellow-500:    #fbbf24;
-    --yellow-600:    #f59e0b;
+    --yellow-500: #fbbf24;
+    --yellow-600: #f59e0b;
 
-    --rose-500:      #f43f5e;
-    --emerald-500:   #10b981;
+    --rose-500: #f43f5e;
+    --emerald-500: #10b981;
 
-    --text-primary:   #f8fafc;
+    --text-primary: #f8fafc;
     --text-secondary: #cbd5e1;
-    --text-tertiary:  #94a3b8;
+    --text-tertiary: #94a3b8;
 
     --border-default: rgba(203, 213, 225, 0.1);
-    --border-hover:   rgba(203, 213, 225, 0.2);
-    --border-yellow:  rgba(251, 191, 36, 0.3);
+    --border-hover: rgba(203, 213, 225, 0.2);
+    --border-yellow: rgba(251, 191, 36, 0.3);
 
     --gradient-primary: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
 
     --font-display: 'Orbitron', monospace;
-    --font-mono:    'Share Tech Mono', monospace;
-    --font-body:    'Exo 2', sans-serif;
+    --font-mono: 'Share Tech Mono', monospace;
+    --font-body: 'Exo 2', sans-serif;
 
     --card-radius: 4px;
     --transition-fast: 0.2s ease;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+}
 
 body {
     background-color: var(--bg-primary);
@@ -42,7 +47,10 @@ body {
     overflow-x: hidden;
 }
 
-a { text-decoration: none; color: inherit; }
+a {
+    text-decoration: none;
+    color: inherit;
+}
 
 .bg-grid {
     position: fixed;
@@ -59,11 +67,9 @@ a { text-decoration: none; color: inherit; }
     position: fixed;
     inset: 0;
     z-index: 1;
-    background: radial-gradient(
-        ellipse 90% 90% at 50% 50%,
-        transparent 40%,
-        rgba(2, 6, 23, 0.88) 100%
-    );
+    background: radial-gradient(ellipse 90% 90% at 50% 50%,
+            transparent 40%,
+            rgba(2, 6, 23, 0.88) 100%);
     pointer-events: none;
 }
 
@@ -94,13 +100,22 @@ a { text-decoration: none; color: inherit; }
 }
 
 @keyframes cardEnter {
-    from { opacity: 0; transform: translateY(24px) scale(0.98); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .card-top-bar {
     position: absolute;
-    top: 0; left: 0; right: 0;
+    top: 0;
+    left: 0;
+    right: 0;
     height: 3px;
     background: var(--gradient-primary);
     border-radius: var(--card-radius) var(--card-radius) 0 0;
@@ -114,13 +129,19 @@ a { text-decoration: none; color: inherit; }
     left: -100%;
     width: 60%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
     animation: barShine 4s ease-in-out infinite;
 }
 
 @keyframes barShine {
-    0%       { left: -100%; }
-    60%, 100% { left: 160%; }
+    0% {
+        left: -100%;
+    }
+
+    60%,
+    100% {
+        left: 160%;
+    }
 }
 
 .auth-header {
@@ -131,11 +152,21 @@ a { text-decoration: none; color: inherit; }
 }
 
 @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.logo-link { display: inline-block; margin-bottom: 10px; }
+.logo-link {
+    display: inline-block;
+    margin-bottom: 10px;
+}
 
 .logo {
     display: flex;
@@ -196,8 +227,15 @@ a { text-decoration: none; color: inherit; }
 }
 
 @keyframes iconPulse {
-    0%, 100% { opacity: 0.4; }
-    50%       { opacity: 1; }
+
+    0%,
+    100% {
+        opacity: 0.4;
+    }
+
+    50% {
+        opacity: 1;
+    }
 }
 
 .form-title-block {
@@ -277,7 +315,10 @@ a { text-decoration: none; color: inherit; }
     justify-content: center;
 }
 
-.input-icon svg { width: 16px; height: 16px; }
+.input-icon svg {
+    width: 16px;
+    height: 16px;
+}
 
 .form-group:focus-within .input-icon {
     color: var(--yellow-500);
@@ -346,7 +387,9 @@ a { text-decoration: none; color: inherit; }
     user-select: none;
 }
 
-.checkbox-input { display: none; }
+.checkbox-input {
+    display: none;
+}
 
 .checkbox-custom {
     width: 16px;
@@ -373,12 +416,12 @@ a { text-decoration: none; color: inherit; }
     transition: transform 0.15s ease, border-color 0.15s ease;
 }
 
-.checkbox-input:checked + .checkbox-custom {
+.checkbox-input:checked+.checkbox-custom {
     background: var(--yellow-600);
     border-color: var(--yellow-600);
 }
 
-.checkbox-input:checked + .checkbox-custom::after {
+.checkbox-input:checked+.checkbox-custom::after {
     border-color: var(--bg-primary);
     transform: rotate(45deg) scale(1);
 }
@@ -400,7 +443,9 @@ a { text-decoration: none; color: inherit; }
     transition: color var(--transition-fast);
 }
 
-.forgot-link:hover { color: var(--yellow-500); }
+.forgot-link:hover {
+    color: var(--yellow-500);
+}
 
 .btn-submit {
     position: relative;
@@ -447,7 +492,9 @@ a { text-decoration: none; color: inherit; }
     transition: transform var(--transition-fast);
 }
 
-.btn-submit:hover .btn-arrow { transform: translateX(4px); }
+.btn-submit:hover .btn-arrow {
+    transform: translateX(4px);
+}
 
 .btn-glow {
     position: absolute;
@@ -455,14 +502,20 @@ a { text-decoration: none; color: inherit; }
     left: -120%;
     width: 80%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
     animation: btnShimmer 4s ease-in-out infinite;
     pointer-events: none;
 }
 
 @keyframes btnShimmer {
-    0%        { left: -120%; }
-    50%, 100% { left: 160%; }
+    0% {
+        left: -120%;
+    }
+
+    50%,
+    100% {
+        left: 160%;
+    }
 }
 
 .auth-card-footer {
@@ -491,12 +544,22 @@ a { text-decoration: none; color: inherit; }
 }
 
 @media (max-width: 500px) {
-    .auth-card { padding: 32px 24px 28px; }
-    .logo-text  { font-size: 1.25rem; }
-    .auth-main  { padding: 20px 16px; }
+    .auth-card {
+        padding: 32px 24px 28px;
+    }
+
+    .logo-text {
+        font-size: 1.25rem;
+    }
+
+    .auth-main {
+        padding: 20px 16px;
+    }
 }
 
-body { overflow-x: hidden; }
+body {
+    overflow-x: hidden;
+}
 
 .auth-main {
     padding: clamp(16px, 4vw, 40px) clamp(12px, 3vw, 20px);

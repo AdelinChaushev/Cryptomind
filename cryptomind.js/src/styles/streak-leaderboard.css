@@ -10,7 +10,6 @@
     animation: slb-fade-up 0.45s 0.1s ease both;
 }
 
-/* fade hint at bottom when list overflows */
 .slb-section::after {
     content: '';
     position: absolute;
@@ -54,7 +53,6 @@
     letter-spacing: 0.04em;
 }
 
-/* Table header */
 .slb-table-header {
     display: grid;
     grid-template-columns: 48px 1fr 72px;
@@ -73,7 +71,6 @@
     text-align: right;
 }
 
-/* List */
 .slb-list {
     list-style: none;
     padding: 0;

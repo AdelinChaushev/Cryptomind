@@ -117,7 +117,7 @@ namespace Cryptomind.Core.Hubs
 			}
 
 			var roomCode = roomService.GetRoomCodeForPlayer(userId);
-			if (roomCode != null)
+			if (roomCode != null && !roomService.IsRoomInProgress(roomCode))
 			{
 				var playerIds = roomService.GetPlayerIds(roomCode);
 				if (playerIds.HasValue && !string.IsNullOrEmpty(playerIds.Value.player2Id))
@@ -127,6 +127,7 @@ namespace Cryptomind.Core.Hubs
 				roomService.CancelRoundTimer(roomCode);
 				await roomService.RefundWagers(roomCode);
 				roomService.RemoveRoom(roomCode);
+				connectionToRoom.TryRemove(Context.ConnectionId, out _);
 			}
 
 			await Clients.Caller.SendAsync("NoActiveRoom");
