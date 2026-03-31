@@ -1,7 +1,7 @@
 .dc-section {
     position: relative;
     background: var(--bg-surface, #0c1428);
-    border: 1px solid var(--border-default, rgba(203,213,225,0.08));
+    border: 1px solid var(--border-default, rgba(203, 213, 225, 0.08));
     border-radius: 10px;
     padding: 26px 28px;
     overflow: hidden;
@@ -11,7 +11,9 @@
 .dc-section::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0;
+    top: 0;
+    left: 0;
+    right: 0;
     height: 2px;
     background: linear-gradient(90deg, transparent 0%, var(--yellow-500, #fbbf24) 40%, transparent 100%);
     opacity: 0.6;
@@ -81,7 +83,7 @@
 .dc-cipher-box {
     position: relative;
     background: var(--bg-primary, #020617);
-    border: 1px solid var(--border-default, rgba(203,213,225,0.08));
+    border: 1px solid var(--border-default, rgba(203, 213, 225, 0.08));
     border-left: 3px solid rgba(251, 191, 36, 0.4);
     border-radius: 6px;
     padding: 18px 20px;
@@ -103,7 +105,7 @@
 .dc-input {
     flex: 1;
     background: var(--bg-primary, #020617);
-    border: 1px solid var(--border-default, rgba(203,213,225,0.08));
+    border: 1px solid var(--border-default, rgba(203, 213, 225, 0.08));
     border-radius: 6px;
     padding: 10px 14px;
     color: var(--text-primary, #f8fafc);
@@ -163,7 +165,6 @@
     text-transform: uppercase;
 }
 
-/* Solved state */
 .dc-solved-banner {
     display: flex;
     align-items: flex-start;
@@ -200,7 +201,6 @@
     letter-spacing: 0.01em;
 }
 
-/* Wrong answer */
 .dc-wrong-banner {
     display: flex;
     align-items: center;
@@ -218,40 +218,58 @@
     animation: dc-shake 0.28s ease;
 }
 
-/* Skeleton */
 .dc-skeleton {
     background: var(--bg-surface, #0c1428);
-    border: 1px solid var(--border-default, rgba(203,213,225,0.08));
+    border: 1px solid var(--border-default, rgba(203, 213, 225, 0.08));
     border-radius: 10px;
     padding: 26px 28px;
 }
 
 .dc-skeleton-line {
-    background: linear-gradient(
-        90deg,
-        rgba(255,255,255,0.03) 25%,
-        rgba(255,255,255,0.07) 50%,
-        rgba(255,255,255,0.03) 75%
-    );
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.03) 25%,
+            rgba(255, 255, 255, 0.07) 50%,
+            rgba(255, 255, 255, 0.03) 75%);
     background-size: 200% 100%;
     animation: dc-shimmer 1.6s ease-in-out infinite;
     border-radius: 4px;
     margin-bottom: 10px;
 }
 
-/* Animations */
 @keyframes dc-fade-up {
-    from { opacity: 0; transform: translateY(14px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes dc-shake {
-    0%, 100% { transform: translateX(0); }
-    20%       { transform: translateX(-5px); }
-    60%       { transform: translateX(5px); }
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-5px);
+    }
+
+    60% {
+        transform: translateX(5px);
+    }
 }
 
 @keyframes dc-shimmer {
-    0%   { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
 }

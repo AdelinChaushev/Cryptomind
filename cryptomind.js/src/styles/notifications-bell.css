@@ -29,19 +29,38 @@
     background: rgba(251, 191, 36, 0.08);
 }
 
-.nm-bell__icon { display: flex; }
+.nm-bell__icon {
+    display: flex;
+}
 
 .nm-bell__icon--shake {
     animation: nm-bell-ring 0.55s ease forwards;
 }
 
 @keyframes nm-bell-ring {
-    0%  { transform: rotate(0); }
-    15% { transform: rotate(14deg); }
-    35% { transform: rotate(-12deg); }
-    55% { transform: rotate(9deg); }
-    75% { transform: rotate(-5deg); }
-    100%{ transform: rotate(0); }
+    0% {
+        transform: rotate(0);
+    }
+
+    15% {
+        transform: rotate(14deg);
+    }
+
+    35% {
+        transform: rotate(-12deg);
+    }
+
+    55% {
+        transform: rotate(9deg);
+    }
+
+    75% {
+        transform: rotate(-5deg);
+    }
+
+    100% {
+        transform: rotate(0);
+    }
 }
 
 .nm-bell__badge {
@@ -66,8 +85,15 @@
 }
 
 @keyframes nm-badge-pop {
-    from { transform: scale(0); opacity: 0; }
-    to   { transform: scale(1); opacity: 1; }
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 .nm-bell__live {

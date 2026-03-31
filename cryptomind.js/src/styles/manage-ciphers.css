@@ -6,13 +6,33 @@
     min-width: 0 !important;
 }
 
-.admin-shell--manage-ciphers .data-table th:nth-child(1) { width: 52px; }
-.admin-shell--manage-ciphers .data-table th:nth-child(2) { width: 16%; }
-.admin-shell--manage-ciphers .data-table th:nth-child(3) { width: 14%; }
-.admin-shell--manage-ciphers .data-table th:nth-child(4) { width: 12%; }
-.admin-shell--manage-ciphers .data-table th:nth-child(5) { width: 14%; }
-.admin-shell--manage-ciphers .data-table th:nth-child(6) { width: 10%; }
-.admin-shell--manage-ciphers .data-table th:nth-child(7) { width: 72px; }
+.admin-shell--manage-ciphers .data-table th:nth-child(1) {
+    width: 52px;
+}
+
+.admin-shell--manage-ciphers .data-table th:nth-child(2) {
+    width: 16%;
+}
+
+.admin-shell--manage-ciphers .data-table th:nth-child(3) {
+    width: 14%;
+}
+
+.admin-shell--manage-ciphers .data-table th:nth-child(4) {
+    width: 12%;
+}
+
+.admin-shell--manage-ciphers .data-table th:nth-child(5) {
+    width: 14%;
+}
+
+.admin-shell--manage-ciphers .data-table th:nth-child(6) {
+    width: 10%;
+}
+
+.admin-shell--manage-ciphers .data-table th:nth-child(7) {
+    width: 72px;
+}
 
 .admin-shell--manage-ciphers .data-table td {
     overflow: hidden;
@@ -153,6 +173,7 @@
 }
 
 @media (max-width: 40em) {
+
     .admin-shell--manage-ciphers,
     .admin-shell--manage-ciphers .admin-main,
     .admin-shell--manage-ciphers .admin-content {

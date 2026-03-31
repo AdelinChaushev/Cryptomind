@@ -66,14 +66,19 @@ export function useRaceRoom() {
     const pendingRoundRef    = useRef(0);
     const currentRoundRef    = useRef(0);
     const roomCodeRef        = useRef('');
+    const inGameRef          = useRef(false);
 
     const setPhaseSync = useCallback((newPhase) => {
         phaseRef.current = newPhase;
         setPhase(newPhase);
-        if (newPhase !== GamePhase.LOBBY &&
-            newPhase !== GamePhase.GAME_END &&
-            newPhase !== GamePhase.WAGER_CONFIRM) {
+        const isActive = newPhase !== GamePhase.LOBBY &&
+                         newPhase !== GamePhase.GAME_END &&
+                         newPhase !== GamePhase.WAGER_CONFIRM;
+        if (isActive && !inGameRef.current) {
+            inGameRef.current = true;
             window.history.pushState(null, '', window.location.href);
+        } else if (!isActive) {
+            inGameRef.current = false;
         }
     }, []);
 
@@ -164,15 +169,15 @@ export function useRaceRoom() {
         }
     }, []);
 
-    const startPreRoundCountdown = useCallback((encryptedText, roundNumber) => {
+    const startPreRoundCountdown = useCallback((encryptedText, roundNumber, startFrom = PRE_ROUND_SECONDS, resetSubmissions = true) => {
         clearPreCountdown();
         pendingCipherRef.current = encryptedText;
         pendingRoundRef.current  = roundNumber;
 
-        setCountdownNumber(PRE_ROUND_SECONDS);
+        setCountdownNumber(startFrom);
         setPhaseSync(GamePhase.COUNTDOWN);
 
-        let current = PRE_ROUND_SECONDS;
+        let current = startFrom;
         preCountdownRef.current = setInterval(() => {
             current -= 1;
             if (current <= 0) {
@@ -180,8 +185,10 @@ export function useRaceRoom() {
                 setCipherText(pendingCipherRef.current);
                 setCurrentRound(pendingRoundRef.current);
                 currentRoundRef.current = pendingRoundRef.current;
-                setMySubmitted(false);
-                setOtherSubmitted(false);
+                if (resetSubmissions) {
+                    setMySubmitted(false);
+                    setOtherSubmitted(false);
+                }
                 setPhaseSync(GamePhase.PLAYING);
                 startCountdown();
             } else {
@@ -314,6 +321,13 @@ export function useRaceRoom() {
                     transitionRef.current = null;
                     startPreRoundCountdown(state.nextEncryptedText, state.currentRound);
                 }, state.transitionMsRemaining);
+                return;
+            }
+
+            if (state.preRoundSecondsRemaining > 0) {
+                setMySubmitted(state.hasSubmitted);
+                setOtherSubmitted(state.hasOpponentSubmitted || false);
+                startPreRoundCountdown(state.encryptedText, state.currentRound, state.preRoundSecondsRemaining, false);
                 return;
             }
 
