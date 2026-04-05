@@ -1,7 +1,3 @@
-/* =====================================================
-   ABOUT PAGE — aligned with home.css design system
-   ===================================================== */
-
 .about-page {
     overflow-x: hidden;
 }
@@ -22,7 +18,6 @@
     border-bottom: 1px solid var(--border-default);
 }
 
-/* ── EYEBROW (replaces old section-tag) ──────────── */
 .about-page .about-eyebrow {
     display: flex;
     align-items: center;
@@ -63,7 +58,6 @@
     margin-bottom: 48px;
 }
 
-/* ── HERO ─────────────────────────────────────────── */
 .about-page .about-hero {
     position: relative;
     min-height: 100vh;
@@ -101,7 +95,6 @@
     transition: transform 0.09s ease-out;
 }
 
-/* ── HERO BACKGROUND CIPHER STREAM ───────────────── */
 .about-page .about-hero-bg-stream {
     position: absolute;
     inset: 0;
@@ -162,8 +155,17 @@
 }
 
 @keyframes about-hero-pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50%       { opacity: 0.4; transform: scale(0.7); }
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.4;
+        transform: scale(0.7);
+    }
 }
 
 .about-page .about-hero__headline {
@@ -215,11 +217,19 @@
 }
 
 @keyframes about-bob {
-    0%, 100% { transform: translateY(0); opacity: 0.5; }
-    50%       { transform: translateY(-6px); opacity: 1; }
+
+    0%,
+    100% {
+        transform: translateY(0);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: translateY(-6px);
+        opacity: 1;
+    }
 }
 
-/* ── MISSION ──────────────────────────────────────── */
 .about-page .about-mission-layout {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -268,9 +278,17 @@
     border-radius: 50%;
 }
 
-.about-page .about-terminal__dot--red    { background: #f43f5e; }
-.about-page .about-terminal__dot--yellow { background: var(--yellow-500); }
-.about-page .about-terminal__dot--green  { background: var(--emerald-500); }
+.about-page .about-terminal__dot--red {
+    background: #f43f5e;
+}
+
+.about-page .about-terminal__dot--yellow {
+    background: var(--yellow-500);
+}
+
+.about-page .about-terminal__dot--green {
+    background: var(--emerald-500);
+}
 
 .about-page .about-terminal__filename {
     font-family: var(--font-mono);
@@ -299,11 +317,17 @@
 }
 
 @keyframes about-cursor-blink {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
 }
 
-/* ── STATS ────────────────────────────────────────── */
 .about-page .about-stats-section {
     padding: 64px 24px;
     background: var(--bg-surface);
@@ -345,7 +369,6 @@
     text-transform: uppercase;
 }
 
-/* ── CIPHER GRID ──────────────────────────────────── */
 .about-page .about-cipher-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -425,7 +448,6 @@
     background: linear-gradient(90deg, var(--rose-500), #fb7185);
 }
 
-/* ── STEPS ────────────────────────────────────────── */
 .about-page .about-steps-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -487,7 +509,6 @@
     margin: 0;
 }
 
-/* ── LIMITATIONS ──────────────────────────────────── */
 .about-page .about-limits-intro {
     max-width: 620px;
     margin-bottom: 40px;
@@ -572,7 +593,6 @@
     line-height: 1.75;
 }
 
-/* ── ROLES ────────────────────────────────────────── */
 .about-page .about-roles-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -707,7 +727,6 @@
     color: var(--yellow-500);
 }
 
-/* ── CTA ──────────────────────────────────────────── */
 .about-page .about-cta {
     position: relative;
     padding: 120px 24px;
@@ -822,7 +841,6 @@
     background: rgba(251, 191, 36, 0.06);
 }
 
-/* ── RESPONSIVE ───────────────────────────────────── */
 @media (max-width: 900px) {
     .about-page .about-section {
         padding: 64px 20px;

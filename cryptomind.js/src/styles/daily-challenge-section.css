@@ -1,5 +1,3 @@
-/* ── Daily Challenge Section ──────────────────────────── */
-
 .dc-section {
     position: relative;
     background: #0a1022;
@@ -22,7 +20,6 @@
     background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.65), transparent);
 }
 
-/* ── Header ───────────────────────────────────────────── */
 .dc-header {
     display: flex;
     align-items: center;
@@ -70,7 +67,6 @@
     letter-spacing: 0.06em;
 }
 
-/* ── Countdown ────────────────────────────────────────── */
 .dc-countdown {
     display: flex;
     align-items: center;
@@ -98,7 +94,6 @@
     letter-spacing: 0.1em;
 }
 
-/* ── Cipher Box ───────────────────────────────────────── */
 .dc-cipher-box {
     position: relative;
     background: #020617;
@@ -125,7 +120,6 @@
     pointer-events: none;
 }
 
-/* ── Form ─────────────────────────────────────────────── */
 .dc-form {
     display: flex;
     gap: 0;
@@ -201,7 +195,6 @@
     text-transform: uppercase;
 }
 
-/* ── Solved Banner ────────────────────────────────────── */
 .dc-solved-banner {
     display: flex;
     align-items: flex-start;
@@ -237,7 +230,6 @@
     letter-spacing: 0.01em;
 }
 
-/* ── Wrong Banner ─────────────────────────────────────── */
 .dc-wrong-banner {
     display: flex;
     align-items: center;
@@ -254,7 +246,6 @@
     animation: dc-shake 0.28s ease;
 }
 
-/* ── Skeleton ─────────────────────────────────────────── */
 .dc-skeleton {
     background: #0a1022;
     border: 1px solid rgba(251, 191, 36, 0.08);
@@ -262,24 +253,22 @@
 }
 
 .dc-skeleton-line {
-    background: linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0.02) 25%,
-        rgba(255, 255, 255, 0.06) 50%,
-        rgba(255, 255, 255, 0.02) 75%
-    );
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.02) 25%,
+            rgba(255, 255, 255, 0.06) 50%,
+            rgba(255, 255, 255, 0.02) 75%);
     background-size: 200% 100%;
     animation: dc-shimmer 1.6s ease-in-out infinite;
     border-radius: 2px;
     margin-bottom: 10px;
 }
 
-/* ── Animations ───────────────────────────────────────── */
 @keyframes dc-fade-up {
     from {
         opacity: 0;
         transform: translateY(14px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -287,12 +276,27 @@
 }
 
 @keyframes dc-shake {
-    0%, 100% { transform: translateX(0); }
-    20%       { transform: translateX(-5px); }
-    60%       { transform: translateX(5px); }
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-5px);
+    }
+
+    60% {
+        transform: translateX(5px);
+    }
 }
 
 @keyframes dc-shimmer {
-    0%   { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
 }

@@ -41,9 +41,6 @@ function AccountInfo() {
                 withCredentials: true,
             }).then( c =>{              
                  window.location.href = "/"; 
-                
-                
-         
             });
         
         } catch (err) {

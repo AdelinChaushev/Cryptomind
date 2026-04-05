@@ -87,8 +87,6 @@ button {
     display: none !important;
 }
 
-/* ── Buttons ─────────────────────────────────────────────────────── */
-
 .btn {
     display: inline-flex;
     align-items: center;
@@ -155,8 +153,6 @@ button {
     font-size: clamp(10px, 0.8vw, 12px);
 }
 
-/* ── Page Header ─────────────────────────────────────────────────── */
-
 .page-header {
     width: 100%;
     padding: clamp(52px, 6vw, 96px) var(--gutter) 0;
@@ -166,11 +162,17 @@ button {
 }
 
 @keyframes browseHeaderIn {
-    from { opacity: 0; transform: translateY(22px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(22px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-/* Eyebrow row */
 .ph-eyebrow {
     display: flex;
     align-items: center;
@@ -206,8 +208,17 @@ button {
 }
 
 @keyframes pulse-dot {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50%       { opacity: 0.3; transform: scale(0.6); }
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.3;
+        transform: scale(0.6);
+    }
 }
 
 .page-title {
@@ -222,7 +233,6 @@ button {
     z-index: 1;
 }
 
-/* Scaled down so "Предизвикателствата" fits at every viewport width */
 .title-accent {
     font-style: italic;
     color: var(--yellow-500);
@@ -242,7 +252,6 @@ button {
     z-index: 1;
 }
 
-/* Scrolling cipher character ticker */
 .cipher-ticker-wrap {
     width: 100%;
     overflow: hidden;
@@ -287,11 +296,14 @@ button {
 }
 
 @keyframes ticker-scroll {
-    from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
-}
+    from {
+        transform: translateX(0);
+    }
 
-/* ── Browse Layout ───────────────────────────────────────────────── */
+    to {
+        transform: translateX(-50%);
+    }
+}
 
 .browse-layout {
     width: 100%;
@@ -307,11 +319,16 @@ button {
 }
 
 @keyframes browseLayoutIn {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
 
-/* ── Filter Sidebar ──────────────────────────────────────────────── */
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
 .filter-sidebar {
     width: var(--sidebar-width);
@@ -328,9 +345,18 @@ button {
     scrollbar-color: var(--bg-elevated) transparent;
 }
 
-.filter-sidebar::-webkit-scrollbar { width: 3px; }
-.filter-sidebar::-webkit-scrollbar-track { background: transparent; }
-.filter-sidebar::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 2px; }
+.filter-sidebar::-webkit-scrollbar {
+    width: 3px;
+}
+
+.filter-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.filter-sidebar::-webkit-scrollbar-thumb {
+    background: var(--border-default);
+    border-radius: 2px;
+}
 
 .sidebar-header {
     display: flex;
@@ -492,14 +518,14 @@ button {
     border-color: var(--border-default);
 }
 
-.type-radio:checked + .type-radio-custom {
+.type-radio:checked+.type-radio-custom {
     background: rgba(251, 191, 36, 0.06);
     border-color: rgba(251, 191, 36, 0.25);
     color: var(--text-primary);
     font-weight: 500;
 }
 
-.type-radio:checked + .type-radio-custom::after {
+.type-radio:checked+.type-radio-custom::after {
     transform: scaleY(1);
 }
 
@@ -540,14 +566,12 @@ button {
     background: rgba(255, 255, 255, 0.03);
 }
 
-.tag-check:checked + .tag-check-custom {
+.tag-check:checked+.tag-check-custom {
     background: rgba(251, 191, 36, 0.06);
     border-color: rgba(251, 191, 36, 0.22);
     color: var(--yellow-500);
     font-weight: 500;
 }
-
-/* ── Content Area ────────────────────────────────────────────────── */
 
 .cipher-content {
     flex: 1;
@@ -658,7 +682,6 @@ button {
     color: var(--text-primary);
 }
 
-/* Mobile filter button */
 .mobile-filter-btn {
     display: none;
     align-items: center;
@@ -700,8 +723,6 @@ button {
     letter-spacing: 0.08em;
 }
 
-/* ── Cipher Grid ─────────────────────────────────────────────────── */
-
 .cipher-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(clamp(240px, 22vw, 340px), 1fr));
@@ -711,8 +732,6 @@ button {
     border-radius: var(--card-radius);
     overflow: hidden;
 }
-
-/* ── Cipher Cards ────────────────────────────────────────────────── */
 
 .cipher-card {
     background: var(--bg-primary);
@@ -727,7 +746,6 @@ button {
     border: none;
 }
 
-/* Amber sweep bar — same pattern as home page feature cards */
 .cipher-card::before {
     content: '';
     position: absolute;
@@ -885,7 +903,6 @@ button {
     font-size: 11px;
 }
 
-/* Skeleton */
 .cipher-card.skeleton {
     pointer-events: none;
     min-height: 200px;
@@ -902,11 +919,15 @@ button {
 }
 
 @keyframes shimmer {
-    0%   { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
 }
 
-/* Solved variant */
 .cipher-card--solved {
     border-left: 2px solid rgba(16, 185, 129, 0.4);
 }
@@ -914,8 +935,6 @@ button {
 .cipher-card--solved:hover {
     border-left-color: rgba(16, 185, 129, 0.7);
 }
-
-/* ── Empty State ─────────────────────────────────────────────────── */
 
 .empty-state {
     grid-column: 1 / -1;
@@ -948,8 +967,6 @@ button {
     font-weight: 300;
     margin-bottom: 28px;
 }
-
-/* ── Pagination ──────────────────────────────────────────────────── */
 
 .pagination {
     display: flex;
@@ -1019,8 +1036,6 @@ button {
     color: #020617;
     font-weight: 700;
 }
-
-/* ── Footer ──────────────────────────────────────────────────────── */
 
 .footer {
     background: #020617;
@@ -1110,8 +1125,6 @@ button {
     letter-spacing: 0.08em;
     color: var(--text-tertiary);
 }
-
-/* ── Responsive ──────────────────────────────────────────────────── */
 
 @media (max-width: 768px) {
     .browse-layout {
