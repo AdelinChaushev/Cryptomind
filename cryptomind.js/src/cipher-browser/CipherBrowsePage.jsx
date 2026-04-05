@@ -42,23 +42,17 @@ const CipherBrowsePage = () => {
     );
   };
 
-  const clearAll = () => {
-    setSearchTerm('');
-    setChallengeType(0);
-    setSelectedTags([]);
-  };
-
-  const fetchCiphers = async () => {
+  const fetchCiphers = async (overrides = {}) => {
     setIsLoading(true);
     const path = import.meta.env.VITE_API_URL;
     try {
       const res = await axios.get(`${path}/api/ciphers/all`, {
         withCredentials: true,
         params: {
-          SearchTerm: searchTerm,
-          Tags: selectedTags,
-          ChallengeType: challengeType,
-          OrderTerm: sortBy
+          SearchTerm:    overrides.searchTerm    !== undefined ? overrides.searchTerm    : searchTerm,
+          Tags:          overrides.selectedTags  !== undefined ? overrides.selectedTags  : selectedTags,
+          ChallengeType: overrides.challengeType !== undefined ? overrides.challengeType : challengeType,
+          OrderTerm:     overrides.sortBy        !== undefined ? overrides.sortBy        : sortBy,
         },
         paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' })
       });
@@ -72,6 +66,13 @@ const CipherBrowsePage = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const clearAll = () => {
+    setSearchTerm('');
+    setChallengeType(0);
+    setSelectedTags([]);
+    fetchCiphers({ searchTerm: '', challengeType: 0, selectedTags: [] });
   };
 
   useEffect(() => { fetchCiphers(); }, [sortBy]);
@@ -135,12 +136,10 @@ const CipherBrowsePage = () => {
               ciphers.map((cipher) => (
                 <CipherCard key={cipher.id} cipher={cipher} />
               ))
-            ) : null}
+            ) : (
+              !isLoading && <EmptyState onReset={clearAll} />
+            )}
           </div>
-
-          {!isLoading && Array.isArray(ciphers) && ciphers.length === 0 && (
-            <EmptyState onReset={clearAll} />
-          )}
 
           <Pagination
             currentPage={currentPage}
