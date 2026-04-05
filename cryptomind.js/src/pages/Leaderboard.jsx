@@ -1,14 +1,108 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import "../styles/leaderboard.css";
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api/leaderboard`;
 
 const RANK_CLASSES = ["rank-1", "rank-2", "rank-3"];
 const RANK_LABELS = ["#01", "#02", "#03"];
+const CIPHER_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&+=÷×≠≈∑π';
 
 function getInitial(username) {
   if (!username) return "?";
   return username.charAt(0).toUpperCase();
+}
+
+// Scrambles text then resolves it letter-by-letter
+function useDecodeText(target, startDelay = 600) {
+  const [display, setDisplay] = useState(() =>
+    target.split('').map(c => c === ' ' ? ' ' : CIPHER_CHARS[Math.floor(Math.random() * CIPHER_CHARS.length)]).join('')
+  );
+
+  useEffect(() => {
+    let frame;
+    let startTime = null;
+    const LOCK_INTERVAL = 65;
+
+    const tick = (ts) => {
+      if (!startTime) startTime = ts;
+      const elapsed = ts - startTime - startDelay;
+
+      if (elapsed < 0) {
+        setDisplay(
+          target.split('').map(c =>
+            c === ' ' ? ' ' : CIPHER_CHARS[Math.floor(Math.random() * CIPHER_CHARS.length)]
+          ).join('')
+        );
+        frame = requestAnimationFrame(tick);
+        return;
+      }
+
+      const lockedCount = Math.floor(elapsed / LOCK_INTERVAL);
+
+      if (lockedCount >= target.length) {
+        setDisplay(target);
+        return;
+      }
+
+      setDisplay(
+        target.split('').map((c, i) => {
+          if (i < lockedCount) return c;
+          if (c === ' ') return ' ';
+          return CIPHER_CHARS[Math.floor(Math.random() * CIPHER_CHARS.length)];
+        }).join('')
+      );
+
+      frame = requestAnimationFrame(tick);
+    };
+
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [target, startDelay]);
+
+  return display;
+}
+
+// Counts up from 0 to target when element enters viewport
+function useCountUp(target, duration = 1000) {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !started.current) {
+        started.current = true;
+        observer.disconnect();
+
+        let startTime = null;
+        let frame;
+
+        const tick = (ts) => {
+          if (!startTime) startTime = ts;
+          const progress = Math.min((ts - startTime) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          setCount(Math.round(eased * target));
+          if (progress < 1) frame = requestAnimationFrame(tick);
+        };
+
+        frame = requestAnimationFrame(tick);
+        return () => cancelAnimationFrame(frame);
+      }
+    }, { threshold: 0.5 });
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [target, duration]);
+
+  return [count, ref];
+}
+
+function AnimatedPoints({ points }) {
+  const [count, ref] = useCountUp(points, 1000);
+  return <span ref={ref}>{count.toLocaleString()}</span>;
 }
 
 function PodiumCard({ entry }) {
@@ -19,7 +113,7 @@ function PodiumCard({ entry }) {
       <div className="lb-podium-avatar">{getInitial(entry.username)}</div>
       <p className="lb-podium-username">{entry.username}</p>
       <p className="lb-podium-points">
-        {entry.points.toLocaleString()}
+        <AnimatedPoints points={entry.points} />
         <span className="lb-podium-pts-label">ТЧК</span>
       </p>
       <span className="lb-podium-ghost-rank">{entry.place}</span>
@@ -41,36 +135,16 @@ function LeaderboardRow({ entry }) {
   );
 }
 
-function StatusBar({ count, status }) {
-  const dotClass =
-    status === "success" ? "online" :
-    status === "error"   ? "error"  : "";
-
-  const label =
-    status === "loading" ? "ИЗВЛИЧАНЕ НА ДАННИ..." :
-    status === "success" ? `${count} КРИПТОАНАЛИЗАТОРА В КЛАСАЦИЯТА` :
-    "ГРЕШКА ПРИ СВЪРЗВАНЕ";
-
-  return (
-    <div className="lb-status">
-      <span>{label}</span>
-      <span className={`lb-status-dot ${dotClass}`} />
-    </div>
-  );
-}
-
 function EmptyState({ message }) {
-  return (
-    <div className="lb-empty">
-      {message}
-    </div>
-  );
+  return <div className="lb-empty">{message}</div>;
 }
 
 export default function Leaderboard() {
   const [entries, setEntries] = useState([]);
   const [status, setStatus] = useState("loading");
   const [errorMsg, setErrorMsg] = useState("");
+
+  const brandText = useDecodeText("Cryptomind", 800);
 
   useEffect(() => {
     async function fetchLeaderboard() {
@@ -88,7 +162,6 @@ export default function Leaderboard() {
 
     fetchLeaderboard();
   }, []);
-
 
   const top3 = entries.filter((e) => e.place <= 3);
   const rest = entries.filter((e) => e.place > 3);
@@ -112,7 +185,10 @@ export default function Leaderboard() {
             <span className="lb-header-label">Глобално класиране</span>
           </div>
           <h1 className="lb-title">Класация</h1>
-          <p className="lb-subtitle">Топ криптоанализатори на Cryptomind</p>
+          <p className="lb-subtitle">
+            Топ криптоанализатори на{' '}
+            <span className="lb-subtitle-brand">{brandText}</span>
+          </p>
         </header>
 
         {status === "error" ? (
@@ -131,7 +207,7 @@ export default function Leaderboard() {
               </div>
             )}
 
-           {hasRest && (
+            {hasRest && (
               <div className="lb-table">
                 <div className="lb-table-header">
                   <span>РАНГ</span>
@@ -147,8 +223,6 @@ export default function Leaderboard() {
             )}
           </>
         )}
-
-        <StatusBar count={entries.length} status={status} />
       </div>
     </div>
   );
