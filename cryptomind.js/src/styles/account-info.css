@@ -440,7 +440,6 @@
     overflow: hidden;
 }
 
-/* Top accent line */
 .streak-panel::before {
     content: '';
     position: absolute;
@@ -451,7 +450,6 @@
     border-radius: 8px 8px 0 0;
 }
 
-/* Ambient glow blob */
 .streak-panel::after {
     content: '';
     position: absolute;
@@ -464,7 +462,6 @@
     pointer-events: none;
 }
 
-/* ── Fire state ─────────────────────────────────────── */
 .streak-fire {
     border-color: rgba(251, 146, 60, 0.28);
     box-shadow: inset 0 0 40px rgba(251, 146, 60, 0.04);
@@ -491,10 +488,13 @@
 }
 
 @keyframes streak-breathe {
-    0%, 100% {
+
+    0%,
+    100% {
         opacity: 0.5;
         transform: translateX(-50%) scaleY(0.85);
     }
+
     50% {
         opacity: 1;
         transform: translateX(-50%) scaleY(1.2);
@@ -502,12 +502,15 @@
 }
 
 @keyframes streak-fire-glow {
-    0%, 100% {
+
+    0%,
+    100% {
         text-shadow:
             0 0 20px rgba(251, 146, 60, 0.4),
             0 0 55px rgba(251, 191, 36, 0.1),
             0 0 100px rgba(251, 146, 60, 0.05);
     }
+
     50% {
         text-shadow:
             0 0 40px rgba(251, 146, 60, 0.75),
@@ -516,7 +519,6 @@
     }
 }
 
-/* ── Ice state ──────────────────────────────────────── */
 .streak-ice {
     border-color: rgba(34, 211, 238, 0.14);
 }
@@ -542,22 +544,31 @@
 }
 
 @keyframes streak-ice-shift {
-    0%, 100% { opacity: 0.55; }
-    50%       { opacity: 1; }
+
+    0%,
+    100% {
+        opacity: 0.55;
+    }
+
+    50% {
+        opacity: 1;
+    }
 }
 
 @keyframes streak-ice-pulse {
-    0%, 100% {
+
+    0%,
+    100% {
         opacity: 0.4;
         text-shadow: 0 0 12px rgba(34, 211, 238, 0.15);
     }
+
     50% {
         opacity: 0.65;
         text-shadow: 0 0 28px rgba(34, 211, 238, 0.35);
     }
 }
 
-/* ── Inner layout ───────────────────────────────────── */
 .streak-panel-head {
     display: flex;
     align-items: center;

@@ -1,5 +1,3 @@
-/* ── Daily Challenge Teaser (homepage / cipher page widget) ── */
-
 .dc-teaser {
     display: flex;
     align-items: center;
@@ -16,7 +14,6 @@
     overflow: hidden;
 }
 
-/* Expanding amber bar on hover (matches homepage feature-card pattern) */
 .dc-teaser::before {
     content: '';
     position: absolute;
@@ -38,7 +35,6 @@
     border-left-color: rgba(251, 191, 36, 0.65);
 }
 
-/* Left side */
 .dc-teaser-left {
     display: flex;
     align-items: center;
@@ -82,7 +78,6 @@
     font-weight: 600;
 }
 
-/* CTA button */
 .dc-teaser-btn {
     background: var(--yellow-500, #fbbf24);
     border: 1px solid var(--yellow-500, #fbbf24);
@@ -110,7 +105,6 @@
     box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
 }
 
-/* Already solved state */
 .dc-teaser-solved {
     display: inline-flex;
     align-items: center;

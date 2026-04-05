@@ -9,6 +9,10 @@ const SubmissionsPageHeader = () => {
                 <span className="breadcrumb-current">Моите предложения</span>
             </nav>
 
+            <div className="page-eyebrow">
+                <span className="page-eyebrow-text">Моят принос</span>
+            </div>
+
             <h1 className="page-title">
                 Моите <span>Предложения</span>
             </h1>
