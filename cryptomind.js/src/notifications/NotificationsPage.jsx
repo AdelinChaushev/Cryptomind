@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import '../styles/notifications-page.css';
 
-import { NotificationType } from './UseNotifications';
+import { NotificationType } from './useNotifications';
 import { useNotificationContext } from '../App.jsx';
 import NotificationItem from './NotificationItem';
 
@@ -112,9 +112,6 @@ const NotificationsPage = () => {
                         Одобрения, отхвърляния на шифри, отговори и спечелени значки.
                     </p>
                 </div>
-                <span className="np-header__deco" aria-hidden="true">
-                    01 FF A3 // 58 3C // ∑∞ XY 9A BC 1E 2F // 0D A1 10 # @ $ % 01 FF A3 // 58 3C // ∑∞ XY 9A BC 1E 2F // 0D A1 10 # @ $ % 01 FF A3 // 58 3C // ∑∞
-                </span>
             </div>
 
             <div className="np-content">

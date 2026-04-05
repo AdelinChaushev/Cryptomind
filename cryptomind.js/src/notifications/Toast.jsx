@@ -1,5 +1,5 @@
 import '../styles/toast.css';
-import { NotificationType } from './UseNotifications';
+import { NotificationType } from './useNotifications';
 
 export const DISMISS_MS = 4500;
 

@@ -93,7 +93,6 @@
     animation-play-state: paused;
 }
 
-/* Start shimmer once decode is done (after ~1.5s) */
 .lb-subtitle-brand {
     animation-delay: 1.5s;
     animation-play-state: running;
@@ -289,7 +288,6 @@
     width: 100%;
 }
 
-/* Ambient glow bloom for #1 */
 .lb-podium-card.rank-1::after {
     content: '';
     position: absolute;
@@ -561,8 +559,13 @@
 }
 
 @keyframes lb-brand-shimmer {
-    0%   { background-position: 250% center; }
-    100% { background-position: -250% center; }
+    0% {
+        background-position: 250% center;
+    }
+
+    100% {
+        background-position: -250% center;
+    }
 }
 
 @keyframes lb-pulse {

@@ -49,8 +49,6 @@ body::before {
     z-index: 0;
 }
 
-/* ─── Page Header ───────────────────────────────────────────────── */
-
 .page-header {
     max-width: min(1100px, 94vw);
     margin: 0 auto;
@@ -138,8 +136,6 @@ body::before {
     background: var(--border-default);
 }
 
-/* ─── Layout ───────────────────────────────────────────────────── */
-
 .main-layout {
     max-width: min(1100px, 94vw);
     margin: 0 auto;
@@ -186,8 +182,6 @@ body::before {
     top: calc(var(--navbar-height) + 20px);
 }
 
-/* ─── Card ─────────────────────────────────────────────────────── */
-
 .card {
     background: var(--bg-surface);
     border: 1px solid var(--border-default);
@@ -197,8 +191,6 @@ body::before {
     flex-direction: column;
     gap: clamp(14px, 1.5vw, 20px);
 }
-
-/* ─── Fields ────────────────────────────────────────────────────── */
 
 .field {
     display: flex;
@@ -321,8 +313,6 @@ body::before {
     color: var(--rose-500);
 }
 
-/* ─── Mode Toggle ───────────────────────────────────────────────── */
-
 .mode-toggle {
     display: flex;
     align-items: center;
@@ -410,17 +400,15 @@ body::before {
     transition: transform var(--transition), background var(--transition);
 }
 
-.toggle input:checked + .toggle-track {
+.toggle input:checked+.toggle-track {
     background: rgba(251, 191, 36, 0.12);
     border-color: var(--border-yellow);
 }
 
-.toggle input:checked + .toggle-track::after {
+.toggle input:checked+.toggle-track::after {
     transform: translateY(-50%) translateX(20px);
     background: var(--yellow-500);
 }
-
-/* ─── Upload Zone ───────────────────────────────────────────────── */
 
 .upload-zone {
     border: 1px dashed rgba(203, 213, 225, 0.2);
@@ -492,8 +480,6 @@ body::before {
     border-radius: var(--radius-sm);
 }
 
-/* ─── OCR ───────────────────────────────────────────────────────── */
-
 .ocr-notice {
     padding: 10px 13px;
     background: rgba(34, 211, 238, 0.04);
@@ -531,8 +517,15 @@ body::before {
 }
 
 @keyframes ocr-pulse {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.45; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.45;
+    }
 }
 
 .ocr-review {
@@ -557,8 +550,6 @@ body::before {
     border-color: rgba(34, 211, 238, 0.5);
     box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.05);
 }
-
-/* ─── Submit Actions ────────────────────────────────────────────── */
 
 .submit-card {
     background: var(--bg-surface);
@@ -630,8 +621,6 @@ body::before {
     line-height: 1.6;
 }
 
-/* ─── Info Cards ────────────────────────────────────────────────── */
-
 .info-card {
     background: var(--bg-surface);
     border: 1px solid var(--border-default);
@@ -685,8 +674,6 @@ body::before {
     font-weight: 600;
 }
 
-/* ─── Steps ─────────────────────────────────────────────────────── */
-
 .steps {
     display: flex;
     flex-direction: column;
@@ -699,7 +686,7 @@ body::before {
     position: relative;
 }
 
-.step + .step {
+.step+.step {
     margin-top: 14px;
 }
 
@@ -752,8 +739,6 @@ body::before {
     margin-top: 2px;
 }
 
-/* ─── Cipher Type Tags ──────────────────────────────────────────── */
-
 .cipher-ref {
     display: flex;
     flex-direction: column;
@@ -805,8 +790,6 @@ body::before {
     color: #fdba74;
 }
 
-/* ─── Checkbox ──────────────────────────────────────────────────── */
-
 .checkbox-label {
     display: flex;
     align-items: center;
@@ -833,12 +816,12 @@ body::before {
     transition: border-color var(--transition), background var(--transition);
 }
 
-.checkbox-input:checked + .checkbox-box {
+.checkbox-input:checked+.checkbox-box {
     background: var(--yellow-500);
     border-color: var(--yellow-500);
 }
 
-.checkbox-input:checked + .checkbox-box::after {
+.checkbox-input:checked+.checkbox-box::after {
     content: '';
     position: absolute;
     left: 5px;
@@ -856,8 +839,6 @@ body::before {
     letter-spacing: 0.05em;
     color: var(--text-primary);
 }
-
-/* ─── Status indicators ─────────────────────────────────────────── */
 
 .submit-success {
     font-family: var(--font-body);
@@ -906,17 +887,28 @@ body::before {
 }
 
 @keyframes submitSpin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes loadingDots {
-    0%   { content: ''; }
-    33%  { content: '.'; }
-    66%  { content: '..'; }
-    100% { content: '...'; }
-}
+    0% {
+        content: '';
+    }
 
-/* ─── Responsive ────────────────────────────────────────────────── */
+    33% {
+        content: '.';
+    }
+
+    66% {
+        content: '..';
+    }
+
+    100% {
+        content: '...';
+    }
+}
 
 @media (max-width: 860px) {
     .main-layout {

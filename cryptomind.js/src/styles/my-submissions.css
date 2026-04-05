@@ -77,36 +77,39 @@ body {
     z-index: 100;
 }
 
-
-/* ─── Layout ─────────────────────────────────────────────────── */
-
 .page-wrapper {
     max-width: 1000px;
     margin: 0 auto;
     padding: 44px 24px 80px;
 }
 
-
-/* ─── Animations ─────────────────────────────────────────────── */
-
 @keyframes fadeUp {
     from {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
-.page-header   { animation: fadeUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) both; }
-.stats-strip   { animation: fadeUp 0.6s 0.08s cubic-bezier(0.4, 0, 0.2, 1) both; }
-.tabs-nav      { animation: fadeUp 0.6s 0.15s cubic-bezier(0.4, 0, 0.2, 1) both; }
-.tab-content.active { animation: fadeUp 0.5s 0.2s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.page-header {
+    animation: fadeUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
 
+.stats-strip {
+    animation: fadeUp 0.6s 0.08s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
 
-/* ─── Page Header ────────────────────────────────────────────── */
+.tabs-nav {
+    animation: fadeUp 0.6s 0.15s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.tab-content.active {
+    animation: fadeUp 0.5s 0.2s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
 
 .page-header {
     margin-bottom: 32px;
@@ -186,9 +189,6 @@ body {
     line-height: 1.7;
 }
 
-
-/* ─── Stats Strip ────────────────────────────────────────────── */
-
 .stats-strip {
     display: flex;
     flex-wrap: wrap;
@@ -232,13 +232,21 @@ body {
     color: var(--text-primary);
 }
 
-.stat-chip-value.yellow  { color: var(--yellow-500); }
-.stat-chip-value.emerald { color: var(--emerald-500); }
-.stat-chip-value.rose    { color: var(--rose-500); }
-.stat-chip-value.grey    { color: #9ca3af; }
+.stat-chip-value.yellow {
+    color: var(--yellow-500);
+}
 
+.stat-chip-value.emerald {
+    color: var(--emerald-500);
+}
 
-/* ─── Tabs ───────────────────────────────────────────────────── */
+.stat-chip-value.rose {
+    color: var(--rose-500);
+}
+
+.stat-chip-value.grey {
+    color: #9ca3af;
+}
 
 .tabs-nav {
     display: flex;
@@ -302,9 +310,6 @@ body {
     display: block;
 }
 
-
-/* ─── Filter Pills ───────────────────────────────────────────── */
-
 .filter-bar {
     display: flex;
     flex-wrap: wrap;
@@ -361,9 +366,6 @@ body {
     border-color: rgba(75, 85, 99, 0.4);
     color: #9ca3af;
 }
-
-
-/* ─── Submission Cards ───────────────────────────────────────── */
 
 .submission-card {
     position: relative;
@@ -429,7 +431,6 @@ body {
     flex: 1;
 }
 
-/* ─── Status Badges ──────────────────────────────────────────── */
 
 .status-badge {
     display: inline-flex;
@@ -459,6 +460,7 @@ body {
     border: 1px solid rgba(16, 185, 129, 0.22);
     color: var(--emerald-500);
 }
+
 .badge-approved .status-dot {
     background: var(--emerald-500);
     box-shadow: 0 0 4px var(--emerald-500);
@@ -469,6 +471,7 @@ body {
     border: 1px solid rgba(251, 191, 36, 0.22);
     color: var(--yellow-500);
 }
+
 .badge-pending .status-dot {
     background: var(--yellow-500);
     box-shadow: 0 0 4px var(--yellow-500);
@@ -479,6 +482,7 @@ body {
     border: 1px solid rgba(244, 63, 94, 0.22);
     color: var(--rose-500);
 }
+
 .badge-rejected .status-dot {
     background: var(--rose-500);
 }
@@ -488,11 +492,10 @@ body {
     border: 1px solid rgba(75, 85, 99, 0.35);
     color: #9ca3af;
 }
+
 .badge-deleted .status-dot {
     background: #6b7280;
 }
-
-/* ─── Card Meta ──────────────────────────────────────────────── */
 
 .card-meta {
     display: flex;
@@ -534,8 +537,6 @@ body {
     text-transform: uppercase;
 }
 
-/* ─── Card Description ───────────────────────────────────────── */
-
 .card-description {
     font-size: 13px;
     color: var(--text-tertiary);
@@ -551,12 +552,21 @@ body {
     font-weight: 300;
 }
 
-.card-description.border-emerald { border-left-color: rgba(16, 185, 129, 0.5); }
-.card-description.border-yellow  { border-left-color: rgba(251, 191, 36, 0.5); }
-.card-description.border-rose    { border-left-color: rgba(244, 63, 94, 0.5); }
-.card-description.border-deleted { border-left-color: #4b5563; }
+.card-description.border-emerald {
+    border-left-color: rgba(16, 185, 129, 0.5);
+}
 
-/* ─── Rejection Notice ───────────────────────────────────────── */
+.card-description.border-yellow {
+    border-left-color: rgba(251, 191, 36, 0.5);
+}
+
+.card-description.border-rose {
+    border-left-color: rgba(244, 63, 94, 0.5);
+}
+
+.card-description.border-deleted {
+    border-left-color: #4b5563;
+}
 
 .rejection-notice {
     display: flex;
@@ -589,8 +599,6 @@ body {
     font-weight: 600;
 }
 
-/* ─── Points Badge ───────────────────────────────────────────── */
-
 .points-badge {
     display: inline-flex;
     align-items: center;
@@ -605,8 +613,6 @@ body {
     color: var(--yellow-500);
     letter-spacing: 0.04em;
 }
-
-/* ─── Card Footer ────────────────────────────────────────────── */
 
 .card-footer {
     display: flex;
@@ -644,8 +650,6 @@ body {
     color: var(--yellow-500);
     background: rgba(251, 191, 36, 0.05);
 }
-
-/* ─── Empty State ────────────────────────────────────────────── */
 
 .empty-state {
     display: flex;
@@ -711,8 +715,6 @@ body {
     box-shadow: 0 6px 16px rgba(251, 191, 36, 0.25);
 }
 
-/* ─── Deleted Card States ────────────────────────────────────── */
-
 .submission-card--deleted {
     background-color: var(--bg-primary);
     border-left-color: #4b5563;
@@ -754,8 +756,6 @@ body {
     font-weight: 300;
 }
 
-/* ─── Footer ─────────────────────────────────────────────────── */
-
 .footer {
     border-top: 1px solid var(--border-default);
     padding: 28px 24px;
@@ -773,8 +773,6 @@ body {
 .footer-text span {
     color: var(--yellow-500);
 }
-
-/* ─── Responsive ─────────────────────────────────────────────── */
 
 @media (max-width: 640px) {
     .stats-strip {

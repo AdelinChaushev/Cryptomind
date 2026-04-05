@@ -230,8 +230,17 @@ body {
 }
 
 @keyframes pulseDot {
-    0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--yellow-500); }
-    50%       { opacity: 0.45; box-shadow: 0 0 3px var(--yellow-500); }
+
+    0%,
+    100% {
+        opacity: 1;
+        box-shadow: 0 0 8px var(--yellow-500);
+    }
+
+    50% {
+        opacity: 0.45;
+        box-shadow: 0 0 3px var(--yellow-500);
+    }
 }
 
 .cipher-description {
@@ -922,9 +931,17 @@ body {
     margin-bottom: 5px;
 }
 
-.meta-stat-pill .pill-num.emerald { color: var(--emerald-500); }
-.meta-stat-pill .pill-num.yellow  { color: var(--yellow-500); }
-.meta-stat-pill .pill-num.cyan    { color: var(--cyan-400); }
+.meta-stat-pill .pill-num.emerald {
+    color: var(--emerald-500);
+}
+
+.meta-stat-pill .pill-num.yellow {
+    color: var(--yellow-500);
+}
+
+.meta-stat-pill .pill-num.cyan {
+    color: var(--cyan-400);
+}
 
 .meta-stat-pill .pill-label {
     display: block;
