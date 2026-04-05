@@ -33,10 +33,6 @@
     --border-hover:   rgba(203, 213, 225, 0.15);
     --border-yellow:  rgba(251, 191, 36, 0.22);
 
-    --font-display: 'Cormorant Garamond', Georgia, serif;
-    --font-body:    'Barlow', 'Helvetica Neue', sans-serif;
-    --font-mono:    'IBM Plex Mono', 'Courier New', monospace;
-
     --transition: 0.18s ease;
 }
 
@@ -50,6 +46,11 @@
    PAGE
 ══════════════════════════════════════════════════════ */
 .account-page {
+    /* Scope fonts to this page only — avoids polluting global CSS vars */
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-body:    'Barlow', 'Helvetica Neue', sans-serif;
+    --font-mono:    'IBM Plex Mono', 'Courier New', monospace;
+
     min-height: 100vh;
     background:
         radial-gradient(ellipse 900px 500px at 50% 0%, rgba(251, 191, 36, 0.04) 0%, transparent 60%),
