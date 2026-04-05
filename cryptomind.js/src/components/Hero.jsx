@@ -101,8 +101,8 @@ const Hero = () => {
                 </div>
                 <div className="hero-stat-sep" />
                 <div className="hero-stat">
-                    <span className="hero-stat-num">Daily</span>
-                    <span className="hero-stat-label">Ежедневно предизвикателство</span>
+                    <span className="hero-stat-num">Tools</span>
+                    <span className="hero-stat-label">Интерактивни инструменти за шифроване</span>
                 </div>
                 <div className="hero-stat-sep" />
                 <div className="hero-stat">

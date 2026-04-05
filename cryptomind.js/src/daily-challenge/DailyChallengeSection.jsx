@@ -111,7 +111,8 @@ export default function DailyChallengeSection() {
             </div>
 
             <div className="dc-countdown">
-                Следващо предизвикателство след: {countdown}
+                <span className="dc-countdown-label">Следващо след</span>
+                <span className="dc-countdown-time">{countdown}</span>
             </div>
 
             <div className="dc-cipher-box">

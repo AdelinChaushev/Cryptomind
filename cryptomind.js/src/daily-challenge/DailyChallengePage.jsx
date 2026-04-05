@@ -8,13 +8,11 @@ export default function DailyChallengePage() {
             <div className="dcp-grid-bg" />
             <div className="dcp-container">
                 <div className="dcp-header">
-                    <div className="dcp-header-decoration">
-                        <span className="dcp-bracket">[</span>
-                        <span className="dcp-header-label">ДНЕВНО_ПРЕДИЗВИКАТЕЛСТВО</span>
-                        <span className="dcp-bracket">]</span>
+                    <div className="dcp-eyebrow">
+                        <span className="dcp-eyebrow-text">Дневно предизвикателство</span>
                     </div>
-                    <h1 className="dcp-title">ДНЕВНО ПРЕДИЗВИКАТЕЛСТВО</h1>
-                    <p className="dcp-subtitle">Един шифър на ден. Реши го и поддържай серията си.</p>
+                    <h1 className="dcp-title">Един шифър, <em>всеки ден.</em></h1>
+                    <p className="dcp-subtitle">Реши го и поддържай серията си.</p>
                 </div>
 
                 <div className="dcp-layout">
