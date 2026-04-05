@@ -1,19 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,300;1,400;1,600&family=Barlow:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;700&display=swap');
+
 .dcp-page {
     position: relative;
     min-height: 100vh;
-    background-color: var(--bg-primary, #020617);
-    font-family: var(--font-body, 'Sora', sans-serif);
+    background:
+        radial-gradient(ellipse 1000px 600px at 50% 0%, rgba(251, 191, 36, 0.05) 0%, transparent 65%),
+        #020617;
+    font-family: var(--font-body, 'Barlow', sans-serif);
     color: var(--text-primary, #f8fafc);
     overflow-x: hidden;
 }
 
 .dcp-grid-bg {
-    position: absolute;
+    position: fixed;
     inset: 0;
     background-image:
         linear-gradient(rgba(251, 191, 36, 0.018) 1px, transparent 1px),
         linear-gradient(90deg, rgba(251, 191, 36, 0.018) 1px, transparent 1px);
-    background-size: 40px 40px;
+    background-size: 72px 72px;
     pointer-events: none;
     z-index: 0;
 }
@@ -23,57 +27,79 @@
     z-index: 1;
     max-width: 1100px;
     margin: 0 auto;
-    padding: 52px 24px 80px;
+    padding: 80px 24px 96px;
 }
 
+/* ── Header ───────────────────────────────────────────── */
 .dcp-header {
-    margin-bottom: 36px;
-    animation: dcp-fade-down 0.4s ease both;
+    margin-bottom: 52px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid rgba(203, 213, 225, 0.08);
+    animation: dcp-fade-down 0.5s ease both;
 }
 
-.dcp-header-decoration {
+.dcp-eyebrow {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
+    gap: 14px;
+    margin-bottom: 20px;
 }
 
-.dcp-bracket {
-    font-family: var(--font-mono, 'Space Mono', monospace);
-    color: var(--yellow-500, #fbbf24);
-    font-size: 0.88rem;
-    opacity: 0.55;
+.dcp-eyebrow::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 1px;
+    background: #fbbf24;
+    flex-shrink: 0;
 }
 
-.dcp-header-label {
-    font-family: var(--font-mono, 'Space Mono', monospace);
-    font-size: 0.62rem;
-    color: var(--yellow-500, #fbbf24);
-    letter-spacing: 0.3em;
-    opacity: 0.5;
+.dcp-eyebrow-text {
+    font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
+    color: #fbbf24;
 }
 
 .dcp-title {
-    font-family: var(--font-mono, 'Space Mono', monospace);
-    font-size: clamp(1.3rem, 3vw, 1.9rem);
-    font-weight: 700;
-    color: var(--text-primary, #f8fafc);
-    letter-spacing: 0.06em;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(2.2rem, 5vw, 4.2rem);
+    font-weight: 600;
+    font-style: italic;
+    color: #f8fafc;
+    line-height: 1.05;
     margin: 0;
-    line-height: 1.2;
+    letter-spacing: -0.01em;
+}
+
+.dcp-title em {
+    color: #fbbf24;
+    font-style: italic;
 }
 
 .dcp-subtitle {
-    font-size: 0.82rem;
-    color: var(--text-tertiary, #94a3b8);
-    margin-top: 8px;
+    font-size: 14px;
+    color: #94a3b8;
+    margin-top: 14px;
+    font-family: 'Barlow', 'Helvetica Neue', sans-serif;
+    font-weight: 400;
     letter-spacing: 0.01em;
+    max-width: 480px;
+    line-height: 1.6;
 }
 
+/* Legacy header classes — hidden in new design */
+.dcp-header-decoration,
+.dcp-bracket,
+.dcp-header-label {
+    display: none;
+}
+
+/* ── Layout ───────────────────────────────────────────── */
 .dcp-layout {
     display: grid;
-    grid-template-columns: 1fr 320px;
+    grid-template-columns: 1fr 300px;
     gap: 24px;
     align-items: start;
 }
@@ -84,12 +110,12 @@
     }
 }
 
+/* ── Animations ───────────────────────────────────────── */
 @keyframes dcp-fade-down {
     from {
         opacity: 0;
         transform: translateY(-14px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
