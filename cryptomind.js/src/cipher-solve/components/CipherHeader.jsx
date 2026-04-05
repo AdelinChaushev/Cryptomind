@@ -21,21 +21,24 @@ function resolveTagLabel(raw) {
 function CipherHeader({ cipher }) {
     return (
         <div className="cipher-header">
-            <div className="cipher-header-top">
-                <div>
-                    <div className="cipher-tags">
-                        {cipher.cipherType && (
-                            <span className="tag tag-type">{cipher.cipherType}</span>
-                        )}
-                        {cipher.tags?.map((tag) => (
-                            <span className="tag tag-cipher">
-                                {resolveTagLabel(tag)}
-                            </span>
-                        ))}
-                    </div>
+            <div className="page-header-label">
+                <span className="label-dot"></span>
+                Предизвикателство
+            </div>
 
-                    <h1 className="cipher-title">{cipher.title}</h1>
-                </div>
+            <h1 className="cipher-title">
+                <span className="title-accent">{cipher.title}</span>
+            </h1>
+
+            <div className="cipher-tags">
+                {cipher.cipherType && (
+                    <span className="tag tag-type">{cipher.cipherType}</span>
+                )}
+                {cipher.tags?.map((tag, i) => (
+                    <span key={i} className="tag tag-cipher">
+                        {resolveTagLabel(tag)}
+                    </span>
+                ))}
             </div>
         </div>
     );

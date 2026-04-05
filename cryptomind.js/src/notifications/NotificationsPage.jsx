@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import '../styles/notifications-page.css';
 
-import { NotificationType } from './UseNotifications';
+import { NotificationType } from './useNotifications';
 import { useNotificationContext } from '../App.jsx';
 import NotificationItem from './NotificationItem';
 

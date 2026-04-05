@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { NotificationContext } from './App'; 
-import { useNotifications } from './notifications/UseNotifications';
+import { useNotifications } from './notifications/useNotifications';
 import ToastContainer from './notifications/ToastContainer';
 
 export const NotificationProvider = ({ children, isLoggedIn }) => {
