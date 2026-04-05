@@ -1,11 +1,15 @@
+/* ── Daily Challenge Section ──────────────────────────── */
+
 .dc-section {
     position: relative;
-    background: var(--bg-surface, #0c1428);
-    border: 1px solid var(--border-default, rgba(203, 213, 225, 0.08));
-    border-radius: 10px;
-    padding: 26px 28px;
+    background: #0a1022;
+    border: 1px solid rgba(251, 191, 36, 0.1);
+    padding: 32px;
     overflow: hidden;
     animation: dc-fade-up 0.4s ease both;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        0 4px 32px rgba(0, 0, 0, 0.4);
 }
 
 .dc-section::before {
@@ -14,18 +18,18 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent 0%, var(--yellow-500, #fbbf24) 40%, transparent 100%);
-    opacity: 0.6;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.65), transparent);
 }
 
+/* ── Header ───────────────────────────────────────────── */
 .dc-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 12px;
-    margin-bottom: 14px;
+    margin-bottom: 20px;
 }
 
 .dc-title-row {
@@ -35,88 +39,116 @@
 }
 
 .dc-label {
-    font-family: var(--font-mono, 'Space Mono', monospace);
-    font-size: 0.62rem;
-    letter-spacing: 0.28em;
+    font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: var(--yellow-500, #fbbf24);
-    opacity: 0.6;
+    color: #fbbf24;
+    opacity: 0.55;
 }
 
 .dc-title {
-    font-family: var(--font-mono, 'Space Mono', monospace);
-    font-size: 0.95rem;
+    font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    font-size: 11px;
     font-weight: 700;
-    color: var(--text-primary, #f8fafc);
-    letter-spacing: 0.06em;
+    color: #f8fafc;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
 }
 
 .dc-streak-badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: rgba(251, 191, 36, 0.08);
+    background: rgba(251, 191, 36, 0.06);
     border: 1px solid rgba(251, 191, 36, 0.22);
-    border-radius: 6px;
-    padding: 4px 11px;
-    font-family: var(--font-mono, 'Space Mono', monospace);
-    font-size: 0.75rem;
+    padding: 4px 12px;
+    font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    font-size: 11px;
     font-weight: 700;
-    color: var(--yellow-500, #fbbf24);
-    letter-spacing: 0.04em;
-}
-
-.dc-countdown {
-    font-family: var(--font-mono, 'Space Mono', monospace);
-    font-size: 0.65rem;
-    color: var(--text-dim, #475569);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin-bottom: 18px;
-}
-
-.dc-countdown span {
-    color: var(--text-tertiary, #94a3b8);
-    letter-spacing: 0.08em;
-}
-
-.dc-cipher-box {
-    position: relative;
-    background: var(--bg-primary, #020617);
-    border: 1px solid var(--border-default, rgba(203, 213, 225, 0.08));
-    border-left: 3px solid rgba(251, 191, 36, 0.4);
-    border-radius: 6px;
-    padding: 18px 20px;
-    margin-bottom: 18px;
-    font-family: var(--font-mono, 'Space Mono', monospace);
-    font-size: 0.88rem;
-    line-height: 1.75;
-    color: var(--text-primary, #f8fafc);
-    word-break: break-word;
+    color: #fbbf24;
     letter-spacing: 0.06em;
 }
 
+/* ── Countdown ────────────────────────────────────────── */
+.dc-countdown {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding: 10px 0;
+    border-top: 1px solid rgba(203, 213, 225, 0.06);
+    border-bottom: 1px solid rgba(203, 213, 225, 0.06);
+}
+
+.dc-countdown-label {
+    font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #475569;
+    flex-shrink: 0;
+}
+
+.dc-countdown-time {
+    font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #f8fafc;
+    letter-spacing: 0.1em;
+}
+
+/* ── Cipher Box ───────────────────────────────────────── */
+.dc-cipher-box {
+    position: relative;
+    background: #020617;
+    border: 1px solid rgba(203, 213, 225, 0.07);
+    border-left: 2px solid rgba(251, 191, 36, 0.5);
+    padding: 24px;
+    margin-bottom: 20px;
+    font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.85;
+    color: #f8fafc;
+    word-break: break-word;
+    letter-spacing: 0.08em;
+}
+
+.dc-cipher-box::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(251, 191, 36, 0.012) 0%, transparent 40%);
+    pointer-events: none;
+}
+
+/* ── Form ─────────────────────────────────────────────── */
 .dc-form {
     display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 0;
+    margin-bottom: 12px;
 }
 
 .dc-input {
     flex: 1;
-    background: var(--bg-primary, #020617);
-    border: 1px solid var(--border-default, rgba(203, 213, 225, 0.08));
-    border-radius: 6px;
-    padding: 10px 14px;
-    color: var(--text-primary, #f8fafc);
-    font-family: var(--font-body, 'Sora', sans-serif);
-    font-size: 0.88rem;
+    background: #020617;
+    border: 1px solid rgba(203, 213, 225, 0.1);
+    border-right: none;
+    padding: 13px 16px;
+    color: #f8fafc;
+    font-family: 'Barlow', 'Helvetica Neue', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
     outline: none;
     transition: border-color 0.15s ease;
+    border-radius: 0;
 }
 
 .dc-input::placeholder {
-    color: var(--text-dim, #475569);
+    color: #334155;
 }
 
 .dc-input:focus {
@@ -129,27 +161,31 @@
 }
 
 .dc-submit-btn {
-    background: var(--gradient-primary, linear-gradient(135deg, #fbbf24, #f59e0b));
-    border: none;
-    border-radius: 6px;
-    padding: 10px 22px;
-    color: #000;
-    font-family: var(--font-mono, 'Space Mono', monospace);
-    font-size: 0.75rem;
+    background: #fbbf24;
+    border: 1px solid #fbbf24;
+    padding: 13px 28px;
+    color: #020617;
+    font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    font-size: 11px;
     font-weight: 700;
     cursor: pointer;
-    letter-spacing: 0.08em;
-    transition: opacity 0.15s ease, transform 0.1s ease;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
     white-space: nowrap;
+    flex-shrink: 0;
+    border-radius: 0;
 }
 
 .dc-submit-btn:hover:not(:disabled) {
-    opacity: 0.88;
-    transform: translateY(-1px);
+    background: #f59e0b;
+    border-color: #f59e0b;
+    box-shadow: 0 0 22px rgba(251, 191, 36, 0.3);
 }
 
 .dc-submit-btn:active:not(:disabled) {
-    transform: translateY(0);
+    background: #d97706;
+    border-color: #d97706;
 }
 
 .dc-submit-btn:disabled {
@@ -158,90 +194,92 @@
 }
 
 .dc-meta {
-    font-family: var(--font-mono, 'Space Mono', monospace);
-    font-size: 0.65rem;
-    color: var(--text-dim, #475569);
+    font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    font-size: 10px;
+    color: #334155;
     letter-spacing: 0.12em;
     text-transform: uppercase;
 }
 
+/* ── Solved Banner ────────────────────────────────────── */
 .dc-solved-banner {
     display: flex;
     align-items: flex-start;
-    gap: 14px;
-    background: rgba(16, 185, 129, 0.07);
-    border: 1px solid rgba(16, 185, 129, 0.22);
-    border-left: 3px solid #10b981;
-    border-radius: 6px;
-    padding: 16px 18px;
+    gap: 16px;
+    background: rgba(16, 185, 129, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-left: 2px solid #10b981;
+    padding: 20px 24px;
     animation: dc-fade-up 0.3s ease both;
 }
 
 .dc-solved-icon {
-    font-size: 1.1rem;
-    line-height: 1;
-    margin-top: 2px;
+    font-size: 1rem;
+    line-height: 1.5;
     flex-shrink: 0;
+    color: #10b981;
 }
 
 .dc-solved-text {
-    font-family: var(--font-mono, 'Space Mono', monospace);
-    font-size: 0.8rem;
+    font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    font-size: 13px;
     color: #10b981;
     line-height: 1.5;
 }
 
 .dc-solved-text strong {
     display: block;
-    font-size: 0.74rem;
-    color: var(--text-secondary, #cbd5e1);
-    margin-top: 5px;
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 6px;
     font-weight: 400;
     word-break: break-word;
     letter-spacing: 0.01em;
 }
 
+/* ── Wrong Banner ─────────────────────────────────────── */
 .dc-wrong-banner {
     display: flex;
     align-items: center;
     gap: 10px;
-    background: rgba(244, 63, 94, 0.06);
+    background: rgba(244, 63, 94, 0.04);
     border: 1px solid rgba(244, 63, 94, 0.18);
-    border-left: 3px solid rgba(244, 63, 94, 0.5);
-    border-radius: 6px;
-    padding: 10px 14px;
-    margin-bottom: 12px;
-    font-family: var(--font-mono, 'Space Mono', monospace);
-    font-size: 0.74rem;
-    color: var(--rose-500, #f43f5e);
-    letter-spacing: 0.04em;
+    border-left: 2px solid rgba(244, 63, 94, 0.55);
+    padding: 11px 16px;
+    margin-bottom: 14px;
+    font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    font-size: 11px;
+    color: #f43f5e;
+    letter-spacing: 0.06em;
     animation: dc-shake 0.28s ease;
 }
 
+/* ── Skeleton ─────────────────────────────────────────── */
 .dc-skeleton {
-    background: var(--bg-surface, #0c1428);
-    border: 1px solid var(--border-default, rgba(203, 213, 225, 0.08));
-    border-radius: 10px;
-    padding: 26px 28px;
+    background: #0a1022;
+    border: 1px solid rgba(251, 191, 36, 0.08);
+    padding: 32px;
 }
 
 .dc-skeleton-line {
-    background: linear-gradient(90deg,
-            rgba(255, 255, 255, 0.03) 25%,
-            rgba(255, 255, 255, 0.07) 50%,
-            rgba(255, 255, 255, 0.03) 75%);
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.02) 25%,
+        rgba(255, 255, 255, 0.06) 50%,
+        rgba(255, 255, 255, 0.02) 75%
+    );
     background-size: 200% 100%;
     animation: dc-shimmer 1.6s ease-in-out infinite;
-    border-radius: 4px;
+    border-radius: 2px;
     margin-bottom: 10px;
 }
 
+/* ── Animations ───────────────────────────────────────── */
 @keyframes dc-fade-up {
     from {
         opacity: 0;
         transform: translateY(14px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -249,27 +287,12 @@
 }
 
 @keyframes dc-shake {
-
-    0%,
-    100% {
-        transform: translateX(0);
-    }
-
-    20% {
-        transform: translateX(-5px);
-    }
-
-    60% {
-        transform: translateX(5px);
-    }
+    0%, 100% { transform: translateX(0); }
+    20%       { transform: translateX(-5px); }
+    60%       { transform: translateX(5px); }
 }
 
 @keyframes dc-shimmer {
-    0% {
-        background-position: 200% 0;
-    }
-
-    100% {
-        background-position: -200% 0;
-    }
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }

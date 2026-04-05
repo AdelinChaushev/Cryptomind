@@ -1,60 +1,80 @@
+/* ── Daily Challenge Teaser (homepage / cipher page widget) ── */
+
 .dc-teaser {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: 20px;
     position: relative;
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.06) 0%, transparent 60%);
-    border: 1px solid rgba(251, 191, 36, 0.18);
-    border-left: 3px solid rgba(251, 191, 36, 0.5);
-    border-radius: 8px;
-    padding: 14px 18px;
+    background: transparent;
+    border: 1px solid var(--border-default, rgba(203, 213, 225, 0.08));
+    border-left: 2px solid rgba(251, 191, 36, 0.45);
+    padding: 16px 20px;
     margin-bottom: 24px;
     flex-wrap: wrap;
-    transition: border-color 0.2s ease;
+    transition: border-color 0.2s ease, background 0.2s ease;
+    overflow: hidden;
+}
+
+/* Expanding amber bar on hover (matches homepage feature-card pattern) */
+.dc-teaser::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: rgba(251, 191, 36, 0.6);
+    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dc-teaser:hover::before {
+    width: 100%;
 }
 
 .dc-teaser:hover {
-    border-color: rgba(251, 191, 36, 0.3);
-    border-left-color: rgba(251, 191, 36, 0.7);
+    background: rgba(251, 191, 36, 0.025);
+    border-color: rgba(203, 213, 225, 0.12);
+    border-left-color: rgba(251, 191, 36, 0.65);
 }
 
+/* Left side */
 .dc-teaser-left {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
     min-width: 0;
 }
 
 .dc-teaser-icon {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     flex-shrink: 0;
-    opacity: 0.9;
+    opacity: 0.85;
 }
 
 .dc-teaser-label {
-    font-family: var(--font-mono, 'Space Mono', monospace);
-    font-size: 0.58rem;
-    letter-spacing: 0.28em;
+    font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+    font-size: 9px;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--yellow-500, #fbbf24);
-    opacity: 0.6;
+    opacity: 0.55;
     margin-bottom: 3px;
 }
 
 .dc-teaser-title {
-    font-family: var(--font-mono, 'Space Mono', monospace);
-    font-size: 0.84rem;
+    font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+    font-size: 12px;
     font-weight: 700;
     color: var(--text-primary, #f8fafc);
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
 }
 
 .dc-teaser-streak {
-    font-size: 0.74rem;
+    font-size: 12px;
     color: var(--text-dim, #475569);
     margin-top: 3px;
-    font-family: var(--font-body, 'Sora', sans-serif);
+    font-family: var(--font-body, 'Barlow', sans-serif);
 }
 
 .dc-teaser-streak span {
@@ -62,45 +82,49 @@
     font-weight: 600;
 }
 
+/* CTA button */
 .dc-teaser-btn {
-    background: var(--gradient-primary, linear-gradient(135deg, #fbbf24, #f59e0b));
-    border: none;
-    border-radius: 6px;
-    padding: 8px 18px;
-    color: #000;
-    font-family: var(--font-mono, 'Space Mono', monospace);
-    font-size: 0.72rem;
+    background: var(--yellow-500, #fbbf24);
+    border: 1px solid var(--yellow-500, #fbbf24);
+    padding: 9px 20px;
+    color: #020617;
+    font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+    font-size: 10px;
     font-weight: 700;
     cursor: pointer;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    transition: opacity 0.15s ease, transform 0.1s ease;
+    gap: 6px;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
     white-space: nowrap;
     flex-shrink: 0;
+    border-radius: 0;
 }
 
 .dc-teaser-btn:hover {
-    opacity: 0.88;
-    transform: translateY(-1px);
+    background: #f59e0b;
+    border-color: #f59e0b;
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
 }
 
+/* Already solved state */
 .dc-teaser-solved {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: rgba(16, 185, 129, 0.08);
-    border: 1px solid rgba(16, 185, 129, 0.25);
-    border-radius: 6px;
-    padding: 8px 16px;
-    font-family: var(--font-mono, 'Space Mono', monospace);
-    font-size: 0.72rem;
+    background: rgba(16, 185, 129, 0.06);
+    border: 1px solid rgba(16, 185, 129, 0.22);
+    padding: 9px 18px;
+    font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+    font-size: 10px;
     font-weight: 700;
     color: #10b981;
     white-space: nowrap;
     flex-shrink: 0;
     text-decoration: none;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.08em;
+    border-radius: 0;
 }
