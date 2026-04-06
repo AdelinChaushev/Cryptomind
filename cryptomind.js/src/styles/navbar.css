@@ -419,7 +419,31 @@
     }
 }
 
+@media (max-width: 1800px) {
+    .navbar--auth .nav-links {
+        display: none;
+    }
+
+    .navbar--auth .nav-desktop-auth {
+        display: none;
+    }
+
+    .navbar--auth .nav-sep {
+        display: none;
+    }
+
+    .navbar--auth .hamburger {
+        display: flex;
+    }
+}
+
 @media (min-width: 1351px) {
+    .navbar:not(.navbar--auth) ~ .nav-mobile-overlay {
+        display: none !important;
+    }
+}
+
+@media (min-width: 1801px) {
     .nav-mobile-overlay {
         display: none !important;
     }
