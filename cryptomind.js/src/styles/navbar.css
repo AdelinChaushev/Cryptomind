@@ -401,25 +401,32 @@
     text-align: center;
 }
 
+/* Auth navbar: wider container so all items fit on laptops */
+.navbar--auth .navbar-container {
+    max-width: min(1440px, 97vw);
+}
+
+/* Non-auth: hamburger on small laptops and below */
 @media (max-width: 1350px) {
-    .nav-links {
+    .navbar:not(.navbar--auth) .nav-links {
         display: none;
     }
 
-    .nav-desktop-auth {
+    .navbar:not(.navbar--auth) .nav-desktop-auth {
         display: none;
     }
 
-    .nav-sep {
+    .navbar:not(.navbar--auth) .nav-sep {
         display: none;
     }
 
-    .hamburger {
+    .navbar:not(.navbar--auth) .hamburger {
         display: flex;
     }
 }
 
-@media (max-width: 1800px) {
+/* Auth: hamburger only on tablet/mobile */
+@media (max-width: 1024px) {
     .navbar--auth .nav-links {
         display: none;
     }
@@ -437,18 +444,54 @@
     }
 }
 
+/* Auth: compress nav links at medium laptop sizes so everything fits */
+@media (min-width: 1025px) and (max-width: 1500px) {
+    .navbar--auth .nav-links a {
+        font-size: 10px;
+        padding: 6px clamp(3px, 0.45vw, 8px);
+        letter-spacing: 0.06em;
+    }
+
+    .navbar--auth .nav-brand-name {
+        display: none;
+    }
+
+    .navbar--auth .nav-btn-secondary {
+        padding: 7px 10px;
+        font-size: 10px;
+        letter-spacing: 0.06em;
+    }
+
+    .navbar--auth .nav-icon-btn {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+/* Auth: restore desktop nav above tablet breakpoint (overrides any lower rules) */
+@media (min-width: 1025px) {
+    .navbar--auth .nav-links {
+        display: flex;
+    }
+
+    .navbar--auth .nav-desktop-auth {
+        display: flex;
+    }
+
+    .navbar--auth .hamburger {
+        display: none;
+    }
+}
+
+/* Hide mobile overlays when desktop nav is active */
 @media (min-width: 1351px) {
     .navbar:not(.navbar--auth) ~ .nav-mobile-overlay {
         display: none !important;
     }
 }
 
-@media (min-width: 1801px) {
-    .nav-mobile-overlay {
+@media (min-width: 1025px) {
+    .navbar--auth ~ .nav-mobile-overlay {
         display: none !important;
-    }
-
-    .navbar--auth .navbar-container {
-        max-width: min(1900px, 97vw);
     }
 }
