@@ -401,9 +401,17 @@
     text-align: center;
 }
 
-/* Auth navbar: wider container so all items fit on laptops */
+/* Auth navbar: much wider container so all 8 items can fit on any laptop */
 .navbar--auth .navbar-container {
-    max-width: min(1440px, 97vw);
+    max-width: min(1800px, 98vw);
+}
+
+/* Auth: hide brand text on laptop screens — logo icon alone is enough,
+   this frees ~150px so the 8 nav links + logout all fit */
+@media (max-width: 1800px) {
+    .navbar--auth .nav-brand-name {
+        display: none;
+    }
 }
 
 /* Non-auth: hamburger on small laptops and below */
@@ -425,8 +433,8 @@
     }
 }
 
-/* Auth: hamburger only on tablet/mobile */
-@media (max-width: 1024px) {
+/* Auth: hamburger only on tablet/mobile (≤1100px) */
+@media (max-width: 1100px) {
     .navbar--auth .nav-links {
         display: none;
     }
@@ -444,16 +452,12 @@
     }
 }
 
-/* Auth: compress nav links at medium laptop sizes so everything fits */
-@media (min-width: 1025px) and (max-width: 1500px) {
+/* Auth: compress nav links at medium laptop sizes (1101px–1600px) */
+@media (min-width: 1101px) and (max-width: 1600px) {
     .navbar--auth .nav-links a {
         font-size: 10px;
-        padding: 6px clamp(3px, 0.45vw, 8px);
+        padding: 6px clamp(3px, 0.4vw, 8px);
         letter-spacing: 0.06em;
-    }
-
-    .navbar--auth .nav-brand-name {
-        display: none;
     }
 
     .navbar--auth .nav-btn-secondary {
@@ -468,8 +472,8 @@
     }
 }
 
-/* Auth: restore desktop nav above tablet breakpoint (overrides any lower rules) */
-@media (min-width: 1025px) {
+/* Auth: restore full desktop nav above hamburger breakpoint */
+@media (min-width: 1101px) {
     .navbar--auth .nav-links {
         display: flex;
     }
@@ -490,7 +494,7 @@
     }
 }
 
-@media (min-width: 1025px) {
+@media (min-width: 1101px) {
     .navbar--auth ~ .nav-mobile-overlay {
         display: none !important;
     }
