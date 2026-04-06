@@ -447,4 +447,8 @@
     .nav-mobile-overlay {
         display: none !important;
     }
+
+    .navbar--auth .navbar-container {
+        max-width: min(1900px, 97vw);
+    }
 }

@@ -41,7 +41,7 @@
 }
 
 .admin-shell--pending-ciphers .data-table th:nth-child(8) {
-    width: 90px;
+    width: 120px;
 }
 
 .admin-shell--pending-ciphers .data-table td {
@@ -51,8 +51,8 @@
 }
 
 .admin-shell--pending-ciphers .data-table td:last-child {
-    white-space: normal;
-    overflow: visible;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .cipher-preview {
