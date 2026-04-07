@@ -24,8 +24,8 @@ An educational web platform for exploring, learning, and solving classical ciphe
 |---|---|
 | Substitution | Caesar, ROT13, Atbash, Simple Substitution |
 | Polyalphabetic | Vigenère, Autokey, Trithemius |
-| Transposition | Rail Fence, Columnar Transposition, Route Cipher |
-| Other | Playfair, Beaufort, Polybius Square, and more |
+| Transposition | RailFence, Columnar Transposition, Route |
+| Encoding | Binary, Morse Code, Base64, Hex |
 
 ## Tech Stack
 
