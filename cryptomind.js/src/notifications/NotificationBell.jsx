@@ -52,7 +52,7 @@ const NotificationBell = () => {
     const badgeCount = unreadCount > 99 ? 99 : unreadCount;
 
     return (
-        <div className="nm-bell" ref={bellRef}>}
+        <div className="nm-bell" ref={bellRef}>
 
             <button
                 className={`nm-bell__btn${isOpen ? ' nm-bell__btn--open' : ''}`}
