@@ -106,10 +106,3 @@
     border-radius: 50%;
     border: 2px solid #020617;
 }
-
-.nm-bell__overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 1099;
-    cursor: default;
-}
