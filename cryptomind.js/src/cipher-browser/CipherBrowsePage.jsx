@@ -5,7 +5,6 @@ import DailyChallengeTeaser from '../daily-challenge/DailyChallengeTeaser';
 import ContentTopbar    from './ContentTopbar';
 import CipherCard, { CipherCardSkeleton } from '../components/CipherCard';
 import EmptyState       from './EmptyState';
-import Pagination       from './Pagination';
 import { useState, useEffect, useContext } from 'react';
 import { AuthorizationContext } from '../App.jsx';
 import { useSearchParams } from 'react-router-dom';
@@ -32,8 +31,6 @@ const CipherBrowsePage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState([]);
   const [sortBy, setSortBy] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleTag = (tagId) => {
@@ -57,7 +54,6 @@ const CipherBrowsePage = () => {
         paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' })
       });
       setCiphers(res.data);
-      setTotalPages(res.data.totalPages);
     } catch (err) {
       setCiphers([]);
       if (err.response?.status === 403) {
@@ -140,12 +136,6 @@ const CipherBrowsePage = () => {
               !isLoading && <EmptyState onReset={clearAll} />
             )}
           </div>
-
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
         </section>
       </main>
     </>
