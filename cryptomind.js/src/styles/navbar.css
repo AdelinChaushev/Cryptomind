@@ -401,16 +401,20 @@
     text-align: center;
 }
 
+/* Auth navbar: much wider container so all 8 items can fit on any laptop */
 .navbar--auth .navbar-container {
     max-width: min(1800px, 98vw);
 }
 
+/* Auth: hide brand text on laptop screens — logo icon alone is enough,
+   this frees ~150px so the 8 nav links + logout all fit */
 @media (max-width: 1800px) {
     .navbar--auth .nav-brand-name {
         display: none;
     }
 }
 
+/* Non-auth: hamburger on small laptops and below */
 @media (max-width: 1350px) {
     .navbar:not(.navbar--auth) .nav-links {
         display: none;
@@ -429,6 +433,7 @@
     }
 }
 
+/* Auth: hamburger only on tablet/mobile (≤1100px) */
 @media (max-width: 1100px) {
     .navbar--auth .nav-links {
         display: none;
@@ -447,6 +452,7 @@
     }
 }
 
+/* Auth: compress nav links at medium laptop sizes (1101px–1600px) */
 @media (min-width: 1101px) and (max-width: 1600px) {
     .navbar--auth .nav-links a {
         font-size: 10px;
@@ -466,6 +472,7 @@
     }
 }
 
+/* Auth: restore full desktop nav above hamburger breakpoint */
 @media (min-width: 1101px) {
     .navbar--auth .nav-links {
         display: flex;
@@ -480,6 +487,7 @@
     }
 }
 
+/* Hide mobile overlays when desktop nav is active */
 @media (min-width: 1351px) {
     .navbar:not(.navbar--auth) ~ .nav-mobile-overlay {
         display: none !important;
