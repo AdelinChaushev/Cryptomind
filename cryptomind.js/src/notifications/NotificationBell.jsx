@@ -9,6 +9,7 @@ const NotificationBell = () => {
     const [isOpen, setIsOpen]     = useState(false);
     const [didShake, setDidShake] = useState(false);
     const prevCountRef = useRef(0);
+    const bellRef      = useRef(null);
 
     const {
         notifications,
@@ -19,7 +20,17 @@ const NotificationBell = () => {
         handleNotificationClick,
     } = useNotificationContext();
 
-  
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleClickOutside = (e) => {
+            if (bellRef.current && !bellRef.current.contains(e.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isOpen]);
+
     useEffect(() => {
         if (unreadCount > prevCountRef.current) {
             setDidShake(true);
@@ -41,8 +52,7 @@ const NotificationBell = () => {
     const badgeCount = unreadCount > 99 ? 99 : unreadCount;
 
     return (
-        <div className="nm-bell">
-            {isOpen && <div className="nm-bell__overlay" onClick={close} />}
+        <div className="nm-bell" ref={bellRef}>
 
             <button
                 className={`nm-bell__btn${isOpen ? ' nm-bell__btn--open' : ''}`}
