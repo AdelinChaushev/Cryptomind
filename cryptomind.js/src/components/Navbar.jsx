@@ -40,7 +40,7 @@ const Navbar = () => {
 
     return (
         <>
-            <nav className={`navbar${state.isLoggedIn ? ' navbar--auth' : ''}`}>
+            <nav className="navbar">
                 <div className="navbar-container">
                     <Link to="/" className="nav-logo-link" onClick={closeMenu}>
                         <img src="/logo.png" alt="Cryptomind" className="nav-logo-img" />

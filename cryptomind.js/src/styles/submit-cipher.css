@@ -151,10 +151,9 @@ body::before {
 .cipher-types-panel {
     position: sticky;
     top: calc(var(--navbar-height, 60px) + 20px);
-    overflow: hidden;
 }
 
-@media (max-width: 1150px) {
+@media (max-width: 1024px) {
     .main-layout {
         grid-template-columns: 1fr 280px;
     }
@@ -162,7 +161,6 @@ body::before {
     .cipher-types-panel {
         grid-column: 1 / -1;
         position: static;
-        overflow: visible;
     }
 }
 
