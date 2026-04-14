@@ -10,7 +10,7 @@ An educational web platform for exploring, learning, and solving classical ciphe
 
 - **Cipher Encyclopedia** — Learn how 14+ classical cipher types work with detailed explanations
 - **Encode & Decode** — Encrypt or decrypt messages using any supported cipher
-- **ML Cipher Identifier** — Paste a ciphertext and let the AI model classify its type (~90% accuracy)
+- **ML Cipher Identifier** — Paste a ciphertext and let the two-layered AI system classify its type (~90% accuracy)
 - **OCR Input** — Upload an image of a ciphertext and extract the text automatically
 - **Daily Challenge** — A new cipher puzzle every day, drawn from 125 curated quotes
 - **Race Room** — Real-time 1v1 multiplayer mode: both players receive the same ciphertext and race to identify its type first; first to win 2 rounds wins the match
