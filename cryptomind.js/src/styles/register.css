@@ -384,6 +384,85 @@ a {
     opacity: 1;
 }
 
+.terms-group {
+    margin-top: 4px;
+}
+
+.terms-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.terms-checkbox__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.terms-checkbox__box {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+    border: 1px solid rgba(203, 213, 225, 0.25);
+    border-radius: 3px;
+    background: rgba(10, 17, 32, 0.6);
+    color: #020617;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.terms-checkbox__box svg {
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.terms-checkbox:hover .terms-checkbox__box {
+    border-color: var(--yellow-500);
+}
+
+.terms-checkbox__input:focus-visible + .terms-checkbox__box {
+    border-color: var(--yellow-500);
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.18);
+}
+
+.terms-checkbox__input:checked + .terms-checkbox__box {
+    background: var(--yellow-500);
+    border-color: var(--yellow-500);
+}
+
+.terms-checkbox__input:checked + .terms-checkbox__box svg {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.terms-checkbox__text {
+    font-family: var(--font-body, 'Sora', sans-serif);
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text-tertiary);
+}
+
+.terms-checkbox__link {
+    color: var(--yellow-500);
+    text-decoration: none;
+    border-bottom: 1px dashed rgba(251, 191, 36, 0.4);
+    transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.terms-checkbox__link:hover {
+    color: var(--yellow-600);
+    border-bottom-color: var(--yellow-500);
+}
+
 .btn-submit {
     position: relative;
     width: 100%;
@@ -398,7 +477,7 @@ a {
     justify-content: center;
     gap: 10px;
     margin-top: 4px;
-    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
 }
 
 .btn-submit:hover {
@@ -409,6 +488,18 @@ a {
 .btn-submit:active {
     transform: translateY(0);
     box-shadow: 0 4px 16px rgba(251, 191, 36, 0.2);
+}
+
+.btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-submit:disabled:hover {
+    transform: none;
+    box-shadow: none;
 }
 
 .btn-text {

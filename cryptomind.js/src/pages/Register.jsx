@@ -2,7 +2,7 @@ import axios from "axios"
 import { useState } from "react"
 
 import '../styles/register.css'
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import { useContext } from "react";
 import { AuthorizationContext } from "../App.jsx";
 import { useError } from '../ErrorContext.jsx';
@@ -24,16 +24,21 @@ export default function Register() {
     const { setError } = useError();
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+    const [agreedToTerms, setAgreedToTerms] = useState(false)
     const handleChange= (e) => {
       setData({...data,[e.target.name]:e.target.value})
     }
     const handleSubmit = (e) =>{
         e.preventDefault();
+         if(!agreedToTerms){
+          setError("Трябва да приемете Условията за ползване и Политиката за поверителност, за да продължите.")
+          return;
+         }
          if(data.password != data.confirmPassword){
           setError("Паролата и потвърждението на паролата трябва да съвпадат")
           return;
          }
-         
+
          axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register`,{
           username: data.username,
           email : data.email,
@@ -204,7 +209,37 @@ export default function Register() {
                             </div>
                         </div>
 
-                        <button type="submit" className="btn-submit">
+                        <div className="form-group terms-group">
+                            <label htmlFor="terms-agreement" className="terms-checkbox">
+                                <input
+                                    type="checkbox"
+                                    id="terms-agreement"
+                                    name="agreedToTerms"
+                                    className="terms-checkbox__input"
+                                    checked={agreedToTerms}
+                                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                                    required
+                                />
+                                <span className="terms-checkbox__box" aria-hidden="true">
+                                    <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="3 8.5 6.5 12 13 4.5" />
+                                    </svg>
+                                </span>
+                                <span className="terms-checkbox__text">
+                                    Съгласявам се с{' '}
+                                    <Link to="/terms" target="_blank" rel="noopener noreferrer" className="terms-checkbox__link">
+                                        Условията за ползване
+                                    </Link>
+                                    {' '}и{' '}
+                                    <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="terms-checkbox__link">
+                                        Политиката за поверителност
+                                    </Link>
+                                    .
+                                </span>
+                            </label>
+                        </div>
+
+                        <button type="submit" className="btn-submit" disabled={!agreedToTerms}>
                             <span className="btn-text">СЪЗДАЙ АКАУНТ</span>
                             <span className="btn-arrow" aria-hidden="true">→</span>
                             <span className="btn-glow" aria-hidden="true" />
