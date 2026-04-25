@@ -34,6 +34,8 @@ const Footer = () => {
                         <h4 className="footer-col-heading">Научи</h4>
                         <ul className="footer-links">
                             <li><a href="/about">За нас</a></li>
+                            <li><a href="/privacy">Поверителност</a></li>
+                            <li><a href="/terms">Условия за ползване</a></li>
                         </ul>
                     </div>
 

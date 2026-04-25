@@ -24,6 +24,8 @@ import Leaderboard from './pages/Leaderboard.jsx';
 import CipherTool from './cipher-tool/CipherTool.jsx';
 import CipherLibrary from './cipher-tool/CipherLibrary.jsx';
 import About from './pages/About.jsx';
+import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
+import TermsOfService from './pages/TermsOfService.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import BannedPage from './pages/BannedPage.jsx';
 import RequireNotBanned from './RequiresNotBanned.jsx';
@@ -76,6 +78,8 @@ function App() {
         <Route path="leaderboard" element={<Leaderboard />} /> 
         <Route path="cipher-tool" element={<CipherTool />} /> 
         <Route path="about" element={<About />} />
+        <Route path="privacy" element={<PrivacyPolicy />} />
+        <Route path="terms" element={<TermsOfService />} />
         <Route path="cipher-library" element={<CipherLibrary />} /> 
         <Route path="account-info" element={<RequireAuth> <AccountInfo /> </RequireAuth>} />   
         <Route path="notifications" element={<RequireAuth> <NotificationsPage /> </RequireAuth>} /> 
