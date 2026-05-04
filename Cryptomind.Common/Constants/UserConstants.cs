@@ -24,5 +24,7 @@ namespace Cryptomind.Common.Constants
 
 		public const string KeepUsernameConstraints = "Спазвайте ограниченията за името";
 		public const string KeepPasswordConstraints = "Спазвайте ограниченията на паролата";
+
+		public const string AlreadyClaimedSecretReward = "Вече сте получилуи наградата от разкриването на тайната";
 	}
 }

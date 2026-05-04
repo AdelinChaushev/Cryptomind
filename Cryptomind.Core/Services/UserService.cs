@@ -84,5 +84,19 @@ namespace Cryptomind.Core.Services
 		{
 			return (await userManager.FindByIdAsync(id)).Email;
 		}
+		public async Task<bool> RevealSecret(string id)
+		{
+			var user = await userManager.FindByIdAsync(id);
+
+			if (user == null)
+				throw new NotFoundException(UserConstants.UserNotFound);
+
+			if (user.HasRevealedSecret)
+				throw new InvalidOperationException(UserConstants.AlreadyClaimedSecretReward);
+
+			user.HasRevealedSecret = true;
+			await userManager.UpdateAsync(user);
+			return true;
+		}
 	}
 }

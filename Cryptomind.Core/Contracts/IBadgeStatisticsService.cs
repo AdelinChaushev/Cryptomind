@@ -10,5 +10,6 @@
 		Task<int> GetSolvedOnFirstAttemptCount(string userId);
 		Task<int> GetUsedHints(string userId);
 		Task<int> GetRareSolves(string userId);
+		Task<bool> HasRevealedSecret(string userId);
 	}
 }

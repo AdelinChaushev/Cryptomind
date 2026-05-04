@@ -1463,7 +1463,8 @@ namespace Cryptomind.Data
 				new Badge { Id = 12, Title = "No Mercy", Description = "Реши 10 шифъра без да използваш подсказки", Category = BadgeCategory.OnHintRequesting, ImagePath = "../Images/Badges/Badge_12.png" },
 				new Badge { Id = 13, Title = "Flawless Solver", Description = "Реши 10 шифъра правилно от първия опит", Category = BadgeCategory.OnSolve, ImagePath = "../Images/Badges/Badge_13.png" },
 				new Badge { Id = 14, Title = "Curious Mind", Description = "Използвай подсказки на 25 различни шифъра", Category = BadgeCategory.OnSolve, ImagePath = "../Images/Badges/Badge_14.png" },
-				new Badge { Id = 15, Title = "Against the Odds", Description = "Реши шифър, решен от по-малко от 3 потребители", Category = BadgeCategory.OnSolve, ImagePath = "../Images/Badges/Badge_15.png" }
+				new Badge { Id = 15, Title = "Against the Odds", Description = "Реши шифър, решен от по-малко от 3 потребители", Category = BadgeCategory.OnSolve, ImagePath = "../Images/Badges/Badge_15.png" },
+				new Badge { Id = 16, Title = "Luminous Secret", Description = "Открий скритото съдържание чрез ултравиолетова светлина", Category = BadgeCategory.OnSecretRevealing, ImagePath = "../Images/Badges/Badge_16.png" }
 			);
 
 			builder.Entity<Tag>().HasData(

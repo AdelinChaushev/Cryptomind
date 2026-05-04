@@ -71,5 +71,6 @@ namespace Cryptomind.Core.Services
 			return await solutionRepo.GetAllAttached()
 				.CountAsync(s => s.UserId == userId && s.IsCorrect && s.IsRareSolved);
 		}
+		public async Task<bool> HasRevealedSecret (string userId) => userRepo.GetById(userId).HasRevealedSecret;
 	}
 }

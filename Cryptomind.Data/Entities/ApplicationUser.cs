@@ -28,6 +28,7 @@ namespace Cryptomind.Data.Entities
 		public int SolvedCount => CipherAnswers.Count(x => x.IsCorrect);
 		public int AttemptedCiphersCount => CipherAnswers.Select(x => x.CipherId).Distinct().Count();
 		public double SuccessRate => AttemptedCiphersCount == 0 ? 0 : ((double)SolvedCount / AttemptedCiphersCount) * 100;
+		public bool HasRevealedSecret { get; set; }
 		public ICollection<Cipher> UploadedCiphers { get; set; }
 		public ICollection<UserSolution> CipherAnswers { get; set; }
 		public ICollection<HintRequest> HintsRequested { get; set; }

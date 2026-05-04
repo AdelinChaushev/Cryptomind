@@ -40,6 +40,8 @@ namespace Cryptomind.Core.Services
 			{ 13, new PerfectSolveCountCriteria(statsService, 10) },
 			{ 14, new HintUsageCountCriteria(statsService, 25)},
 			{ 15, new RareSolveCriteria(statsService, 25)},
+
+			{ 16, new RevealSecretCriteria(statsService)}
 		};
 		public async Task CheckBadgesByCategory(string userId, BadgeCategory category)
 		{
