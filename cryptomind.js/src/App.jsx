@@ -36,6 +36,7 @@ import AccountInfo from './account-page/AccountInfo.jsx';
 import { NotificationProvider } from './NotificationProvider.jsx';
 import RaceRoomPage from './race-rooms/RaceRoomPage.jsx';
 import DailyChallengePage from './daily-challenge/DailyChallengePage.jsx';
+import SecretRevealPage from './pages/SecretRevealPage.jsx';
 export const AuthorizationContext = createContext({roles : [], isLoggedIn: false , isBanned : false , bannedMessage : "",email : ""});
 export const NotificationContext = createContext(null);
 export const useNotificationContext = () => useContext(NotificationContext);
@@ -96,6 +97,7 @@ function App() {
         <Route path="admin/deleted-ciphers" element={<RequireAuth allowedRoles="Admin" ><DeletedCiphers /></RequireAuth>} />
         <Route path="race-room" element={<RequireAuth><RaceRoomPage /></RequireAuth>} />
         <Route path="daily-challenge" element={<RequireAuth><DailyChallengePage /></RequireAuth>} />
+        <Route path="r7f1a3b82-9e4d-4c5a-b2f1-6d8e9a0c3f4b" element={<RequireAuth><SecretRevealPage /></RequireAuth>} />
         {!state.isLoggedIn ?(<Route index element={<Home/>} />) : (<Route index element={<RequireAuth ><CipherBrowsePage/></RequireAuth>}  />)}
       </Route>
     </Routes>

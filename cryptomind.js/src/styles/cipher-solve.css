@@ -145,6 +145,16 @@ body {
     align-items: start;
 }
 
+.solve-grid--experimental {
+    grid-template-columns: minmax(0, 760px);
+    justify-content: center;
+}
+
+.solve-grid--experimental .solve-main {
+    align-items: stretch;
+    width: 100%;
+}
+
 .solve-main {
     display: flex;
     flex-direction: column;

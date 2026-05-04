@@ -92,7 +92,7 @@ namespace Cryptomind.Core.Services
 				throw new NotFoundException(UserConstants.UserNotFound);
 
 			if (user.HasRevealedSecret)
-				throw new InvalidOperationException(UserConstants.AlreadyClaimedSecretReward);
+				throw new ConflictException(UserConstants.AlreadyClaimedSecretReward);
 
 			user.HasRevealedSecret = true;
 			await userManager.UpdateAsync(user);

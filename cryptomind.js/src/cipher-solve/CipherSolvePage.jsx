@@ -232,7 +232,7 @@ function CipherSolvePage() {
   return (
     <>
       <main className="solve-page">
-        <div className="solve-grid">
+        <div className={`solve-grid${cipher.challengeTypeDisplay === "Experimental" ? " solve-grid--experimental" : ""}`}>
           <div className="solve-main">
             <CipherHeader cipher={cipher} />
 

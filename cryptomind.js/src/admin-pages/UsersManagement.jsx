@@ -18,6 +18,8 @@ const UsersManagement = () => {
     const [showDeactivated, setShowDeactivated] = useState(false);
     const [banModal, setBanModal] = useState({ open: false, userId: null, username: '' });
     const [banReason, setBanReason] = useState('');
+    const [promoteModal, setPromoteModal] = useState({ open: false, userId: null, username: '' });
+    const [promoting, setPromoting] = useState(false);
 
     useEffect(() => {
         const timer = setTimeout(() => setDebouncedUsername(usernameFilter), 300);
@@ -39,14 +41,27 @@ const UsersManagement = () => {
 
     useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
-    const handlePromote = useCallback(async (userId) => {
+    const openPromoteModal = useCallback((userId, username) => {
+        setPromoteModal({ open: true, userId, username });
+    }, []);
+
+    const closePromoteModal = useCallback(() => {
+        setPromoteModal({ open: false, userId: null, username: '' });
+    }, []);
+
+    const handleConfirmPromote = useCallback(async () => {
+        if (!promoteModal.userId) return;
+        setPromoting(true);
         try {
-            await axios.put(`${API_BASE}/user/${userId}/admin`);
+            await axios.put(`${API_BASE}/user/${promoteModal.userId}/admin`);
+            setPromoteModal({ open: false, userId: null, username: '' });
             fetchUsers();
         } catch (err) {
-            setGlobalError(`Неуспешно повишаване: ${err.response?.data?.message || err.message}`);
+            setGlobalError(`Неуспешно повишаване: ${err.response?.data?.error || err.response?.data?.message || err.message}`);
+        } finally {
+            setPromoting(false);
         }
-    }, [fetchUsers]);
+    }, [promoteModal.userId, fetchUsers]);
 
     const openBanModal = useCallback((userId, username) => {
         setBanModal({ open: true, userId, username });
@@ -84,7 +99,7 @@ const UsersManagement = () => {
     const renderActions = (user) => (
         <>
             {!user.isAdmin && !(showBanned || showDeactivated) && (
-                <button onClick={() => handlePromote(user.id)} className="btn btn-primary btn-sm">
+                <button onClick={() => openPromoteModal(user.id, user.username)} className="btn btn-primary btn-sm">
                     Повиши до Администратор
                 </button>
             )}
@@ -214,6 +229,24 @@ const UsersManagement = () => {
                         <div className="modal-actions">
                             <button onClick={closeBanModal} className="btn btn-ghost">Отказ</button>
                             <button onClick={handleConfirmBan} className="btn btn-danger">Блокирай потребителя</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {promoteModal.open && (
+                <div className="modal-backdrop" onClick={promoting ? undefined : closePromoteModal}>
+                    <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-title">Повишаване до администратор: {promoteModal.username}</div>
+                        <p style={{ fontSize: '13px', color: 'var(--text-tertiary)', lineHeight: '1.6', marginBottom: '12px' }}>
+                            Сигурни ли сте, че искате да повишите <strong>{promoteModal.username}</strong> до администратор?
+                            Този потребител ще получи пълен достъп до администраторския панел и не може лесно да бъде понижен или блокиран.
+                        </p>
+                        <div className="modal-actions">
+                            <button onClick={closePromoteModal} className="btn btn-ghost" disabled={promoting}>Отказ</button>
+                            <button onClick={handleConfirmPromote} className="btn btn-primary" disabled={promoting}>
+                                {promoting ? 'Повишаване...' : 'Да, повиши до администратор'}
+                            </button>
                         </div>
                     </div>
                 </div>
