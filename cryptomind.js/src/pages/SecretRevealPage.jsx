@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useError } from '../ErrorContext';
 import '../styles/secret-reveal.css';
+import badgeImg from '../../../Images/Badges/Badge_16.png';
 
 const API_BASE = import.meta.env.VITE_API_URL;
 const REVEAL_ENDPOINT = `${API_BASE}/api/user/7f1a3b82-9e4d-4c5a-b2f1-6d8e9a0c3f4b`;
@@ -10,7 +11,7 @@ const REVEAL_ENDPOINT = `${API_BASE}/api/user/7f1a3b82-9e4d-4c5a-b2f1-6d8e9a0c3f
 function SecretRevealPage() {
     const navigate = useNavigate();
     const { setError } = useError();
-    const [status, setStatus] = useState('idle');
+    const [status, setStatus] = useState('success');
     const [errorMessage, setErrorMessage] = useState('');
     const [alreadyClaimed, setAlreadyClaimed] = useState(false);
 
@@ -57,22 +58,43 @@ function SecretRevealPage() {
         }
     };
 
+    /* Shared floating badge scene used in success & already-claimed states */
+    const FloatingBadge = () => (
+        <div className="secret-badge-scene">
+            {/* Ambient sparks orbiting the badge */}
+            <span className="badge-spark" />
+            <span className="badge-spark" />
+            <span className="badge-spark" />
+            <span className="badge-spark" />
+            <span className="badge-spark" />
+            <span className="badge-spark" />
+
+            {/* Spinning conic rings */}
+            <div className="badge-ring" />
+            <div className="badge-ring-inner" />
+
+            {/* The actual badge image */}
+            <img
+                src="../../../Images/Badges/Badge_16.png"
+                alt="UV Uncovered – Secrets Found"
+                className="secret-badge-image"
+                onError={(e) => { e.target.style.display = 'none'; }}
+            />
+
+            {/* Ground shadow */}
+            <div className="badge-shadow" />
+        </div>
+    );
+
     const renderPanelBody = () => {
         if (status === 'success') {
             return (
                 <div className="secret-state secret-state--success">
-                    <div className="secret-badge-glow">
-                        <img
-                            src="/Images/Badges/Badge_16.png"
-                            alt="Светеща тайна"
-                            className="secret-badge-image"
-                            onError={(e) => { e.target.style.display = 'none'; }}
-                        />
-                    </div>
+                    <FloatingBadge />
                     <h2 className="secret-state-title">Поздравления!</h2>
                     <p className="secret-state-text">
                         Открихте скритото послание чрез ултравиолетова светлина.
-                        Значката <strong>„Светеща тайна“</strong> вече е във вашия профил.
+                        Значката <strong>„Светеща тайна"</strong> вече е във вашия профил.
                     </p>
                     <button className="btn-secret-primary" onClick={() => navigate('/account-info')}>
                         Към моя акаунт
@@ -84,10 +106,10 @@ function SecretRevealPage() {
         if (alreadyClaimed || status === 'already') {
             return (
                 <div className="secret-state secret-state--claimed">
-                    <div className="secret-state-icon">✓</div>
+                    <FloatingBadge />
                     <h2 className="secret-state-title">Вече сте получили наградата</h2>
                     <p className="secret-state-text">
-                        {errorMessage || 'Значката „Светеща тайна“ вече присъства във вашия профил. Не можете да я заявите повторно.'}
+                        {errorMessage || 'Значката „Светеща тайна" вече присъства във вашия профил. Не можете да я заявите повторно.'}
                     </p>
                     <button className="btn-secret-ghost" onClick={() => navigate('/account-info')}>
                         Виж значките си
@@ -104,7 +126,7 @@ function SecretRevealPage() {
                 <h2 className="secret-state-title">Заяви ексклузивната значка</h2>
                 <p className="secret-state-text">
                     Натиснете бутона по-долу, за да добавите значката
-                    <strong> „Светеща тайна“</strong> към своя профил.
+                    <strong> „Светеща тайна"</strong> към своя профил.
                 </p>
 
                 {errorMessage && status === 'error' && (
@@ -141,7 +163,7 @@ function SecretRevealPage() {
                     Разкриване на <span>тайната</span>
                 </h1>
                 <p className="secret-page-subtitle">
-                    Стигнахте до скритата страница. Заявете ексклузивната значка „Luminous Secret“ за своя профил.
+                    Стигнахте до скритата страница. Заявете ексклузивната значка „Luminous Secret" за своя профил.
                 </p>
             </div>
 

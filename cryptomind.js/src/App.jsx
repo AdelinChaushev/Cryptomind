@@ -97,7 +97,7 @@ function App() {
         <Route path="admin/deleted-ciphers" element={<RequireAuth allowedRoles="Admin" ><DeletedCiphers /></RequireAuth>} />
         <Route path="race-room" element={<RequireAuth><RaceRoomPage /></RequireAuth>} />
         <Route path="daily-challenge" element={<RequireAuth><DailyChallengePage /></RequireAuth>} />
-        <Route path="r7f1a3b82-9e4d-4c5a-b2f1-6d8e9a0c3f4b" element={<RequireAuth><SecretRevealPage /></RequireAuth>} />
+        <Route path="7f1a3b82-9e4d-4c5a-b2f1-6d8e9a0c3f4b" element={<RequireAuth><SecretRevealPage /></RequireAuth>} />
         {!state.isLoggedIn ?(<Route index element={<Home/>} />) : (<Route index element={<RequireAuth ><CipherBrowsePage/></RequireAuth>}  />)}
       </Route>
     </Routes>
