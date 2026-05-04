@@ -23,8 +23,7 @@ function SecretRevealPage() {
                     setAlreadyClaimed(true);
                 }
             })
-            .catch(() => {
-            });
+            .catch(() => { });
     }, []);
 
     const handleReveal = async () => {
@@ -37,14 +36,14 @@ function SecretRevealPage() {
             await axios.put(REVEAL_ENDPOINT, {}, { withCredentials: true });
             setStatus('success');
         } catch (err) {
-            const status = err.response?.status;
+            const code = err.response?.status;
             const message = err.response?.data?.error || err.response?.data?.title;
 
-            if (status === 409) {
+            if (code === 409) {
                 setAlreadyClaimed(true);
                 setErrorMessage(message || 'Вече сте получили наградата от разкриването на тайната.');
                 setStatus('already');
-            } else if (status === 401) {
+            } else if (code === 401) {
                 setErrorMessage('Трябва да сте вписани, за да заявите наградата.');
                 setStatus('error');
                 setError('Трябва да сте вписани, за да заявите наградата.');
@@ -58,10 +57,10 @@ function SecretRevealPage() {
         }
     };
 
-    const renderContent = () => {
+    const renderPanelBody = () => {
         if (status === 'success') {
             return (
-                <div className="secret-result secret-result--success">
+                <div className="secret-state secret-state--success">
                     <div className="secret-badge-glow">
                         <img
                             src="/Images/Badges/Badge_16.png"
@@ -70,12 +69,12 @@ function SecretRevealPage() {
                             onError={(e) => { e.target.style.display = 'none'; }}
                         />
                     </div>
-                    <h2 className="secret-success-title">Поздравления!</h2>
-                    <p className="secret-success-text">
+                    <h2 className="secret-state-title">Поздравления!</h2>
+                    <p className="secret-state-text">
                         Открихте скритото послание чрез ултравиолетова светлина.
-                        Значката <strong>„Светеща тайна“</strong> е добавена към вашия профил.
+                        Значката <strong>„Светеща тайна“</strong> вече е във вашия профил.
                     </p>
-                    <button className="secret-cta" onClick={() => navigate('/account-info')}>
+                    <button className="btn-secret-primary" onClick={() => navigate('/account-info')}>
                         Към моя акаунт
                     </button>
                 </div>
@@ -84,13 +83,13 @@ function SecretRevealPage() {
 
         if (alreadyClaimed || status === 'already') {
             return (
-                <div className="secret-result secret-result--claimed">
-                    <div className="secret-icon">✓</div>
-                    <h2 className="secret-claimed-title">Вече сте получили наградата</h2>
-                    <p className="secret-claimed-text">
+                <div className="secret-state secret-state--claimed">
+                    <div className="secret-state-icon">✓</div>
+                    <h2 className="secret-state-title">Вече сте получили наградата</h2>
+                    <p className="secret-state-text">
                         {errorMessage || 'Значката „Светеща тайна“ вече присъства във вашия профил. Не можете да я заявите повторно.'}
                     </p>
-                    <button className="secret-cta secret-cta--ghost" onClick={() => navigate('/account-info')}>
+                    <button className="btn-secret-ghost" onClick={() => navigate('/account-info')}>
                         Виж значките си
                     </button>
                 </div>
@@ -98,29 +97,32 @@ function SecretRevealPage() {
         }
 
         return (
-            <div className="secret-reveal-card">
-                <div className="secret-reveal-glyph">⟁</div>
-                <h1 className="secret-reveal-title">Разкриване на тайната</h1>
-                <p className="secret-reveal-subtitle">
-                    Стигнахте до скритата страница. Натиснете бутона по-долу, за да заявите ексклузивната значка
-                    <strong> „Светеща тайна“</strong>.
+            <div className="secret-state">
+                <div className="secret-glyph">
+                    <span className="secret-glyph-mark">✶</span>
+                </div>
+                <h2 className="secret-state-title">Заяви ексклузивната значка</h2>
+                <p className="secret-state-text">
+                    Натиснете бутона по-долу, за да добавите значката
+                    <strong> „Светеща тайна“</strong> към своя профил.
                 </p>
 
                 {errorMessage && status === 'error' && (
-                    <div className="secret-error">
-                        ⚠ {errorMessage}
+                    <div className="secret-error-box">
+                        <span className="secret-error-icon">⚠</span>
+                        <span>{errorMessage}</span>
                     </div>
                 )}
 
                 <button
-                    className="secret-cta"
+                    className="btn-secret-primary"
                     onClick={handleReveal}
                     disabled={status === 'loading'}
                 >
                     {status === 'loading' ? 'Заявяване...' : 'Заяви значката'}
                 </button>
 
-                <p className="secret-reveal-hint">
+                <p className="secret-hint">
                     Тази награда може да бъде заявена само веднъж за всеки акаунт.
                 </p>
             </div>
@@ -128,11 +130,33 @@ function SecretRevealPage() {
     };
 
     return (
-        <main className="secret-reveal-page">
-            <div className="secret-reveal-shell">
-                {renderContent()}
+        <div className="secret-page">
+            <div className="secret-page-header">
+                <div className="secret-breadcrumb">
+                    <span>Начало</span>
+                    <span className="breadcrumb-sep">/</span>
+                    <span className="breadcrumb-current">Разкрита тайна</span>
+                </div>
+                <h1 className="secret-page-title">
+                    Разкриване на <span>тайната</span>
+                </h1>
+                <p className="secret-page-subtitle">
+                    Стигнахте до скритата страница. Заявете ексклузивната значка „Luminous Secret“ за своя профил.
+                </p>
             </div>
-        </main>
+
+            <div className="secret-layout">
+                <section className="secret-panel">
+                    <header className="secret-panel-header">
+                        <span className="secret-panel-icon">⟁</span>
+                        <span className="secret-panel-title">Скрита награда</span>
+                    </header>
+                    <div className="secret-panel-body">
+                        {renderPanelBody()}
+                    </div>
+                </section>
+            </div>
+        </div>
     );
 }
 
