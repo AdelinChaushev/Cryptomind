@@ -8,11 +8,11 @@ namespace Cryptomind.Core.Middlewares
 {
 	public class BanCheckMiddleware
 	{
-		private readonly RequestDelegate _next;
+		private readonly RequestDelegate next;
 
 		public BanCheckMiddleware(RequestDelegate next)
 		{
-			_next = next;
+			this.next = next;
 		}
 
 		public async Task InvokeAsync(HttpContext context, UserManager<ApplicationUser> userManager)
@@ -21,7 +21,7 @@ namespace Cryptomind.Core.Middlewares
 
 			if (path.StartsWith("/api/auth/logout") || path.StartsWith("/notificationhub"))
 			{
-				await _next(context);
+				await next(context);
 				return;
 			}
 
@@ -46,7 +46,7 @@ namespace Cryptomind.Core.Middlewares
 				}
 			}
 
-			await _next(context);
+			await next(context);
 		}
 	}
 }

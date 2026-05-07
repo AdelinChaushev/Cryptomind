@@ -64,6 +64,7 @@ namespace Cryptomind.Controllers
 			}
 			return Ok(cipher);
 		}
+
 		[HttpGet("cipher/{id}/analyze")]
 		public async Task<IActionResult> AnalyzeCipher([FromRoute] int id)
 		{
@@ -93,13 +94,13 @@ namespace Cryptomind.Controllers
 			return Ok();
 		}
 
-
 		[HttpPut("cipher/{id}/delete")]
 		public async Task<IActionResult> DeleteCipher([FromRoute] int id)
 		{
 			await adminCipherService.SoftDeleteCipher(id);
 			return Ok();
 		}
+
 		[HttpPut("cipher/{id}/restore")]
 		public async Task<IActionResult> RestoreCipher([FromRoute] int id, [FromQuery] string? newTitle = null)
 		{

@@ -36,10 +36,12 @@ namespace Cryptomind.Controllers
 			ApplicationUser user = await authService.Authenticate(model.Email, model.Password);
 			string token = await authService.GenerateJSONWebToken(user);
 			AddCookie(token);
+
 			if (user.IsBanned)
 			{
 				throw new BannedException(user.BanReason);
 			}
+
 			var roles = await userService.GetRolesUsers(user.Id);
 			var email = await userService.GetEmail(user.Id);
 

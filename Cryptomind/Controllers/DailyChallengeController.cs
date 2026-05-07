@@ -27,6 +27,5 @@ namespace Cryptomind.Controllers
 			var result = await dailyChallengeService.SubmitAnswerAsync(userId, dto.Answer);
 			return Ok(result);
 		}
-
 	}
 }

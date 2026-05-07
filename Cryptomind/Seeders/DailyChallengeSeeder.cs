@@ -167,7 +167,7 @@ namespace Cryptomind.Seeders
 
 			for (int i = 0; i < Quotes.Count; i++)
 			{
-				var (cipherName, cipherType) = CipherTypes[i % CipherTypes.Count];
+				var (cipherName, cipherType) = CipherTypes[i % CipherTypes.Count]; //Periodically repeating
 				string plainText = Quotes[i];
 
 				string encryptedText = cipherName switch
